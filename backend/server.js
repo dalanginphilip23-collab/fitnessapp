@@ -21,8 +21,6 @@ app.set("trust proxy", 1);
 // ============================
 
 const ALLOWED_ORIGINS = [
-  "http://localhost:5173",
-  "http://localhost:3000",
   process.env.CLIENT_URL,
   "https://fitness-app1-chi.vercel.app/",
   "https://fitnessapp-0cgj.onrender.com",

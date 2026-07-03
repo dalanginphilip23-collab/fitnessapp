@@ -14,7 +14,7 @@ import './index.css'
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <GoogleOAuthProvider clientId="279551705620-1qkbafgsfmbto1rstr59am1l8mf6on4g.apps.googleusercontent.com">
+  <GoogleOAuthProvider clientId="279551705620-lie222f59ih15va3vn4jva0dulsov6a1.apps.googleusercontent.com">
     <BrowserRouter>
       <StrictMode>
         <App />
