@@ -25,7 +25,7 @@ const ALLOWED_ORIGINS = [
   "http://localhost:3000",
   process.env.CLIENT_URL,
   "https://your-frontend.vercel.app",
-  "https://fitness-app-backend-nkh0.onrender.com",
+  "https://fitnessapp-0cgj.onrender.com",
 ];
 
 // ============================
