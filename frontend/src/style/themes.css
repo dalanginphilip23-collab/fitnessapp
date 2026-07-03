@@ -1,0 +1,136 @@
+/* styles/themes.css - CSS Variables for both themes */
+
+/* Default dark theme variables */
+:root,
+.dark-theme {
+  /* Background colors */
+  --bg-primary: #0e0e0e;
+  --bg-secondary: #131313;
+  --bg-tertiary: #1c1b1b;
+  --bg-card: #141414;
+  --bg-hover: rgba(255, 255, 255, 0.05);
+  --bg-active: rgba(209, 253, 82, 0.08);
+  
+  /* Surface colors */
+  --surface: #131313;
+  --surface-hover: #1a1a1a;
+  --surface-active: #1e1e1e;
+  
+  /* Text colors */
+  --text-primary: #e5e2e1;
+  --text-secondary: #a0a0a0;
+  --text-muted: #555555;
+  --text-disabled: #333333;
+  
+  /* Border colors */
+  --border-light: rgba(255, 255, 255, 0.06);
+  --border-medium: rgba(255, 255, 255, 0.1);
+  --border-heavy: rgba(255, 255, 255, 0.15);
+  
+  /* Accent colors (keep brand green) */
+  --accent: #D1FD52;
+  --accent-dark: #c7f248;
+  --accent-light: #e0ff7a;
+  --accent-bg: rgba(209, 253, 82, 0.1);
+  --accent-border: rgba(209, 253, 82, 0.2);
+  
+  /* Shadow */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
+  
+  /* Input */
+  --input-bg: rgba(255, 255, 255, 0.05);
+  --input-border: rgba(255, 255, 255, 0.1);
+  --input-focus: rgba(209, 253, 82, 0.3);
+  
+  /* Scrollbar */
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+}
+
+/* Light theme overrides */
+.light-theme {
+  /* Background colors */
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f0f0f0;
+  --bg-card: #ffffff;
+  --bg-hover: rgba(0, 0, 0, 0.03);
+  --bg-active: rgba(209, 253, 82, 0.12);
+  
+  /* Surface colors */
+  --surface: #ffffff;
+  --surface-hover: #f8f8f8;
+  --surface-active: #f0f0f0;
+  
+  /* Text colors */
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a4a;
+  --text-muted: #888888;
+  --text-disabled: #cccccc;
+  
+  /* Border colors */
+  --border-light: rgba(0, 0, 0, 0.08);
+  --border-medium: rgba(0, 0, 0, 0.12);
+  --border-heavy: rgba(0, 0, 0, 0.2);
+  
+  /* Accent colors (brand green - slightly adjusted for light mode) */
+  --accent: #b8e832;
+  --accent-dark: #a8d82a;
+  --accent-light: #c8f842;
+  --accent-bg: rgba(184, 232, 50, 0.1);
+  --accent-border: rgba(184, 232, 50, 0.25);
+  
+  /* Shadow */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
+  
+  /* Input */
+  --input-bg: rgba(0, 0, 0, 0.02);
+  --input-border: rgba(0, 0, 0, 0.1);
+  --input-focus: rgba(184, 232, 50, 0.3);
+  
+  /* Scrollbar */
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(0, 0, 0, 0.1);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.2);
+}
+
+/* Smooth transition for theme switching */
+* {
+  transition: 
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Apply theme variables to common elements */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
