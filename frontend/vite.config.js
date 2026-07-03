@@ -59,7 +59,7 @@ export default defineConfig({
   server: {
   proxy: {
     '/api': {
-      target: 'https://fitness-app-backend-nkh0.onrender.com',
+      target: 'https://fitnessapp-0cgj.onrender.com',
       changeOrigin: true,
     }
   }
