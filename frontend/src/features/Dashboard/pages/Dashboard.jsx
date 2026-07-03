@@ -19,7 +19,7 @@ import FeedbackModal from '../../../components/FeedbackModal';
 
 import { useClinicalAI }     from '../hooks/useClinicalAI';
 import { useActivityLogger } from '../hooks/useActivityLogger';
-import { useDashboardData }  from '../hooks/useDashboarDdata';
+import { useDashboardData }  from '../hooks/useDashboardData';
 
 const Dashboard = () => {
   const navigate = useNavigate();
