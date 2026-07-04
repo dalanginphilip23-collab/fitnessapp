@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar, Topbar, MobileNav, Icon } from '../../../components';
+import { API_BASE_URL } from '../../../config/port';
 
 // ─────────────────────────────────────────────
 //  MOCK DATA
@@ -193,7 +194,7 @@ const VoiceCallScreen = ({ doctor, sessionId, onShowAlert, onEndCall }) => {
     setCallStatus('thinking');
 
     try {
-      const res  = await fetch('/api/clinic/message', {
+      const res  = await fetch(`${API_BASE_URL}/api/clinic/message`, {
         method:      'POST',
         headers:     { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -405,7 +406,7 @@ const ChatInterface = ({ doctor, sessionId, onShowAlert, onBack, onStartVoiceCal
     if (!window.confirm('Reset this consultation? All messages will be cleared.')) return;
     setIsResetting(true);
     try {
-      await fetch(`/api/clinic/messages/${sessionId}`, { method: 'DELETE', credentials: 'include' });
+      await fetch(`${API_BASE_URL}/api/clinic/messages/${sessionId}`, { method: 'DELETE', credentials: 'include' });
       setMessages([{ sender: 'ai', text: `Consultation reset. I am ${doctor.name}, your ${doctor.prof}. How can I help you today?` }]);
     } catch {
       onShowAlert('Failed to reset chat. Please try again.');
@@ -418,7 +419,7 @@ const ChatInterface = ({ doctor, sessionId, onShowAlert, onBack, onStartVoiceCal
     if (!sessionId) return;
     const load = async () => {
       try {
-        const res  = await fetch(`/api/clinic/messages/${sessionId}`, { credentials: 'include' });
+        const res  = await fetch(`${API_BASE_URL}/api/clinic/messages/${sessionId}`, { credentials: 'include' });
         const data = await res.json();
         if (data.length > 0) {
           setMessages(data.map(r => ({ sender: r.sender, text: r.message })));
@@ -444,7 +445,7 @@ const ChatInterface = ({ doctor, sessionId, onShowAlert, onBack, onStartVoiceCal
     setIsSending(true);
 
     try {
-      const res  = await fetch('/api/clinic/message', {
+      const res  = await fetch(`${API_BASE_URL}/api/clinic/message`, {
         method:      'POST',
         headers:     { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -559,7 +560,7 @@ const VirtualClinic = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res  = await fetch('/api/auth/me', { credentials: 'include' });
+        const res  = await fetch(`${API_BASE_URL}/api/auth/me`, { credentials: 'include' });
         if (!res.ok) { navigate('/login'); return; }
         const data = await res.json();
         if (!data.user) { navigate('/login'); return; }
@@ -585,7 +586,7 @@ const VirtualClinic = () => {
   const handleDoctorSelect = async (doctor) => {
     if (!currentUser) return;
     try {
-      const res  = await fetch('/api/clinic/session', {
+      const res  = await fetch(`${API_BASE_URL}/api/clinic/session`, {
         method:      'POST',
         headers:     { 'Content-Type': 'application/json' },
         credentials: 'include',
