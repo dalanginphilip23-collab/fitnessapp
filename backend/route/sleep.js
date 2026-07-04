@@ -29,6 +29,7 @@ router.post('/:userId', async (req, res) => {
 
     res.json({ success: true });
   } catch (err) {
+    console.error('[Sleep POST] Error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -38,22 +39,24 @@ router.get('/:userId/today', async (req, res) => {
     const { userId } = req.params;
 
     try {
-    const [rows] = await db.execute(
-    `SELECT sleep_duration, sleep_quality, recovery_score, water_intake_ml, recorded_at
-     FROM sleep_logs
-     WHERE user_id = ?
-     AND sleep_duration > 0
-     ORDER BY recorded_at DESC
-     LIMIT 1`,
-    [userId]
-);
+        const [rows] = await db.execute(
+            `SELECT sleep_duration, sleep_quality, recovery_score, water_intake_ml, recorded_at
+             FROM sleep_logs
+             WHERE user_id = ?
+             AND sleep_duration > 0
+             ORDER BY recorded_at DESC
+             LIMIT 1`,
+            [userId]
+        );
 
         res.json(rows[0] || null);
 
     } catch (err) {
+        console.error('[Sleep Today] Error:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
+
 // --- SLEEP DATA GRAPH ---
 router.get('/:userId', async (req, res) => {
     const { userId } = req.params;
@@ -64,22 +67,34 @@ router.get('/:userId', async (req, res) => {
 
     try {
         const isDaily = range === 'D';
-        const labelFormat   = isDaily ? '%H:%i' : '%m/%d';
-        const groupByClause = isDaily ? 'recorded_at' : 'DATE(recorded_at)';
+        const labelFormat = isDaily ? '%H:%i' : '%m/%d';
 
-        const [rows] = await db.execute(
-            `SELECT DATE_FORMAT(recorded_at, '${labelFormat}') AS label, 
-                    ${isDaily ? `${column}` : `AVG(${column})`} AS value
-             FROM sleep_logs
-             WHERE user_id = ? 
-               AND recorded_at >= DATE_SUB(NOW(), INTERVAL ${interval})
-               AND ${column} > 0
-             GROUP BY ${groupByClause}
-             ORDER BY recorded_at ASC`,
-            [userId]
-        );
+        let query;
+        if (isDaily) {
+            // Each row is its own data point — no aggregation, no GROUP BY needed
+            query = `SELECT DATE_FORMAT(recorded_at, '${labelFormat}') AS label,
+                            ${column} AS value
+                     FROM sleep_logs
+                     WHERE user_id = ?
+                       AND recorded_at >= DATE_SUB(NOW(), INTERVAL ${interval})
+                       AND ${column} > 0
+                     ORDER BY recorded_at ASC`;
+        } else {
+            // Aggregating — GROUP BY must match the exact SELECT expression
+            query = `SELECT DATE_FORMAT(recorded_at, '${labelFormat}') AS label,
+                            AVG(${column}) AS value
+                     FROM sleep_logs
+                     WHERE user_id = ?
+                       AND recorded_at >= DATE_SUB(NOW(), INTERVAL ${interval})
+                       AND ${column} > 0
+                     GROUP BY DATE_FORMAT(recorded_at, '${labelFormat}')
+                     ORDER BY MIN(recorded_at) ASC`;
+        }
+
+        const [rows] = await db.execute(query, [userId]);
         res.json(rows);
     } catch (err) {
+        console.error('[Sleep Graph] Error:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
@@ -102,14 +117,15 @@ router.get('/:userId/analysis', async (req, res) => {
         const isDaily     = range === 'D';
         const labelFormat = isDaily ? '%H:%i' : (range === 'W' ? '%a' : '%m/%d');
 
+        // GROUP BY must match the exact label expression used in SELECT
         const [rows] = await db.execute(
             `SELECT DATE_FORMAT(recorded_at, '${labelFormat}') AS label, 
                     AVG(${column}) AS value
              FROM sleep_logs
              WHERE user_id = ? 
                AND recorded_at >= DATE_SUB(NOW(), INTERVAL ${interval})
-             GROUP BY ${isDaily ? 'HOUR(recorded_at)' : 'DATE(recorded_at)'}
-             ORDER BY recorded_at ASC`,
+             GROUP BY DATE_FORMAT(recorded_at, '${labelFormat}')
+             ORDER BY MIN(recorded_at) ASC`,
             [userId]
         );
         res.json(rows);
