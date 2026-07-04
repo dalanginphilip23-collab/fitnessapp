@@ -196,6 +196,14 @@ router.post('/:userId', async (req, res) => {
 // GET /api/food-logs/:userId
 // Raised default limit to 200 so all records are available for client-side
 // date filtering (DailySummary and MealHistory both rely on full history).
+//
+// NOTE: LIMIT/OFFSET are inlined (not bound as `?` params) because MySQL's
+// binary prepared-statement protocol (used by db.execute()) does not
+// reliably support LIMIT/OFFSET as bound parameters — it throws
+// "Incorrect arguments to mysqld_stmt_execute" even when the values are
+// valid integers. This is safe from SQL injection because `limit` and
+// `offset` are forced through parseInt(...) || default, so they can only
+// ever be actual numbers, never arbitrary strings.
 router.get('/:userId', async (req, res) => {
   const { userId } = req.params;
   const limit  = parseInt(req.query.limit)  || 200;
@@ -205,8 +213,8 @@ router.get('/:userId', async (req, res) => {
     const [rows] = await db.execute(
       `SELECT id, food_name, calories, protein, carbs, fat, image_url,
               DATE_FORMAT(logged_at, '%Y-%m-%d %H:%i') AS logged_at
-       FROM food_logs WHERE user_id = ? ORDER BY logged_at DESC LIMIT ? OFFSET ?`,
-      [userId, limit, offset]
+       FROM food_logs WHERE user_id = ? ORDER BY logged_at DESC LIMIT ${limit} OFFSET ${offset}`,
+      [userId]
     );
     const [[{ total }]] = await db.execute(
       'SELECT COUNT(*) AS total FROM food_logs WHERE user_id = ?',
