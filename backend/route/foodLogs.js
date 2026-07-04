@@ -147,6 +147,14 @@ router.post('/:userId/suggest-plan', async (req, res) => {
 
 
 // POST /api/food-logs/:userId
+//
+// NOTE: The response is sent to the client immediately after the INSERT
+// succeeds. Sending the meal-summary email and writing the notification
+// happen AFTER that, in the background, so a slow/hanging Gmail SMTP
+// connection can no longer make the frontend's "Saving…" spinner hang.
+// If the background steps fail, they only log to the server console —
+// they must NOT try to call res.* again, since the response has already
+// been sent.
 router.post('/:userId', async (req, res) => {
   const { userId } = req.params;
   const { food_name, calories, protein, carbs, fat, image_url } = req.body;
@@ -160,32 +168,38 @@ router.post('/:userId', async (req, res) => {
       [userId, food_name, calories || 0, protein || 0, carbs || 0, fat || 0, image_url || null]
     );
 
-    const [[user]]    = await db.execute('SELECT email FROM users WHERE id = ?', [userId]);
-    const [[summary]] = await db.execute(
-      `SELECT
-         COALESCE(SUM(calories), 0) AS calories,
-         COALESCE(SUM(protein),  0) AS protein,
-         COALESCE(SUM(carbs),    0) AS carbs,
-         COALESCE(SUM(fat),      0) AS fat
-       FROM food_logs
-       WHERE user_id = ? AND DATE(logged_at) = CURDATE()`,
-      [userId]
-    );
+    // ✅ Respond immediately — the meal is saved, don't make the user wait
+    // on email or notifications.
+    res.status(200).json({ message: 'Food log saved', id: result.insertId });
 
-    if (user?.email) {
-      try { await sendMealSummaryEmail(user.email, summary); }
-      catch (err) { console.error('❌ MAILER FAILED:', err.message); }
-    }
-
+    // ── Everything below runs in the background, after the response ────────
     try {
+      const [[user]]    = await db.execute('SELECT email FROM users WHERE id = ?', [userId]);
+      const [[summary]] = await db.execute(
+        `SELECT
+           COALESCE(SUM(calories), 0) AS calories,
+           COALESCE(SUM(protein),  0) AS protein,
+           COALESCE(SUM(carbs),    0) AS carbs,
+           COALESCE(SUM(fat),      0) AS fat
+         FROM food_logs
+         WHERE user_id = ? AND DATE(logged_at) = CURDATE()`,
+        [userId]
+      );
+
+      if (user?.email) {
+        sendMealSummaryEmail(user.email, summary).catch(err =>
+          console.error('❌ MAILER FAILED:', err.message)
+        );
+      }
+
       const msg = `Meal logged! Today: ${Math.round(summary.calories)} kcal | P: ${Math.round(summary.protein)}g | C: ${Math.round(summary.carbs)}g | F: ${Math.round(summary.fat)}g`;
       await db.execute('INSERT INTO notifications (user_id, message) VALUES (?, ?)', [userId, msg]);
       clients.get(String(userId))?.write(`data: ${JSON.stringify({ message: msg, type: 'success' })}\n\n`);
     } catch (err) {
-      console.error('❌ NOTIFICATION FAILED:', err.message);
+      // Response already sent — just log it, never call res.* here
+      console.error('❌ POST-SAVE BACKGROUND TASK FAILED:', err.message);
     }
 
-    res.status(200).json({ message: 'Food log saved', id: result.insertId });
   } catch (err) {
     console.error('[food-log POST] ERROR:', err.message);
     res.status(500).json({ error: 'Database error', details: err.message });
