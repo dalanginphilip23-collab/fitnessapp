@@ -17,10 +17,7 @@ export default defineConfig({
         theme_color: '#0e0e0e',
         background_color: '#0e0e0e',
         display: 'standalone',
-        icons: [
-          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-        ],
+        icons: [], 
       },
       workbox: {
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB limit (default is 2MB)
@@ -57,11 +54,11 @@ export default defineConfig({
     exclude: ['@mediapipe/pose'],
   },
   server: {
-  proxy: {
-    '/api': {
-      target: 'https://fitnessapp-0cgj.onrender.com',
-      changeOrigin: true,
+    proxy: {
+      '/api': {
+        target: 'https://fitnessapp-0cgj.onrender.com',
+        changeOrigin: true,
+      }
     }
-  }
-},
+  },
 })
