@@ -968,10 +968,16 @@ function MealHistory({ meals, loading, onDeleteMeal, selectedDate }) {
                   </p>
                 )}
               </div>
+              {/*
+                Delete icon is now always visible on mobile (opacity-100 by default)
+                and only hidden-until-hover on desktop (sm:opacity-0 sm:group-hover:opacity-100),
+                since touch devices have no hover state and the icon was previously
+                untappable on mobile.
+              */}
               <button
                 onClick={() => handleDelete(meal.id)}
                 disabled={deletingId === meal.id}
-                className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-red-500/20 text-red-400 disabled:opacity-50"
+                className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-red-500/20 text-red-400 disabled:opacity-50"
                 title="Delete meal"
               >
                 {deletingId === meal.id ? <Spinner /> : <Icon name="delete" className="text-sm" />}
