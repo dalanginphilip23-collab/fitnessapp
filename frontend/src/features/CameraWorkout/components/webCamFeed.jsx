@@ -9,7 +9,8 @@ import PoseStatusBadge from "./poseStatusBadge";
 
 const mobileConstraints  = { facingMode: 'user', width: 480,  height: 640 };
 const desktopConstraints = { facingMode: 'user', width: 1280, height: 720 };
-const mobileLandscapeConstraints = { facingMode: 'user', width: 1280, height: 720 };
+// Fullscreen on mobile now stays portrait instead of landscape.
+const mobileFullscreenConstraints = { facingMode: 'user', width: 720, height: 1280 };
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(() =>
@@ -39,18 +40,19 @@ export default function WebcamFeed({
   const containerRef = useRef(null);
 
   const videoConstraints = isFullscreen
-    ? mobileLandscapeConstraints
+    ? mobileFullscreenConstraints
     : isMobile
       ? mobileConstraints
       : desktopConstraints;
 
-  const lockLandscape = useCallback(async () => {
+  // Locks the screen to portrait so fullscreen no longer rotates to landscape.
+  const lockPortrait = useCallback(async () => {
     try {
       if (screen?.orientation?.lock) {
-        await screen.orientation.lock('landscape');
+        await screen.orientation.lock('portrait');
       }
     } catch {
-      // silently ignore
+      // Orientation lock isn't supported everywhere (e.g. iOS Safari) — ignore.
     }
   }, []);
 
@@ -59,7 +61,9 @@ export default function WebcamFeed({
       if (screen?.orientation?.unlock) {
         screen.orientation.unlock();
       }
-    } catch {}
+    } catch {
+      // Nothing to unlock or unsupported — ignore.
+    }
   }, []);
 
   const enterFullscreen = useCallback(async () => {
@@ -69,17 +73,19 @@ export default function WebcamFeed({
       if (el.requestFullscreen)            await el.requestFullscreen();
       else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
       setIsFullscreen(true);
-      await lockLandscape();
+      await lockPortrait();
     } catch (err) {
       console.warn('Fullscreen failed:', err);
     }
-  }, [lockLandscape]);
+  }, [lockPortrait]);
 
   const exitFullscreen = useCallback(() => {
     try {
       if (document.exitFullscreen)            document.exitFullscreen();
       else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-    } catch {}
+    } catch {
+      // Already out of fullscreen or unsupported — ignore.
+    }
     setIsFullscreen(false);
     unlockOrientation();
   }, [unlockOrientation]);
@@ -108,11 +114,11 @@ export default function WebcamFeed({
     <div
       ref={containerRef}
       className={[
-        'col-span-1 lg:col-span-8 relative bg-[var(--bg-card)] overflow-hidden',
-        'border border-[var(--border-light)] shadow-[var(--shadow-lg)]',
+        'col-span-1 lg:col-span-8 relative bg-(--bg-card) overflow-hidden',
+        'border border-(--border-light) shadow-(--shadow-lg)',
         isFullscreen
           ? 'rounded-none w-screen h-screen'
-          : 'rounded-2xl sm:rounded-[2rem] md:rounded-[3rem] aspect-[3/4] sm:aspect-[4/5] md:aspect-video w-full',
+          : 'rounded-2xl sm:rounded-4xl md:rounded-[3rem] aspect-3/4 sm:aspect-4/5 md:aspect-video w-full',
       ].join(' ')}
     >
       <ScanLineOverlay isRecording={isRecording} cameraOn={cameraOn} />
@@ -129,8 +135,8 @@ export default function WebcamFeed({
       )}
 
       {loadError && (
-        <div className="absolute bottom-3 left-3 z-30 bg-[var(--error-bg)] border border-[var(--error)]/30 px-3 py-1.5 rounded-xl">
-          <p className="text-[9px] text-[var(--error)] font-bold uppercase tracking-widest">
+        <div className="absolute bottom-3 left-3 z-30 bg-(--error-bg) border border-(--error)/30 px-3 py-1.5 rounded-xl">
+          <p className="text-[9px] text-(--error) font-bold uppercase tracking-widest">
             Pose AI failed to load — check your connection
           </p>
         </div>
@@ -144,12 +150,12 @@ export default function WebcamFeed({
       {isMobile && (
         <button
           onClick={toggleFullscreen}
-          className="absolute top-3 right-3 z-40 flex items-center justify-center w-9 h-9 rounded-xl bg-[var(--bg-overlay)] border border-[var(--border-medium)] backdrop-blur-sm active:scale-95 transition-transform touch-manipulation"
+          className="absolute top-3 right-3 z-40 flex items-center justify-center w-9 h-9 rounded-xl bg-(--bg-overlay) border border-(--border-medium) backdrop-blur-sm active:scale-95 transition-transform touch-manipulation"
           aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
         >
           <Icon
             name={isFullscreen ? 'fullscreen_exit' : 'fullscreen'}
-            className="text-[var(--text-primary)] text-xl leading-none"
+            className="text-(--text-primary) text-xl leading-none"
           />
         </button>
       )}
