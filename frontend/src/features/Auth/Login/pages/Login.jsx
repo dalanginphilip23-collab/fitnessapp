@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useLogin } from '../hooks/useLogin';
 
+const ACCENT        = '#8FBF63';
+const ACCENT_HOVER  = '#9DCB72';
+const ACCENT_BORDER = 'rgba(143, 191, 99, 0.22)';
+const ACCENT_TINT   = 'rgba(143, 191, 99, 0.05)';
+
 const Login = () => {
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
@@ -11,17 +16,17 @@ const Login = () => {
   return (
     <div
       data-theme="dark"
-      className="relative min-h-screen min-h-[100dvh] w-full bg-[var(--bg-primary)] font-['DM_Sans'] text-[var(--text-primary)] overflow-x-hidden"
+      className="relative min-h-screen min-h-[100dvh] w-full bg-[#0e0e0e] font-['DM_Sans'] text-[#e5e2e1] overflow-x-hidden"
     >
 
       <style>{`
         .vitalis-vignette {
-          background: radial-gradient(ellipse at center, transparent 30%, var(--bg-primary) 100%);
+          background: radial-gradient(ellipse at center, transparent 30%, #0e0e0e 100%);
         }
         .vitalis-grid {
           background-image:
-            linear-gradient(var(--accent-border) 1px, transparent 1px),
-            linear-gradient(90deg, var(--accent-border) 1px, transparent 1px);
+            linear-gradient(${ACCENT_TINT} 1px, transparent 1px),
+            linear-gradient(90deg, ${ACCENT_TINT} 1px, transparent 1px);
           background-size: 32px 32px;
         }
         @media (min-width: 640px) {
@@ -31,7 +36,7 @@ const Login = () => {
           position: absolute;
           top: 0; left: 0; right: 0;
           height: 2px;
-          background: linear-gradient(90deg, transparent, var(--accent), transparent);
+          background: linear-gradient(90deg, transparent, ${ACCENT}, transparent);
           border-radius: 999px;
           animation: vitalis-scan 3s ease-in-out infinite;
           opacity: 0.6;
@@ -109,26 +114,26 @@ const Login = () => {
 
         {/* Left Hero Panel — desktop only */}
         <div className="hidden lg:flex flex-col justify-center p-14 gap-4">
-          <span className="v-hero-eyebrow text-[11px] font-semibold tracking-[0.35em] uppercase text-[var(--accent)] opacity-80">
+          <span className="v-hero-eyebrow text-[11px] font-semibold tracking-[0.35em] uppercase opacity-80" style={{ color: ACCENT }}>
             Vitalis Performance OS
           </span>
           <h1 className="v-hero-h1 font-['Bebas_Neue'] text-[clamp(56px,6vw,88px)] leading-[0.95] tracking-wider">
             TRAIN<br />
             HARDER.<br />
-            <span className="text-[var(--accent)]">RECOVER</span><br />
+            <span style={{ color: ACCENT }}>RECOVER</span><br />
             SMARTER.
           </h1>
-          <p className="v-hero-sub text-[13px] text-[var(--text-primary)]/45 max-w-[320px] leading-relaxed font-light mt-1">
+          <p className="v-hero-sub text-[13px] text-[#e5e2e1]/45 max-w-[320px] leading-relaxed font-light mt-1">
             AI-powered biometric tracking that adapts to your body in real time. Every rep, every rest, optimized.
           </p>
 
           <div className="v-hero-stats flex gap-8 mt-6 pt-6 border-t border-white/10">
             <div className="flex flex-col">
-              <span className="font-['Bebas_Neue'] text-3xl text-[var(--accent)] leading-none">12K+</span>
+              <span className="font-['Bebas_Neue'] text-3xl leading-none" style={{ color: ACCENT }}>12K+</span>
               <span className="text-[10px] tracking-widest uppercase text-white/30">Athletes</span>
             </div>
             <div className="flex flex-col">
-              <span className="font-['Bebas_Neue'] text-3xl text-[var(--accent)] leading-none">98%</span>
+              <span className="font-['Bebas_Neue'] text-3xl leading-none" style={{ color: ACCENT }}>98%</span>
               <span className="text-[10px] tracking-widest uppercase text-white/30">Recovery</span>
             </div>
           </div>
@@ -136,21 +141,24 @@ const Login = () => {
 
         {/* Right Glass Panel */}
         <div className="flex items-center justify-center px-4 py-8 sm:px-6 sm:py-10 lg:p-8 min-h-screen min-h-[100dvh] lg:min-h-0">
-          <div className="v-card relative w-full max-w-[400px] bg-[#121210]/65 backdrop-blur-[32px] saturate-[140%] border border-[var(--accent-border)] rounded-[20px] p-6 sm:p-8 md:p-10 shadow-[0_32px_80px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.06)] my-auto">
+          <div
+            className="v-card relative w-full max-w-[400px] bg-[#121210]/65 backdrop-blur-[32px] saturate-[140%] rounded-[20px] p-6 sm:p-8 md:p-10 shadow-[0_32px_80px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.06)] my-auto"
+            style={{ border: `1px solid ${ACCENT_BORDER}` }}
+          >
 
             <div className="vitalis-scan-bar" />
 
             {/* Logo */}
             <div className="v-card-logo flex items-center gap-3 mb-7 sm:mb-9">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 bg-[var(--accent)] rounded-lg flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: ACCENT }}>
                 <svg viewBox="0 0 24 24" className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] fill-none stroke-[#161f00] stroke-[2.2] stroke-linecap-round stroke-linejoin-round">
                   <path d="M3 12h3l3-8 4 16 3-10 2 2h3" />
                 </svg>
               </div>
-              <span className="font-['Bebas_Neue'] text-[20px] sm:text-[22px] tracking-[0.12em]">VITALIS</span>
+              <span className="font-['Bebas_Neue'] text-[20px] sm:text-[22px] tracking-[0.12em] text-[#e5e2e1]">VITALIS</span>
             </div>
 
-            <h2 className="v-card-title font-['Bebas_Neue'] text-[26px] sm:text-[32px] tracking-wider leading-none mb-1.5">ACCESS PORTAL</h2>
+            <h2 className="v-card-title font-['Bebas_Neue'] text-[26px] sm:text-[32px] tracking-wider leading-none mb-1.5 text-[#e5e2e1]">ACCESS PORTAL</h2>
             <p className="v-card-sub text-xs text-[#c4c9b0]/55 tracking-wide mb-6 sm:mb-8">Enter credentials to synchronize biometrics.</p>
 
             <form onSubmit={(e) => handleSubmit(e, { email, password })} className="space-y-4 sm:space-y-5">
@@ -162,12 +170,19 @@ const Login = () => {
 
               {/* Email */}
               <div className="v-card-field1 relative">
-                <label className={`block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 transition-colors ${focused === 'email' ? 'text-[var(--accent)]' : 'text-white/50'}`}>
+                <label
+                  className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 transition-colors"
+                  style={{ color: focused === 'email' ? ACCENT : 'rgba(255,255,255,0.5)' }}
+                >
                   Email Address
                 </label>
                 <input
                   type="email"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all focus:border-[var(--accent)]/50 focus:bg-[var(--accent)]/5 focus:ring-4 focus:ring-[var(--accent)]/10 placeholder:text-white/10"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                  style={{
+                    borderColor: focused === 'email' ? `${ACCENT}80` : undefined,
+                    backgroundColor: focused === 'email' ? `${ACCENT}0d` : undefined,
+                  }}
                   placeholder="athlete@vitalis.io"
                   required
                   value={email}
@@ -179,12 +194,19 @@ const Login = () => {
 
               {/* Password */}
               <div className="v-card-field2 relative">
-                <label className={`block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 transition-colors ${focused === 'password' ? 'text-[var(--accent)]' : 'text-white/50'}`}>
+                <label
+                  className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 transition-colors"
+                  style={{ color: focused === 'password' ? ACCENT : 'rgba(255,255,255,0.5)' }}
+                >
                   Password
                 </label>
                 <input
                   type="password"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all focus:border-[var(--accent)]/50 focus:bg-[var(--accent)]/5 focus:ring-4 focus:ring-[var(--accent)]/10 placeholder:text-white/10"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                  style={{
+                    borderColor: focused === 'password' ? `${ACCENT}80` : undefined,
+                    backgroundColor: focused === 'password' ? `${ACCENT}0d` : undefined,
+                  }}
                   placeholder="••••••••••••"
                   required
                   value={password}
@@ -195,7 +217,13 @@ const Login = () => {
               </div>
 
               <div className="v-card-forgot flex justify-end -mt-2 sm:-mt-3">
-                <a href="/reset-password" className="text-[10px] font-semibold tracking-widest uppercase text-[var(--accent)]/70 hover:text-[var(--accent)] transition-colors">
+                <a
+                  href="/reset-password"
+                  className="text-[10px] font-semibold tracking-widest uppercase transition-colors"
+                  style={{ color: `${ACCENT}b3` }}
+                  onMouseEnter={e => e.currentTarget.style.color = ACCENT}
+                  onMouseLeave={e => e.currentTarget.style.color = `${ACCENT}b3`}
+                >
                   Forgot password?
                 </a>
               </div>
@@ -203,7 +231,10 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="v-card-btn group relative w-full bg-[var(--accent)] text-[#161f00] font-bold text-[11px] tracking-[0.25em] uppercase p-3.5 sm:p-4 rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.25)] hover:bg-[var(--accent-hover)] hover:-translate-y-0.5 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden flex items-center justify-center gap-2"
+                className="v-card-btn group relative w-full text-[#161f00] font-bold text-[11px] tracking-[0.25em] uppercase p-3.5 sm:p-4 rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden flex items-center justify-center gap-2"
+                style={{ backgroundColor: ACCENT }}
+                onMouseEnter={e => { if (!loading) e.currentTarget.style.backgroundColor = ACCENT_HOVER; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = ACCENT; }}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
                 {loading ? (
@@ -222,7 +253,7 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => loginWithGoogle()}
-                className="v-card-google w-full bg-white/5 border border-white/10 rounded-xl text-[11px] font-semibold tracking-widest uppercase p-3 sm:p-3.5 flex items-center justify-center gap-2.5 hover:bg-white/10 transition-colors"
+                className="v-card-google w-full bg-white/5 border border-white/10 rounded-xl text-[11px] font-semibold tracking-widest uppercase p-3 sm:p-3.5 flex items-center justify-center gap-2.5 hover:bg-white/10 transition-colors text-[#e5e2e1]"
               >
                 <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -236,7 +267,15 @@ const Login = () => {
 
             <div className="v-card-footer mt-6 sm:mt-7 text-center text-xs text-[#c4c9b0]/45">
               Don't have an account?
-              <a href="/register" className="text-[var(--accent)]/80 font-semibold ml-1 hover:text-[var(--accent)] transition-colors">Register</a>
+              <a
+                href="/register"
+                className="font-semibold ml-1 transition-colors"
+                style={{ color: `${ACCENT}cc` }}
+                onMouseEnter={e => e.currentTarget.style.color = ACCENT}
+                onMouseLeave={e => e.currentTarget.style.color = `${ACCENT}cc`}
+              >
+                Register
+              </a>
             </div>
           </div>
         </div>
