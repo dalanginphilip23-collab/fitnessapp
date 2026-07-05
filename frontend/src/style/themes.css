@@ -78,11 +78,11 @@
   --border-heavy: rgba(0, 0, 0, 0.2);
   
   /* Accent colors — muted forest green (not neon lime) */
-  --accent: #5E9E4A;
-  --accent-dark: #4C8A3B;
-  --accent-light: #74B25E;
-  --accent-bg: rgba(94, 158, 74, 0.10);
-  --accent-border: rgba(94, 158, 74, 0.25);
+  --accent: #254900;
+  --accent-dark: #254900;
+  --accent-light: #254900;
+  --accent-bg: rgba(37, 73, 0, 0.10);
+  --accent-border: rgba(37, 73, 0, 0.25);
   
   /* Shadow */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);

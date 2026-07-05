@@ -32,12 +32,12 @@
   --border-heavy: rgba(255, 255, 255, 0.15);
   
   /* Accent colors — muted forest green (not neon) */
-  --accent: #8FBF63;
-  --accent-dark: #79A852;
-  --accent-light: #A3D17E;
-  --accent-bg: rgba(143, 191, 99, 0.10);
-  --accent-border: rgba(143, 191, 99, 0.22);
-  --accent-hover: #9DCB72;
+  --accent: #254900;
+  --accent-dark: #254900;
+  --accent-light: #254900;
+  --accent-bg: rgba(37, 73, 0, 0.10);
+  --accent-border: rgba(37, 73, 0, 0.22);
+  --accent-hover: #254900;
   
   /* Shadows — flat, no colored glow */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
