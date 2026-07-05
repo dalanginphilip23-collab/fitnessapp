@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useRegister } from '../hooks/useRegister';
 
+const ACCENT        = '#8FBF63';
+const ACCENT_HOVER  = '#9DCB72';
+const ACCENT_BORDER = 'rgba(143, 191, 99, 0.22)';
+const ACCENT_TINT   = 'rgba(143, 191, 99, 0.05)';
+
 const GOALS = [
   'Peak Metabolic Efficiency',
   'Muscle Hypertrophy',
@@ -28,29 +33,142 @@ const Register = () => {
   const update = (field) => (e) => setFormData({ ...formData, [field]: e.target.value });
 
   return (
-    <div data-theme="dark" className="min-h-screen flex items-center justify-center font-['DM_Sans',sans-serif] text-[#e5e2e1] overflow-hidden relative bg-[#0e0e0e]">
-      <div className="bg-image fixed inset-0 z-0" />
-      <div className="bg-vignette fixed inset-0 z-10" />
-      <div className="bg-grid fixed inset-0 z-20" />
+    <div
+      data-theme="dark"
+      className="relative min-h-screen min-h-[100dvh] w-full bg-[#0e0e0e] font-['DM_Sans'] text-[#e5e2e1] overflow-x-hidden"
+    >
+
+      <style>{`
+        .vitalis-vignette {
+          background: radial-gradient(ellipse at center, transparent 30%, #0e0e0e 100%);
+        }
+        .vitalis-grid {
+          background-image:
+            linear-gradient(${ACCENT_TINT} 1px, transparent 1px),
+            linear-gradient(90deg, ${ACCENT_TINT} 1px, transparent 1px);
+          background-size: 32px 32px;
+        }
+        @media (min-width: 640px) {
+          .vitalis-grid { background-size: 48px 48px; }
+        }
+        .vitalis-scan-bar {
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, ${ACCENT}, transparent);
+          border-radius: 999px;
+          animation: vitalis-scan 3s ease-in-out infinite;
+          opacity: 0.6;
+        }
+        @keyframes vitalis-scan {
+          0%   { transform: translateX(-100%); opacity: 0; }
+          20%  { opacity: 0.6; }
+          80%  { opacity: 0.6; }
+          100% { transform: translateX(100%); opacity: 0; }
+        }
+        .vitalis-spinner {
+          width: 14px; height: 14px;
+          border: 2px solid #161f00;
+          border-top-color: transparent;
+          border-radius: 50%;
+          animation: vitalis-spin 0.7s linear infinite;
+        }
+        @keyframes vitalis-spin {
+          to { transform: rotate(360deg); }
+        }
+        @keyframes vitalis-fade-up {
+          from { opacity: 0; transform: translateY(18px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes vitalis-fade-in {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes vitalis-fade-left {
+          from { opacity: 0; transform: translateX(-22px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes vitalis-scale-in {
+          from { opacity: 0; transform: scale(0.94) translateY(12px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes vitalis-modal-in {
+          from { opacity: 0; transform: scale(0.92) translateY(10px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .v-hero-eyebrow {
+          opacity: 0;
+          animation: vitalis-fade-left 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s forwards;
+        }
+        .v-hero-h1 {
+          opacity: 0;
+          animation: vitalis-fade-left 0.7s cubic-bezier(0.22,1,0.36,1) 0.25s forwards;
+        }
+        .v-hero-sub {
+          opacity: 0;
+          animation: vitalis-fade-left 0.6s cubic-bezier(0.22,1,0.36,1) 0.45s forwards;
+        }
+        .v-hero-goals {
+          opacity: 0;
+          animation: vitalis-fade-up 0.6s cubic-bezier(0.22,1,0.36,1) 0.6s forwards;
+        }
+        .v-card {
+          opacity: 0;
+          animation: vitalis-scale-in 0.75s cubic-bezier(0.22,1,0.36,1) 0.15s forwards;
+        }
+        .v-card-logo     { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.42s forwards; }
+        .v-card-progress { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.52s forwards; }
+        .v-card-title    { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.62s forwards; }
+        .v-card-sub      { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.70s forwards; }
+        .v-card-field1   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.78s forwards; }
+        .v-card-field2   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.86s forwards; }
+        .v-card-field3   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.94s forwards; }
+        .v-card-field4   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.02s forwards; }
+        .v-card-btn      { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.12s forwards; }
+        .v-card-footer   { opacity: 0; animation: vitalis-fade-in 0.4s ease            1.22s forwards; }
+        .v-modal-card {
+          animation: vitalis-modal-in 0.35s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        .goal-select-custom {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238FBF63' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 14px center;
+          padding-right: 38px !important;
+        }
+      `}</style>
+
+      {/* Layered Backgrounds */}
+      <div className="fixed inset-0 z-0 bg-[url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1800&q=80&auto=format&fit=crop')] bg-cover bg-[center_30%] brightness-[0.28] saturate-[0.7]" />
+      <div className="vitalis-vignette fixed inset-0 z-[1]" />
+      <div className="vitalis-grid fixed inset-0 z-[2]" />
 
       {/* ── SUCCESS MODAL ── */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-md animate-in fade-in duration-300" />
-          <div className="relative glass-card w-full max-w-[400px] border border-[#c7f248]/20 rounded-[24px] p-8 text-center overflow-hidden animate-in zoom-in-95 duration-300 shadow-[0_0_50px_rgba(199,242,72,0.15)]">
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#c7f248] to-transparent shadow-[0_0_15px_rgba(199,242,72,0.5)]" />
-            <div className="w-20 h-20 bg-[#c7f248]/10 border border-[#c7f248]/20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[inset_0_0_20px_rgba(199,242,72,0.1)]">
-              <svg className="w-10 h-10 text-[#c7f248]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
+          <div
+            className="v-modal-card relative w-full max-w-[400px] bg-[#121210]/80 backdrop-blur-[32px] saturate-[140%] rounded-[20px] sm:rounded-[24px] p-6 sm:p-8 text-center overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.06)]"
+            style={{ border: `1px solid ${ACCENT_BORDER}` }}
+          >
+            <div className="vitalis-scan-bar" />
+            <div
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center mx-auto mb-5 sm:mb-6"
+              style={{ backgroundColor: `${ACCENT}1a`, border: `1px solid ${ACCENT_BORDER}` }}
+            >
+              <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" viewBox="0 0 24 24" style={{ color: ACCENT }} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="font-['Bebas_Neue',sans-serif] text-3xl tracking-wider text-[#e5e2e1] mb-2 uppercase">Identity Encrypted</h2>
-            <p className="text-[12px] text-[#c4c9b0]/60 tracking-wider mb-8 leading-relaxed uppercase">
+            <h2 className="font-['Bebas_Neue'] text-[26px] sm:text-3xl tracking-wider text-[#e5e2e1] mb-2 uppercase">Identity Encrypted</h2>
+            <p className="text-[11px] sm:text-[12px] text-[#c4c9b0]/60 tracking-wider mb-6 sm:mb-8 leading-relaxed uppercase">
               Your clinical athlete profile has been successfully initialized into the Vitalis Core.
             </p>
             <button
               onClick={handleModalConfirm}
-              className="w-full bg-[#c7f248] text-[#161f00] font-bold text-[11px] tracking-[0.2em] uppercase p-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 hover:bg-[#d9ff66] hover:shadow-[0_0_20px_rgba(199,242,72,0.3)] active:scale-95"
+              className="w-full text-[#161f00] font-bold text-[11px] tracking-[0.2em] uppercase p-3.5 sm:p-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95"
+              style={{ backgroundColor: ACCENT }}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = ACCENT_HOVER}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = ACCENT}
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 16l-4-4m0 0l4-4m-4 4h14" />
@@ -61,67 +179,94 @@ const Register = () => {
         </div>
       )}
 
-      <div className="relative z-30 w-full min-h-screen grid grid-cols-1 max-[960px]:grid-cols-1 min-[960px]:grid-cols-[1fr_500px]">
+      <div className="relative z-10 w-full min-h-screen min-h-[100dvh] grid grid-cols-1 lg:grid-cols-[1fr_480px]">
 
-        {/* ── Left hero ── */}
-        <div className="hidden min-[960px]:flex flex-col justify-center p-[64px_56px] gap-4">
-          <span className="text-[11px] font-semibold tracking-[0.35em] uppercase text-[#c7f248] opacity-80">Vitalis Performance OS</span>
-          <h1 className="font-['Bebas_Neue',sans-serif] text-[clamp(52px,5.5vw,82px)] leading-[0.95] text-[#e5e2e1] tracking-[0.02em]">
-            BUILD<br />YOUR<br /><span className="text-[#c7f248]">ATHLETE</span><br />PROFILE.
+        {/* Left Hero Panel — desktop only */}
+        <div className="hidden lg:flex flex-col justify-center p-14 gap-4">
+          <span className="v-hero-eyebrow text-[11px] font-semibold tracking-[0.35em] uppercase opacity-80" style={{ color: ACCENT }}>
+            Vitalis Performance OS
+          </span>
+          <h1 className="v-hero-h1 font-['Bebas_Neue'] text-[clamp(52px,5.5vw,82px)] leading-[0.95] tracking-wider">
+            BUILD<br />
+            YOUR<br />
+            <span style={{ color: ACCENT }}>ATHLETE</span><br />
+            PROFILE.
           </h1>
-          <p className="text-[13px] text-white/40 max-w-[320px] leading-[1.7] font-light mt-1">
+          <p className="v-hero-sub text-[13px] text-[#e5e2e1]/45 max-w-[320px] leading-relaxed font-light mt-1">
             Choose your goal, sync your biometrics, and let the AI engine build a program around your biology.
           </p>
-          <div className="flex flex-wrap gap-2 mt-5 pt-6 border-t border-white/5">
+
+          <div className="v-hero-goals flex flex-wrap gap-2 mt-5 pt-6 border-t border-white/10">
             {GOALS.map(g => (
-              <span key={g} className="text-[10px] font-semibold tracking-[0.12em] uppercase py-[5px] px-3 rounded-full border border-[#c7f248]/15 text-[#c7f248]/50 bg-[#c7f248]/[0.04]">{g}</span>
+              <span
+                key={g}
+                className="text-[10px] font-semibold tracking-[0.12em] uppercase py-[5px] px-3 rounded-full"
+                style={{ border: `1px solid ${ACCENT_BORDER}`, color: `${ACCENT}80`, backgroundColor: ACCENT_TINT }}
+              >
+                {g}
+              </span>
             ))}
           </div>
         </div>
 
-        {/* ── Right glass card ── */}
-        <div className="flex items-center justify-center p-[40px_32px] max-[960px]:p-[32px_20px]">
-          <div className="glass-card w-full max-w-[420px] border border-[#c7f248]/12 rounded-[20px] p-[40px_38px] relative overflow-hidden">
-            <div className="scan-bar absolute left-0 right-0 top-0 h-[1px] rounded-t-[20px]" />
+        {/* Right Glass Panel */}
+        <div className="flex items-center justify-center px-4 py-8 sm:px-6 sm:py-10 lg:p-8 min-h-screen min-h-[100dvh] lg:min-h-0">
+          <div
+            className="v-card relative w-full max-w-[400px] bg-[#121210]/65 backdrop-blur-[32px] saturate-[140%] rounded-[20px] p-6 sm:p-8 md:p-10 shadow-[0_32px_80px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.06)] my-auto"
+            style={{ border: `1px solid ${ACCENT_BORDER}` }}
+          >
+
+            <div className="vitalis-scan-bar" />
 
             {/* Logo */}
-            <div className="flex items-center gap-2.5 mb-7">
-              <div className="w-[34px] h-[34px] bg-[#c7f248] rounded-lg flex items-center justify-center">
-                <svg className="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 12h3l3-8 4 16 3-10 2 2h3" stroke="#161f00" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+            <div className="v-card-logo flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: ACCENT }}>
+                <svg viewBox="0 0 24 24" className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] fill-none stroke-[#161f00] stroke-[2.2] stroke-linecap-round stroke-linejoin-round">
+                  <path d="M3 12h3l3-8 4 16 3-10 2 2h3" />
                 </svg>
               </div>
-              <span className="font-['Bebas_Neue',sans-serif] text-[21px] tracking-[0.12em] text-[#e5e2e1]">VITALIS</span>
+              <span className="font-['Bebas_Neue'] text-[20px] sm:text-[22px] tracking-[0.12em] text-[#e5e2e1]">VITALIS</span>
             </div>
 
             {/* Progress */}
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#c4c9b0]/35">Profile Setup</span>
-              <span className="font-['Bebas_Neue',sans-serif] text-[16px] text-[#c7f248] leading-none">{progressPct}%</span>
+            <div className="v-card-progress flex justify-between items-center mb-2">
+              <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#c4c9b0]/40">Profile Setup</span>
+              <span className="font-['Bebas_Neue'] text-[16px] leading-none" style={{ color: ACCENT }}>{progressPct}%</span>
             </div>
-            <div className="h-[2px] bg-white/5 rounded-full mb-8 overflow-hidden">
+            <div className="v-card-progress h-[2px] bg-white/5 rounded-full mb-6 sm:mb-8 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-[#acd52b] to-[#c7f248] rounded-full transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-[0_0_8px_rgba(199,242,72,0.4)]"
-                style={{ width: `${progressPct}%` }}
+                className="h-full rounded-full transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+                style={{ width: `${progressPct}%`, backgroundColor: ACCENT, boxShadow: `0 0 8px ${ACCENT}66` }}
               />
             </div>
 
-            <h2 className="font-['Bebas_Neue',sans-serif] text-[28px] tracking-[0.04em] text-[#e5e2e1] mb-1">CREATE IDENTITY</h2>
-            <p className="text-[12px] text-[#c4c9b0]/50 tracking-[0.04em] mb-6">Initialize your clinical athlete profile.</p>
+            <h2 className="v-card-title font-['Bebas_Neue'] text-[26px] sm:text-[32px] tracking-wider leading-none mb-1.5 text-[#e5e2e1]">CREATE IDENTITY</h2>
+            <p className="v-card-sub text-xs text-[#c4c9b0]/55 tracking-wide mb-6 sm:mb-8">Initialize your clinical athlete profile.</p>
 
-            <form onSubmit={(e) => handleRegister(e, formData)}>
+            <form onSubmit={(e) => handleRegister(e, formData)} className="space-y-4 sm:space-y-5">
               {error && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[10px] font-semibold tracking-[0.1em] uppercase py-2.5 px-3.5 mb-[18px] text-center">
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[10px] font-semibold tracking-widest uppercase p-2.5 text-center">
                   {error}
                 </div>
               )}
 
               {/* Name */}
-              <div className="relative mb-[18px]">
-                <label className={`block text-[10px] font-semibold tracking-[0.25em] uppercase mb-[7px] transition-colors duration-200 ${focused === 'name' ? 'text-[#c7f248]' : 'text-[#c4c9b0]/50'}`}>Full Name</label>
+              <div className="v-card-field1 relative">
+                <label
+                  className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 transition-colors"
+                  style={{ color: focused === 'name' ? ACCENT : 'rgba(255,255,255,0.5)' }}
+                >
+                  Full Name
+                </label>
                 <input
-                  className="w-full bg-white/5 border border-white/10 rounded-[10px] text-[#e5e2e1] text-[14px] p-[12px_15px] outline-none transition-all duration-200 placeholder:text-white/15 focus:border-[#c7f248]/45 focus:bg-[#c7f248]/[0.04] focus:ring-[3px] focus:ring-[#c7f248]/10 box-border"
-                  type="text" placeholder="Your name" required
+                  type="text"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                  style={{
+                    borderColor: focused === 'name' ? `${ACCENT}80` : undefined,
+                    backgroundColor: focused === 'name' ? `${ACCENT}0d` : undefined,
+                  }}
+                  placeholder="Your name"
+                  required
                   value={formData.name}
                   onChange={update('name')}
                   onFocus={() => setFocused('name')}
@@ -130,11 +275,22 @@ const Register = () => {
               </div>
 
               {/* Email */}
-              <div className="relative mb-[18px]">
-                <label className={`block text-[10px] font-semibold tracking-[0.25em] uppercase mb-[7px] transition-colors duration-200 ${focused === 'email' ? 'text-[#c7f248]' : 'text-[#c4c9b0]/50'}`}>Email Address</label>
+              <div className="v-card-field2 relative">
+                <label
+                  className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 transition-colors"
+                  style={{ color: focused === 'email' ? ACCENT : 'rgba(255,255,255,0.5)' }}
+                >
+                  Email Address
+                </label>
                 <input
-                  className="w-full bg-white/5 border border-white/10 rounded-[10px] text-[#e5e2e1] text-[14px] p-[12px_15px] outline-none transition-all duration-200 placeholder:text-white/15 focus:border-[#c7f248]/45 focus:bg-[#c7f248]/[0.04] focus:ring-[3px] focus:ring-[#c7f248]/10 box-border"
-                  type="email" placeholder="athlete@vitalis.io" required
+                  type="email"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                  style={{
+                    borderColor: focused === 'email' ? `${ACCENT}80` : undefined,
+                    backgroundColor: focused === 'email' ? `${ACCENT}0d` : undefined,
+                  }}
+                  placeholder="athlete@vitalis.io"
+                  required
                   value={formData.email}
                   onChange={update('email')}
                   onFocus={() => setFocused('email')}
@@ -143,11 +299,22 @@ const Register = () => {
               </div>
 
               {/* Password */}
-              <div className="relative mb-[18px]">
-                <label className={`block text-[10px] font-semibold tracking-[0.25em] uppercase mb-[7px] transition-colors duration-200 ${focused === 'password' ? 'text-[#c7f248]' : 'text-[#c4c9b0]/50'}`}>Password</label>
+              <div className="v-card-field3 relative">
+                <label
+                  className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 transition-colors"
+                  style={{ color: focused === 'password' ? ACCENT : 'rgba(255,255,255,0.5)' }}
+                >
+                  Password
+                </label>
                 <input
-                  className="w-full bg-white/5 border border-white/10 rounded-[10px] text-[#e5e2e1] text-[14px] p-[12px_15px] outline-none transition-all duration-200 placeholder:text-white/15 focus:border-[#c7f248]/45 focus:bg-[#c7f248]/[0.04] focus:ring-[3px] focus:ring-[#c7f248]/10 box-border"
-                  type="password" placeholder="••••••••••••" required
+                  type="password"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                  style={{
+                    borderColor: focused === 'password' ? `${ACCENT}80` : undefined,
+                    backgroundColor: focused === 'password' ? `${ACCENT}0d` : undefined,
+                  }}
+                  placeholder="••••••••••••"
+                  required
                   value={formData.password}
                   onChange={update('password')}
                   onFocus={() => setFocused('password')}
@@ -156,10 +323,19 @@ const Register = () => {
               </div>
 
               {/* Goal */}
-              <div className="relative mb-[18px]">
-                <label className={`block text-[10px] font-semibold tracking-[0.25em] uppercase mb-[7px] transition-colors duration-200 ${focused === 'goal' ? 'text-[#c7f248]' : 'text-[#c4c9b0]/50'}`}>Primary Goal</label>
+              <div className="v-card-field4 relative">
+                <label
+                  className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 transition-colors"
+                  style={{ color: focused === 'goal' ? ACCENT : 'rgba(255,255,255,0.5)' }}
+                >
+                  Primary Goal
+                </label>
                 <select
-                  className="goal-select-custom w-full bg-white/5 border border-white/10 rounded-[10px] text-[#e5e2e1] text-[13px] p-[12px_15px] outline-none cursor-pointer appearance-none transition-all duration-200 focus:border-[#c7f248]/45 focus:ring-[3px] focus:ring-[#c7f248]/10 box-border"
+                  className="goal-select-custom w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none cursor-pointer appearance-none transition-all text-[#e5e2e1]"
+                  style={{
+                    borderColor: focused === 'goal' ? `${ACCENT}80` : undefined,
+                    backgroundColor: focused === 'goal' ? `${ACCENT}0d` : undefined,
+                  }}
                   value={formData.goal}
                   onChange={update('goal')}
                   onFocus={() => setFocused('goal')}
@@ -172,21 +348,33 @@ const Register = () => {
               </div>
 
               <button
-                className="btn-primary w-full bg-[#c7f248] text-[#161f00] font-bold text-[11px] tracking-[0.25em] uppercase p-[15px] rounded-[10px] cursor-pointer flex items-center justify-center gap-2 transition-all duration-200 mt-1.5 relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
                 type="submit"
                 disabled={loading}
+                className="v-card-btn group relative w-full text-[#161f00] font-bold text-[11px] tracking-[0.25em] uppercase p-3.5 sm:p-4 rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden flex items-center justify-center gap-2"
+                style={{ backgroundColor: ACCENT }}
+                onMouseEnter={e => { if (!loading) e.currentTarget.style.backgroundColor = ACCENT_HOVER; }}
+                onMouseLeave={e => { e.currentTarget.style.backgroundColor = ACCENT; }}
               >
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
                 {loading ? (
-                  <><div className="w-[13px] h-[13px] rounded-full animate-spin border-2 border-black border-t-transparent" /> Initializing...</>
+                  <><div className="vitalis-spinner" /> Initializing...</>
                 ) : (
-                  <>Initiate Optimization <span style={{ fontSize: 15 }}>→</span></>
+                  <>Initiate Optimization <span className="text-lg">→</span></>
                 )}
               </button>
             </form>
 
-            <div className="mt-6 text-center text-[12px] text-[#c4c9b0]/45">
+            <div className="v-card-footer mt-6 sm:mt-7 text-center text-xs text-[#c4c9b0]/45">
               Already have an account?
-              <Link className="text-[#acd52b] font-semibold ml-1 no-underline transition-colors duration-200 hover:text-[#c7f248]" to="/login">Sign in</Link>
+              <Link
+                to="/login"
+                className="font-semibold ml-1 transition-colors"
+                style={{ color: `${ACCENT}cc` }}
+                onMouseEnter={e => e.currentTarget.style.color = ACCENT}
+                onMouseLeave={e => e.currentTarget.style.color = `${ACCENT}cc`}
+              >
+                Sign in
+              </Link>
             </div>
           </div>
         </div>
