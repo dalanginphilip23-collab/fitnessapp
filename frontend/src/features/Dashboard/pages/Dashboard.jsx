@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 
@@ -15,7 +15,7 @@ import {
   FAB,
 } from '../../../components';
 
-import FeedbackModal from '../../../components/FeedbackModal';
+const FeedbackModal = lazy(() => import('../../../components/FeedbackModal'));
 
 import { useClinicalAI }     from '../hooks/useClinicalAI';
 import { useActivityLogger } from '../hooks/useActivityLogger';
@@ -26,10 +26,10 @@ const Dashboard = () => {
   const { user, loading, logout } = useAuth();
   const USER_ID = user?.id || null;
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     await logout();
     navigate('/login');
-  };
+  }, [logout, navigate]);
 
   useEffect(() => {
     if (!loading && !user) navigate('/login');
@@ -37,6 +37,9 @@ const Dashboard = () => {
 
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [feedbackOpen,    setFeedbackOpen]    = useState(false);
+
+  const openFeedback  = useCallback(() => setFeedbackOpen(true),  []);
+  const closeFeedback = useCallback(() => setFeedbackOpen(false), []);
 
   const {
     data,
@@ -52,7 +55,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (!user) return;
     setAuthOverride(user.name || null, user.avatar || null);
-  }, [user?.name, user?.avatar]);
+  }, [user?.name, user?.avatar, setAuthOverride]);
 
   const { isAnalyzing, generateClinicalInsight } =
     useClinicalAI(USER_ID, setInsights);
@@ -65,6 +68,21 @@ const Dashboard = () => {
     mergeData,
   });
 
+  // Derived display values — memoized so they don't produce new
+  // references (and re-render Hero) on every parent render.
+  const profileName = useMemo(
+    () => data.profile?.name || user?.name || 'Athlete',
+    [data.profile?.name, user?.name]
+  );
+  const profileGoal = useMemo(
+    () => data.profile?.fitness_goal || 'Unspecified',
+    [data.profile?.fitness_goal]
+  );
+  const avatarUrl = useMemo(
+    () => data.profile?.avatar_url || user?.avatar,
+    [data.profile?.avatar_url, user?.avatar]
+  );
+
   if (loading)  return null;
   if (!USER_ID) return null;
 
@@ -75,7 +93,7 @@ const Dashboard = () => {
           onClick={handleLogout}
           expanded={sidebarExpanded}
           setExpanded={setSidebarExpanded}
-          onFeedback={() => setFeedbackOpen(true)}
+          onFeedback={openFeedback}
         />
       </div>
       <Topbar sidebarExpanded={sidebarExpanded} userId={USER_ID} />
@@ -87,19 +105,19 @@ const Dashboard = () => {
         <div className="max-w-[1400px] mx-auto">
           {/* Hero Section */}
           <Hero
-            name={data.profile?.name || user?.name || 'Athlete'}
-            goal={data.profile?.fitness_goal || 'Unspecified'}
-            avatar={data.profile?.avatar_url || user?.avatar}
+            name={profileName}
+            goal={profileGoal}
+            avatar={avatarUrl}
           />
 
-          {/* Main Grid - 4 columns on desktop */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            
-            {/* Left Column - 3 cols on desktop */}
-            <div className="lg:col-span-3 flex flex-col gap-6">
-              
-              {/* Stats Cards Row - 3 columns */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {/* Main Grid - 1 col mobile / 2 col tablet / 4 col desktop */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            {/* Left Column - full width on tablet, 3 cols on desktop */}
+            <div className="md:col-span-2 lg:col-span-3 flex flex-col gap-6">
+
+              {/* Stats Cards Row - 1 col mobile / 2 col small tablet / 3 col sm+ */}
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-6">
                 <CaloriesCard value={data.stats?.calories_burned || 0} />
                 <LoadCard minutes={data.stats?.workout_duration_mins || 0} />
                 <ActivityCard steps={data.stats?.steps || 0} />
@@ -118,7 +136,7 @@ const Dashboard = () => {
             </div>
 
             {/* Right Column - Clinical Assistant */}
-            <div className="lg:col-span-1">
+            <div className="md:col-span-2 lg:col-span-1">
               <ClinicalAssistant
                 insights={insights}
                 water={data.stats?.water_intake_ml || 0}
@@ -136,7 +154,9 @@ const Dashboard = () => {
       <FAB onSave={handleLogActivity} />
 
       {feedbackOpen && (
-        <FeedbackModal onClose={() => setFeedbackOpen(false)} />
+        <Suspense fallback={null}>
+          <FeedbackModal onClose={closeFeedback} />
+        </Suspense>
       )}
     </div>
   );

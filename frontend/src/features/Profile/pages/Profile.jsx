@@ -291,9 +291,6 @@ const Profile = () => {
                   </div>
                 </div>
 
-                {/* FIX: Vitals card is now READ-ONLY. Height/Weight are
-                    owned by the BMI page — this card just displays the
-                    latest values and BMI, with a link to go update them. */}
                 <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Vitals</p>
@@ -393,10 +390,7 @@ const Profile = () => {
                       />
                     </RecordRow>
 
-                    {/* Biography/goal removed here — it's already shown in
-                        the Chart notes · Goal card above.
-                        Height / Weight / BMI removed here too — they're
-                        already shown in the Vitals card above. */}
+                  
                     <RecordRow label="Record status">
                       <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#254900]">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#254900] animate-pulse" />
@@ -408,9 +402,7 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Account / Sign out — full-width row at the bottom of the page,
-                after both columns, so it reads as the last step in the
-                sequence instead of squeezed into the left column stack. */}
+        
             <div className="mt-5 bg-(--bg-secondary) border border-red-500/10 rounded-2xl p-5">
               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-3">Account</p>
               <button
