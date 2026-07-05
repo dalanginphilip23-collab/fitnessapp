@@ -9,7 +9,7 @@
   --bg-tertiary: #1c1b1b;
   --bg-card: #141414;
   --bg-hover: rgba(255, 255, 255, 0.05);
-  --bg-active: rgba(209, 253, 82, 0.08);
+  --bg-active: rgba(143, 191, 99, 0.08);
   
   /* Surface colors */
   --surface: #131313;
@@ -27,12 +27,12 @@
   --border-medium: rgba(255, 255, 255, 0.1);
   --border-heavy: rgba(255, 255, 255, 0.15);
   
-  /* Accent colors (keep brand green) */
-  --accent: #D1FD52;
-  --accent-dark: #c7f248;
-  --accent-light: #e0ff7a;
-  --accent-bg: rgba(209, 253, 82, 0.1);
-  --accent-border: rgba(209, 253, 82, 0.2);
+  /* Accent colors — muted forest green (not neon lime) */
+  --accent: #8FBF63;
+  --accent-dark: #79A852;
+  --accent-light: #A3D17E;
+  --accent-bg: rgba(143, 191, 99, 0.10);
+  --accent-border: rgba(143, 191, 99, 0.22);
   
   /* Shadow */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -43,7 +43,7 @@
   /* Input */
   --input-bg: rgba(255, 255, 255, 0.05);
   --input-border: rgba(255, 255, 255, 0.1);
-  --input-focus: rgba(209, 253, 82, 0.3);
+  --input-focus: rgba(143, 191, 99, 0.3);
   
   /* Scrollbar */
   --scrollbar-track: transparent;
@@ -59,7 +59,7 @@
   --bg-tertiary: #f0f0f0;
   --bg-card: #ffffff;
   --bg-hover: rgba(0, 0, 0, 0.03);
-  --bg-active: rgba(209, 253, 82, 0.12);
+  --bg-active: rgba(94, 158, 74, 0.12);
   
   /* Surface colors */
   --surface: #ffffff;
@@ -77,12 +77,12 @@
   --border-medium: rgba(0, 0, 0, 0.12);
   --border-heavy: rgba(0, 0, 0, 0.2);
   
-  /* Accent colors (brand green - slightly adjusted for light mode) */
-  --accent: #b8e832;
-  --accent-dark: #a8d82a;
-  --accent-light: #c8f842;
-  --accent-bg: rgba(184, 232, 50, 0.1);
-  --accent-border: rgba(184, 232, 50, 0.25);
+  /* Accent colors — muted forest green (not neon lime) */
+  --accent: #5E9E4A;
+  --accent-dark: #4C8A3B;
+  --accent-light: #74B25E;
+  --accent-bg: rgba(94, 158, 74, 0.10);
+  --accent-border: rgba(94, 158, 74, 0.25);
   
   /* Shadow */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -93,7 +93,7 @@
   /* Input */
   --input-bg: rgba(0, 0, 0, 0.02);
   --input-border: rgba(0, 0, 0, 0.1);
-  --input-focus: rgba(184, 232, 50, 0.3);
+  --input-focus: rgba(94, 158, 74, 0.3);
   
   /* Scrollbar */
   --scrollbar-track: transparent;
