@@ -26,7 +26,6 @@ const Dashboard = () => {
   const { user, loading, logout } = useAuth();
   const USER_ID = user?.id || null;
 
-  // Memoized so Sidebar doesn't receive a new function reference every render
   const handleLogout = useCallback(async () => {
     await logout();
     navigate('/login');
@@ -39,7 +38,6 @@ const Dashboard = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [feedbackOpen,    setFeedbackOpen]    = useState(false);
 
-  // Memoized open/close handlers instead of inline arrow functions in JSX
   const openFeedback  = useCallback(() => setFeedbackOpen(true),  []);
   const closeFeedback = useCallback(() => setFeedbackOpen(false), []);
 
@@ -57,7 +55,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (!user) return;
     setAuthOverride(user.name || null, user.avatar || null);
-  }, [user?.name, user?.avatar, setAuthOverride]);
+  }, [user?.name, user?.avatar]);
 
   const { isAnalyzing, generateClinicalInsight } =
     useClinicalAI(USER_ID, setInsights);
@@ -70,16 +68,15 @@ const Dashboard = () => {
     mergeData,
   });
 
-  // Derived display values memoized so Hero doesn't re-render on unrelated state changes
-  const profileName = useMemo(
+  const heroName = useMemo(
     () => data.profile?.name || user?.name || 'Athlete',
     [data.profile?.name, user?.name]
   );
-  const profileGoal = useMemo(
+  const heroGoal = useMemo(
     () => data.profile?.fitness_goal || 'Unspecified',
     [data.profile?.fitness_goal]
   );
-  const avatarUrl = useMemo(
+  const heroAvatar = useMemo(
     () => data.profile?.avatar_url || user?.avatar,
     [data.profile?.avatar_url, user?.avatar]
   );
@@ -106,18 +103,18 @@ const Dashboard = () => {
         <div className="max-w-[1400px] mx-auto">
           {/* Hero Section */}
           <Hero
-            name={profileName}
-            goal={profileGoal}
-            avatar={avatarUrl}
+            name={heroName}
+            goal={heroGoal}
+            avatar={heroAvatar}
           />
 
-          {/* Main Grid - 1 col mobile / 2 col tablet / 4 col desktop */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-            {/* Left Column - full width on tablet, 3 cols on desktop */}
-            <div className="md:col-span-2 lg:col-span-3 flex flex-col gap-6">
-
-              {/* Stats Cards Row - 1 col mobile / 3 cols sm+ */}
+          {/* Main Grid - 4 columns on desktop */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            
+            {/* Left Column - 3 cols on desktop */}
+            <div className="lg:col-span-3 flex flex-col gap-6">
+              
+              {/* Stats Cards Row - 3 columns */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <CaloriesCard value={data.stats?.calories_burned || 0} />
                 <LoadCard minutes={data.stats?.workout_duration_mins || 0} />
@@ -137,7 +134,7 @@ const Dashboard = () => {
             </div>
 
             {/* Right Column - Clinical Assistant */}
-            <div className="md:col-span-2 lg:col-span-1">
+            <div className="lg:col-span-1">
               <ClinicalAssistant
                 insights={insights}
                 water={data.stats?.water_intake_ml || 0}
