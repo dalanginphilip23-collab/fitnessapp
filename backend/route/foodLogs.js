@@ -47,7 +47,6 @@ router.post('/analyze-pic', async (req, res) => {
   const { base64Image } = req.body;
   if (!base64Image) return res.status(400).json({ error: 'No image provided' });
 
-  // Cache hit return immediately, no AI call
   const cached = getCached(base64Image);
   if (cached) {
     console.log('[analyze-pic] ✅ Cache hit — returning stored result');
@@ -68,13 +67,11 @@ router.post('/analyze-pic', async (req, res) => {
       parsed = JSON.parse(match[0]);
     }
 
-    // Final safety clamp
     parsed.calories = Math.max(0, Math.round(Number(parsed.calories) || 0));
     parsed.protein  = Math.max(0, Math.round(Number(parsed.protein)  || 0));
     parsed.carbs    = Math.max(0, Math.round(Number(parsed.carbs)    || 0));
     parsed.fat      = Math.max(0, Math.round(Number(parsed.fat)      || 0));
 
-    // ── Store in cache for next time the same image is analyzed ────────────
     setCache(base64Image, parsed);
 
     res.json(parsed);
@@ -147,14 +144,6 @@ router.post('/:userId/suggest-plan', async (req, res) => {
 
 
 // POST /api/food-logs/:userId
-//
-// NOTE: The response is sent to the client immediately after the INSERT
-// succeeds. Sending the meal-summary email and writing the notification
-// happen AFTER that, in the background, so a slow/hanging Gmail SMTP
-// connection can no longer make the frontend's "Saving…" spinner hang.
-// If the background steps fail, they only log to the server console —
-// they must NOT try to call res.* again, since the response has already
-// been sent.
 router.post('/:userId', async (req, res) => {
   const { userId } = req.params;
   const { food_name, calories, protein, carbs, fat, image_url } = req.body;
@@ -168,11 +157,8 @@ router.post('/:userId', async (req, res) => {
       [userId, food_name, calories || 0, protein || 0, carbs || 0, fat || 0, image_url || null]
     );
 
-    // ✅ Respond immediately — the meal is saved, don't make the user wait
-    // on email or notifications.
     res.status(200).json({ message: 'Food log saved', id: result.insertId });
 
-    // ── Everything below runs in the background, after the response ────────
     try {
       const [[user]]    = await db.execute('SELECT email FROM users WHERE id = ?', [userId]);
       const [[summary]] = await db.execute(
@@ -206,18 +192,6 @@ router.post('/:userId', async (req, res) => {
   }
 });
 
-
-// GET /api/food-logs/:userId
-// Raised default limit to 200 so all records are available for client-side
-// date filtering (DailySummary and MealHistory both rely on full history).
-//
-// NOTE: LIMIT/OFFSET are inlined (not bound as `?` params) because MySQL's
-// binary prepared-statement protocol (used by db.execute()) does not
-// reliably support LIMIT/OFFSET as bound parameters — it throws
-// "Incorrect arguments to mysqld_stmt_execute" even when the values are
-// valid integers. This is safe from SQL injection because `limit` and
-// `offset` are forced through parseInt(...) || default, so they can only
-// ever be actual numbers, never arbitrary strings.
 router.get('/:userId', async (req, res) => {
   const { userId } = req.params;
   const limit  = parseInt(req.query.limit)  || 200;
@@ -241,9 +215,8 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
+
 // DELETE /api/food-logs/:userId/:mealId
-// ─────────────────────────────────────────────────────────────────────────────
 router.delete('/:userId/:mealId', async (req, res) => {
   const { userId, mealId } = req.params;
 
