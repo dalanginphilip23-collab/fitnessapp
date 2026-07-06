@@ -11,38 +11,51 @@ export default function AnalyticsMobileNav({ navigate }) {
   };
 
   return (
-    <nav
-      style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '1rem 1rem 0 0' }}
-      className="md:hidden fixed bottom-0 left-0 right-0 h-[68px] backdrop-blur-xl border-t border-[var(--border-light)] flex justify-around items-center px-2 z-[70]"
+    // Outer wrapper handles the "floating" positioning: inset from the
+    // screen edges instead of pinned flush to them, plus safe-area padding
+    // so it clears the home-indicator on iOS.
+    <div
+      className="md:hidden fixed left-3 right-3 z-[70]"
+      style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
     >
-      {navList.map((item) => {
-        const isActive = location.pathname === item.path;
-        return (
-          <button
-            key={item.name}
-            onClick={() => handleNav(item.path)}
-            className={`relative flex flex-col items-center justify-center gap-1.5 bg-transparent border-none cursor-pointer transition-all duration-[300ms] outline-none h-full w-full ${
-              isActive ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'
-            }`}
-          >
-            <div className={`relative flex items-center justify-center transition-transform duration-300 ${
-              isActive ? 'scale-110' : 'scale-100'
-            }`}>
-              <Icon
-                name={item.icon}
-                className="text-[20px] min-w-[20px] shrink-0"
-                fill={isActive ? 1 : 0}
-              />
-              {isActive && (
-                <span className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-[var(--accent)] rounded-full animate-pulse" />
-              )}
-            </div>
-            {isActive && (
-              <div className="absolute bottom-2 w-5 h-[2px] bg-[var(--accent)] rounded-full" />
-            )}
-          </button>
-        );
-      })}
-    </nav>
+      <nav
+        style={{
+          backgroundColor: 'var(--bg-secondary)',
+          borderRadius: '9999px',
+          boxShadow:
+            '0 8px 30px rgb(0 0 0 / 0.12), 0 2px 8px rgb(0 0 0 / 0.08)',
+        }}
+        className="h-16 backdrop-blur-xl border border-[var(--border-light)] flex justify-around items-center px-2 mx-auto max-w-md"
+      >
+        {navList.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <button
+              key={item.name}
+              onClick={() => handleNav(item.path)}
+              className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-[300ms] outline-none h-full w-full ${
+                isActive ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'
+              }`}
+            >
+              <div className={`relative flex items-center justify-center transition-transform duration-300 ${
+                isActive ? 'scale-110' : 'scale-100'
+              }`}>
+                {isActive && (
+                  <span
+                    className="absolute inset-[-6px] rounded-full"
+                    style={{ backgroundColor: 'color-mix(in srgb, var(--accent) 14%, transparent)' }}
+                  />
+                )}
+                <Icon
+                  name={item.icon}
+                  className="relative text-[20px] min-w-[20px] shrink-0"
+                  fill={isActive ? 1 : 0}
+                />
+              </div>
+            </button>
+          );
+        })}
+      </nav>
+    </div>
   );
 }
