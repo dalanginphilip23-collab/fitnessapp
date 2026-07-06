@@ -1,11 +1,16 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../hooks/useTheme';
 import ThemeToggle from '../../components/ThemeToggle';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const GYM_BG = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1800&q=80&auto=format&fit=crop';
+const GYM_BG_BASE = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=70';
+// Responsive source set so phones don't download a 1800px desktop image.
+const GYM_BG_SRCSET = [640, 1080, 1600, 1920]
+  .map((w) => `${GYM_BG_BASE}&w=${w} ${w}w`)
+  .join(', ');
+const GYM_BG_FALLBACK = `${GYM_BG_BASE}&w=1600`;
 const EASE_EXPO = [0.16, 1, 0.3, 1];
 
 // ─── Static data ──────────────────────────────────────────────────────────────
@@ -87,13 +92,45 @@ const buildPlansPath = ({ planId = null, tab = 'explore' } = {}) => {
 const makeInk = (isDark) => (alpha) =>
   isDark ? `rgba(255,255,255,${alpha})` : `rgba(20,20,20,${alpha})`;
 
+// ─── Device-capability hooks ──────────────────────────────────────────────────
+// Prevents "sticky hover" bugs on touch devices (a tap firing mouseenter but
+// never mouseleave) and respects prefers-reduced-motion / coarse pointers so
+// the page behaves well on phones, tablets, and low-power devices, not just
+// desktop with a mouse.
+const useCanHover = () => {
+  const [canHover, setCanHover] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(hover: hover) and (pointer: fine)').matches : true
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const handler = (e) => setCanHover(e.matches);
+    setCanHover(mq.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return canHover;
+};
+
+const usePrefersReducedMotion = () => {
+  const [reduced, setReduced] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handler = (e) => setReduced(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return reduced;
+};
+
 // ─── Icon ─────────────────────────────────────────────────────────────────────
-const Icon = ({ name, className = '' }) => (
+const Icon = React.memo(({ name, className = '' }) => (
   <span className={`material-symbols-outlined select-none leading-none ${className}`}>{name}</span>
-);
+));
 
 // ─── Horizontal Slider (shared by Pricing on mobile) ─────────────────────────
-const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px]', isDark, accent, ink }) => {
+const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px]', isDark, accent, ink, canHover }) => {
   const [index, setIndex] = useState(0);
   const trackRef = useRef(null);
   const total = items.length;
@@ -126,44 +163,52 @@ const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px
         ))}
       </div>
 
-      <div className="flex items-center justify-between mt-5">
-        <div className="flex gap-1.5">
-          {items.map((_, i) => (
+      {total > 1 && (
+        <div className="flex items-center justify-between mt-5">
+          <div className="flex gap-1.5">
+            {items.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Go to slide ${i + 1}`}
+                onClick={() => setIndex(i)}
+                className="transition-all duration-300 rounded-full"
+                style={{
+                  width: i === index ? '20px' : '6px',
+                  height: '6px',
+                  backgroundColor: i === index ? accent : ink(0.2),
+                }}
+              />
+            ))}
+          </div>
+          <div className="flex gap-2">
             <button
-              key={i}
-              onClick={() => setIndex(i)}
-              className="transition-all duration-300 rounded-full"
-              style={{
-                width: i === index ? '20px' : '6px',
-                height: '6px',
-                backgroundColor: i === index ? accent : ink(0.2),
-              }}
-            />
-          ))}
+              type="button"
+              aria-label="Previous slide"
+              onClick={prev}
+              disabled={index === 0}
+              className="w-9 h-9 rounded-xl border flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+              style={{ borderColor: ink(0.1), color: ink(0.4) }}
+              onMouseEnter={e => { if (canHover && index !== 0) { e.currentTarget.style.borderColor = `${accent}66`; e.currentTarget.style.color = accent; } }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.1); e.currentTarget.style.color = ink(0.4); }}
+            >
+              <Icon name="chevron_left" className="text-lg" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next slide"
+              onClick={next}
+              disabled={index === total - 1}
+              className="w-9 h-9 rounded-xl border flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+              style={{ borderColor: ink(0.1), color: ink(0.4) }}
+              onMouseEnter={e => { if (canHover && index !== total - 1) { e.currentTarget.style.borderColor = `${accent}66`; e.currentTarget.style.color = accent; } }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.1); e.currentTarget.style.color = ink(0.4); }}
+            >
+              <Icon name="chevron_right" className="text-lg" />
+            </button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={prev}
-            disabled={index === 0}
-            className="w-9 h-9 rounded-xl border flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed"
-            style={{ borderColor: ink(0.1), color: ink(0.4) }}
-            onMouseEnter={e => { if (index !== 0) { e.currentTarget.style.borderColor = `${accent}66`; e.currentTarget.style.color = accent; } }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.1); e.currentTarget.style.color = ink(0.4); }}
-          >
-            <Icon name="chevron_left" className="text-lg" />
-          </button>
-          <button
-            onClick={next}
-            disabled={index === total - 1}
-            className="w-9 h-9 rounded-xl border flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed"
-            style={{ borderColor: ink(0.1), color: ink(0.4) }}
-            onMouseEnter={e => { if (index !== total - 1) { e.currentTarget.style.borderColor = `${accent}66`; e.currentTarget.style.color = accent; } }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.1); e.currentTarget.style.color = ink(0.4); }}
-          >
-            <Icon name="chevron_right" className="text-lg" />
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -186,25 +231,24 @@ const Marquee = ({ isDark, accent, ink }) => (
         </span>
       ))}
     </div>
-    <style>{`
-      @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-33.333%); } }
-      .animate-marquee { animation: marquee 30s linear infinite; }
-      .scrollbar-hide::-webkit-scrollbar { display: none; }
-    `}</style>
   </div>
 );
 
-// ─── Cursor glow ──────────────────────────────────────────────────────────────
-const CursorGlow = ({ accent }) => {
+// ─── Cursor glow (desktop-with-a-mouse only; skipped on touch & reduced motion) ─
+const CursorGlow = ({ accent, enabled }) => {
   const mx = useMotionValue(-400);
   const my = useMotionValue(-400);
   const sx = useSpring(mx, { stiffness: 80, damping: 20 });
   const sy = useSpring(my, { stiffness: 80, damping: 20 });
   useEffect(() => {
+    if (!enabled) return;
     const move = (e) => { mx.set(e.clientX); my.set(e.clientY); };
     window.addEventListener('mousemove', move);
     return () => window.removeEventListener('mousemove', move);
-  }, [mx, my]);
+  }, [mx, my, enabled]);
+
+  if (!enabled) return null;
+
   return (
     <motion.div className="pointer-events-none fixed z-[9999] top-0 left-0 hidden lg:block" style={{ x: sx, y: sy, translateX: '-50%', translateY: '-50%' }}>
       <div className="w-64 h-64 rounded-full blur-[60px]" style={{ backgroundColor: `${accent}20` }} />
@@ -237,7 +281,7 @@ const StatCounter = ({ value, label, isDark, accent, ink }) => {
 };
 
 // ─── Mobile Menu ──────────────────────────────────────────────────────────────
-const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink }) => (
+const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink, canHover }) => (
   <AnimatePresence>
     {open && (
       <motion.div
@@ -245,10 +289,12 @@ const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink }) => (
         animate={{ opacity: 1, clipPath: 'inset(0 0 0% 0)' }}
         exit={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
         transition={{ duration: 0.4, ease: EASE_EXPO }}
-        className="lg:hidden fixed inset-0 z-[99] flex flex-col pt-24"
+        className="lg:hidden fixed inset-0 z-[99] flex flex-col pt-24 overflow-y-auto"
         style={{ backgroundColor: isDark ? '#060606' : '#ffffff' }}
+        role="dialog"
+        aria-modal="true"
       >
-        <div className="flex flex-col px-8 pt-8 gap-1">
+        <div className="flex flex-col px-6 sm:px-8 pt-8 gap-1">
           {NAV_LINKS.map(({ href, label }, i) => (
             <motion.a
               key={href}
@@ -257,17 +303,18 @@ const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink }) => (
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.07, duration: 0.4, ease: EASE_EXPO }}
-              className="text-5xl font-black uppercase tracking-tighter transition-colors py-3 border-b"
+              className="text-[15vw] xs:text-6xl sm:text-5xl font-black uppercase tracking-tighter transition-colors py-3 border-b"
               style={{ fontFamily: "'Bebas Neue', sans-serif", color: ink(0.2), borderColor: ink(0.05) }}
-              onMouseEnter={e => e.currentTarget.style.color = accent}
-              onMouseLeave={e => e.currentTarget.style.color = ink(0.2)}
+              onMouseEnter={e => { if (canHover) e.currentTarget.style.color = accent; }}
+              onMouseLeave={e => { e.currentTarget.style.color = ink(0.2); }}
             >{label}</motion.a>
           ))}
         </div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.4 }}
-          className="px-8 mt-auto pb-16 flex flex-col gap-3"
+          className="px-6 sm:px-8 mt-auto pb-12 flex flex-col gap-3"
         >
           <button
+            type="button"
             onClick={() => { navigate('/login'); onClose(); }}
             className="w-full py-4 rounded-xl text-[11px] font-black uppercase tracking-widest border transition-all"
             style={{ color: ink(0.5), borderColor: ink(0.1) }}
@@ -275,6 +322,7 @@ const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink }) => (
             Sign In
           </button>
           <button
+            type="button"
             onClick={() => { navigate('/register'); onClose(); }}
             className="w-full py-4 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] hover:brightness-110 transition-all"
             style={{ backgroundColor: accent, color: '#0a1000' }}
@@ -288,34 +336,35 @@ const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink }) => (
 );
 
 // ─── Feature Card ─────────────────────────────────────────────────────────────
-const FeatureCard = ({ icon, title, desc, num, index, isDark, accent, ink }) => {
+const FeatureCard = ({ icon, title, desc, num, index, isDark, accent, ink, canHover }) => {
   const [hovered, setHovered] = useState(false);
+  const active = canHover && hovered;
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-50px' }}
-      transition={{ duration: 0.7, delay: index * 0.08, ease: EASE_EXPO }}
-      onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
-      className="relative group rounded-2xl p-7 sm:p-8 overflow-hidden cursor-default transition-all duration-500 border"
+      transition={{ duration: 0.7, delay: Math.min(index, 5) * 0.08, ease: EASE_EXPO }}
+      onMouseEnter={() => canHover && setHovered(true)} onMouseLeave={() => setHovered(false)}
+      className="relative group rounded-2xl p-6 sm:p-7 lg:p-8 overflow-hidden cursor-default transition-all duration-500 border"
       style={{
         backgroundColor: isDark ? '#0f0f0f' : '#ffffff',
-        borderColor: hovered ? `${accent}4d` : ink(0.06),
+        borderColor: active ? `${accent}4d` : ink(0.06),
       }}
     >
       <motion.div
-        animate={{ opacity: hovered ? 1 : 0, scale: hovered ? 1 : 0.8 }}
+        animate={{ opacity: active ? 1 : 0, scale: active ? 1 : 0.8 }}
         transition={{ duration: 0.5 }}
         className="absolute inset-0 pointer-events-none"
         style={{ background: `linear-gradient(135deg, ${accent}14, ${accent}08, transparent)` }}
       />
       <div
-        className="absolute top-4 right-5 text-[60px] font-black leading-none select-none pointer-events-none"
+        className="absolute top-4 right-5 text-[44px] sm:text-[60px] font-black leading-none select-none pointer-events-none"
         style={{ fontFamily: "'Bebas Neue', sans-serif", color: ink(0.05) }}
       >{num}</div>
       <div className="relative z-10">
         <motion.div
-          animate={{ backgroundColor: hovered ? accent : ink(0.05), color: hovered ? '#000' : ink(0.5) }}
+          animate={{ backgroundColor: active ? accent : ink(0.05), color: active ? '#000' : ink(0.5) }}
           transition={{ duration: 0.3 }}
-          className="w-11 h-11 rounded-xl flex items-center justify-center mb-7"
+          className="w-11 h-11 rounded-xl flex items-center justify-center mb-6 sm:mb-7"
         >
           <Icon name={icon} className="text-xl" />
         </motion.div>
@@ -354,7 +403,7 @@ const PricingCard = ({ plan, navigate, isAuthenticated = false, isDark, accent, 
         <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }} />
       )}
       <div
-        className="p-7 sm:p-8 flex flex-col flex-grow"
+        className="p-6 sm:p-7 lg:p-8 flex flex-col flex-grow"
         style={{ backgroundColor: popular ? `${accent}14` : (isDark ? '#0f0f0f' : '#ffffff') }}
       >
         {popular && (
@@ -370,7 +419,7 @@ const PricingCard = ({ plan, navigate, isAuthenticated = false, isDark, accent, 
           <div className="flex items-end gap-1">
             <span
               className="font-black leading-none"
-              style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(3rem,8vw,4rem)', color: isDark ? '#ffffff' : '#141414' }}
+              style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(2.75rem,8vw,4rem)', color: isDark ? '#ffffff' : '#141414' }}
             >{plan.price}</span>
             {plan.per && <span className="text-sm font-bold mb-2" style={{ color: ink(0.3) }}>{plan.per}</span>}
           </div>
@@ -390,6 +439,7 @@ const PricingCard = ({ plan, navigate, isAuthenticated = false, isDark, accent, 
           ))}
         </ul>
         <button
+          type="button"
           onClick={handleCTA}
           className="w-full py-4 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
           style={
@@ -415,11 +465,14 @@ const Landing = () => {
   const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
+  const canHover = useCanHover();
+  const prefersReducedMotion = usePrefersReducedMotion();
+
   // Replace with your real auth check
   const isAuthenticated = false;
   const { isDark } = useTheme();
 
-  const ink = makeInk(isDark);
+  const ink = useMemo(() => makeInk(isDark), [isDark]);
 
   // Text color for elements sitting in the fixed navbar.
   // While unscrolled, the nav is transparent and sits directly on the
@@ -428,7 +481,7 @@ const Landing = () => {
   // an opaque theme-colored background, so it uses the normal theme ink.
   const navInk = (alpha) => (scrolled ? ink(alpha) : `rgba(255,255,255,${alpha})`);
 
-  const themeVars = {
+  const themeVars = useMemo(() => ({
     accent: isDark ? '#8FBF63' : '#5E9E4A',
     bg: isDark ? '#080808' : '#f5f5f5',
     bgAlt: isDark ? '#0a0a0a' : '#ffffff',
@@ -441,7 +494,7 @@ const Landing = () => {
     menuBg: isDark ? '#060606' : '#ffffff',
     selection: isDark ? '#8FBF63' : '#5E9E4A',
     shadow: isDark ? 'rgba(143,191,99,0.3)' : 'rgba(94,158,74,0.2)',
-  };
+  }), [isDark]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -454,6 +507,16 @@ const Landing = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Lock background scroll while the mobile menu is open — otherwise the
+  // page behind it scrolls too on phones/tablets, which feels broken.
+  useEffect(() => {
+    if (menuOpen) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prevOverflow; };
+    }
+  }, [menuOpen]);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
@@ -495,8 +558,12 @@ const Landing = () => {
         ::selection { background: var(--selection-color); color: ${isDark ? '#000' : '#fff'}; }
         .bebas { font-family: 'Bebas Neue', sans-serif; }
         .dm    { font-family: 'DM Sans', sans-serif; }
-        .hero-text { font-family: 'Bebas Neue', sans-serif; font-size: clamp(80px, 18vw, 200px); line-height: 0.88; letter-spacing: -0.01em; }
+        .hero-text { font-family: 'Bebas Neue', sans-serif; font-size: clamp(56px, 18vw, 200px); line-height: 0.88; letter-spacing: -0.01em; }
         .section-num { font-family: 'Bebas Neue', sans-serif; font-size: clamp(80px, 12vw, 140px); color: ${isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}; line-height: 1; }
+        /* Anchor-linked sections shouldn't hide under the fixed navbar. */
+        section[id] { scroll-margin-top: 5rem; }
+        /* 100vh jumps around on mobile browsers as chrome shows/hides; dvh doesn't. */
+        .hero-min-h { min-height: 100vh; min-height: 100dvh; }
         .grain::before {
           content: ''; position: fixed; inset: -50%; width: 200%; height: 200%;
           background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
@@ -508,10 +575,28 @@ const Landing = () => {
         @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2.2); opacity: 0; } }
         .pulse-ring { animation: pulse-ring 2s ease-out infinite; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
+        @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-33.333%); } }
+        .animate-marquee { animation: marquee 30s linear infinite; }
+        /* Visible keyboard focus everywhere — needed for a11y and for anyone
+           navigating on a device without a mouse (keyboards, switch access). */
+        a:focus-visible, button:focus-visible {
+          outline: 2px solid ${themeVars.accent};
+          outline-offset: 2px;
+          border-radius: 4px;
+        }
+        /* Respect OS-level reduced-motion preference: stop decorative/ambient
+           animation loops. Framer Motion transitions on state changes still run,
+           but nothing spins or drifts forever in the background. */
+        @media (prefers-reduced-motion: reduce) {
+          html { scroll-behavior: auto; }
+          .animate-marquee { animation: none !important; }
+          .grain::before { animation: none !important; }
+          .pulse-ring { animation: none !important; }
+        }
       `}</style>
 
       <div className="grain dm w-screen min-h-screen bg-(--bg) text-(--text) overflow-x-hidden">
-        <CursorGlow accent={themeVars.accent} />
+        <CursorGlow accent={themeVars.accent} enabled={canHover && !prefersReducedMotion} />
 
         {/* ── Navbar ─────────────────────────────────────────────────────── */}
         <motion.nav
@@ -519,14 +604,14 @@ const Landing = () => {
           transition={{ duration: 0.4 }}
           className="fixed top-0 left-0 right-0 z-[100] border-b border-transparent"
         >
-          <div className="max-w-[1440px] mx-auto px-5 sm:px-8 h-20 flex justify-between items-center">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-8 h-16 sm:h-20 flex justify-between items-center">
             <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-3"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2.5 sm:gap-3"
             >
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: themeVars.accent, boxShadow: `0 0 20px ${themeVars.shadow}` }}>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: themeVars.accent, boxShadow: `0 0 20px ${themeVars.shadow}` }}>
                 <Icon name="pulse_alert" className="text-[#0a1000] text-lg" />
               </div>
-              <span className="bebas text-2xl tracking-wider" style={{ color: navInk(1) }}>Vitalis</span>
+              <span className="bebas text-xl sm:text-2xl tracking-wider" style={{ color: navInk(1) }}>Vitalis</span>
             </motion.button>
 
             <div className="hidden lg:flex items-center gap-10">
@@ -536,8 +621,8 @@ const Landing = () => {
                   initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
                   className="text-[11px] font-bold transition-colors tracking-[0.2em] uppercase relative group"
                   style={{ color: navInk(0.65) }}
-                  onMouseEnter={e => e.currentTarget.style.color = themeVars.accent}
-                  onMouseLeave={e => e.currentTarget.style.color = navInk(0.65)}
+                  onMouseEnter={e => { if (canHover) e.currentTarget.style.color = themeVars.accent; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = navInk(0.65); }}
                 >
                   {label}
                   <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-(--accent) group-hover:w-full transition-all duration-300" />
@@ -545,7 +630,7 @@ const Landing = () => {
               ))}
             </div>
 
-            <div className="flex items-center gap-3 sm:gap-5">
+            <div className="flex items-center gap-2 sm:gap-3 lg:gap-5">
               <ThemeToggle />
               <motion.button
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
@@ -556,11 +641,15 @@ const Landing = () => {
               <motion.button
                 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35 }}
                 onClick={() => navigate('/register')}
-                className="hidden sm:block px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95"
+                className="hidden sm:block px-5 lg:px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95"
                 style={{ backgroundColor: themeVars.accent, color: '#000', boxShadow: `0 0 30px ${themeVars.shadow}` }}
               >Join the Lab</motion.button>
               <button
-                onClick={() => setMenuOpen(o => !o)} aria-label="Toggle menu"
+                type="button"
+                onClick={() => setMenuOpen(o => !o)}
+                aria-label="Toggle menu"
+                aria-expanded={menuOpen}
+                aria-controls="mobile-menu"
                 className="lg:hidden flex flex-col gap-1.5 w-10 h-10 justify-center items-center rounded-xl transition-colors"
                 style={{ backgroundColor: 'transparent' }}
               >
@@ -572,15 +661,21 @@ const Landing = () => {
           </div>
         </motion.nav>
 
-        <MobileMenu open={menuOpen} onClose={closeMenu} navigate={navigate} isDark={isDark} accent={themeVars.accent} ink={ink} />
+        <div id="mobile-menu">
+          <MobileMenu open={menuOpen} onClose={closeMenu} navigate={navigate} isDark={isDark} accent={themeVars.accent} ink={ink} canHover={canHover} />
+        </div>
 
         {/* ── HERO (now theme-aware) ────────────────────────────────────── */}
-        <section ref={heroRef} className="relative min-h-screen flex flex-col justify-end pb-16 sm:pb-24 pt-20 overflow-hidden">
+        <section ref={heroRef} className="hero-min-h relative flex flex-col justify-end pb-14 sm:pb-24 pt-20 overflow-hidden">
           <motion.div className="absolute inset-0" style={{ y: heroY }}>
             <img
-              src={GYM_BG}
+              src={GYM_BG_FALLBACK}
+              srcSet={GYM_BG_SRCSET}
+              sizes="100vw"
               alt=""
               aria-hidden
+              fetchpriority="high"
+              decoding="async"
               className="w-full h-full object-cover object-center"
               style={{ filter: isDark ? 'brightness(0.2) saturate(0.7)' : 'brightness(0.8) saturate(0.5)' }}
             />
@@ -594,17 +689,17 @@ const Landing = () => {
             />
             <div className="absolute inset-0 scanline opacity-40" />
           </motion.div>
-          <div className="absolute top-20 left-[10%] w-[500px] h-[500px] rounded-full blur-[150px] pointer-events-none" style={{ backgroundColor: `${themeVars.accent}16` }} />
-          <div className="absolute bottom-0 right-[5%] w-[400px] h-[400px] rounded-full blur-[120px] pointer-events-none" style={{ backgroundColor: `${themeVars.accent}25` }} />
+          <div className="absolute top-20 left-[10%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full blur-[100px] sm:blur-[150px] pointer-events-none" style={{ backgroundColor: `${themeVars.accent}16` }} />
+          <div className="absolute bottom-0 right-[5%] w-[240px] sm:w-[400px] h-[240px] sm:h-[400px] rounded-full blur-[90px] sm:blur-[120px] pointer-events-none" style={{ backgroundColor: `${themeVars.accent}25` }} />
 
           <motion.div className="relative z-10 max-w-[1440px] mx-auto w-full px-5 sm:px-8" style={{ opacity: heroOpacity }}>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="flex items-center gap-3 mb-8 sm:mb-12">
-              <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border backdrop-blur-sm" style={{ borderColor: ink(0.1), backgroundColor: ink(0.05) }}>
-                <span className="relative flex items-center justify-center w-2 h-2">
+              <div className="flex items-center gap-2.5 px-3.5 sm:px-4 py-2 rounded-full border backdrop-blur-sm" style={{ borderColor: ink(0.1), backgroundColor: ink(0.05) }}>
+                <span className="relative flex items-center justify-center w-2 h-2 flex-shrink-0">
                   <span className="pulse-ring absolute inline-block w-2 h-2 rounded-full" style={{ backgroundColor: `${themeVars.accent}80` }} />
                   <span className="relative w-1.5 h-1.5 rounded-full" style={{ backgroundColor: themeVars.accent, boxShadow: `0 0 8px ${themeVars.accent}` }} />
                 </span>
-                <span className="text-[10px] font-bold uppercase tracking-[0.25em]" style={{ color: ink(0.5) }}>Institutional Grade Biometrics</span>
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em]" style={{ color: ink(0.5) }}>Institutional Grade Biometrics</span>
               </div>
             </motion.div>
 
@@ -625,6 +720,7 @@ const Landing = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
+                  type="button"
                   onClick={handleHeroCTA}
                   className="flex-1 sm:flex-none px-8 py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] transition-all hover:-translate-y-1 active:translate-y-0 whitespace-nowrap text-center"
                   style={{ backgroundColor: themeVars.accent, color: '#0a1000', boxShadow: `0 20px 50px ${themeVars.shadow}` }}
@@ -632,9 +728,10 @@ const Landing = () => {
                   Initiate Protocol
                 </button>
                 <button
+                  type="button"
                   className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-8 py-4 rounded-xl border transition-all group whitespace-nowrap"
                   style={{ borderColor: ink(0.1), color: ink(0.45) }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = ink(0.25); e.currentTarget.style.color = themeVars.text; }}
+                  onMouseEnter={e => { if (canHover) { e.currentTarget.style.borderColor = ink(0.25); e.currentTarget.style.color = themeVars.text; } }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.1); e.currentTarget.style.color = ink(0.45); }}
                 >
                   <Icon name="play_circle" className="text-2xl transition-colors flex-shrink-0" />
@@ -658,7 +755,7 @@ const Landing = () => {
             </motion.div>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="hidden sm:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2">
             <span className="text-[9px] font-black uppercase tracking-[0.4em]" style={{ color: ink(0.25) }}>Scroll</span>
             <motion.div
               animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
@@ -671,10 +768,10 @@ const Landing = () => {
         <Marquee isDark={isDark} accent={themeVars.accent} ink={ink} />
 
         {/* ── Stats ──────────────────────────────────────────────────────── */}
-        <section className="py-16 sm:py-24 px-5 sm:px-8" style={{ backgroundColor: themeVars.bg }}>
+        <section className="py-14 sm:py-24 px-5 sm:px-8" style={{ backgroundColor: themeVars.bg }}>
           <div className="max-w-[1440px] mx-auto">
             <div
-              className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 border rounded-2xl p-8 sm:p-12 relative overflow-hidden"
+              className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 border rounded-2xl p-6 sm:p-12 relative overflow-hidden"
               style={{ borderColor: ink(0.05), backgroundColor: isDark ? '#0d0d0d' : '#ffffff' }}
             >
               <div className="absolute inset-0 pointer-events-none" style={{ background: `linear-gradient(135deg, ${themeVars.accent}08, transparent)` }} />
@@ -685,14 +782,14 @@ const Landing = () => {
         </section>
 
         {/* ── Features ───────────────────────────────────────────────────── */}
-        <section id="features" className="py-16 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: themeVars.bg }}>
+        <section id="features" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: themeVars.bg }}>
           <div className="section-num absolute -top-4 -left-4 select-none pointer-events-none">FEAT</div>
           <div className="max-w-[1440px] mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-14 sm:mb-20 gap-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 sm:mb-20 gap-6 sm:gap-8">
               <div>
                 <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4" style={{ color: themeVars.accent }}>The Infrastructure</motion.p>
                 <motion.h2 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1, ease: EASE_EXPO }}
-                  className="bebas leading-none" style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', letterSpacing: '0.01em', color: isDark ? '#ffffff' : '#141414' }}
+                  className="bebas leading-none" style={{ fontSize: 'clamp(2.5rem, 8vw, 6rem)', letterSpacing: '0.01em', color: isDark ? '#ffffff' : '#141414' }}
                 >Engineered for<br /><span style={{ color: ink(0.15) }}>The 1%.</span></motion.h2>
               </div>
               <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.2 }}
@@ -701,19 +798,19 @@ const Landing = () => {
               >Our proprietary models are trained on over 2 million athletic data points to provide accuracy where others guess.</motion.p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {FEATURES.map((f, i) => <FeatureCard key={f.title} {...f} index={i} isDark={isDark} accent={themeVars.accent} ink={ink} />)}
+              {FEATURES.map((f, i) => <FeatureCard key={f.title} {...f} index={i} isDark={isDark} accent={themeVars.accent} ink={ink} canHover={canHover} />)}
             </div>
           </div>
         </section>
 
         {/* ── About ──────────────────────────────────────────────────────── */}
-        <section id="about" className="py-16 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: themeVars.bgAlt }}>
+        <section id="about" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: themeVars.bgAlt }}>
           <div className="section-num absolute -top-4 right-0 select-none pointer-events-none">ABOT</div>
           <div className="max-w-[1440px] mx-auto">
-            <div className="text-center mb-16 sm:mb-24">
+            <div className="text-center mb-14 sm:mb-24">
               <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4" style={{ color: themeVars.accent }}>Our Story</motion.p>
               <motion.h2 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, ease: EASE_EXPO }}
-                className="bebas leading-none mb-6" style={{ fontSize: 'clamp(3rem, 9vw, 7rem)', letterSpacing: '0.01em', color: isDark ? '#ffffff' : '#141414' }}
+                className="bebas leading-none mb-6" style={{ fontSize: 'clamp(2.5rem, 9vw, 7rem)', letterSpacing: '0.01em', color: isDark ? '#ffffff' : '#141414' }}
               >Redefining Human <span className="glow-text" style={{ color: themeVars.accent }}>Performance</span></motion.h2>
               <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
                 className="max-w-2xl mx-auto text-base sm:text-lg leading-relaxed font-medium" style={{ color: ink(0.35) }}
@@ -727,10 +824,10 @@ const Landing = () => {
               ].map((item, i) => (
                 <motion.div
                   key={item.title} initial={{ opacity: 0, x: i === 0 ? -40 : 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, ease: EASE_EXPO }}
-                  className="group relative rounded-2xl p-8 sm:p-10 overflow-hidden border transition-colors"
+                  className="group relative rounded-2xl p-7 sm:p-10 overflow-hidden border transition-colors"
                   style={{ backgroundColor: isDark ? '#0f0f0f' : '#ffffff', borderColor: ink(0.06) }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = `${themeVars.accent}33`}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = ink(0.06)}
+                  onMouseEnter={e => { if (canHover) e.currentTarget.style.borderColor = `${themeVars.accent}33`; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.06); }}
                 >
                   <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ backgroundColor: `${themeVars.accent}0a` }} />
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style={{ backgroundColor: `${themeVars.accent}1a` }}>
@@ -743,14 +840,14 @@ const Landing = () => {
             </div>
 
             <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4 text-center" style={{ color: themeVars.accent }}>What We Believe</motion.p>
-            <motion.h3 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bebas text-center mb-10 sm:mb-16" style={{ fontSize: 'clamp(2.5rem, 6vw, 5rem)', color: isDark ? '#ffffff' : '#141414' }}>Core Values</motion.h3>
+            <motion.h3 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bebas text-center mb-10 sm:mb-16" style={{ fontSize: 'clamp(2.25rem, 6vw, 5rem)', color: isDark ? '#ffffff' : '#141414' }}>Core Values</motion.h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {ABOUT_VALUES.map((v, i) => (
                 <motion.div
                   key={v.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.08 }}
                   className="group rounded-2xl p-6 border transition-all duration-300"
                   style={{ backgroundColor: ink(0.03), borderColor: ink(0.05) }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = `${themeVars.accent}40`; e.currentTarget.style.backgroundColor = ink(0.05); }}
+                  onMouseEnter={e => { if (canHover) { e.currentTarget.style.borderColor = `${themeVars.accent}40`; e.currentTarget.style.backgroundColor = ink(0.05); } }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.05); e.currentTarget.style.backgroundColor = ink(0.03); }}
                 >
                   <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-4 transition-colors" style={{ backgroundColor: `${themeVars.accent}1a` }}>
@@ -765,13 +862,13 @@ const Landing = () => {
         </section>
 
         {/* ── Pricing ────────────────────────────────────────────────────── */}
-        <section id="pricing" className="py-16 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: themeVars.bg }}>
+        <section id="pricing" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: themeVars.bg }}>
           <div className="section-num absolute -top-4 -left-4 select-none pointer-events-none">PRCE</div>
           <div className="max-w-[1440px] mx-auto">
             <div className="text-center mb-14 sm:mb-20">
               <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4" style={{ color: themeVars.accent }}>Plans</motion.p>
               <motion.h2 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, ease: EASE_EXPO }}
-                className="bebas mb-4" style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', color: isDark ? '#ffffff' : '#141414' }}
+                className="bebas mb-4" style={{ fontSize: 'clamp(2.5rem, 8vw, 6rem)', color: isDark ? '#ffffff' : '#141414' }}
               >Access the Lab.</motion.h2>
               <p className="max-w-sm mx-auto text-sm font-medium" style={{ color: ink(0.35) }}>Transparent pricing for lifelong optimization.</p>
             </div>
@@ -784,6 +881,7 @@ const Landing = () => {
                 isDark={isDark}
                 accent={themeVars.accent}
                 ink={ink}
+                canHover={canHover}
                 renderItem={(plan) => (
                   <PricingCard plan={plan} navigate={navigate} isAuthenticated={isAuthenticated} isDark={isDark} accent={themeVars.accent} ink={ink} />
                 )}
@@ -804,23 +902,24 @@ const Landing = () => {
         </section>
 
         {/* ── CTA ────────────────────────────────────────────────────────── */}
-        <section className="py-16 sm:py-24 px-5 sm:px-8" style={{ backgroundColor: themeVars.bg }}>
+        <section className="py-14 sm:py-24 px-5 sm:px-8" style={{ backgroundColor: themeVars.bg }}>
           <div className="max-w-[1440px] mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.9, ease: EASE_EXPO }}
-              className="relative overflow-hidden rounded-2xl sm:rounded-3xl px-8 sm:px-14 py-14 sm:py-20"
+              className="relative overflow-hidden rounded-2xl sm:rounded-3xl px-6 sm:px-14 py-12 sm:py-20"
               style={{ backgroundColor: themeVars.accent }}
             >
-              <div className="absolute -right-8 -bottom-8 bebas text-[120px] sm:text-[200px] text-black/[0.09] leading-none select-none pointer-events-none">EVOLVE</div>
+              <div className="absolute -right-8 -bottom-8 bebas text-[80px] sm:text-[200px] text-black/[0.09] leading-none select-none pointer-events-none">EVOLVE</div>
               <div className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none" />
-              <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-10">
+              <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8 sm:gap-10">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.35em] text-black/40 mb-3">Start Today</p>
-                  <h2 className="bebas text-black leading-none mb-4" style={{ fontSize: 'clamp(2.5rem, 7vw, 5.5rem)' }}>Ready to Evolve?</h2>
+                  <h2 className="bebas text-black leading-none mb-4" style={{ fontSize: 'clamp(2.25rem, 7vw, 5.5rem)' }}>Ready to Evolve?</h2>
                   <p className="text-black/50 text-sm font-medium max-w-xs">Join 50,000+ athletes already training with clinical-grade intelligence.</p>
                 </div>
                 <div className="flex flex-col gap-3 flex-shrink-0 w-full sm:w-auto">
                   <button
+                    type="button"
                     onClick={handleBottomCTA}
                     className="w-full sm:w-auto px-10 py-4 rounded-xl bg-black text-white font-black uppercase tracking-[0.2em] text-[11px] hover:scale-[1.03] transition-transform shadow-xl whitespace-nowrap"
                   >
@@ -857,7 +956,7 @@ const Landing = () => {
                       key={label} href="#" aria-label={label}
                       className="w-9 h-9 rounded-lg border flex items-center justify-center transition-all duration-300 group"
                       style={{ backgroundColor: ink(0.05), borderColor: ink(0.08) }}
-                      onMouseEnter={e => { e.currentTarget.style.backgroundColor = themeVars.accent; e.currentTarget.style.borderColor = themeVars.accent; }}
+                      onMouseEnter={e => { if (canHover) { e.currentTarget.style.backgroundColor = themeVars.accent; e.currentTarget.style.borderColor = themeVars.accent; } }}
                       onMouseLeave={e => { e.currentTarget.style.backgroundColor = ink(0.05); e.currentTarget.style.borderColor = ink(0.08); }}
                     >
                       <Icon name={icon} className="text-base" />
@@ -867,7 +966,7 @@ const Landing = () => {
               </div>
 
               {/* Nav columns */}
-              <div className="grid grid-cols-3 gap-6 sm:gap-10 flex-grow">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-10 flex-grow">
                 {[
                   { heading: 'Product', links: ['Features', 'Pricing', 'Research', 'API Docs'] },
                   { heading: 'Company', links: ['About', 'Careers', 'Press', 'Contact'] },
@@ -882,8 +981,8 @@ const Landing = () => {
                             href="#"
                             className="text-[12px] font-medium transition-colors"
                             style={{ color: ink(0.3) }}
-                            onMouseEnter={e => e.currentTarget.style.color = themeVars.accent}
-                            onMouseLeave={e => e.currentTarget.style.color = ink(0.3)}
+                            onMouseEnter={e => { if (canHover) e.currentTarget.style.color = themeVars.accent; }}
+                            onMouseLeave={e => { e.currentTarget.style.color = ink(0.3); }}
                           >{link}</a>
                         </li>
                       ))}
@@ -900,7 +999,7 @@ const Landing = () => {
             <div className="py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
 
               {/* Left: copyright */}
-              <p className="text-[11px] font-medium tracking-wide order-2 sm:order-1" style={{ color: ink(0.2) }}>
+              <p className="text-[11px] font-medium tracking-wide order-2 sm:order-1 text-center sm:text-left" style={{ color: ink(0.2) }}>
                 © 2026 <span className="font-bold" style={{ color: ink(0.35) }}>Vitalis Labs Inc.</span> All rights reserved.
               </p>
 
