@@ -4,9 +4,11 @@ import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePres
 import { useTheme } from '../../hooks/useTheme';
 import ThemeToggle from '../../components/ThemeToggle';
 
-
+// ─── Constants ────────────────────────────────────────────────────────────────
 const GYM_BG = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1800&q=80&auto=format&fit=crop';
 const EASE_EXPO = [0.16, 1, 0.3, 1];
+
+// ─── Static data ──────────────────────────────────────────────────────────────
 const FEATURES = [
   { icon: 'filter_center_focus', title: 'Neural Biometrics',  desc: 'Medical-grade analysis of HRV and neural fatigue through high-frequency AI scanning.', num: '01' },
   { icon: 'bolt',                title: 'Adaptive Coaching',  desc: 'Workout protocols that shift intensity based on your real-time recovery data.',           num: '02' },
@@ -16,7 +18,7 @@ const FEATURES = [
   { icon: 'shield_lock',         title: 'Vault Privacy',      desc: 'Your biometric data is end-to-end encrypted with zero-knowledge protocols.',             num: '06' },
 ];
 
-
+// ─── PRICING now carries planId so the CTA deep-links to a real plan ─────────
 const PRICING = [
   {
     name: 'Foundations',
@@ -70,6 +72,7 @@ const NAV_LINKS = [
   { href: '#about',    label: 'About'    },
 ];
 
+// ─── Helper: navigate to Plans page ──────────────────────────────────────────
 const buildPlansPath = ({ planId = null, tab = 'explore' } = {}) => {
   const params = new URLSearchParams();
   if (planId) params.set('planId', String(planId));
@@ -77,15 +80,19 @@ const buildPlansPath = ({ planId = null, tab = 'explore' } = {}) => {
   return `/dashboard/plans?${params.toString()}`;
 };
 
-
+// ─── Theme ink helper ─────────────────────────────────────────────────────────
+// Produces a translucent color that reads as "white at alpha" in dark mode
+// and "near-black at alpha" in light mode — used everywhere the old code
+// hardcoded things like text-white/35, bg-white/5, border-white/10, etc.
 const makeInk = (isDark) => (alpha) =>
   isDark ? `rgba(255,255,255,${alpha})` : `rgba(20,20,20,${alpha})`;
 
+// ─── Icon ─────────────────────────────────────────────────────────────────────
 const Icon = ({ name, className = '' }) => (
   <span className={`material-symbols-outlined select-none leading-none ${className}`}>{name}</span>
 );
 
-//Horizontal Slider
+// ─── Horizontal Slider (shared by Pricing on mobile) ─────────────────────────
 const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px]', isDark, accent, ink }) => {
   const [index, setIndex] = useState(0);
   const trackRef = useRef(null);
@@ -161,6 +168,7 @@ const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px
   );
 };
 
+// ─── Marquee ──────────────────────────────────────────────────────────────────
 const MARQUEE_ITEMS = ['Neural Biometrics', 'Adaptive Coaching', 'Vision Nutrition', 'Performance Lab', 'Ecosystem Sync', 'Vault Privacy'];
 const Marquee = ({ isDark, accent, ink }) => (
   <div
@@ -186,6 +194,7 @@ const Marquee = ({ isDark, accent, ink }) => (
   </div>
 );
 
+// ─── Cursor glow ──────────────────────────────────────────────────────────────
 const CursorGlow = ({ accent }) => {
   const mx = useMotionValue(-400);
   const my = useMotionValue(-400);
@@ -203,6 +212,7 @@ const CursorGlow = ({ accent }) => {
   );
 };
 
+// ─── Stat counter ─────────────────────────────────────────────────────────────
 const StatCounter = ({ value, label, isDark, accent, ink }) => {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -226,6 +236,7 @@ const StatCounter = ({ value, label, isDark, accent, ink }) => {
   );
 };
 
+// ─── Mobile Menu ──────────────────────────────────────────────────────────────
 const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink }) => (
   <AnimatePresence>
     {open && (
@@ -276,7 +287,7 @@ const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink }) => (
   </AnimatePresence>
 );
 
-
+// ─── Feature Card ─────────────────────────────────────────────────────────────
 const FeatureCard = ({ icon, title, desc, num, index, isDark, accent, ink }) => {
   const [hovered, setHovered] = useState(false);
   return (
@@ -318,7 +329,7 @@ const FeatureCard = ({ icon, title, desc, num, index, isDark, accent, ink }) => 
   );
 };
 
-
+// ─── Pricing Card ─────────────────────────────────────────────────────────────
 const PricingCard = ({ plan, navigate, isAuthenticated = false, isDark, accent, ink }) => {
   const { popular, planId, ctaLabel, ctaDest, features } = plan;
 
@@ -409,7 +420,14 @@ const Landing = () => {
   const { isDark } = useTheme();
 
   const ink = makeInk(isDark);
+
+  // Text color for elements sitting in the fixed navbar.
+  // While unscrolled, the nav is transparent and sits directly on the
+  // hero image — so before the opaque background kicks in, we fall back
+  // to a value that reads well over the photo. Once scrolled, the nav has
+  // an opaque theme-colored background, so it uses the normal theme ink.
   const navInk = (alpha) => (scrolled ? ink(alpha) : `rgba(255,255,255,${alpha})`);
+
   const themeVars = {
     accent: isDark ? '#8FBF63' : '#5E9E4A',
     bg: isDark ? '#080808' : '#f5f5f5',
@@ -519,7 +537,7 @@ const Landing = () => {
                   className="text-[11px] font-bold transition-colors tracking-[0.2em] uppercase relative group"
                   style={{ color: navInk(0.65) }}
                   onMouseEnter={e => e.currentTarget.style.color = themeVars.accent}
-                   onMouseLeave={e => e.currentTarget.style.color = navInk(0.65)}
+                  onMouseLeave={e => e.currentTarget.style.color = navInk(0.65)}
                 >
                   {label}
                   <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-(--accent) group-hover:w-full transition-all duration-300" />
@@ -533,7 +551,8 @@ const Landing = () => {
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
                 onClick={() => navigate('/login')}
                 className="hidden sm:block text-[11px] font-bold uppercase tracking-widest transition-colors"
-                style={{ color: navInk(0.75) }}>Sign In</motion.button>
+                style={{ color: navInk(0.75) }}
+              >Sign In</motion.button>
               <motion.button
                 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35 }}
                 onClick={() => navigate('/register')}
@@ -555,12 +574,24 @@ const Landing = () => {
 
         <MobileMenu open={menuOpen} onClose={closeMenu} navigate={navigate} isDark={isDark} accent={themeVars.accent} ink={ink} />
 
-        {/* ── HERO (always dark cinematic — sits on a photo) ────────────────── */}
+        {/* ── HERO (now theme-aware) ────────────────────────────────────── */}
         <section ref={heroRef} className="relative min-h-screen flex flex-col justify-end pb-16 sm:pb-24 pt-20 overflow-hidden">
           <motion.div className="absolute inset-0" style={{ y: heroY }}>
-            <img src={GYM_BG} alt="" aria-hidden className="w-full h-full object-cover object-center" style={{ filter: 'brightness(0.2) saturate(0.7)' }} />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#080808]/50 via-[#080808]/20 to-[#080808]" />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#080808]/70 to-transparent" />
+            <img
+              src={GYM_BG}
+              alt=""
+              aria-hidden
+              className="w-full h-full object-cover object-center"
+              style={{ filter: isDark ? 'brightness(0.2) saturate(0.7)' : 'brightness(0.8) saturate(0.5)' }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{ background: `linear-gradient(to bottom, ${themeVars.bg}80 0%, ${themeVars.bg}33 40%, ${themeVars.bg} 100%)` }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{ background: `linear-gradient(to right, ${themeVars.bg}b3 0%, transparent 60%)` }}
+            />
             <div className="absolute inset-0 scanline opacity-40" />
           </motion.div>
           <div className="absolute top-20 left-[10%] w-[500px] h-[500px] rounded-full blur-[150px] pointer-events-none" style={{ backgroundColor: `${themeVars.accent}16` }} />
@@ -568,24 +599,28 @@ const Landing = () => {
 
           <motion.div className="relative z-10 max-w-[1440px] mx-auto w-full px-5 sm:px-8" style={{ opacity: heroOpacity }}>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="flex items-center gap-3 mb-8 sm:mb-12">
-              <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm">
+              <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border backdrop-blur-sm" style={{ borderColor: ink(0.1), backgroundColor: ink(0.05) }}>
                 <span className="relative flex items-center justify-center w-2 h-2">
                   <span className="pulse-ring absolute inline-block w-2 h-2 rounded-full" style={{ backgroundColor: `${themeVars.accent}80` }} />
                   <span className="relative w-1.5 h-1.5 rounded-full" style={{ backgroundColor: themeVars.accent, boxShadow: `0 0 8px ${themeVars.accent}` }} />
                 </span>
-                <span className="text-[10px] font-bold text-white/50 uppercase tracking-[0.25em]">Institutional Grade Biometrics</span>
+                <span className="text-[10px] font-bold uppercase tracking-[0.25em]" style={{ color: ink(0.5) }}>Institutional Grade Biometrics</span>
               </div>
             </motion.div>
 
             <div className="hero-text overflow-hidden mb-6 sm:mb-10">
               {['BEYOND', 'FITNESS.'].map((word, i) => (
-                <motion.div key={word} initial={{ y: '110%' }} animate={{ y: 0 }} transition={{ duration: 1, delay: 0.4 + i * 0.12, ease: EASE_EXPO }}
-                  className={i === 1 ? 'text-white/15 italic' : 'text-white'}>{word}</motion.div>
+                <motion.div
+                  key={word}
+                  initial={{ y: '110%' }} animate={{ y: 0 }} transition={{ duration: 1, delay: 0.4 + i * 0.12, ease: EASE_EXPO }}
+                  className={i === 1 ? 'italic' : ''}
+                  style={{ color: i === 1 ? ink(0.15) : themeVars.text }}
+                >{word}</motion.div>
               ))}
             </div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.75 }} className="flex flex-col gap-8 max-w-lg">
-              <p className="text-white/35 text-base sm:text-lg leading-relaxed font-medium">
+              <p className="text-base sm:text-lg leading-relaxed font-medium" style={{ color: ink(0.45) }}>
                 Vitalis is a high-performance OS for the human body. We bridge the gap between clinical data and daily action.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
@@ -596,7 +631,12 @@ const Landing = () => {
                 >
                   Initiate Protocol
                 </button>
-                <button className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-8 py-4 rounded-xl border border-white/10 hover:border-white/25 text-white/40 hover:text-white transition-all group whitespace-nowrap">
+                <button
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-8 py-4 rounded-xl border transition-all group whitespace-nowrap"
+                  style={{ borderColor: ink(0.1), color: ink(0.45) }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = ink(0.25); e.currentTarget.style.color = themeVars.text; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.1); e.currentTarget.style.color = ink(0.45); }}
+                >
                   <Icon name="play_circle" className="text-2xl transition-colors flex-shrink-0" />
                   <span className="text-[11px] font-bold uppercase tracking-widest">Watch Film</span>
                 </button>
@@ -604,17 +644,26 @@ const Landing = () => {
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
                   {[0.3, 0.5, 0.7].map((a, i) => (
-                    <div key={i} className="w-6 h-6 rounded-full border border-[#080808]" style={{ backgroundColor: `${themeVars.accent}${Math.round(a * 255).toString(16)}` }} />
+                    <div
+                      key={i}
+                      className="w-6 h-6 rounded-full border"
+                      style={{ borderColor: themeVars.bg, backgroundColor: `${themeVars.accent}${Math.round(a * 255).toString(16)}` }}
+                    />
                   ))}
                 </div>
-                <span className="text-[11px] text-white/25 font-medium">Joined by <span className="text-white/50 font-bold">50K+</span> athletes worldwide</span>
+                <span className="text-[11px] font-medium" style={{ color: ink(0.3) }}>
+                  Joined by <span style={{ color: ink(0.55), fontWeight: 700 }}>50K+</span> athletes worldwide
+                </span>
               </div>
             </motion.div>
           </motion.div>
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-white/20">Scroll</span>
-            <motion.div animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }} className="w-px h-8 bg-gradient-to-b from-white/20 to-transparent" />
+            <span className="text-[9px] font-black uppercase tracking-[0.4em]" style={{ color: ink(0.25) }}>Scroll</span>
+            <motion.div
+              animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+              className="w-px h-8" style={{ background: `linear-gradient(to bottom, ${ink(0.25)}, transparent)` }}
+            />
           </motion.div>
         </section>
 
