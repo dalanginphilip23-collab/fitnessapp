@@ -129,7 +129,7 @@ const Icon = React.memo(({ name, className = '' }) => (
 ));
 
 // ─── Horizontal Slider (shared by Pricing on mobile) ─────────────────────────
-const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px]', isDark, accent, ink, canHover }) => {
+const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px]', accent, ink, canHover }) => {
   const [index, setIndex] = useState(0);
   const trackRef = useRef(null);
   const total = items.length;
