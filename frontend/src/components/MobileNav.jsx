@@ -17,61 +17,71 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
   };
 
   return (
-    <nav
-      style={{
-        backgroundColor: 'var(--bg-secondary)',
-        borderRadius: '1rem 1rem 0 0',
-      }}
-      className="md:hidden fixed bottom-0 left-0 right-0 h-17 backdrop-blur-xl border-t border-(--border-light) flex justify-around items-center px-2 z-70"
+    // Outer wrapper handles the "floating" positioning: inset from the
+    // screen edges instead of pinned flush to them, plus safe-area padding
+    // so it clears the home-indicator on iOS.
+    <div
+      className="md:hidden fixed left-3 right-3 z-70"
+      style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
     >
-      {items.map((item) => {
-        const key = item.label || item.name;
-        const isActive = location.pathname === item.path;
-        return (
-          <button
-            key={key}
-            onClick={() => handleNavClick(item.path)}
-            className={`relative flex flex-col items-center justify-center gap-1.5 bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full w-full ${
-              isActive ? 'text-(--accent)' : 'text-(--text-muted)'
-            }`}
-          >
-            <div
-              className={`relative flex items-center justify-center transition-transform duration-300 ${
-                isActive ? 'scale-110' : 'scale-100'
+      <nav
+        style={{
+          backgroundColor: 'var(--bg-secondary)',
+          borderRadius: '9999px',
+          boxShadow:
+            '0 8px 30px rgb(0 0 0 / 0.12), 0 2px 8px rgb(0 0 0 / 0.08)',
+        }}
+        className="h-16 backdrop-blur-xl border border-(--border-light) flex justify-around items-center px-2 mx-auto max-w-md"
+      >
+        {items.map((item) => {
+          const key = item.label || item.name;
+          const isActive = location.pathname === item.path;
+          return (
+            <button
+              key={key}
+              onClick={() => handleNavClick(item.path)}
+              className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full w-full ${
+                isActive ? 'text-(--accent)' : 'text-(--text-muted)'
               }`}
             >
-              <Icon
-                name={item.icon}
-                className="text-[20px] min-w-5 shrink-0"
-                fill={isActive ? 1 : 0}
-              />
-              {isActive && (
-                <span className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-(--accent) rounded-full animate-pulse" />
-              )}
-            </div>
-            {isActive && (
-              <div className="absolute bottom-2 w-5 h-0.5 bg-(--accent) rounded-full" />
-            )}
-          </button>
-        );
-      })}
+              <div
+                className={`relative flex items-center justify-center transition-transform duration-300 ${
+                  isActive ? 'scale-110' : 'scale-100'
+                }`}
+              >
+                {isActive && (
+                  <span
+                    className="absolute inset-[-6px] rounded-full"
+                    style={{ backgroundColor: 'color-mix(in srgb, var(--accent) 14%, transparent)' }}
+                  />
+                )}
+                <Icon
+                  name={item.icon}
+                  className="relative text-[20px] min-w-5 shrink-0"
+                  fill={isActive ? 1 : 0}
+                />
+              </div>
+            </button>
+          );
+        })}
 
-      {/* Feedback button */}
-      {onFeedback && (
-        <button
-          onClick={onFeedback}
-          className="relative flex flex-col items-center justify-center gap-1.5 bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full w-full text-(--text-muted) hover:text-(--accent)"
-        >
-          <div className="relative flex items-center justify-center transition-transform duration-300 scale-100">
-            <Icon
-              name="feedback"
-              className="text-[20px] min-w-5 shrink-0"
-              fill={0}
-            />
-          </div>
-        </button>
-      )}
-    </nav>
+        {/* Feedback button */}
+        {onFeedback && (
+          <button
+            onClick={onFeedback}
+            className="relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full w-full text-(--text-muted) hover:text-(--accent)"
+          >
+            <div className="relative flex items-center justify-center transition-transform duration-300 scale-100">
+              <Icon
+                name="feedback"
+                className="text-[20px] min-w-5 shrink-0"
+                fill={0}
+              />
+            </div>
+          </button>
+        )}
+      </nav>
+    </div>
   );
 };
 
