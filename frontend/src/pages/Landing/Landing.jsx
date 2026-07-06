@@ -910,9 +910,9 @@ const Landing = () => {
         <footer className="border-t" style={{ borderColor: ink(0.05), backgroundColor: THEME.bgFooter }}>
           <div className="max-w-360 mx-auto px-5 sm:px-8">
 
-            <div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-10 sm:gap-16">
+            <div className="py-12 sm:py-14 flex flex-col sm:flex-row sm:items-start justify-between gap-8 sm:gap-10">
 
-              <div className="shrink-0 max-w-[220px]">
+              <div className="max-w-[260px]">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.accent, boxShadow: `0 0 16px ${accentAlpha(25)}` }}>
                     <Icon name="pulse_alert" className="text-[#0a1000] text-base" />
@@ -937,11 +937,10 @@ const Landing = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-10 grow">
+              <div className="flex gap-10 sm:gap-16">
                 {[
-                  { heading: 'Product', links: ['Features', 'Pricing', 'Research', 'API Docs'] },
-                  { heading: 'Company', links: ['About', 'Careers', 'Press', 'Contact'] },
-                  { heading: 'Legal',   links: ['Privacy', 'Terms', 'Security', 'GDPR'] },
+                  { heading: 'Product', links: ['Features', 'Pricing'] },
+                  { heading: 'Company', links: ['About', 'Contact'] },
                 ].map(({ heading, links }) => (
                   <div key={heading}>
                     <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-4" style={{ color: ink(0.25) }}>{heading}</h4>
@@ -965,24 +964,13 @@ const Landing = () => {
 
             <div className="h-px" style={{ backgroundColor: ink(0.05) }} />
 
-            <div className="py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-
-              <p className="text-[11px] font-medium tracking-wide order-2 sm:order-1 text-center sm:text-left" style={{ color: ink(0.2) }}>
+            <div className="py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+              <p className="text-[11px] font-medium tracking-wide" style={{ color: ink(0.2) }}>
                 © 2026 <span className="font-bold" style={{ color: ink(0.35) }}>Vitalis Labs Inc.</span> All rights reserved.
               </p>
-
-              <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border order-1 sm:order-2" style={{ borderColor: ink(0.08), backgroundColor: ink(0.03) }}>
-                <Icon name="code" className="text-[14px]" style={{ color: accentAlpha(60) }} />
-                <span className="text-[10px] font-bold tracking-[0.15em] uppercase" style={{ color: ink(0.25) }}>
-                  Developed by{' '}
-                  <span className="font-black tracking-[0.2em]" style={{ color: accentAlpha(70) }}>STC Students</span>
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2 order-3">
-                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: THEME.accent, boxShadow: `0 0 6px ${THEME.accent}` }} />
-                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: ink(0.2) }}>All systems operational</span>
-              </div>
+              <p className="text-[11px] font-medium tracking-wide" style={{ color: ink(0.2) }}>
+                Developed by <span className="font-bold" style={{ color: ink(0.35) }}>STC Students</span>
+              </p>
             </div>
 
           </div>
