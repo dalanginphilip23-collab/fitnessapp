@@ -104,7 +104,6 @@ const useCanHover = () => {
   useEffect(() => {
     const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
     const handler = (e) => setCanHover(e.matches);
-    setCanHover(mq.matches);
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
   }, []);
@@ -157,7 +156,7 @@ const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px
         }}
       >
         {items.map((item, i) => (
-          <div key={i} className={`${itemWidth} flex-shrink-0 snap-start`}>
+          <div key={i} className={`${itemWidth} shrink-0 snap-start`}>
             {renderItem(item, i)}
           </div>
         ))}
@@ -289,7 +288,7 @@ const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink, canHover }) 
         animate={{ opacity: 1, clipPath: 'inset(0 0 0% 0)' }}
         exit={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
         transition={{ duration: 0.4, ease: EASE_EXPO }}
-        className="lg:hidden fixed inset-0 z-[99] flex flex-col pt-24 overflow-y-auto"
+        className="lg:hidden fixed inset-0 z-99 flex flex-col pt-24 overflow-y-auto"
         style={{ backgroundColor: isDark ? '#060606' : '#ffffff' }}
         role="dialog"
         aria-modal="true"
@@ -403,7 +402,7 @@ const PricingCard = ({ plan, navigate, isAuthenticated = false, isDark, accent, 
         <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }} />
       )}
       <div
-        className="p-6 sm:p-7 lg:p-8 flex flex-col flex-grow"
+        className="p-6 sm:p-7 lg:p-8 flex flex-col grow"
         style={{ backgroundColor: popular ? `${accent}14` : (isDark ? '#0f0f0f' : '#ffffff') }}
       >
         {popular && (
@@ -425,7 +424,7 @@ const PricingCard = ({ plan, navigate, isAuthenticated = false, isDark, accent, 
           </div>
         </div>
         <div className="h-px my-6" style={{ backgroundColor: ink(0.05) }} />
-        <ul className="space-y-3.5 mb-8 flex-grow">
+        <ul className="space-y-3.5 mb-8 grow">
           {features.map((f) => (
             <li key={f} className="flex items-start gap-3 text-sm font-medium">
               <div
@@ -602,13 +601,13 @@ const Landing = () => {
         <motion.nav
           animate={{ borderBottomColor: scrolled ? themeVars.border : 'transparent', backdropFilter: scrolled ? 'blur(20px)' : 'blur(0px)', backgroundColor: scrolled ? themeVars.navBg : 'transparent' }}
           transition={{ duration: 0.4 }}
-          className="fixed top-0 left-0 right-0 z-[100] border-b border-transparent"
+          className="fixed top-0 left-0 right-0 z-100 border-b border-transparent"
         >
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-8 h-16 sm:h-20 flex justify-between items-center">
+          <div className="max-w-360 mx-auto px-4 sm:px-8 h-16 sm:h-20 flex justify-between items-center">
             <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2.5 sm:gap-3"
             >
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: themeVars.accent, boxShadow: `0 0 20px ${themeVars.shadow}` }}>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: themeVars.accent, boxShadow: `0 0 20px ${themeVars.shadow}` }}>
                 <Icon name="pulse_alert" className="text-[#0a1000] text-lg" />
               </div>
               <span className="bebas text-xl sm:text-2xl tracking-wider" style={{ color: navInk(1) }}>Vitalis</span>
@@ -692,10 +691,10 @@ const Landing = () => {
           <div className="absolute top-20 left-[10%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full blur-[100px] sm:blur-[150px] pointer-events-none" style={{ backgroundColor: `${themeVars.accent}16` }} />
           <div className="absolute bottom-0 right-[5%] w-[240px] sm:w-[400px] h-[240px] sm:h-[400px] rounded-full blur-[90px] sm:blur-[120px] pointer-events-none" style={{ backgroundColor: `${themeVars.accent}25` }} />
 
-          <motion.div className="relative z-10 max-w-[1440px] mx-auto w-full px-5 sm:px-8" style={{ opacity: heroOpacity }}>
+          <motion.div className="relative z-10 max-w-360 mx-auto w-full px-5 sm:px-8" style={{ opacity: heroOpacity }}>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="flex items-center gap-3 mb-8 sm:mb-12">
               <div className="flex items-center gap-2.5 px-3.5 sm:px-4 py-2 rounded-full border backdrop-blur-sm" style={{ borderColor: ink(0.1), backgroundColor: ink(0.05) }}>
-                <span className="relative flex items-center justify-center w-2 h-2 flex-shrink-0">
+                <span className="relative flex items-center justify-center w-2 h-2 shrink-0">
                   <span className="pulse-ring absolute inline-block w-2 h-2 rounded-full" style={{ backgroundColor: `${themeVars.accent}80` }} />
                   <span className="relative w-1.5 h-1.5 rounded-full" style={{ backgroundColor: themeVars.accent, boxShadow: `0 0 8px ${themeVars.accent}` }} />
                 </span>
@@ -734,7 +733,7 @@ const Landing = () => {
                   onMouseEnter={e => { if (canHover) { e.currentTarget.style.borderColor = ink(0.25); e.currentTarget.style.color = themeVars.text; } }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.1); e.currentTarget.style.color = ink(0.45); }}
                 >
-                  <Icon name="play_circle" className="text-2xl transition-colors flex-shrink-0" />
+                  <Icon name="play_circle" className="text-2xl transition-colors shrink-0" />
                   <span className="text-[11px] font-bold uppercase tracking-widest">Watch Film</span>
                 </button>
               </div>
@@ -769,7 +768,7 @@ const Landing = () => {
 
         {/* ── Stats ──────────────────────────────────────────────────────── */}
         <section className="py-14 sm:py-24 px-5 sm:px-8" style={{ backgroundColor: themeVars.bg }}>
-          <div className="max-w-[1440px] mx-auto">
+          <div className="max-w-360 mx-auto">
             <div
               className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 border rounded-2xl p-6 sm:p-12 relative overflow-hidden"
               style={{ borderColor: ink(0.05), backgroundColor: isDark ? '#0d0d0d' : '#ffffff' }}
@@ -784,7 +783,7 @@ const Landing = () => {
         {/* ── Features ───────────────────────────────────────────────────── */}
         <section id="features" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: themeVars.bg }}>
           <div className="section-num absolute -top-4 -left-4 select-none pointer-events-none">FEAT</div>
-          <div className="max-w-[1440px] mx-auto">
+          <div className="max-w-360 mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 sm:mb-20 gap-6 sm:gap-8">
               <div>
                 <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4" style={{ color: themeVars.accent }}>The Infrastructure</motion.p>
@@ -806,7 +805,7 @@ const Landing = () => {
         {/* ── About ──────────────────────────────────────────────────────── */}
         <section id="about" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: themeVars.bgAlt }}>
           <div className="section-num absolute -top-4 right-0 select-none pointer-events-none">ABOT</div>
-          <div className="max-w-[1440px] mx-auto">
+          <div className="max-w-360 mx-auto">
             <div className="text-center mb-14 sm:mb-24">
               <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4" style={{ color: themeVars.accent }}>Our Story</motion.p>
               <motion.h2 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, ease: EASE_EXPO }}
@@ -864,7 +863,7 @@ const Landing = () => {
         {/* ── Pricing ────────────────────────────────────────────────────── */}
         <section id="pricing" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: themeVars.bg }}>
           <div className="section-num absolute -top-4 -left-4 select-none pointer-events-none">PRCE</div>
-          <div className="max-w-[1440px] mx-auto">
+          <div className="max-w-360 mx-auto">
             <div className="text-center mb-14 sm:mb-20">
               <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4" style={{ color: themeVars.accent }}>Plans</motion.p>
               <motion.h2 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, ease: EASE_EXPO }}
@@ -903,13 +902,13 @@ const Landing = () => {
 
         {/* ── CTA ────────────────────────────────────────────────────────── */}
         <section className="py-14 sm:py-24 px-5 sm:px-8" style={{ backgroundColor: themeVars.bg }}>
-          <div className="max-w-[1440px] mx-auto">
+          <div className="max-w-360 mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.9, ease: EASE_EXPO }}
               className="relative overflow-hidden rounded-2xl sm:rounded-3xl px-6 sm:px-14 py-12 sm:py-20"
               style={{ backgroundColor: themeVars.accent }}
             >
-              <div className="absolute -right-8 -bottom-8 bebas text-[80px] sm:text-[200px] text-black/[0.09] leading-none select-none pointer-events-none">EVOLVE</div>
+              <div className="absolute -right-8 -bottom-8 bebas text-[80px] sm:text-[200px] text-black/9 leading-none select-none pointer-events-none">EVOLVE</div>
               <div className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none" />
               <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8 sm:gap-10">
                 <div>
@@ -917,7 +916,7 @@ const Landing = () => {
                   <h2 className="bebas text-black leading-none mb-4" style={{ fontSize: 'clamp(2.25rem, 7vw, 5.5rem)' }}>Ready to Evolve?</h2>
                   <p className="text-black/50 text-sm font-medium max-w-xs">Join 50,000+ athletes already training with clinical-grade intelligence.</p>
                 </div>
-                <div className="flex flex-col gap-3 flex-shrink-0 w-full sm:w-auto">
+                <div className="flex flex-col gap-3 shrink-0 w-full sm:w-auto">
                   <button
                     type="button"
                     onClick={handleBottomCTA}
@@ -934,13 +933,13 @@ const Landing = () => {
 
         {/* ── Footer ─────────────────────────────────────────────────────── */}
         <footer className="border-t" style={{ borderColor: ink(0.05), backgroundColor: themeVars.bgFooter }}>
-          <div className="max-w-[1440px] mx-auto px-5 sm:px-8">
+          <div className="max-w-360 mx-auto px-5 sm:px-8">
 
             {/* Main footer body */}
             <div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-10 sm:gap-16">
 
               {/* Brand column */}
-              <div className="flex-shrink-0 max-w-[220px]">
+              <div className="shrink-0 max-w-[220px]">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: themeVars.accent, boxShadow: `0 0 16px ${themeVars.accent}40` }}>
                     <Icon name="pulse_alert" className="text-[#0a1000] text-base" />
@@ -966,7 +965,7 @@ const Landing = () => {
               </div>
 
               {/* Nav columns */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-10 flex-grow">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-10 grow">
                 {[
                   { heading: 'Product', links: ['Features', 'Pricing', 'Research', 'API Docs'] },
                   { heading: 'Company', links: ['About', 'Careers', 'Press', 'Contact'] },
