@@ -4,11 +4,9 @@ import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePres
 import { useTheme } from '../../hooks/useTheme';
 import ThemeToggle from '../../components/ThemeToggle';
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+
 const GYM_BG = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1800&q=80&auto=format&fit=crop';
 const EASE_EXPO = [0.16, 1, 0.3, 1];
-
-// ─── Static data ──────────────────────────────────────────────────────────────
 const FEATURES = [
   { icon: 'filter_center_focus', title: 'Neural Biometrics',  desc: 'Medical-grade analysis of HRV and neural fatigue through high-frequency AI scanning.', num: '01' },
   { icon: 'bolt',                title: 'Adaptive Coaching',  desc: 'Workout protocols that shift intensity based on your real-time recovery data.',           num: '02' },
@@ -18,7 +16,7 @@ const FEATURES = [
   { icon: 'shield_lock',         title: 'Vault Privacy',      desc: 'Your biometric data is end-to-end encrypted with zero-knowledge protocols.',             num: '06' },
 ];
 
-// ─── PRICING now carries planId so the CTA deep-links to a real plan ─────────
+
 const PRICING = [
   {
     name: 'Foundations',
@@ -72,7 +70,6 @@ const NAV_LINKS = [
   { href: '#about',    label: 'About'    },
 ];
 
-// ─── Helper: navigate to Plans page ──────────────────────────────────────────
 const buildPlansPath = ({ planId = null, tab = 'explore' } = {}) => {
   const params = new URLSearchParams();
   if (planId) params.set('planId', String(planId));
@@ -80,19 +77,15 @@ const buildPlansPath = ({ planId = null, tab = 'explore' } = {}) => {
   return `/dashboard/plans?${params.toString()}`;
 };
 
-// ─── Theme ink helper ─────────────────────────────────────────────────────────
-// Produces a translucent color that reads as "white at alpha" in dark mode
-// and "near-black at alpha" in light mode — used everywhere the old code
-// hardcoded things like text-white/35, bg-white/5, border-white/10, etc.
+
 const makeInk = (isDark) => (alpha) =>
   isDark ? `rgba(255,255,255,${alpha})` : `rgba(20,20,20,${alpha})`;
 
-// ─── Icon ─────────────────────────────────────────────────────────────────────
 const Icon = ({ name, className = '' }) => (
   <span className={`material-symbols-outlined select-none leading-none ${className}`}>{name}</span>
 );
 
-// ─── Horizontal Slider (shared by Pricing on mobile) ─────────────────────────
+//Horizontal Slider
 const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px]', isDark, accent, ink }) => {
   const [index, setIndex] = useState(0);
   const trackRef = useRef(null);
@@ -168,7 +161,6 @@ const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px
   );
 };
 
-// ─── Marquee ──────────────────────────────────────────────────────────────────
 const MARQUEE_ITEMS = ['Neural Biometrics', 'Adaptive Coaching', 'Vision Nutrition', 'Performance Lab', 'Ecosystem Sync', 'Vault Privacy'];
 const Marquee = ({ isDark, accent, ink }) => (
   <div
@@ -194,7 +186,6 @@ const Marquee = ({ isDark, accent, ink }) => (
   </div>
 );
 
-// ─── Cursor glow ──────────────────────────────────────────────────────────────
 const CursorGlow = ({ accent }) => {
   const mx = useMotionValue(-400);
   const my = useMotionValue(-400);
@@ -212,7 +203,6 @@ const CursorGlow = ({ accent }) => {
   );
 };
 
-// ─── Stat counter ─────────────────────────────────────────────────────────────
 const StatCounter = ({ value, label, isDark, accent, ink }) => {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -236,7 +226,6 @@ const StatCounter = ({ value, label, isDark, accent, ink }) => {
   );
 };
 
-// ─── Mobile Menu ──────────────────────────────────────────────────────────────
 const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink }) => (
   <AnimatePresence>
     {open && (
@@ -287,7 +276,7 @@ const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink }) => (
   </AnimatePresence>
 );
 
-// ─── Feature Card ─────────────────────────────────────────────────────────────
+
 const FeatureCard = ({ icon, title, desc, num, index, isDark, accent, ink }) => {
   const [hovered, setHovered] = useState(false);
   return (
@@ -329,7 +318,7 @@ const FeatureCard = ({ icon, title, desc, num, index, isDark, accent, ink }) => 
   );
 };
 
-// ─── Pricing Card ─────────────────────────────────────────────────────────────
+
 const PricingCard = ({ plan, navigate, isAuthenticated = false, isDark, accent, ink }) => {
   const { popular, planId, ctaLabel, ctaDest, features } = plan;
 
@@ -420,7 +409,7 @@ const Landing = () => {
   const { isDark } = useTheme();
 
   const ink = makeInk(isDark);
-
+  const navInk = (alpha) => (scrolled ? ink(alpha) : `rgba(255,255,255,${alpha})`);
   const themeVars = {
     accent: isDark ? '#8FBF63' : '#5E9E4A',
     bg: isDark ? '#080808' : '#f5f5f5',
@@ -519,7 +508,7 @@ const Landing = () => {
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: themeVars.accent, boxShadow: `0 0 20px ${themeVars.shadow}` }}>
                 <Icon name="pulse_alert" className="text-[#0a1000] text-lg" />
               </div>
-              <span className="bebas text-2xl tracking-wider" style={{ color: themeVars.text }}>Vitalis</span>
+              <span className="bebas text-2xl tracking-wider" style={{ color: navInk(1) }}>Vitalis</span>
             </motion.button>
 
             <div className="hidden lg:flex items-center gap-10">
@@ -528,9 +517,9 @@ const Landing = () => {
                   key={href} href={href}
                   initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
                   className="text-[11px] font-bold transition-colors tracking-[0.2em] uppercase relative group"
-                  style={{ color: ink(isDark ? 0.4 : 0.65) }}
+                  style={{ color: navInk(0.65) }}
                   onMouseEnter={e => e.currentTarget.style.color = themeVars.accent}
-                  onMouseLeave={e => e.currentTarget.style.color = ink(isDark ? 0.4 : 0.65)}
+                   onMouseLeave={e => e.currentTarget.style.color = navInk(0.65)}
                 >
                   {label}
                   <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-(--accent) group-hover:w-full transition-all duration-300" />
@@ -544,8 +533,7 @@ const Landing = () => {
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
                 onClick={() => navigate('/login')}
                 className="hidden sm:block text-[11px] font-bold uppercase tracking-widest transition-colors"
-                style={{ color: ink(isDark ? 0.35 : 0.7) }}
-              >Sign In</motion.button>
+                style={{ color: navInk(0.75) }}>Sign In</motion.button>
               <motion.button
                 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35 }}
                 onClick={() => navigate('/register')}
@@ -557,9 +545,9 @@ const Landing = () => {
                 className="lg:hidden flex flex-col gap-1.5 w-10 h-10 justify-center items-center rounded-xl transition-colors"
                 style={{ backgroundColor: 'transparent' }}
               >
-                <motion.span animate={{ rotate: menuOpen ? 45 : 0, y: menuOpen ? 8 : 0 }} className="w-5 h-0.5 block origin-center" style={{ backgroundColor: themeVars.text }} />
-                <motion.span animate={{ opacity: menuOpen ? 0 : 1, scaleX: menuOpen ? 0 : 1 }} className="w-5 h-0.5 block" style={{ backgroundColor: themeVars.text }} />
-                <motion.span animate={{ rotate: menuOpen ? -45 : 0, y: menuOpen ? -8 : 0 }} className="w-5 h-0.5 block origin-center" style={{ backgroundColor: themeVars.text }} />
+                <motion.span animate={{ rotate: menuOpen ? 45 : 0, y: menuOpen ? 8 : 0 }} className="w-5 h-0.5 block origin-center" style={{ backgroundColor: navInk(1) }} />
+                <motion.span animate={{ opacity: menuOpen ? 0 : 1, scaleX: menuOpen ? 0 : 1 }} className="w-5 h-0.5 block" style={{ backgroundColor: navInk(1) }} />
+                <motion.span animate={{ rotate: menuOpen ? -45 : 0, y: menuOpen ? -8 : 0 }} className="w-5 h-0.5 block origin-center" style={{ backgroundColor: navInk(1) }} />
               </button>
             </div>
           </div>
