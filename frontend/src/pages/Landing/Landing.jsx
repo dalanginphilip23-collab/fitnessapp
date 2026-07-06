@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../../hooks/useTheme';
+import ThemeToggle from '../../components/ThemeToggle';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const GYM_BG = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1800&q=80&auto=format&fit=crop';
@@ -177,7 +179,7 @@ const Marquee = () => (
 );
 
 // ─── Cursor glow ──────────────────────────────────────────────────────────────
-const CursorGlow = () => {
+const CursorGlow = ({ accent }) => {
   const mx = useMotionValue(-400);
   const my = useMotionValue(-400);
   const sx = useSpring(mx, { stiffness: 80, damping: 20 });
@@ -189,7 +191,7 @@ const CursorGlow = () => {
   }, [mx, my]);
   return (
     <motion.div className="pointer-events-none fixed z-[9999] top-0 left-0 hidden lg:block" style={{ x: sx, y: sy, translateX: '-50%', translateY: '-50%' }}>
-      <div className="w-64 h-64 rounded-full bg-[#D1FD52]/5 blur-[60px]" />
+      <div className="w-64 h-64 rounded-full blur-[60px]" style={{ backgroundColor: `${accent}20` }} />
     </motion.div>
   );
 };
@@ -227,14 +229,15 @@ const MobileMenu = ({ open, onClose, navigate }) => (
         animate={{ opacity: 1, clipPath: 'inset(0 0 0% 0)' }}
         exit={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
         transition={{ duration: 0.4, ease: EASE_EXPO }}
-        className="lg:hidden fixed inset-0 z-[99] bg-[#060606] flex flex-col pt-24"
+        className="lg:hidden fixed inset-0 z-[99] flex flex-col pt-24"
+        style={{ backgroundColor: themeVars.menuBg }}
       >
         <div className="flex flex-col px-8 pt-8 gap-1">
           {NAV_LINKS.map(({ href, label }, i) => (
             <motion.a key={href} href={href} onClick={onClose}
               initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.07, duration: 0.4, ease: EASE_EXPO }}
-              className="text-5xl font-black uppercase tracking-tighter text-white/20 hover:text-[#D1FD52] transition-colors py-3 border-b border-white/5"
+              className={`text-5xl font-black uppercase tracking-tighter transition-colors py-3 border-b ${isDark ? 'text-white/20 border-white/5 hover:text-[#D1FD52]' : 'text-[#252525]/80 border-[rgba(0,0,0,0.08)] hover:text-[#5E9E4A]'}`}
               style={{ fontFamily: "'Bebas Neue', sans-serif" }}
             >{label}</motion.a>
           ))}
@@ -345,6 +348,20 @@ const Landing = () => {
 
   // Replace with your real auth check
   const isAuthenticated = false;
+  const { isDark } = useTheme();
+
+  const themeVars = {
+    accent: isDark ? '#D1FD52' : '#5E9E4A',
+    bg: isDark ? '#080808' : '#f5f5f5',
+    bgSecondary: isDark ? '#0f0f0f' : '#ffffff',
+    text: isDark ? '#e5e2e1' : '#1a1a1a',
+    textSoft: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.55)',
+    border: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.12)',
+    navBg: isDark ? 'rgba(8,8,8,0.95)' : 'rgba(255,255,255,0.95)',
+    menuBg: isDark ? '#060606' : '#ffffff',
+    selection: isDark ? '#D1FD52' : '#5E9E4A',
+    shadow: isDark ? 'rgba(209,253,82,0.3)' : 'rgba(94,158,74,0.2)',
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -383,11 +400,21 @@ const Landing = () => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,700;1,9..40,900&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
-        :root { --accent: #D1FD52; --bg: #080808; }
+        :root {
+          --accent: ${themeVars.accent};
+          --bg: ${themeVars.bg};
+          --bg-secondary: ${themeVars.bgSecondary};
+          --text: ${themeVars.text};
+          --text-soft: ${themeVars.textSoft};
+          --panel: ${themeVars.bgSecondary};
+          --border-color: ${themeVars.border};
+          --selection-color: ${themeVars.selection};
+          --shadow-color: ${themeVars.shadow};
+        }
         * { box-sizing: border-box; }
         html { scroll-behavior: smooth; }
-        body { background: var(--bg); overflow-x: hidden; }
-        ::selection { background: var(--accent); color: #000; }
+        body { background: var(--bg); color: var(--text); overflow-x: hidden; }
+        ::selection { background: var(--selection-color); color: ${isDark ? '#000' : '#fff'}; }
         .bebas { font-family: 'Bebas Neue', sans-serif; }
         .dm    { font-family: 'DM Sans', sans-serif; }
         .hero-text { font-family: 'Bebas Neue', sans-serif; font-size: clamp(80px, 18vw, 200px); line-height: 0.88; letter-spacing: -0.01em; }
@@ -405,12 +432,12 @@ const Landing = () => {
         .scrollbar-hide::-webkit-scrollbar { display: none; }
       `}</style>
 
-      <div className="grain dm w-screen min-h-screen bg-[#080808] text-[#e5e2e1] overflow-x-hidden">
-        <CursorGlow />
+      <div className="grain dm w-screen min-h-screen bg-(--bg) text-(--text) overflow-x-hidden">
+        <CursorGlow accent={themeVars.accent} />
 
         {/* ── Navbar ─────────────────────────────────────────────────────── */}
         <motion.nav
-          animate={{ borderBottomColor: scrolled ? 'rgba(255,255,255,0.08)' : 'transparent', backdropFilter: scrolled ? 'blur(20px)' : 'blur(0px)', backgroundColor: scrolled ? 'rgba(8,8,8,0.95)' : 'transparent' }}
+          animate={{ borderBottomColor: scrolled ? themeVars.border : 'transparent', backdropFilter: scrolled ? 'blur(20px)' : 'blur(0px)', backgroundColor: scrolled ? themeVars.navBg : 'transparent' }}
           transition={{ duration: 0.4 }}
           className="fixed top-0 left-0 right-0 z-[100] border-b border-transparent"
         >
@@ -418,32 +445,33 @@ const Landing = () => {
             <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-3"
             >
-              <div className="w-8 h-8 bg-[#D1FD52] rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(209,253,82,0.4)]">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: themeVars.accent, boxShadow: `0 0 20px ${themeVars.shadow}` }}>
                 <Icon name="pulse_alert" className="text-[#0a1000] text-lg" />
               </div>
-              <span className="bebas text-2xl tracking-wider text-white">Vitalis</span>
+              <span className="bebas text-2xl tracking-wider" style={{ color: themeVars.text }}>{'Vitalis'}</span>
             </motion.button>
 
             <div className="hidden lg:flex items-center gap-10">
               {NAV_LINKS.map(({ href, label }, i) => (
                 <motion.a key={href} href={href} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
-                  className="text-[11px] font-bold text-white/40 hover:text-[#D1FD52] transition-colors tracking-[0.2em] uppercase relative group"
+                  className={`text-[11px] font-bold transition-colors tracking-[0.2em] uppercase relative group ${isDark ? 'text-white/40 hover:text-[#D1FD52]' : 'text-[#2c2c2c]/80 hover:text-[#5E9E4A]'}`}
                 >
                   {label}
-                  <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-[#D1FD52] group-hover:w-full transition-all duration-300" />
+                  <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-(--accent) group-hover:w-full transition-all duration-300" />
                 </motion.a>
               ))}
             </div>
 
             <div className="flex items-center gap-3 sm:gap-5">
+              <ThemeToggle />
               <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-                onClick={() => navigate('/login')} className="hidden sm:block text-[11px] font-bold uppercase tracking-widest text-white/35 hover:text-white transition-colors"
+                onClick={() => navigate('/login')} className={`hidden sm:block text-[11px] font-bold uppercase tracking-widest transition-colors ${isDark ? 'text-white/35 hover:text-white' : 'text-[#3a3a3a]/90 hover:text-[#111]'}`}
               >Sign In</motion.button>
               <motion.button initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35 }}
-                onClick={() => navigate('/register')} className="hidden sm:block px-6 py-2.5 rounded-full bg-[#D1FD52] text-black text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-[0_0_30px_rgba(209,253,82,0.35)] transition-all hover:scale-105 active:scale-95"
+                onClick={() => navigate('/register')} className="hidden sm:block px-6 py-2.5 rounded-full bg-(--accent) text-black text-[10px] font-black uppercase tracking-[0.2em] hover:shadow-[0_0_30px_rgba(209,253,82,0.35)] transition-all hover:scale-105 active:scale-95"
               >Join the Lab</motion.button>
               <button onClick={() => setMenuOpen(o => !o)} aria-label="Toggle menu"
-                className="lg:hidden flex flex-col gap-1.5 w-10 h-10 justify-center items-center rounded-xl hover:bg-white/5 transition-colors"
+                className={`lg:hidden flex flex-col gap-1.5 w-10 h-10 justify-center items-center rounded-xl transition-colors ${isDark ? 'hover:bg-white/5' : 'hover:bg-black/5'}`}
               >
                 <motion.span animate={{ rotate: menuOpen ? 45 : 0, y: menuOpen ? 8 : 0 }} className="w-5 h-0.5 bg-white block origin-center" />
                 <motion.span animate={{ opacity: menuOpen ? 0 : 1, scaleX: menuOpen ? 0 : 1 }} className="w-5 h-0.5 bg-white block" />
@@ -463,8 +491,8 @@ const Landing = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-[#080808]/70 to-transparent" />
             <div className="absolute inset-0 scanline opacity-40" />
           </motion.div>
-          <div className="absolute top-20 left-[10%] w-[500px] h-[500px] bg-[#D1FD52]/6 rounded-full blur-[150px] pointer-events-none" />
-          <div className="absolute bottom-0 right-[5%] w-[400px] h-[400px] bg-[#D1FD52]/4 rounded-full blur-[120px] pointer-events-none" />
+          <div className="absolute top-20 left-[10%] w-[500px] h-[500px] rounded-full blur-[150px] pointer-events-none" style={{ backgroundColor: `${themeVars.accent}16` }} />
+          <div className="absolute bottom-0 right-[5%] w-[400px] h-[400px] rounded-full blur-[120px] pointer-events-none" style={{ backgroundColor: `${themeVars.accent}25` }} />
 
           <motion.div className="relative z-10 max-w-[1440px] mx-auto w-full px-5 sm:px-8" style={{ opacity: heroOpacity }}>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="flex items-center gap-3 mb-8 sm:mb-12">
