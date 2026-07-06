@@ -6,7 +6,6 @@ import ThemeToggle from '../../components/ThemeToggle';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const GYM_BG_BASE = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=70';
-// Responsive source set so phones don't download a 1800px desktop image.
 const GYM_BG_SRCSET = [640, 1080, 1600, 1920]
   .map((w) => `${GYM_BG_BASE}&w=${w} ${w}w`)
   .join(', ');
@@ -23,37 +22,21 @@ const FEATURES = [
   { icon: 'shield_lock',         title: 'Vault Privacy',      desc: 'Your biometric data is end-to-end encrypted with zero-knowledge protocols.',             num: '06' },
 ];
 
-// ─── PRICING now carries planId so the CTA deep-links to a real plan ─────────
 const PRICING = [
   {
-    name: 'Foundations',
-    price: 'Free',
-    per: '',
+    name: 'Foundations', price: 'Free', per: '',
     features: ['Core Biometrics', 'Daily Health Score', 'Community Access'],
-    popular: false,
-    planId: null,
-    ctaLabel: 'Browse Free Plans',
-    ctaDest: 'explore',
+    popular: false, planId: null, ctaLabel: 'Browse Free Plans', ctaDest: 'explore',
   },
   {
-    name: 'Professional',
-    price: '$9',
-    per: '/mo',
+    name: 'Professional', price: '$9', per: '/mo',
     features: ['Adaptive Coaching', 'Vision Nutrition', 'Deep Analytics', 'Priority Support'],
-    popular: true,
-    planId: null,
-    ctaLabel: 'View Pro Plans',
-    ctaDest: 'find',
+    popular: true, planId: null, ctaLabel: 'View Pro Plans', ctaDest: 'find',
   },
   {
-    name: 'Elite',
-    price: '$19',
-    per: '/mo',
+    name: 'Elite', price: '$19', per: '/mo',
     features: ['1-on-1 AI Strategy', 'Biometric Alerts', 'Full API Access', 'Custom Protocol Lab'],
-    popular: false,
-    planId: null,
-    ctaLabel: 'View Elite Plans',
-    ctaDest: 'find',
+    popular: false, planId: null, ctaLabel: 'View Elite Plans', ctaDest: 'find',
   },
 ];
 
@@ -77,7 +60,6 @@ const NAV_LINKS = [
   { href: '#about',    label: 'About'    },
 ];
 
-// ─── Helper: navigate to Plans page ──────────────────────────────────────────
 const buildPlansPath = ({ planId = null, tab = 'explore' } = {}) => {
   const params = new URLSearchParams();
   if (planId) params.set('planId', String(planId));
@@ -85,18 +67,86 @@ const buildPlansPath = ({ planId = null, tab = 'explore' } = {}) => {
   return `/dashboard/plans?${params.toString()}`;
 };
 
-// ─── Theme ink helper ─────────────────────────────────────────────────────────
-// Produces a translucent color that reads as "white at alpha" in dark mode
-// and "near-black at alpha" in light mode — used everywhere the old code
-// hardcoded things like text-white/35, bg-white/5, border-white/10, etc.
-const makeInk = (isDark) => (alpha) =>
-  isDark ? `rgba(255,255,255,${alpha})` : `rgba(20,20,20,${alpha})`;
+// ─── Theme-aware color helpers ────────────────────────────────────────────────
+// IMPORTANT: these all return CSS variable / color-mix() expressions, NOT
+// resolved hex/rgba strings. That means their *string output never changes*
+// when the theme flips — only the underlying CSS variable value (set once,
+// on :root, by ThemeContext) changes. So React doesn't need to re-render or
+// recompute a single one of these on toggle, and the browser only has to
+// recompute the actual affected paint layers — no stylesheet reparse, no
+// forced reflow, no animation stutter.
+const ink = (alpha) => `rgb(var(--ink-base) / ${alpha})`;
+const accentAlpha = (pct) => `color-mix(in srgb, var(--accent) ${pct}%, transparent)`;
+const bgAlpha = (pct) => `color-mix(in srgb, var(--bg) ${pct}%, transparent)`;
+
+const THEME = {
+  accent: 'var(--accent)',
+  bg: 'var(--bg)',
+  bgAlt: 'var(--bg-alt)',
+  bgFooter: 'var(--bg-footer)',
+  bgSecondary: 'var(--bg-secondary)',
+  bgMarquee: 'var(--bg-marquee, var(--bg-alt))',
+  text: 'var(--text)',
+  textStrong: 'var(--text-strong)',
+  textSoft: 'var(--text-soft)',
+  border: 'var(--border-color)',
+  navBg: 'var(--nav-bg)',
+  shadow: 'var(--shadow-color)',
+};
+
+// ─── One-time static stylesheet ───────────────────────────────────────────────
+// This string is created exactly once (module scope) and NEVER touches theme
+// state. Every value that used to be interpolated per-theme now reads a CSS
+// variable set by ThemeContext, so a theme toggle updates variables (cheap)
+// instead of forcing React to replace this whole tag's text (expensive: full
+// re-parse + full-document style recalculation = the forced reflow you saw).
+const LANDING_STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,700;1,9..40,900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); overflow-x: hidden; }
+  ::selection { background: var(--selection-bg); color: var(--selection-text); }
+  .bebas { font-family: 'Bebas Neue', sans-serif; }
+  .dm    { font-family: 'DM Sans', sans-serif; }
+  .hero-text { font-family: 'Bebas Neue', sans-serif; font-size: clamp(56px, 18vw, 200px); line-height: 0.88; letter-spacing: -0.01em; }
+  .section-num { font-family: 'Bebas Neue', sans-serif; font-size: clamp(80px, 12vw, 140px); color: var(--section-num-color); line-height: 1; }
+  section[id] { scroll-margin-top: 5rem; }
+  .hero-min-h { min-height: 100vh; min-height: 100dvh; }
+  .grain::before {
+    content: ''; position: fixed; inset: -50%; width: 200%; height: 200%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    opacity: var(--grain-opacity); pointer-events: none; z-index: 9998; animation: grain 0.5s steps(2) infinite;
+  }
+  @keyframes grain { 0%,100%{transform:translate(0,0)}10%{transform:translate(-2%,-3%)}20%{transform:translate(3%,2%)}30%{transform:translate(-1%,4%)}40%{transform:translate(4%,-1%)}50%{transform:translate(-3%,3%)}60%{transform:translate(2%,-4%)}70%{transform:translate(-4%,1%)}80%{transform:translate(1%,-2%)}90%{transform:translate(-2%,4%)} }
+  .glow-text { text-shadow: 0 0 80px color-mix(in srgb, var(--accent) 30%, transparent); }
+  .scanline { background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px); pointer-events: none; }
+  @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2.2); opacity: 0; } }
+  .pulse-ring { animation: pulse-ring 2s ease-out infinite; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-33.333%); } }
+  .animate-marquee { animation: marquee 30s linear infinite; }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* GPU-friendly: theme + motion transitions only ever affect color/background/
+     opacity/transform — never width/height/layout — so the compositor can
+     handle them without triggering layout at all. */
+  body, .bebas, .dm, a, button, [class*="bg-"] {
+    transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .animate-marquee { animation: none !important; }
+    .grain::before { animation: none !important; }
+    .pulse-ring { animation: none !important; }
+    body, .bebas, .dm, a, button, [class*="bg-"] { transition: none !important; }
+  }
+`;
 
 // ─── Device-capability hooks ──────────────────────────────────────────────────
-// Prevents "sticky hover" bugs on touch devices (a tap firing mouseenter but
-// never mouseleave) and respects prefers-reduced-motion / coarse pointers so
-// the page behaves well on phones, tablets, and low-power devices, not just
-// desktop with a mouse.
 const useCanHover = () => {
   const [canHover, setCanHover] = useState(() =>
     typeof window !== 'undefined' ? window.matchMedia('(hover: hover) and (pointer: fine)').matches : true
@@ -128,10 +178,11 @@ const Icon = React.memo(({ name, className = '' }) => (
   <span className={`material-symbols-outlined select-none leading-none ${className}`}>{name}</span>
 ));
 
-// ─── Horizontal Slider (shared by Pricing on mobile) ─────────────────────────
-const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px]', accent, ink, canHover }) => {
+// ─── Horizontal Slider ────────────────────────────────────────────────────────
+const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px]', canHover }) => {
   const [index, setIndex] = useState(0);
   const trackRef = useRef(null);
+  const itemWidthRef = useRef(0);
   const total = items.length;
 
   const prev = () => setIndex(i => Math.max(0, i - 1));
@@ -143,6 +194,18 @@ const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
   }, [index]);
 
+  // Measure item width once (and on resize) instead of reading offsetWidth
+  // synchronously inside the scroll handler — that was a forced-reflow read
+  // firing on every scroll event.
+  useEffect(() => {
+    const measure = () => {
+      itemWidthRef.current = trackRef.current?.children?.[0]?.offsetWidth ?? 0;
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [items]);
+
   return (
     <div className="relative">
       <div
@@ -151,7 +214,7 @@ const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         onScroll={(e) => {
           const el = e.currentTarget;
-          const w = el.children[0]?.offsetWidth + 16;
+          const w = itemWidthRef.current + 16;
           if (w) setIndex(Math.round(el.scrollLeft / w));
         }}
       >
@@ -175,7 +238,7 @@ const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px
                 style={{
                   width: i === index ? '20px' : '6px',
                   height: '6px',
-                  backgroundColor: i === index ? accent : ink(0.2),
+                  backgroundColor: i === index ? THEME.accent : ink(0.2),
                 }}
               />
             ))}
@@ -188,7 +251,7 @@ const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px
               disabled={index === 0}
               className="w-9 h-9 rounded-xl border flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed"
               style={{ borderColor: ink(0.1), color: ink(0.4) }}
-              onMouseEnter={e => { if (canHover && index !== 0) { e.currentTarget.style.borderColor = `${accent}66`; e.currentTarget.style.color = accent; } }}
+              onMouseEnter={e => { if (canHover && index !== 0) { e.currentTarget.style.borderColor = accentAlpha(40); e.currentTarget.style.color = THEME.accent; } }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.1); e.currentTarget.style.color = ink(0.4); }}
             >
               <Icon name="chevron_left" className="text-lg" />
@@ -200,7 +263,7 @@ const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px
               disabled={index === total - 1}
               className="w-9 h-9 rounded-xl border flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed"
               style={{ borderColor: ink(0.1), color: ink(0.4) }}
-              onMouseEnter={e => { if (canHover && index !== total - 1) { e.currentTarget.style.borderColor = `${accent}66`; e.currentTarget.style.color = accent; } }}
+              onMouseEnter={e => { if (canHover && index !== total - 1) { e.currentTarget.style.borderColor = accentAlpha(40); e.currentTarget.style.color = THEME.accent; } }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.1); e.currentTarget.style.color = ink(0.4); }}
             >
               <Icon name="chevron_right" className="text-lg" />
@@ -214,10 +277,10 @@ const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px
 
 // ─── Marquee ──────────────────────────────────────────────────────────────────
 const MARQUEE_ITEMS = ['Neural Biometrics', 'Adaptive Coaching', 'Vision Nutrition', 'Performance Lab', 'Ecosystem Sync', 'Vault Privacy'];
-const Marquee = ({ isDark, accent, ink }) => (
+const Marquee = () => (
   <div
     className="relative overflow-hidden py-5 border-y"
-    style={{ borderColor: ink(0.05), backgroundColor: isDark ? '#0a0a0a' : '#f0f0f0' }}
+    style={{ borderColor: ink(0.05), backgroundColor: THEME.bgMarquee }}
   >
     <div className="flex animate-marquee whitespace-nowrap gap-0">
       {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
@@ -225,7 +288,7 @@ const Marquee = ({ isDark, accent, ink }) => (
           <span className="text-[11px] font-black uppercase tracking-[0.35em]" style={{ color: ink(0.25) }}>{item}</span>
           <span
             className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-            style={{ backgroundColor: accent, boxShadow: `0 0 6px ${accent}99` }}
+            style={{ backgroundColor: THEME.accent, boxShadow: `0 0 6px ${accentAlpha(60)}` }}
           />
         </span>
       ))}
@@ -233,8 +296,8 @@ const Marquee = ({ isDark, accent, ink }) => (
   </div>
 );
 
-// ─── Cursor glow (desktop-with-a-mouse only; skipped on touch & reduced motion) ─
-const CursorGlow = ({ accent, enabled }) => {
+// ─── Cursor glow ──────────────────────────────────────────────────────────────
+const CursorGlow = ({ enabled }) => {
   const mx = useMotionValue(-400);
   const my = useMotionValue(-400);
   const sx = useSpring(mx, { stiffness: 80, damping: 20 });
@@ -250,13 +313,13 @@ const CursorGlow = ({ accent, enabled }) => {
 
   return (
     <motion.div className="pointer-events-none fixed z-[9999] top-0 left-0 hidden lg:block" style={{ x: sx, y: sy, translateX: '-50%', translateY: '-50%' }}>
-      <div className="w-64 h-64 rounded-full blur-[60px]" style={{ backgroundColor: `${accent}20` }} />
+      <div className="w-64 h-64 rounded-full blur-[60px]" style={{ backgroundColor: accentAlpha(13) }} />
     </motion.div>
   );
 };
 
 // ─── Stat counter ─────────────────────────────────────────────────────────────
-const StatCounter = ({ value, label, isDark, accent, ink }) => {
+const StatCounter = ({ value, label }) => {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -266,13 +329,13 @@ const StatCounter = ({ value, label, isDark, accent, ink }) => {
   }, []);
   return (
     <div ref={ref} className="text-center relative">
-      <div className="hidden sm:block absolute left-0 top-1/2 -translate-y-1/2 w-px h-8" style={{ backgroundColor: `${accent}33` }} />
+      <div className="hidden sm:block absolute left-0 top-1/2 -translate-y-1/2 w-px h-8" style={{ backgroundColor: accentAlpha(20) }} />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={visible ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7, ease: EASE_EXPO }}
         className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter leading-none mb-2"
-        style={{ fontFamily: "'Bebas Neue', sans-serif", color: isDark ? '#ffffff' : '#141414' }}
+        style={{ fontFamily: "'Bebas Neue', sans-serif", color: THEME.textStrong }}
       >{value}</motion.div>
       <div className="text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: ink(0.3) }}>{label}</div>
     </div>
@@ -280,7 +343,7 @@ const StatCounter = ({ value, label, isDark, accent, ink }) => {
 };
 
 // ─── Mobile Menu ──────────────────────────────────────────────────────────────
-const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink, canHover }) => (
+const MobileMenu = ({ open, onClose, navigate, canHover }) => (
   <AnimatePresence>
     {open && (
       <motion.div
@@ -289,7 +352,7 @@ const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink, canHover }) 
         exit={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
         transition={{ duration: 0.4, ease: EASE_EXPO }}
         className="lg:hidden fixed inset-0 z-99 flex flex-col pt-24 overflow-y-auto"
-        style={{ backgroundColor: isDark ? '#060606' : '#ffffff' }}
+        style={{ backgroundColor: 'var(--bg-menu)' }}
         role="dialog"
         aria-modal="true"
       >
@@ -304,7 +367,7 @@ const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink, canHover }) 
               transition={{ delay: i * 0.07, duration: 0.4, ease: EASE_EXPO }}
               className="text-[15vw] xs:text-6xl sm:text-5xl font-black uppercase tracking-tighter transition-colors py-3 border-b"
               style={{ fontFamily: "'Bebas Neue', sans-serif", color: ink(0.2), borderColor: ink(0.05) }}
-              onMouseEnter={e => { if (canHover) e.currentTarget.style.color = accent; }}
+              onMouseEnter={e => { if (canHover) e.currentTarget.style.color = THEME.accent; }}
               onMouseLeave={e => { e.currentTarget.style.color = ink(0.2); }}
             >{label}</motion.a>
           ))}
@@ -324,7 +387,7 @@ const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink, canHover }) 
             type="button"
             onClick={() => { navigate('/register'); onClose(); }}
             className="w-full py-4 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] hover:brightness-110 transition-all"
-            style={{ backgroundColor: accent, color: '#0a1000' }}
+            style={{ backgroundColor: THEME.accent, color: '#0a1000' }}
           >
             Join the Lab
           </button>
@@ -335,7 +398,7 @@ const MobileMenu = ({ open, onClose, navigate, isDark, accent, ink, canHover }) 
 );
 
 // ─── Feature Card ─────────────────────────────────────────────────────────────
-const FeatureCard = ({ icon, title, desc, num, index, isDark, accent, ink, canHover }) => {
+const FeatureCard = ({ icon, title, desc, num, index, canHover }) => {
   const [hovered, setHovered] = useState(false);
   const active = canHover && hovered;
   return (
@@ -345,15 +408,15 @@ const FeatureCard = ({ icon, title, desc, num, index, isDark, accent, ink, canHo
       onMouseEnter={() => canHover && setHovered(true)} onMouseLeave={() => setHovered(false)}
       className="relative group rounded-2xl p-6 sm:p-7 lg:p-8 overflow-hidden cursor-default transition-all duration-500 border"
       style={{
-        backgroundColor: isDark ? '#0f0f0f' : '#ffffff',
-        borderColor: active ? `${accent}4d` : ink(0.06),
+        backgroundColor: THEME.bgSecondary,
+        borderColor: active ? accentAlpha(30) : ink(0.06),
       }}
     >
       <motion.div
         animate={{ opacity: active ? 1 : 0, scale: active ? 1 : 0.8 }}
         transition={{ duration: 0.5 }}
         className="absolute inset-0 pointer-events-none"
-        style={{ background: `linear-gradient(135deg, ${accent}14, ${accent}08, transparent)` }}
+        style={{ background: `linear-gradient(135deg, ${accentAlpha(8)}, ${accentAlpha(3)}, transparent)` }}
       />
       <div
         className="absolute top-4 right-5 text-[44px] sm:text-[60px] font-black leading-none select-none pointer-events-none"
@@ -361,7 +424,7 @@ const FeatureCard = ({ icon, title, desc, num, index, isDark, accent, ink, canHo
       >{num}</div>
       <div className="relative z-10">
         <motion.div
-          animate={{ backgroundColor: active ? accent : ink(0.05), color: active ? '#000' : ink(0.5) }}
+          animate={{ backgroundColor: active ? THEME.accent : ink(0.05), color: active ? '#000' : ink(0.5) }}
           transition={{ duration: 0.3 }}
           className="w-11 h-11 rounded-xl flex items-center justify-center mb-6 sm:mb-7"
         >
@@ -369,7 +432,7 @@ const FeatureCard = ({ icon, title, desc, num, index, isDark, accent, ink, canHo
         </motion.div>
         <h3
           className="font-black mb-3 uppercase"
-          style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.4rem', letterSpacing: '0.02em', color: isDark ? '#ffffff' : '#141414' }}
+          style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '1.4rem', letterSpacing: '0.02em', color: THEME.textStrong }}
         >{title}</h3>
         <p className="leading-relaxed text-sm font-medium" style={{ color: ink(0.4) }}>{desc}</p>
       </div>
@@ -378,7 +441,7 @@ const FeatureCard = ({ icon, title, desc, num, index, isDark, accent, ink, canHo
 };
 
 // ─── Pricing Card ─────────────────────────────────────────────────────────────
-const PricingCard = ({ plan, navigate, isAuthenticated = false, isDark, accent, ink }) => {
+const PricingCard = ({ plan, navigate, isAuthenticated = false }) => {
   const { popular, planId, ctaLabel, ctaDest, features } = plan;
 
   const handleCTA = () => {
@@ -394,21 +457,21 @@ const PricingCard = ({ plan, navigate, isAuthenticated = false, isDark, accent, 
     <div
       className="relative flex flex-col rounded-2xl overflow-hidden h-full"
       style={{
-        border: popular ? `1px solid ${accent}` : `1px solid ${ink(0.08)}`,
-        boxShadow: popular ? `0 0 60px -10px ${accent}40` : 'none',
+        border: popular ? `1px solid ${THEME.accent}` : `1px solid ${ink(0.08)}`,
+        boxShadow: popular ? `0 0 60px -10px ${accentAlpha(25)}` : 'none',
       }}
     >
       {popular && (
-        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }} />
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${THEME.accent}, transparent)` }} />
       )}
       <div
         className="p-6 sm:p-7 lg:p-8 flex flex-col grow"
-        style={{ backgroundColor: popular ? `${accent}14` : (isDark ? '#0f0f0f' : '#ffffff') }}
+        style={{ backgroundColor: popular ? accentAlpha(8) : THEME.bgSecondary }}
       >
         {popular && (
           <span
             className="self-start mb-5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest"
-            style={{ backgroundColor: accent, color: '#000' }}
+            style={{ backgroundColor: THEME.accent, color: '#000' }}
           >
             Most Popular
           </span>
@@ -418,7 +481,7 @@ const PricingCard = ({ plan, navigate, isAuthenticated = false, isDark, accent, 
           <div className="flex items-end gap-1">
             <span
               className="font-black leading-none"
-              style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(2.75rem,8vw,4rem)', color: isDark ? '#ffffff' : '#141414' }}
+              style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(2.75rem,8vw,4rem)', color: THEME.textStrong }}
             >{plan.price}</span>
             {plan.per && <span className="text-sm font-bold mb-2" style={{ color: ink(0.3) }}>{plan.per}</span>}
           </div>
@@ -429,7 +492,7 @@ const PricingCard = ({ plan, navigate, isAuthenticated = false, isDark, accent, 
             <li key={f} className="flex items-start gap-3 text-sm font-medium">
               <div
                 className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                style={{ backgroundColor: `${accent}26` }}
+                style={{ backgroundColor: accentAlpha(15) }}
               >
                 <Icon name="check" className="text-[11px]" />
               </div>
@@ -443,7 +506,7 @@ const PricingCard = ({ plan, navigate, isAuthenticated = false, isDark, accent, 
           className="w-full py-4 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
           style={
             popular
-              ? { backgroundColor: accent, color: '#000' }
+              ? { backgroundColor: THEME.accent, color: '#000' }
               : { backgroundColor: ink(0.05), color: ink(0.7), border: `1px solid ${ink(0.1)}` }
           }
         >
@@ -469,31 +532,15 @@ const Landing = () => {
 
   // Replace with your real auth check
   const isAuthenticated = false;
+  // isDark is still read from context, but ONLY for the one thing that truly
+  // needs a JS branch: the hero photo's filter. Everything else below is
+  // driven by CSS variables and never re-renders on theme change.
   const { isDark } = useTheme();
 
-  const ink = useMemo(() => makeInk(isDark), [isDark]);
-
-  // Text color for elements sitting in the fixed navbar.
-  // While unscrolled, the nav is transparent and sits directly on the
-  // hero image — so before the opaque background kicks in, we fall back
-  // to a value that reads well over the photo. Once scrolled, the nav has
-  // an opaque theme-colored background, so it uses the normal theme ink.
-  const navInk = (alpha) => (scrolled ? ink(alpha) : `rgba(255,255,255,${alpha})`);
-
-  const themeVars = useMemo(() => ({
-    accent: isDark ? '#8FBF63' : '#5E9E4A',
-    bg: isDark ? '#080808' : '#f5f5f5',
-    bgAlt: isDark ? '#0a0a0a' : '#ffffff',
-    bgFooter: isDark ? '#060606' : '#ffffff',
-    bgSecondary: isDark ? '#0f0f0f' : '#ffffff',
-    text: isDark ? '#e5e2e1' : '#141414',
-    textSoft: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(20,20,20,0.55)',
-    border: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.1)',
-    navBg: isDark ? 'rgba(8,8,8,0.95)' : 'rgba(255,255,255,0.95)',
-    menuBg: isDark ? '#060606' : '#ffffff',
-    selection: isDark ? '#8FBF63' : '#5E9E4A',
-    shadow: isDark ? 'rgba(143,191,99,0.3)' : 'rgba(94,158,74,0.2)',
-  }), [isDark]);
+  // navInk: while unscrolled, the navbar sits transparently on the hero photo
+  // and needs literal white text regardless of theme; once scrolled it uses
+  // the normal theme ink() (which itself is theme-invariant as a string).
+  const navInk = useCallback((alpha) => (scrolled ? ink(alpha) : `rgba(255,255,255,${alpha})`), [scrolled]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -507,8 +554,6 @@ const Landing = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Lock background scroll while the mobile menu is open — otherwise the
-  // page behind it scrolls too on phones/tablets, which feels broken.
   useEffect(() => {
     if (menuOpen) {
       const prevOverflow = document.body.style.overflow;
@@ -520,86 +565,26 @@ const Landing = () => {
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   const handleHeroCTA = () => {
-    if (isAuthenticated) {
-      navigate(buildPlansPath({ tab: 'explore' }));
-    } else {
-      navigate('/register');
-    }
+    if (isAuthenticated) navigate(buildPlansPath({ tab: 'explore' }));
+    else navigate('/register');
   };
 
   const handleBottomCTA = () => {
-    if (isAuthenticated) {
-      navigate(buildPlansPath({ tab: 'find' }));
-    } else {
-      navigate('/register');
-    }
+    if (isAuthenticated) navigate(buildPlansPath({ tab: 'find' }));
+    else navigate('/register');
   };
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,700;1,9..40,900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
-        :root {
-          --accent: ${themeVars.accent};
-          --bg: ${themeVars.bg};
-          --bg-secondary: ${themeVars.bgSecondary};
-          --text: ${themeVars.text};
-          --text-soft: ${themeVars.textSoft};
-          --panel: ${themeVars.bgSecondary};
-          --border-color: ${themeVars.border};
-          --selection-color: ${themeVars.selection};
-          --shadow-color: ${themeVars.shadow};
-        }
-        * { box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { background: var(--bg); color: var(--text); overflow-x: hidden; }
-        ::selection { background: var(--selection-color); color: ${isDark ? '#000' : '#fff'}; }
-        .bebas { font-family: 'Bebas Neue', sans-serif; }
-        .dm    { font-family: 'DM Sans', sans-serif; }
-        .hero-text { font-family: 'Bebas Neue', sans-serif; font-size: clamp(56px, 18vw, 200px); line-height: 0.88; letter-spacing: -0.01em; }
-        .section-num { font-family: 'Bebas Neue', sans-serif; font-size: clamp(80px, 12vw, 140px); color: ${isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'}; line-height: 1; }
-        /* Anchor-linked sections shouldn't hide under the fixed navbar. */
-        section[id] { scroll-margin-top: 5rem; }
-        /* 100vh jumps around on mobile browsers as chrome shows/hides; dvh doesn't. */
-        .hero-min-h { min-height: 100vh; min-height: 100dvh; }
-        .grain::before {
-          content: ''; position: fixed; inset: -50%; width: 200%; height: 200%;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-          opacity: ${isDark ? 0.03 : 0.015}; pointer-events: none; z-index: 9998; animation: grain 0.5s steps(2) infinite;
-        }
-        @keyframes grain { 0%,100%{transform:translate(0,0)}10%{transform:translate(-2%,-3%)}20%{transform:translate(3%,2%)}30%{transform:translate(-1%,4%)}40%{transform:translate(4%,-1%)}50%{transform:translate(-3%,3%)}60%{transform:translate(2%,-4%)}70%{transform:translate(-4%,1%)}80%{transform:translate(1%,-2%)}90%{transform:translate(-2%,4%)} }
-        .glow-text { text-shadow: 0 0 80px ${themeVars.accent}4d; }
-        .scanline { background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px); pointer-events: none; }
-        @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2.2); opacity: 0; } }
-        .pulse-ring { animation: pulse-ring 2s ease-out infinite; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-33.333%); } }
-        .animate-marquee { animation: marquee 30s linear infinite; }
-        /* Visible keyboard focus everywhere — needed for a11y and for anyone
-           navigating on a device without a mouse (keyboards, switch access). */
-        a:focus-visible, button:focus-visible {
-          outline: 2px solid ${themeVars.accent};
-          outline-offset: 2px;
-          border-radius: 4px;
-        }
-        /* Respect OS-level reduced-motion preference: stop decorative/ambient
-           animation loops. Framer Motion transitions on state changes still run,
-           but nothing spins or drifts forever in the background. */
-        @media (prefers-reduced-motion: reduce) {
-          html { scroll-behavior: auto; }
-          .animate-marquee { animation: none !important; }
-          .grain::before { animation: none !important; }
-          .pulse-ring { animation: none !important; }
-        }
-      `}</style>
+      {/* Static — created once at module load, never re-injected on theme change */}
+      <style>{LANDING_STYLES}</style>
 
       <div className="grain dm w-screen min-h-screen bg-(--bg) text-(--text) overflow-x-hidden">
-        <CursorGlow accent={themeVars.accent} enabled={canHover && !prefersReducedMotion} />
+        <CursorGlow enabled={canHover && !prefersReducedMotion} />
 
         {/* ── Navbar ─────────────────────────────────────────────────────── */}
         <motion.nav
-          animate={{ borderBottomColor: scrolled ? themeVars.border : 'transparent', backdropFilter: scrolled ? 'blur(20px)' : 'blur(0px)', backgroundColor: scrolled ? themeVars.navBg : 'transparent' }}
+          animate={{ borderBottomColor: scrolled ? THEME.border : 'transparent', backdropFilter: scrolled ? 'blur(20px)' : 'blur(0px)', backgroundColor: scrolled ? THEME.navBg : 'transparent' }}
           transition={{ duration: 0.4 }}
           className="fixed top-0 left-0 right-0 z-100 border-b border-transparent"
         >
@@ -607,7 +592,7 @@ const Landing = () => {
             <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2.5 sm:gap-3"
             >
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: themeVars.accent, boxShadow: `0 0 20px ${themeVars.shadow}` }}>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: THEME.accent, boxShadow: `0 0 20px ${THEME.shadow}` }}>
                 <Icon name="pulse_alert" className="text-[#0a1000] text-lg" />
               </div>
               <span className="bebas text-xl sm:text-2xl tracking-wider" style={{ color: navInk(1) }}>Vitalis</span>
@@ -620,7 +605,7 @@ const Landing = () => {
                   initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
                   className="text-[11px] font-bold transition-colors tracking-[0.2em] uppercase relative group"
                   style={{ color: navInk(0.65) }}
-                  onMouseEnter={e => { if (canHover) e.currentTarget.style.color = themeVars.accent; }}
+                  onMouseEnter={e => { if (canHover) e.currentTarget.style.color = THEME.accent; }}
                   onMouseLeave={e => { e.currentTarget.style.color = navInk(0.65); }}
                 >
                   {label}
@@ -641,7 +626,7 @@ const Landing = () => {
                 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35 }}
                 onClick={() => navigate('/register')}
                 className="hidden sm:block px-5 lg:px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:scale-105 active:scale-95"
-                style={{ backgroundColor: themeVars.accent, color: '#000', boxShadow: `0 0 30px ${themeVars.shadow}` }}
+                style={{ backgroundColor: THEME.accent, color: '#000', boxShadow: `0 0 30px ${THEME.shadow}` }}
               >Join the Lab</motion.button>
               <button
                 type="button"
@@ -661,10 +646,10 @@ const Landing = () => {
         </motion.nav>
 
         <div id="mobile-menu">
-          <MobileMenu open={menuOpen} onClose={closeMenu} navigate={navigate} isDark={isDark} accent={themeVars.accent} ink={ink} canHover={canHover} />
+          <MobileMenu open={menuOpen} onClose={closeMenu} navigate={navigate} canHover={canHover} />
         </div>
 
-        {/* ── HERO (now theme-aware) ────────────────────────────────────── */}
+        {/* ── HERO ───────────────────────────────────────────────────────── */}
         <section ref={heroRef} className="hero-min-h relative flex flex-col justify-end pb-14 sm:pb-24 pt-20 overflow-hidden">
           <motion.div className="absolute inset-0" style={{ y: heroY }}>
             <img
@@ -678,25 +663,19 @@ const Landing = () => {
               className="w-full h-full object-cover object-center"
               style={{ filter: isDark ? 'brightness(0.2) saturate(0.7)' : 'brightness(0.8) saturate(0.5)' }}
             />
-            <div
-              className="absolute inset-0"
-              style={{ background: `linear-gradient(to bottom, ${themeVars.bg}80 0%, ${themeVars.bg}33 40%, ${themeVars.bg} 100%)` }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{ background: `linear-gradient(to right, ${themeVars.bg}b3 0%, transparent 60%)` }}
-            />
+            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${bgAlpha(50)} 0%, ${bgAlpha(20)} 40%, var(--bg) 100%)` }} />
+            <div className="absolute inset-0" style={{ background: `linear-gradient(to right, ${bgAlpha(70)} 0%, transparent 60%)` }} />
             <div className="absolute inset-0 scanline opacity-40" />
           </motion.div>
-          <div className="absolute top-20 left-[10%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full blur-[100px] sm:blur-[150px] pointer-events-none" style={{ backgroundColor: `${themeVars.accent}16` }} />
-          <div className="absolute bottom-0 right-[5%] w-[240px] sm:w-[400px] h-[240px] sm:h-[400px] rounded-full blur-[90px] sm:blur-[120px] pointer-events-none" style={{ backgroundColor: `${themeVars.accent}25` }} />
+          <div className="absolute top-20 left-[10%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full blur-[100px] sm:blur-[150px] pointer-events-none" style={{ backgroundColor: accentAlpha(9) }} />
+          <div className="absolute bottom-0 right-[5%] w-[240px] sm:w-[400px] h-[240px] sm:h-[400px] rounded-full blur-[90px] sm:blur-[120px] pointer-events-none" style={{ backgroundColor: accentAlpha(15) }} />
 
           <motion.div className="relative z-10 max-w-360 mx-auto w-full px-5 sm:px-8" style={{ opacity: heroOpacity }}>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="flex items-center gap-3 mb-8 sm:mb-12">
               <div className="flex items-center gap-2.5 px-3.5 sm:px-4 py-2 rounded-full border backdrop-blur-sm" style={{ borderColor: ink(0.1), backgroundColor: ink(0.05) }}>
                 <span className="relative flex items-center justify-center w-2 h-2 shrink-0">
-                  <span className="pulse-ring absolute inline-block w-2 h-2 rounded-full" style={{ backgroundColor: `${themeVars.accent}80` }} />
-                  <span className="relative w-1.5 h-1.5 rounded-full" style={{ backgroundColor: themeVars.accent, boxShadow: `0 0 8px ${themeVars.accent}` }} />
+                  <span className="pulse-ring absolute inline-block w-2 h-2 rounded-full" style={{ backgroundColor: accentAlpha(50) }} />
+                  <span className="relative w-1.5 h-1.5 rounded-full" style={{ backgroundColor: THEME.accent, boxShadow: `0 0 8px ${THEME.accent}` }} />
                 </span>
                 <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em]" style={{ color: ink(0.5) }}>Institutional Grade Biometrics</span>
               </div>
@@ -708,7 +687,7 @@ const Landing = () => {
                   key={word}
                   initial={{ y: '110%' }} animate={{ y: 0 }} transition={{ duration: 1, delay: 0.4 + i * 0.12, ease: EASE_EXPO }}
                   className={i === 1 ? 'italic' : ''}
-                  style={{ color: i === 1 ? ink(0.15) : themeVars.text }}
+                  style={{ color: i === 1 ? ink(0.15) : THEME.text }}
                 >{word}</motion.div>
               ))}
             </div>
@@ -722,7 +701,7 @@ const Landing = () => {
                   type="button"
                   onClick={handleHeroCTA}
                   className="flex-1 sm:flex-none px-8 py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] transition-all hover:-translate-y-1 active:translate-y-0 whitespace-nowrap text-center"
-                  style={{ backgroundColor: themeVars.accent, color: '#0a1000', boxShadow: `0 20px 50px ${themeVars.shadow}` }}
+                  style={{ backgroundColor: THEME.accent, color: '#0a1000', boxShadow: `0 20px 50px ${THEME.shadow}` }}
                 >
                   Initiate Protocol
                 </button>
@@ -730,7 +709,7 @@ const Landing = () => {
                   type="button"
                   className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-8 py-4 rounded-xl border transition-all group whitespace-nowrap"
                   style={{ borderColor: ink(0.1), color: ink(0.45) }}
-                  onMouseEnter={e => { if (canHover) { e.currentTarget.style.borderColor = ink(0.25); e.currentTarget.style.color = themeVars.text; } }}
+                  onMouseEnter={e => { if (canHover) { e.currentTarget.style.borderColor = ink(0.25); e.currentTarget.style.color = THEME.text; } }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.1); e.currentTarget.style.color = ink(0.45); }}
                 >
                   <Icon name="play_circle" className="text-2xl transition-colors shrink-0" />
@@ -739,11 +718,11 @@ const Landing = () => {
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  {[0.3, 0.5, 0.7].map((a, i) => (
+                  {[30, 50, 70].map((pct, i) => (
                     <div
                       key={i}
                       className="w-6 h-6 rounded-full border"
-                      style={{ borderColor: themeVars.bg, backgroundColor: `${themeVars.accent}${Math.round(a * 255).toString(16)}` }}
+                      style={{ borderColor: THEME.bg, backgroundColor: accentAlpha(pct) }}
                     />
                   ))}
                 </div>
@@ -764,53 +743,53 @@ const Landing = () => {
         </section>
 
         {/* ── Marquee ────────────────────────────────────────────────────── */}
-        <Marquee isDark={isDark} accent={themeVars.accent} ink={ink} />
+        <Marquee />
 
         {/* ── Stats ──────────────────────────────────────────────────────── */}
-        <section className="py-14 sm:py-24 px-5 sm:px-8" style={{ backgroundColor: themeVars.bg }}>
+        <section className="py-14 sm:py-24 px-5 sm:px-8" style={{ backgroundColor: THEME.bg }}>
           <div className="max-w-360 mx-auto">
             <div
               className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 border rounded-2xl p-6 sm:p-12 relative overflow-hidden"
-              style={{ borderColor: ink(0.05), backgroundColor: isDark ? '#0d0d0d' : '#ffffff' }}
+              style={{ borderColor: ink(0.05), backgroundColor: THEME.bgSecondary }}
             >
-              <div className="absolute inset-0 pointer-events-none" style={{ background: `linear-gradient(135deg, ${themeVars.accent}08, transparent)` }} />
-              <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${themeVars.accent}66, transparent)` }} />
-              {ABOUT_STATS.map((s) => <StatCounter key={s.label} {...s} isDark={isDark} accent={themeVars.accent} ink={ink} />)}
+              <div className="absolute inset-0 pointer-events-none" style={{ background: `linear-gradient(135deg, ${accentAlpha(8)}, transparent)` }} />
+              <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${accentAlpha(40)}, transparent)` }} />
+              {ABOUT_STATS.map((s) => <StatCounter key={s.label} {...s} />)}
             </div>
           </div>
         </section>
 
         {/* ── Features ───────────────────────────────────────────────────── */}
-        <section id="features" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: themeVars.bg }}>
+        <section id="features" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: THEME.bg }}>
           <div className="section-num absolute -top-4 -left-4 select-none pointer-events-none">FEAT</div>
           <div className="max-w-360 mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 sm:mb-20 gap-6 sm:gap-8">
               <div>
-                <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4" style={{ color: themeVars.accent }}>The Infrastructure</motion.p>
+                <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4" style={{ color: THEME.accent }}>The Infrastructure</motion.p>
                 <motion.h2 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1, ease: EASE_EXPO }}
-                  className="bebas leading-none" style={{ fontSize: 'clamp(2.5rem, 8vw, 6rem)', letterSpacing: '0.01em', color: isDark ? '#ffffff' : '#141414' }}
+                  className="bebas leading-none" style={{ fontSize: 'clamp(2.5rem, 8vw, 6rem)', letterSpacing: '0.01em', color: THEME.textStrong }}
                 >Engineered for<br /><span style={{ color: ink(0.15) }}>The 1%.</span></motion.h2>
               </div>
               <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.2 }}
                 className="max-w-xs text-sm font-medium leading-relaxed border-l-2 pl-6"
-                style={{ color: ink(0.3), borderColor: `${themeVars.accent}4d` }}
+                style={{ color: ink(0.3), borderColor: accentAlpha(30) }}
               >Our proprietary models are trained on over 2 million athletic data points to provide accuracy where others guess.</motion.p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {FEATURES.map((f, i) => <FeatureCard key={f.title} {...f} index={i} isDark={isDark} accent={themeVars.accent} ink={ink} canHover={canHover} />)}
+              {FEATURES.map((f, i) => <FeatureCard key={f.title} {...f} index={i} canHover={canHover} />)}
             </div>
           </div>
         </section>
 
         {/* ── About ──────────────────────────────────────────────────────── */}
-        <section id="about" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: themeVars.bgAlt }}>
+        <section id="about" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: THEME.bgAlt }}>
           <div className="section-num absolute -top-4 right-0 select-none pointer-events-none">ABOT</div>
           <div className="max-w-360 mx-auto">
             <div className="text-center mb-14 sm:mb-24">
-              <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4" style={{ color: themeVars.accent }}>Our Story</motion.p>
+              <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4" style={{ color: THEME.accent }}>Our Story</motion.p>
               <motion.h2 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, ease: EASE_EXPO }}
-                className="bebas leading-none mb-6" style={{ fontSize: 'clamp(2.5rem, 9vw, 7rem)', letterSpacing: '0.01em', color: isDark ? '#ffffff' : '#141414' }}
-              >Redefining Human <span className="glow-text" style={{ color: themeVars.accent }}>Performance</span></motion.h2>
+                className="bebas leading-none mb-6" style={{ fontSize: 'clamp(2.5rem, 9vw, 7rem)', letterSpacing: '0.01em', color: THEME.textStrong }}
+              >Redefining Human <span className="glow-text" style={{ color: THEME.accent }}>Performance</span></motion.h2>
               <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.2 }}
                 className="max-w-2xl mx-auto text-base sm:text-lg leading-relaxed font-medium" style={{ color: ink(0.35) }}
               >Vitalis was born from a simple question: What if technology could truly understand human biology and help us perform at our peak, every single day?</motion.p>
@@ -824,35 +803,35 @@ const Landing = () => {
                 <motion.div
                   key={item.title} initial={{ opacity: 0, x: i === 0 ? -40 : 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, ease: EASE_EXPO }}
                   className="group relative rounded-2xl p-7 sm:p-10 overflow-hidden border transition-colors"
-                  style={{ backgroundColor: isDark ? '#0f0f0f' : '#ffffff', borderColor: ink(0.06) }}
-                  onMouseEnter={e => { if (canHover) e.currentTarget.style.borderColor = `${themeVars.accent}33`; }}
+                  style={{ backgroundColor: THEME.bgSecondary, borderColor: ink(0.06) }}
+                  onMouseEnter={e => { if (canHover) e.currentTarget.style.borderColor = accentAlpha(20); }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.06); }}
                 >
-                  <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ backgroundColor: `${themeVars.accent}0a` }} />
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style={{ backgroundColor: `${themeVars.accent}1a` }}>
+                  <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ backgroundColor: accentAlpha(4) }} />
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style={{ backgroundColor: accentAlpha(10) }}>
                     <Icon name={item.icon} className="text-2xl" />
                   </div>
-                  <h3 className="bebas text-3xl sm:text-4xl mb-4 tracking-wide" style={{ color: isDark ? '#ffffff' : '#141414' }}>{item.title}</h3>
+                  <h3 className="bebas text-3xl sm:text-4xl mb-4 tracking-wide" style={{ color: THEME.textStrong }}>{item.title}</h3>
                   <p className="leading-relaxed text-sm sm:text-base" style={{ color: ink(0.4) }}>{item.body}</p>
                 </motion.div>
               ))}
             </div>
 
-            <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4 text-center" style={{ color: themeVars.accent }}>What We Believe</motion.p>
-            <motion.h3 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bebas text-center mb-10 sm:mb-16" style={{ fontSize: 'clamp(2.25rem, 6vw, 5rem)', color: isDark ? '#ffffff' : '#141414' }}>Core Values</motion.h3>
+            <motion.p initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4 text-center" style={{ color: THEME.accent }}>What We Believe</motion.p>
+            <motion.h3 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bebas text-center mb-10 sm:mb-16" style={{ fontSize: 'clamp(2.25rem, 6vw, 5rem)', color: THEME.textStrong }}>Core Values</motion.h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {ABOUT_VALUES.map((v, i) => (
                 <motion.div
                   key={v.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: i * 0.08 }}
                   className="group rounded-2xl p-6 border transition-all duration-300"
                   style={{ backgroundColor: ink(0.03), borderColor: ink(0.05) }}
-                  onMouseEnter={e => { if (canHover) { e.currentTarget.style.borderColor = `${themeVars.accent}40`; e.currentTarget.style.backgroundColor = ink(0.05); } }}
+                  onMouseEnter={e => { if (canHover) { e.currentTarget.style.borderColor = accentAlpha(25); e.currentTarget.style.backgroundColor = ink(0.05); } }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.05); e.currentTarget.style.backgroundColor = ink(0.03); }}
                 >
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-4 transition-colors" style={{ backgroundColor: `${themeVars.accent}1a` }}>
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-4 transition-colors" style={{ backgroundColor: accentAlpha(10) }}>
                     <Icon name={v.icon} className="text-lg" />
                   </div>
-                  <h4 className="font-black text-base mb-2 dm" style={{ color: isDark ? '#ffffff' : '#141414' }}>{v.title}</h4>
+                  <h4 className="font-black text-base mb-2 dm" style={{ color: THEME.textStrong }}>{v.title}</h4>
                   <p className="text-sm leading-relaxed" style={{ color: ink(0.35) }}>{v.desc}</p>
                 </motion.div>
               ))}
@@ -861,35 +840,31 @@ const Landing = () => {
         </section>
 
         {/* ── Pricing ────────────────────────────────────────────────────── */}
-        <section id="pricing" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: themeVars.bg }}>
+        <section id="pricing" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: THEME.bg }}>
           <div className="section-num absolute -top-4 -left-4 select-none pointer-events-none">PRCE</div>
           <div className="max-w-360 mx-auto">
             <div className="text-center mb-14 sm:mb-20">
-              <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4" style={{ color: themeVars.accent }}>Plans</motion.p>
+              <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="text-[11px] font-black uppercase tracking-[0.4em] mb-4" style={{ color: THEME.accent }}>Plans</motion.p>
               <motion.h2 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, ease: EASE_EXPO }}
-                className="bebas mb-4" style={{ fontSize: 'clamp(2.5rem, 8vw, 6rem)', color: isDark ? '#ffffff' : '#141414' }}
+                className="bebas mb-4" style={{ fontSize: 'clamp(2.5rem, 8vw, 6rem)', color: THEME.textStrong }}
               >Access the Lab.</motion.h2>
               <p className="max-w-sm mx-auto text-sm font-medium" style={{ color: ink(0.35) }}>Transparent pricing for lifelong optimization.</p>
             </div>
 
-            {/* Mobile: horizontal slider | Desktop: 3-col grid */}
             <div className="md:hidden">
               <HorizontalSlider
                 items={PRICING}
                 itemWidth="w-[80vw] max-w-[320px]"
-                isDark={isDark}
-                accent={themeVars.accent}
-                ink={ink}
                 canHover={canHover}
                 renderItem={(plan) => (
-                  <PricingCard plan={plan} navigate={navigate} isAuthenticated={isAuthenticated} isDark={isDark} accent={themeVars.accent} ink={ink} />
+                  <PricingCard plan={plan} navigate={navigate} isAuthenticated={isAuthenticated} />
                 )}
               />
             </div>
             <div className="hidden md:grid grid-cols-3 gap-5 max-w-5xl mx-auto">
               {PRICING.map((plan, i) => (
                 <motion.div key={plan.name} initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-30px' }} transition={{ duration: 0.7, delay: i * 0.1, ease: EASE_EXPO }}>
-                  <PricingCard plan={plan} navigate={navigate} isAuthenticated={isAuthenticated} isDark={isDark} accent={themeVars.accent} ink={ink} />
+                  <PricingCard plan={plan} navigate={navigate} isAuthenticated={isAuthenticated} />
                 </motion.div>
               ))}
             </div>
@@ -901,12 +876,12 @@ const Landing = () => {
         </section>
 
         {/* ── CTA ────────────────────────────────────────────────────────── */}
-        <section className="py-14 sm:py-24 px-5 sm:px-8" style={{ backgroundColor: themeVars.bg }}>
+        <section className="py-14 sm:py-24 px-5 sm:px-8" style={{ backgroundColor: THEME.bg }}>
           <div className="max-w-360 mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.9, ease: EASE_EXPO }}
               className="relative overflow-hidden rounded-2xl sm:rounded-3xl px-6 sm:px-14 py-12 sm:py-20"
-              style={{ backgroundColor: themeVars.accent }}
+              style={{ backgroundColor: THEME.accent }}
             >
               <div className="absolute -right-8 -bottom-8 bebas text-[80px] sm:text-[200px] text-black/9 leading-none select-none pointer-events-none">EVOLVE</div>
               <div className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none" />
@@ -932,19 +907,17 @@ const Landing = () => {
         </section>
 
         {/* ── Footer ─────────────────────────────────────────────────────── */}
-        <footer className="border-t" style={{ borderColor: ink(0.05), backgroundColor: themeVars.bgFooter }}>
+        <footer className="border-t" style={{ borderColor: ink(0.05), backgroundColor: THEME.bgFooter }}>
           <div className="max-w-360 mx-auto px-5 sm:px-8">
 
-            {/* Main footer body */}
             <div className="py-12 sm:py-16 flex flex-col sm:flex-row gap-10 sm:gap-16">
 
-              {/* Brand column */}
               <div className="shrink-0 max-w-[220px]">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: themeVars.accent, boxShadow: `0 0 16px ${themeVars.accent}40` }}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.accent, boxShadow: `0 0 16px ${accentAlpha(25)}` }}>
                     <Icon name="pulse_alert" className="text-[#0a1000] text-base" />
                   </div>
-                  <span className="bebas text-2xl tracking-wider" style={{ color: isDark ? '#ffffff' : '#141414' }}>Vitalis</span>
+                  <span className="bebas text-2xl tracking-wider" style={{ color: THEME.textStrong }}>Vitalis</span>
                 </div>
                 <p className="text-sm leading-relaxed font-medium mb-6" style={{ color: ink(0.2) }}>
                   The world's most advanced human performance platform.
@@ -955,7 +928,7 @@ const Landing = () => {
                       key={label} href="#" aria-label={label}
                       className="w-9 h-9 rounded-lg border flex items-center justify-center transition-all duration-300 group"
                       style={{ backgroundColor: ink(0.05), borderColor: ink(0.08) }}
-                      onMouseEnter={e => { if (canHover) { e.currentTarget.style.backgroundColor = themeVars.accent; e.currentTarget.style.borderColor = themeVars.accent; } }}
+                      onMouseEnter={e => { if (canHover) { e.currentTarget.style.backgroundColor = THEME.accent; e.currentTarget.style.borderColor = THEME.accent; } }}
                       onMouseLeave={e => { e.currentTarget.style.backgroundColor = ink(0.05); e.currentTarget.style.borderColor = ink(0.08); }}
                     >
                       <Icon name={icon} className="text-base" />
@@ -964,7 +937,6 @@ const Landing = () => {
                 </div>
               </div>
 
-              {/* Nav columns */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-10 grow">
                 {[
                   { heading: 'Product', links: ['Features', 'Pricing', 'Research', 'API Docs'] },
@@ -980,7 +952,7 @@ const Landing = () => {
                             href="#"
                             className="text-[12px] font-medium transition-colors"
                             style={{ color: ink(0.3) }}
-                            onMouseEnter={e => { if (canHover) e.currentTarget.style.color = themeVars.accent; }}
+                            onMouseEnter={e => { if (canHover) e.currentTarget.style.color = THEME.accent; }}
                             onMouseLeave={e => { e.currentTarget.style.color = ink(0.3); }}
                           >{link}</a>
                         </li>
@@ -991,29 +963,24 @@ const Landing = () => {
               </div>
             </div>
 
-            {/* Divider */}
             <div className="h-px" style={{ backgroundColor: ink(0.05) }} />
 
-            {/* Bottom bar */}
             <div className="py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
 
-              {/* Left: copyright */}
               <p className="text-[11px] font-medium tracking-wide order-2 sm:order-1 text-center sm:text-left" style={{ color: ink(0.2) }}>
                 © 2026 <span className="font-bold" style={{ color: ink(0.35) }}>Vitalis Labs Inc.</span> All rights reserved.
               </p>
 
-              {/* Center: developed by badge */}
               <div className="flex items-center gap-2.5 px-4 py-2 rounded-full border order-1 sm:order-2" style={{ borderColor: ink(0.08), backgroundColor: ink(0.03) }}>
-                <Icon name="code" className="text-[14px]" style={{ color: `${themeVars.accent}99` }} />
+                <Icon name="code" className="text-[14px]" style={{ color: accentAlpha(60) }} />
                 <span className="text-[10px] font-bold tracking-[0.15em] uppercase" style={{ color: ink(0.25) }}>
                   Developed by{' '}
-                  <span className="font-black tracking-[0.2em]" style={{ color: `${themeVars.accent}b3` }}>STC Students</span>
+                  <span className="font-black tracking-[0.2em]" style={{ color: accentAlpha(70) }}>STC Students</span>
                 </span>
               </div>
 
-              {/* Right: system status */}
               <div className="flex items-center gap-2 order-3">
-                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: themeVars.accent, boxShadow: `0 0 6px ${themeVars.accent}` }} />
+                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: THEME.accent, boxShadow: `0 0 6px ${THEME.accent}` }} />
                 <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: ink(0.2) }}>All systems operational</span>
               </div>
             </div>
