@@ -1,6 +1,6 @@
 // pages/Profile.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Sidebar, MobileNav, Topbar } from '../../../components';
 import { useProfile } from '../hooks/useProfile';
 import { useAvatar }  from '../hooks/useAvatar';
@@ -74,6 +74,8 @@ const bmiCategory = (bmi) => {
 };
 
 const Profile = () => {
+  const navigate = useNavigate(); // NEW: only used for the back button
+
   const {
     USER_ID,
     loading, isLoading, isSaving, isEditing, isDirty,
@@ -155,13 +157,25 @@ const Profile = () => {
             className="absolute inset-x-0 bottom-0 h-24"
             style={{ background: 'linear-gradient(to top, var(--bg-primary), transparent)' }}
           />
+
+          {/* NEW: Back button, top-left over the banner */}
+          <button
+            onClick={() => navigate(-1)}
+            aria-label="Go back"
+            className="absolute top-4 left-4 sm:top-5 sm:left-6 w-9 h-9 rounded-xl flex items-center justify-center
+              bg-(--bg-primary)/60 hover:bg-(--bg-primary)/90 border border-(--border-light) backdrop-blur-sm
+              transition-all active:scale-95 z-20"
+          >
+            <span className="material-symbols-outlined text-[20px] text-(--text-primary)">arrow_back</span>
+          </button>
         </div>
 
-        <main className="w-full max-w-300 mx-auto px-4 sm:px-6 lg:px-10 pb-28 md:pb-16 -mt-14 relative z-10">
+        <main className="w-full max-w-160 mx-auto px-4 sm:px-6 lg:px-10 pb-28 md:pb-16 -mt-14 relative z-10">
 
-          <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6 mb-8">
+          {/* ── Centered header: avatar / name / badge / email (like reference) ── */}
+          <div className="flex flex-col items-center text-center mb-8">
             <div className="relative shrink-0">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-4 border-(--bg-primary) bg-(--bg-tertiary) flex items-center justify-center shadow-xl">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-4 border-(--bg-primary) bg-(--bg-tertiary) flex items-center justify-center shadow-xl">
                 {avatarSrc
                   ? <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
                   : <span className="text-3xl font-black text-[#7dd625e1] font-['Manrope']">{initials}</span>
@@ -170,47 +184,47 @@ const Profile = () => {
               <button
                 onClick={() => setPickerOpen(v => !v)}
                 aria-label="Edit avatar"
-                className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#7dd625e1] rounded-xl flex items-center justify-center border-2 border-(--bg-primary) hover:scale-105 active:scale-95 transition-transform shadow-lg"
+                className="absolute bottom-0 right-0 w-8 h-8 bg-[#7dd625e1] rounded-full flex items-center justify-center border-2 border-(--bg-primary) hover:scale-105 active:scale-95 transition-transform shadow-lg"
               >
-                <span className="material-symbols-outlined text-[14px] text-[#1a2800]">edit</span>
+                <span className="material-symbols-outlined text-[14px] text-[#1a2800]">photo_camera</span>
               </button>
             </div>
 
-            <div className="flex-1 pb-1">
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h1 className="text-2xl sm:text-3xl font-['Manrope'] font-black text-(--text-primary) tracking-tight">
-                  {formData.fullName || 'Your Name'}
-                </h1>
-                <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#7dd625e1]/10 text-[#7dd625e1] border border-[#7dd625e1]/20">
-                  Pro Member
-                </span>
-              </div>
-              <p className="text-[11px] text-(--text-muted) font-medium">{formData.email}</p>
-              <p className="text-[10px] text-(--text-disabled) font-['JetBrains_Mono',monospace] font-bold tracking-widest mt-0.5">
-                Record No. {recordId}
-              </p>
-            </div>
-
-            <div className={`flex items-center gap-2 sm:gap-3 transition-all duration-200 pb-1 ${isDirty ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-              <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold text-amber-400 uppercase tracking-widest">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                Unsaved
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-['Manrope'] font-black text-(--text-primary) tracking-tight">
+                {formData.fullName || 'Your Name'}
+              </h1>
+              <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#7dd625e1]/10 text-[#7dd625e1] border border-[#7dd625e1]/20">
+                Pro Member
               </span>
-              <button
-                onClick={handleDiscard}
-                className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-(--text-muted) hover:text-(--text-secondary) rounded-lg hover:bg-(--bg-hover) transition-all"
-              >
-                Discard
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="flex items-center gap-2 bg-[#7dd625e1] text-[#161f00] px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] active:scale-95 transition-all disabled:opacity-60 hover:brightness-105"
-              >
-                {isSaving && <span className="w-3 h-3 border-2 border-[#161f00]/30 border-t-[#161f00] rounded-full animate-spin" />}
-                {isSaving ? 'Saving…' : 'Save changes'}
-              </button>
             </div>
+            <p className="mt-1 text-[11px] text-(--text-muted) font-medium">{formData.email}</p>
+            <p className="text-[10px] text-(--text-disabled) font-['JetBrains_Mono',monospace] font-bold tracking-widest mt-0.5">
+              Record No. {recordId}
+            </p>
+
+            {isDirty && (
+              <div className="flex items-center gap-2 sm:gap-3 mt-5">
+                <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold text-amber-400 uppercase tracking-widest">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  Unsaved
+                </span>
+                <button
+                  onClick={handleDiscard}
+                  className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-(--text-muted) hover:text-(--text-secondary) rounded-lg hover:bg-(--bg-hover) transition-all"
+                >
+                  Discard
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="flex items-center gap-2 bg-[#7dd625e1] text-[#161f00] px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] active:scale-95 transition-all disabled:opacity-60 hover:brightness-105"
+                >
+                  {isSaving && <span className="w-3 h-3 border-2 border-[#161f00]/30 border-t-[#161f00] rounded-full animate-spin" />}
+                  {isSaving ? 'Saving…' : 'Save changes'}
+                </button>
+              </div>
+            )}
           </div>
 
           {pickerOpen && (
@@ -257,7 +271,8 @@ const Profile = () => {
             </div>
           )}
 
-          <div className="flex border-b border-(--border-light) mb-6 gap-6">
+          {/* Tabs — same state/logic, now full-width centered pills instead of a left-aligned bar */}
+          <div className="flex justify-center border-b border-(--border-light) mb-6 gap-8">
             {[
               { id: 'profile',  label: 'Record',      icon: 'description' },
               { id: 'security', label: 'Access Log',  icon: 'shield'      },
@@ -277,150 +292,143 @@ const Profile = () => {
             ))}
           </div>
 
+          {/* ── Everything below is now a single vertical stack of list-style groups ── */}
           {activeTab === 'profile' && (
-            <>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div className="flex flex-col gap-5">
 
-              <div className="flex flex-col gap-5">
-                <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-4">Today's activity</p>
-                  <div className="flex gap-2">
-                    <StatPill icon="local_fire_department" value={Number(dailyStats.calories_burned || 0).toLocaleString()} label="kcal" />
-                    <StatPill icon="footprint"              value={Number(dailyStats.steps || 0).toLocaleString()}          label="Steps" />
-                    <StatPill icon="timer"                  value={Number(dailyStats.workout_duration_mins || 0)}           label="Min" />
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-4">Today's activity</p>
+                <div className="flex gap-2">
+                  <StatPill icon="local_fire_department" value={Number(dailyStats.calories_burned || 0).toLocaleString()} label="kcal" />
+                  <StatPill icon="footprint"              value={Number(dailyStats.steps || 0).toLocaleString()}          label="Steps" />
+                  <StatPill icon="timer"                  value={Number(dailyStats.workout_duration_mins || 0)}           label="Min" />
+                </div>
+              </div>
+
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Vitals</p>
+                  <span className="material-symbols-outlined text-[12px] text-(--text-disabled)">lock</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div>
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Height (cm)</span>
+                    <span className={rowLocked}>{formData.height_cm || '—'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Weight (kg)</span>
+                    <span className={rowLocked}>{formData.weight_kg || '—'}</span>
                   </div>
                 </div>
+                <div className="flex items-center justify-between pt-3 border-t border-dashed border-(--border-light)">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled)">BMI</span>
+                  <span className="text-[11px] font-black" style={{ color: bmiInfo.color }}>
+                    {bmi != null ? bmi : '—'} {bmi != null && <span className="text-[9px] font-bold uppercase tracking-widest ml-1">{bmiInfo.label}</span>}
+                  </span>
+                </div>
+                <Link
+                  to="/bmi"
+                  className="mt-3 flex items-center justify-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#7dd625e1]/70 hover:text-[#7dd625e1] transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[12px]">monitoring</span>
+                  Update on BMI page
+                </Link>
+              </div>
 
-                <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Vitals</p>
-                    <span className="material-symbols-outlined text-[12px] text-(--text-disabled)">lock</span>
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-3">Chart notes · Goal</p>
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-[#7dd625e1]/10 flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-[18px] text-[#7dd625e1]">flag</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-3 mb-3">
-                    <div>
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Height (cm)</span>
-                      <span className={rowLocked}>{formData.height_cm || '—'}</span>
-                    </div>
-                    <div>
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Weight (kg)</span>
-                      <span className={rowLocked}>{formData.weight_kg || '—'}</span>
-                    </div>
+                  <div>
+                    <p className="text-sm font-bold text-(--text-primary) leading-snug">
+                      {formData.bio || 'No goal set yet'}
+                    </p>
+                    {!isEditing && (
+                      <button onClick={() => setIsEditing(true)} className="text-[9px] font-bold uppercase tracking-widest text-[#7dd625e1]/70 hover:text-[#7dd625e1] transition-colors mt-1">
+                        Edit goal →
+                      </button>
+                    )}
                   </div>
-                  <div className="flex items-center justify-between pt-3 border-t border-dashed border-(--border-light)">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled)">BMI</span>
-                    <span className="text-[11px] font-black" style={{ color: bmiInfo.color }}>
-                      {bmi != null ? bmi : '—'} {bmi != null && <span className="text-[9px] font-bold uppercase tracking-widest ml-1">{bmiInfo.label}</span>}
-                    </span>
-                  </div>
-                  <Link
-                    to="/bmi"
-                    className="mt-3 flex items-center justify-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#7dd625e1]/70 hover:text-[#7dd625e1] transition-colors"
+                </div>
+              </div>
+
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6 relative overflow-hidden">
+                <div
+                  className="absolute top-0 right-0 w-10 h-10 pointer-events-none"
+                  style={{ background: 'linear-gradient(135deg, transparent 50%, var(--border-light) 50%)' }}
+                />
+
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Patient information</p>
+                  <button
+                    onClick={() => setIsEditing(v => !v)}
+                    className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest border rounded-lg px-3 py-1.5 transition-all ${
+                      isEditing
+                        ? 'border-[#7dd625e1]/30 bg-[#7dd625e1]/8 text-[#7dd625e1] hover:border-[#7dd625e1]/50 hover:text-[#7dd625e1]'
+                        : 'border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:border-(--border-heavy) hover:text-(--text-primary)'
+                    }`}
                   >
-                    <span className="material-symbols-outlined text-[12px]">monitoring</span>
-                    Update on BMI page
-                  </Link>
+                    <span className="material-symbols-outlined text-[13px]">{isEditing ? 'check' : 'edit'}</span>
+                    {isEditing ? 'Done' : 'Edit'}
+                  </button>
                 </div>
 
-                <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-3">Chart notes · Goal</p>
-                  <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-[#7dd625e1]/10 flex items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined text-[18px] text-[#7dd625e1]">flag</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-(--text-primary) leading-snug">
-                        {formData.bio || 'No goal set yet'}
-                      </p>
-                      {!isEditing && (
-                        <button onClick={() => setIsEditing(true)} className="text-[9px] font-bold uppercase tracking-widest text-[#7dd625e1]/70 hover:text-[#7dd625e1] transition-colors mt-1">
-                          Edit goal →
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+                <div className="mt-3">
+                  <RecordRow label="Full name">
+                    <input
+                      className={isEditing ? rowEditable : rowLocked}
+                      type="text"
+                      value={formData.fullName}
+                      onChange={e => handleInputChange(e, 'fullName')}
+                      readOnly={!isEditing}
+                      placeholder="Your full name"
+                    />
+                  </RecordRow>
 
-              <div className="lg:col-span-2">
-                <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6 relative overflow-hidden">
-                  <div
-                    className="absolute top-0 right-0 w-10 h-10 pointer-events-none"
-                    style={{ background: 'linear-gradient(135deg, transparent 50%, var(--border-light) 50%)' }}
-                  />
+                  <RecordRow label="Clinical email" locked>
+                    <input className={rowLocked} type="email" value={formData.email} readOnly />
+                  </RecordRow>
 
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Patient information</p>
-                    <button
-                      onClick={() => setIsEditing(v => !v)}
-                      className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest border rounded-lg px-3 py-1.5 transition-all ${
-                        isEditing
-                          ? 'border-[#7dd625e1]/30 bg-[#7dd625e1]/8 text-[#7dd625e1] hover:border-[#7dd625e1]/50 hover:text-[#7dd625e1]'
-                          : 'border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:border-(--border-heavy) hover:text-(--text-primary)'
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-[13px]">{isEditing ? 'check' : 'edit'}</span>
-                      {isEditing ? 'Done' : 'Edit'}
-                    </button>
-                  </div>
+                  <RecordRow label="Emergency contact">
+                    <input
+                      className={isEditing ? rowEditable : rowLocked}
+                      type="text"
+                      value={formData.contact}
+                      onChange={e => handleInputChange(e, 'contact')}
+                      readOnly={!isEditing}
+                      placeholder="Name · phone number"
+                    />
+                  </RecordRow>
 
-                  <div className="mt-3">
-                    <RecordRow label="Full name">
-                      <input
-                        className={isEditing ? rowEditable : rowLocked}
-                        type="text"
-                        value={formData.fullName}
-                        onChange={e => handleInputChange(e, 'fullName')}
-                        readOnly={!isEditing}
-                        placeholder="Your full name"
-                      />
-                    </RecordRow>
-
-                    <RecordRow label="Clinical email" locked>
-                      <input className={rowLocked} type="email" value={formData.email} readOnly />
-                    </RecordRow>
-
-                    <RecordRow label="Emergency contact">
-                      <input
-                        className={isEditing ? rowEditable : rowLocked}
-                        type="text"
-                        value={formData.contact}
-                        onChange={e => handleInputChange(e, 'contact')}
-                        readOnly={!isEditing}
-                        placeholder="Name · phone number"
-                      />
-                    </RecordRow>
-
-                  
-                    <RecordRow label="Record status">
-                      <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#7dd625e1]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#7dd625e1] animate-pulse" />
-                        Active file
-                      </span>
-                    </RecordRow>
-                  </div>
+                  <RecordRow label="Record status">
+                    <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#7dd625e1]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#7dd625e1] animate-pulse" />
+                      Active file
+                    </span>
+                  </RecordRow>
                 </div>
               </div>
-            </div>
 
-        
-            <div className="mt-5 bg-(--bg-secondary) border border-red-500/10 rounded-2xl p-5">
-              <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-3">Account</p>
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-red-400 text-[11px] font-bold hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
-              >
-                <span className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[16px]">logout</span>
-                  Sign out
-                </span>
-                <span className="material-symbols-outlined text-[14px] opacity-40">chevron_right</span>
-              </button>
+              <div className="bg-(--bg-secondary) border border-red-500/10 rounded-2xl p-5">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-3">Account</p>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-red-400 text-[11px] font-bold hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[16px]">logout</span>
+                    Sign out
+                  </span>
+                  <span className="material-symbols-outlined text-[14px] opacity-40">chevron_right</span>
+                </button>
+              </div>
             </div>
-            </>
           )}
 
           {activeTab === 'security' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <div className="flex flex-col gap-5">
               <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6">
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-4">This device</p>
                 {currentSession ? (
@@ -464,7 +472,7 @@ const Profile = () => {
                 )}
               </div>
 
-              <div className="lg:col-span-2 bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6">
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-(--bg-hover) flex items-center justify-center shrink-0">
                     <span className="material-symbols-outlined text-[20px] text-(--text-secondary)">lock</span>
