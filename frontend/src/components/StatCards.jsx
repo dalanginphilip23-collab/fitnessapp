@@ -1,21 +1,45 @@
 import Icon from './Icon';
 
 // ─── Shell ────────────────────────────────────────────────────────────────────
-export const StatCard = ({ label, value, unit, icon, children }) => (
-  <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[14px] p-[22px] flex flex-col h-full">
-    <div className="flex justify-between items-start mb-6">
-      <div>
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-muted)] mb-1">{label}</p>
-        <h3 className="font-['Manrope'] text-[22px] font-bold text-[var(--text-primary)]">
-          {value}
-          {unit && <span className="text-[12px] font-normal text-[var(--text-muted)] ml-1">{unit}</span>}
-        </h3>
+// `bare` renders a compact icon-badge + value item with no outer card/border,
+// for use inside a unified stats row (e.g. the "My Statistic" pill layout).
+// Default (bare=false) keeps the original full card exactly as before.
+export const StatCard = ({ label, value, unit, icon, children, bare = false }) => {
+  if (bare) {
+    return (
+      <div className="flex flex-col items-start gap-3 px-1 min-w-0">
+        <div className="w-9 h-9 rounded-full bg-[var(--accent-bg)] flex items-center justify-center shrink-0">
+          <Icon name={icon} className="text-[var(--accent)] text-[17px]" />
+        </div>
+        <div className="min-w-0">
+          <h3 className="font-['Manrope'] text-[19px] font-bold text-[var(--text-primary)] leading-none truncate">
+            {value}
+            {unit && <span className="text-[10px] font-normal text-[var(--text-muted)] ml-1">{unit}</span>}
+          </h3>
+          <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-[var(--text-muted)] mt-1.5 truncate">
+            {label}
+          </p>
+        </div>
       </div>
-      <Icon name={icon} className="text-[var(--accent)]/35 text-[22px]" />
+    );
+  }
+
+  return (
+    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[14px] p-[22px] flex flex-col h-full">
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-muted)] mb-1">{label}</p>
+          <h3 className="font-['Manrope'] text-[22px] font-bold text-[var(--text-primary)]">
+            {value}
+            {unit && <span className="text-[12px] font-normal text-[var(--text-muted)] ml-1">{unit}</span>}
+          </h3>
+        </div>
+        <Icon name={icon} className="text-[var(--accent)]/35 text-[22px]" />
+      </div>
+      {children}
     </div>
-    {children}
-  </div>
-);
+  );
+};
 
 // ─── Calories ─────────────────────────────────────────────────────────────────
 // Same 6 sample values as before: [40, 60, 45, 80, 70, 100]. Only the visual
