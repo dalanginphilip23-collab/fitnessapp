@@ -18,20 +18,63 @@ export const StatCard = ({ label, value, unit, icon, children }) => (
 );
 
 // ─── Calories ─────────────────────────────────────────────────────────────────
-export const CaloriesCard = ({ value = 0 }) => (
-  <StatCard
-    label="Daily Burn"
-    value={Number(value || 0).toLocaleString()}
-    unit="kcal"
-    icon="local_fire_department"
-  >
-    <div className="flex items-end gap-1 h-12">
-      {[40, 60, 45, 80, 70, 100].map((h, i) => (
-        <div key={i} className="flex-1 rounded-sm bg-[var(--accent)]" style={{ height: `${h}%`, opacity: i === 5 ? 1 : 0.3 }} />
-      ))}
-    </div>
-  </StatCard>
-);
+// Same 6 sample values as before: [40, 60, 45, 80, 70, 100]. Only the visual
+// shape changed — dotted baseline + pill-rounded bars, matching the style
+// used in SleepHoursGraph — the data source and layout are untouched.
+const CALORIES_BAR_HEIGHTS = [40, 60, 45, 80, 70, 100];
+
+export const CaloriesCard = ({ value = 0 }) => {
+  const CHART_W = 240;
+  const CHART_H = 48;
+  const BASELINE_Y = CHART_H - 1;
+
+  const barCount = CALORIES_BAR_HEIGHTS.length;
+  const slot     = CHART_W / barCount;
+  const barGap   = Math.min(slot * 0.3, 6);
+  const barW     = Math.max(slot - barGap, 3);
+
+  return (
+    <StatCard
+      label="Daily Burn"
+      value={Number(value || 0).toLocaleString()}
+      unit="kcal"
+      icon="local_fire_department"
+    >
+      <div className="h-12 w-full">
+        <svg width="100%" height="100%" viewBox={`0 0 ${CHART_W} ${CHART_H}`} preserveAspectRatio="none">
+          {/* dotted baseline */}
+          <line
+            x1="0" y1={BASELINE_Y} x2={CHART_W} y2={BASELINE_Y}
+            stroke="var(--border-light)"
+            strokeWidth="2"
+            strokeDasharray="1 6"
+            strokeLinecap="round"
+          />
+
+          {CALORIES_BAR_HEIGHTS.map((h, i) => {
+            const isLast = i === barCount - 1;
+            const barH   = (h / 100) * (CHART_H - 6);
+            const x      = i * slot + (slot - barW) / 2;
+            const y      = BASELINE_Y - barH;
+
+            return (
+              <rect
+                key={i}
+                x={x}
+                y={y}
+                width={barW}
+                height={barH}
+                rx={barW / 2}
+                fill="var(--accent)"
+                opacity={isLast ? 1 : 0.3}
+              />
+            );
+          })}
+        </svg>
+      </div>
+    </StatCard>
+  );
+};
 
 // ─── Session Load ─────────────────────────────────────────────────────────────
 export const LoadCard = ({ minutes = 0 }) => {
