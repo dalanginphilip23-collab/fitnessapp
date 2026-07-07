@@ -132,6 +132,8 @@ export const SleepHoursGraph = ({ userId = null }) => {
     return { x, y, barW, barH, ratio, cx: x + barW / 2 };
   };
 
+  const pathData = ''; // kept for backward compatibility, unused by the new chart
+
   const avg = points.length
     ? points.reduce((s, p) => s + Number(p.value), 0) / points.length
     : 0;
