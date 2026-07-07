@@ -52,22 +52,26 @@ const THEME_VARS = {
 const applyThemeVars = (theme) => {
   const root = document.documentElement;
   const vars = THEME_VARS[theme] ?? THEME_VARS.dark;
-  // Batch via a single style attribute write where possible; setProperty per
-  // key is still cheap since these are custom properties, not layout-forcing
-  // properties, and no stylesheet text is being touched.
   Object.entries(vars).forEach(([key, value]) => {
     root.style.setProperty(key, value);
   });
 };
 
+// Feature-detect once — iOS Safari < 18 and some Android WebViews don't
+// support this yet, so every call site needs a plain-toggle fallback.
+const supportsViewTransitions = () =>
+  typeof document !== 'undefined' && typeof document.startViewTransition === 'function';
+
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 export const ThemeProvider = ({ children }) => {
-  // Initialize theme from localStorage or system preference
   const getInitialTheme = () => {
     const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
     if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
       return savedTheme;
     }
-    // Check system preference
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
       return 'light';
     }
@@ -77,8 +81,6 @@ export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(getInitialTheme);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Apply theme class + CSS variables to document.
-  // This is the ONLY place that should touch document styles on theme change.
   useEffect(() => {
     const root = document.documentElement;
     root.classList.remove('light-theme', 'dark-theme');
@@ -87,35 +89,62 @@ export const ThemeProvider = ({ children }) => {
     applyThemeVars(theme);
   }, [theme]);
 
-  // Listen for system preference changes
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
     const handleChange = (e) => {
       const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-      // Only update if user hasn't manually set a preference
       if (!savedTheme) {
         setTheme(e.matches ? 'dark' : 'light');
       }
     };
-
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const toggleTheme = useCallback(() => {
+  // origin — where in the viewport the circle-reveal should expand from.
+  // Falls back to viewport center if no click coordinates were given
+  // (e.g. toggled via keyboard or programmatically).
+  const setToggleOrigin = (originX, originY) => {
+    const root = document.documentElement;
+    const x = originX ?? window.innerWidth / 2;
+    const y = originY ?? window.innerHeight / 2;
+    root.style.setProperty('--toggle-x', `${x}px`);
+    root.style.setProperty('--toggle-y', `${y}px`);
+  };
+
+  // Runs the actual theme flip. If the browser supports the View Transition
+  // API (and the user hasn't asked for reduced motion), the change is wrapped
+  // so the CSS circle-reveal in themes.css actually fires. Otherwise it's a
+  // plain state update and the page relies on the CSS `transition:` fallback
+  // on background-color/color for a soft crossfade instead of a hard snap.
+  const runThemeChange = useCallback((nextTheme, originX, originY) => {
+    const applyChange = () => setTheme(nextTheme);
+
+    if (!supportsViewTransitions() || prefersReducedMotion()) {
+      applyChange();
+      return;
+    }
+
+    setToggleOrigin(originX, originY);
     setIsTransitioning(true);
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-    setTimeout(() => setIsTransitioning(false), 500);
+    const transition = document.startViewTransition(applyChange);
+    transition.finished
+      .catch(() => {}) // a transition can be interrupted by a second rapid toggle — not an error
+      .finally(() => setIsTransitioning(false));
   }, []);
 
-  const setThemeValue = useCallback((newTheme) => {
+  // Both accept an optional { x, y } origin (e.g. from a click event) so the
+  // circle-reveal expands from wherever the user tapped the toggle.
+  const toggleTheme = useCallback((origin) => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    runThemeChange(next, origin?.x, origin?.y);
+  }, [theme, runThemeChange]);
+
+  const setThemeValue = useCallback((newTheme, origin) => {
     if (newTheme === 'light' || newTheme === 'dark') {
-      setIsTransitioning(true);
-      setTheme(newTheme);
-      setTimeout(() => setIsTransitioning(false), 500);
+      runThemeChange(newTheme, origin?.x, origin?.y);
     }
-  }, []);
+  }, [runThemeChange]);
 
   return (
     <ThemeContext.Provider value={{

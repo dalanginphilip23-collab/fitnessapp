@@ -130,17 +130,6 @@ body {
   color: var(--text-primary);
 }
 
-/* ============================================================
-   Theme toggle animation.
-   THE FIX for the washed-out/grainy blended screenshot:
-   the browser's default blend mode for view transitions is
-   `plus-lighter`, which ADDS the old and new page snapshots'
-   pixel values together. On a page with a photographic bg +
-   animated grain texture, that doubles the noise and blows
-   out contrast — exactly what you saw. Forcing `normal` makes
-   the new snapshot cleanly replace the old one instead of
-   mathematically blending with it.
-   ============================================================ */
 ::view-transition-group(root) {
   animation-duration: 0.5s;
 }
@@ -172,6 +161,13 @@ body {
   ::view-transition-new(root) {
     animation: none;
     clip-path: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .grain::before {
+    animation: none;
+    opacity: calc(var(--grain-opacity) * 0.6);
   }
 }
 
