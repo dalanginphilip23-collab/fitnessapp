@@ -113,18 +113,24 @@ export const SleepHoursGraph = ({ userId = null }) => {
 
   const points = graphData;
 
-  const getPath = () => {
-    if (points.length === 0) return '';
-    const W = 1000, H = 200;
-    const step = points.length > 1 ? W / (points.length - 1) : W / 2;
-    return points.reduce((path, pt, i) => {
-      const x = points.length === 1 ? W / 2 : i * step;
-      const y = H - (Math.min(Number(pt.value), metaObj.max) / metaObj.max) * H;
-      return path + `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)} `;
-    }, '');
-  };
+  // ── Bar geometry helpers (chart-only visual change) ──────────────────
+  const CHART_W = 1000;
+  const CHART_H = 200;
+  const BASELINE_Y = CHART_H - 2;   // dotted baseline sits near the bottom
+  const DOT_THRESHOLD = 0.06;       // values below this % of max render as a dot, not a bar
 
-  const pathData = getPath();
+  const getBarGeometry = (pt, i) => {
+    const slot   = CHART_W / points.length;
+    const barGap = Math.min(slot * 0.35, 10);
+    const barW   = Math.max(slot - barGap, 4);
+    const x      = i * slot + (slot - barW) / 2;
+
+    const ratio = Math.min(Number(pt.value), metaObj.max) / metaObj.max;
+    const barH  = Math.max(ratio * (CHART_H - 16), 0);
+    const y     = BASELINE_Y - barH;
+
+    return { x, y, barW, barH, ratio, cx: x + barW / 2 };
+  };
 
   const avg = points.length
     ? points.reduce((s, p) => s + Number(p.value), 0) / points.length
@@ -282,55 +288,54 @@ export const SleepHoursGraph = ({ userId = null }) => {
           <EmptyState color={accentColor} />
         ) : (
           <>
-            <svg width="100%" height="100%" viewBox="0 0 1000 200" preserveAspectRatio="none">
+            <svg width="100%" height="100%" viewBox={`0 0 ${CHART_W} ${CHART_H}`} preserveAspectRatio="none">
               <defs>
                 <linearGradient id={gradId} x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%"   stopColor={accentColor} stopOpacity="0.22" />
-                  <stop offset="100%" stopColor={accentColor} stopOpacity="0" />
+                  <stop offset="0%"   stopColor={accentColor} stopOpacity="0.95" />
+                  <stop offset="100%" stopColor={accentColor} stopOpacity="0.45" />
                 </linearGradient>
               </defs>
 
-              {pathData && (
-                <path
-                  d={`${pathData} V200 H0 Z`}
-                  fill={`url(#${gradId})`}
-                  className="transition-all duration-700"
-                />
-              )}
-
-              <path
-                d={pathData}
-                fill="none"
-                stroke={accentColor}
+              {/* dotted baseline, like the reference chart */}
+              <line
+                x1="0" y1={BASELINE_Y} x2={CHART_W} y2={BASELINE_Y}
+                stroke="var(--border-light)"
                 strokeWidth="2.5"
+                strokeDasharray="1 8"
                 strokeLinecap="round"
-                strokeLinejoin="round"
-                className="transition-all duration-700"
               />
-              {points.length <= 10 &&
-                points.map((pt, i) => {
-                  const W = 1000;
-                  const step = points.length > 1 ? W / (points.length - 1) : W / 2;
-                  const x = points.length === 1 ? W / 2 : i * step;
-                  const y = 200 - (Math.min(Number(pt.value), metaObj.max) / metaObj.max) * 200;
+
+              {points.map((pt, i) => {
+                const { x, y, barW, barH, ratio, cx } = getBarGeometry(pt, i);
+
+                if (ratio < DOT_THRESHOLD) {
                   return (
                     <circle
                       key={i}
-                      cx={x}
-                      cy={y}
-                      r="5"
+                      cx={cx}
+                      cy={BASELINE_Y}
+                      r="3.5"
                       fill={accentColor}
-                      fillOpacity="0.9"
-                      stroke="var(--bg-tertiary)"
-                      strokeWidth="2"
+                      fillOpacity="0.5"
+                      className="transition-all duration-700"
                     />
                   );
-                })}
-            </svg>
+                }
 
-            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
-              {[0, 1, 2].map(i => <div key={i} className="border-t border-[var(--border-light)]" />)}
-            </div>
+                return (
+                  <rect
+                    key={i}
+                    x={x}
+                    y={y}
+                    width={barW}
+                    height={barH}
+                    rx={barW / 2}
+                    fill={`url(#${gradId})`}
+                    className="transition-all duration-700"
+                  />
+                );
+              })}
+            </svg>
 
             <div className="absolute right-0 inset-y-0 flex flex-col justify-between pointer-events-none pr-1">
               {metaObj.yTicks.map(v => (
