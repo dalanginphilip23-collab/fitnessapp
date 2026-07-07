@@ -1,11 +1,7 @@
 /* styles/themes.css - CSS Variables for both themes */
 
-/* ============================================================
-   Dark theme (default)
-   ============================================================ */
 :root,
 .dark-theme {
-  /* Background colors */
   --bg-primary: #0e0e0e;
   --bg-secondary: #131313;
   --bg-tertiary: #1c1b1b;
@@ -13,45 +9,37 @@
   --bg-hover: rgba(255, 255, 255, 0.05);
   --bg-active: rgba(143, 191, 99, 0.08);
 
-  /* Surface colors */
   --surface: #131313;
   --surface-hover: #1a1a1a;
   --surface-active: #1e1e1e;
 
-  /* Text colors */
   --text-primary: #e5e2e1;
   --text-secondary: #a0a0a0;
   --text-muted: #555555;
   --text-disabled: #333333;
 
-  /* Border colors */
   --border-light: rgba(255, 255, 255, 0.06);
   --border-medium: rgba(255, 255, 255, 0.1);
   --border-heavy: rgba(255, 255, 255, 0.15);
 
-  /* Accent colors — muted forest green */
   --accent-dark: #79A852;
   --accent-light: #A3D17E;
   --accent-bg: rgba(143, 191, 99, 0.10);
   --accent-border: rgba(143, 191, 99, 0.22);
 
-  /* Shadow */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
 
-  /* Input */
   --input-bg: rgba(255, 255, 255, 0.05);
   --input-border: rgba(255, 255, 255, 0.1);
   --input-focus: rgba(143, 191, 99, 0.3);
 
-  /* Scrollbar */
   --scrollbar-track: transparent;
   --scrollbar-thumb: rgba(255, 255, 255, 0.1);
   --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
 
-  /* ---- Merged in from the old JS THEME_VARS object ---- */
   --accent: #8FBF63;
   --accent-glow: rgba(143, 191, 99, 0.3);
   --bg: #080808;
@@ -72,11 +60,7 @@
   --bg-marquee: #0a0a0a;
 }
 
-/* ============================================================
-   Light theme
-   ============================================================ */
 .light-theme {
-  /* Background colors */
   --bg-primary: #f5f5f5;
   --bg-secondary: #ffffff;
   --bg-tertiary: #f0f0f0;
@@ -84,45 +68,37 @@
   --bg-hover: rgba(0, 0, 0, 0.03);
   --bg-active: rgba(94, 158, 74, 0.12);
 
-  /* Surface colors */
   --surface: #ffffff;
   --surface-hover: #f8f8f8;
   --surface-active: #f0f0f0;
 
-  /* Text colors */
   --text-primary: #1a1a1a;
   --text-secondary: #4a4a4a;
   --text-muted: #888888;
   --text-disabled: #cccccc;
 
-  /* Border colors */
   --border-light: rgba(0, 0, 0, 0.08);
   --border-medium: rgba(0, 0, 0, 0.12);
   --border-heavy: rgba(0, 0, 0, 0.2);
 
-  /* Accent colors — muted forest green */
   --accent-dark: #254900;
   --accent-light: #254900;
   --accent-bg: rgba(37, 73, 0, 0.10);
   --accent-border: rgba(37, 73, 0, 0.25);
 
-  /* Shadow */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
 
-  /* Input */
   --input-bg: rgba(0, 0, 0, 0.02);
   --input-border: rgba(0, 0, 0, 0.1);
   --input-focus: rgba(94, 158, 74, 0.3);
 
-  /* Scrollbar */
   --scrollbar-track: transparent;
   --scrollbar-thumb: rgba(0, 0, 0, 0.1);
   --scrollbar-thumb-hover: rgba(0, 0, 0, 0.2);
 
-  /* ---- Merged in from the old JS THEME_VARS object ---- */
   --accent: #5E9E4A;
   --accent-glow: rgba(94, 158, 74, 0.2);
   --bg: #f5f5f5;
@@ -143,13 +119,6 @@
   --bg-marquee: #f0f0f0;
 }
 
-/* ============================================================
-   Fallback transition — ONLY used by browsers without View
-   Transitions support (or reduced-motion), where ThemeContext
-   just swaps the class instantly with no animation of its own.
-   Deliberately scoped to `body` only, not `*`, so it doesn't
-   force every node on the page to animate on every toggle.
-   ============================================================ */
 @media not (prefers-reduced-motion: reduce) {
   body {
     transition: background-color 0.25s ease, color 0.25s ease;
@@ -162,14 +131,25 @@ body {
 }
 
 /* ============================================================
-   Click-triggered radial reveal for the theme toggle.
-   --toggle-x / --toggle-y are set by ThemeToggle.jsx right
-   before it calls toggleTheme().
+   Theme toggle animation.
+   THE FIX for the washed-out/grainy blended screenshot:
+   the browser's default blend mode for view transitions is
+   `plus-lighter`, which ADDS the old and new page snapshots'
+   pixel values together. On a page with a photographic bg +
+   animated grain texture, that doubles the noise and blows
+   out contrast — exactly what you saw. Forcing `normal` makes
+   the new snapshot cleanly replace the old one instead of
+   mathematically blending with it.
    ============================================================ */
+::view-transition-group(root) {
+  animation-duration: 0.5s;
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+  isolation: isolate;
 }
 
 ::view-transition-old(root) {
@@ -178,9 +158,8 @@ body {
 
 ::view-transition-new(root) {
   z-index: 2;
-  animation: circle-reveal 0.5s ease;
+  animation: circle-reveal 0.5s ease forwards;
   clip-path: circle(0% at var(--toggle-x, 50%) var(--toggle-y, 50%));
-  animation-fill-mode: forwards;
 }
 
 @keyframes circle-reveal {
@@ -196,9 +175,6 @@ body {
   }
 }
 
-/* ============================================================
-   Scrollbar styling
-   ============================================================ */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

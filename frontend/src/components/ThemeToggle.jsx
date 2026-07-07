@@ -6,8 +6,6 @@ const ThemeToggle = () => {
   const { theme, toggleTheme } = useTheme();
 
   const handleClick = (e) => {
-    // Store the click position so the CSS radial-reveal animation
-    // in themes.css knows where to expand from.
     const { clientX, clientY } = e;
     document.documentElement.style.setProperty('--toggle-x', `${clientX}px`);
     document.documentElement.style.setProperty('--toggle-y', `${clientY}px`);

@@ -1,3 +1,4 @@
+// context/ThemeContext.jsx
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 
 const ThemeContext = createContext();
@@ -24,7 +25,6 @@ export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(getInitialTheme);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-
   useEffect(() => {
     const root = document.documentElement;
     root.classList.remove('light-theme', 'dark-theme');
@@ -32,7 +32,6 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem(THEME_STORAGE_KEY, theme);
   }, [theme]);
 
-  // Listen for system preference changes
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
@@ -46,6 +45,7 @@ export const ThemeProvider = ({ children }) => {
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
+
   const applyTheme = useCallback((updateFn) => {
     if (canUseViewTransition()) {
       setIsTransitioning(true);
