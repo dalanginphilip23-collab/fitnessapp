@@ -52,22 +52,24 @@ const THEME_VARS = {
 const applyThemeVars = (theme) => {
   const root = document.documentElement;
   const vars = THEME_VARS[theme] ?? THEME_VARS.dark;
-  // Batch via a single style attribute write where possible; setProperty per
-  // key is still cheap since these are custom properties, not layout-forcing
-  // properties, and no stylesheet text is being touched.
   Object.entries(vars).forEach(([key, value]) => {
     root.style.setProperty(key, value);
   });
 };
 
+// Small helper: does the browser support the View Transitions API, and
+// should we even use it right now (user might have reduced-motion on)?
+const canUseViewTransition = () =>
+  typeof document !== 'undefined' &&
+  typeof document.startViewTransition === 'function' &&
+  !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 export const ThemeProvider = ({ children }) => {
-  // Initialize theme from localStorage or system preference
   const getInitialTheme = () => {
     const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+    if (savedTheme === 'light' || savedTheme === 'dark') {
       return savedTheme;
     }
-    // Check system preference
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
       return 'light';
     }
@@ -93,7 +95,6 @@ export const ThemeProvider = ({ children }) => {
 
     const handleChange = (e) => {
       const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-      // Only update if user hasn't manually set a preference
       if (!savedTheme) {
         setTheme(e.matches ? 'dark' : 'light');
       }
@@ -103,19 +104,31 @@ export const ThemeProvider = ({ children }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const toggleTheme = useCallback(() => {
-    setIsTransitioning(true);
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-    setTimeout(() => setIsTransitioning(false), 500);
+  // Runs the actual state update, optionally wrapped in a View Transition
+  // so the browser cross-fades the whole page between the old/new paint
+  // instead of us having to animate every element's colors by hand.
+  const applyTheme = useCallback((updateFn) => {
+    if (canUseViewTransition()) {
+      setIsTransitioning(true);
+      const transition = document.startViewTransition(() => {
+        updateFn();
+      });
+      transition.finished.finally(() => setIsTransitioning(false));
+    } else {
+      // Fallback: no VT support or reduced-motion — just swap instantly.
+      updateFn();
+    }
   }, []);
+
+  const toggleTheme = useCallback(() => {
+    applyTheme(() => setTheme(prev => (prev === 'dark' ? 'light' : 'dark')));
+  }, [applyTheme]);
 
   const setThemeValue = useCallback((newTheme) => {
     if (newTheme === 'light' || newTheme === 'dark') {
-      setIsTransitioning(true);
-      setTheme(newTheme);
-      setTimeout(() => setIsTransitioning(false), 500);
+      applyTheme(() => setTheme(newTheme));
     }
-  }, []);
+  }, [applyTheme]);
 
   return (
     <ThemeContext.Provider value={{
