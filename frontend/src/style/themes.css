@@ -119,9 +119,23 @@
   --bg-marquee: #f0f0f0;
 }
 
+/* ── Smooth theme-switch fallback ────────────────────────────────────────
+   Catches every element (including inline-styled ones from Landing.jsx
+   that the old selector list `body, .bebas, .dm, a, button, [class*="bg-"]`
+   missed) using :where() so specificity stays at 0 — anything with its own
+   Tailwind transition-* class or Framer Motion animation still wins. */
 @media not (prefers-reduced-motion: reduce) {
-  body {
-    transition: background-color 0.25s ease, color 0.25s ease;
+  :where(*, *::before, *::after) {
+    transition-property: background-color, border-color, box-shadow, color, fill, stroke;
+    transition-duration: 300ms;
+    transition-timing-function: ease;
+  }
+
+  /* While the View Transition circle-reveal is running (class toggled by
+     ThemeContext), suppress the fallback so the two animations don't
+     fight each other and blur the reveal edge. */
+  html.theme-switching :where(*, *::before, *::after) {
+    transition: none !important;
   }
 }
 
@@ -161,6 +175,10 @@ body {
   ::view-transition-new(root) {
     animation: none;
     clip-path: none;
+  }
+
+  :where(*, *::before, *::after) {
+    transition: none !important;
   }
 }
 

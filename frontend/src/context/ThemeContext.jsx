@@ -127,10 +127,19 @@ export const ThemeProvider = ({ children }) => {
 
     setToggleOrigin(originX, originY);
     setIsTransitioning(true);
+
+    // Mark the transition as in-progress so themes.css can suppress the
+    // per-element fallback transition while the circle-reveal runs —
+    // otherwise both animate colors at once and it looks muddy.
+    document.documentElement.classList.add('theme-switching');
+
     const transition = document.startViewTransition(applyChange);
     transition.finished
       .catch(() => {}) // a transition can be interrupted by a second rapid toggle — not an error
-      .finally(() => setIsTransitioning(false));
+      .finally(() => {
+        setIsTransitioning(false);
+        document.documentElement.classList.remove('theme-switching');
+      });
   }, []);
 
   // Both accept an optional { x, y } origin (e.g. from a click event) so the
