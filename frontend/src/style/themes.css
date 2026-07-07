@@ -119,24 +119,58 @@
   --bg-marquee: #f0f0f0;
 }
 
-/* ── Smooth theme-switch fallback ────────────────────────────────────────
-   Catches every element (including inline-styled ones from Landing.jsx
-   that the old selector list `body, .bebas, .dm, a, button, [class*="bg-"]`
-   missed) using :where() so specificity stays at 0 — anything with its own
-   Tailwind transition-* class or Framer Motion animation still wins. */
+/*
+ * Global theme-switch transition.
+ *
+ * IMPORTANT: box-shadow is intentionally NOT included here. Animating
+ * box-shadow forces a paint on every element that has one, and this rule
+ * applies to *every element on the page* (`:where(*, *::before, *::after)`).
+ * On a page with this many nodes (cards, buttons, icons, motion wrappers)
+ * that combination is the main cause of the stutter you'd see when toggling
+ * theme on a mobile device. If you need an animated glow on a specific
+ * element (e.g. the popular pricing card, hero CTA), add the `.shadow-transition`
+ * utility below to just that element instead of relying on this global rule.
+ */
 @media not (prefers-reduced-motion: reduce) {
   :where(*, *::before, *::after) {
-    transition-property: background-color, border-color, box-shadow, color, fill, stroke;
-    transition-duration: 300ms;
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: 200ms;
     transition-timing-function: ease;
   }
 
-  /* While the View Transition circle-reveal is running (class toggled by
-     ThemeContext), suppress the fallback so the two animations don't
-     fight each other and blur the reveal edge. */
+  /* Opt-in utility for the handful of elements that actually want an
+     animated box-shadow (glowing buttons/cards). Keep this list small. */
+  .shadow-transition {
+    transition: box-shadow 200ms ease;
+  }
+
+  /* Desktop path: while the View Transition circle-reveal is running (class
+     toggled by ThemeContext), suppress the fallback crossfade entirely so
+     the two animations don't fight each other and blur the reveal edge. */
   html.theme-switching :where(*, *::before, *::after) {
     transition: none !important;
   }
+
+  /* Mobile / plain path: ThemeContext adds this class for a short window
+     (PLAIN_TRANSITION_MS) instead of using a view transition. We deliberately
+     re-declare a *scoped* transition here (no box-shadow, same duration) so
+     intent is explicit and easy to tune independently of the base rule above. */
+  html.theme-switching-plain :where(*, *::before, *::after) {
+    transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+  }
+}
+
+/* Pause decorative/looping animations during a theme switch (both the
+   desktop view-transition path and the mobile plain path) so they aren't
+   competing with the browser for frame budget at the exact moment it's
+   already busy repainting/snapshotting the page. */
+html.theme-switching .pulse-ring,
+html.theme-switching .animate-marquee,
+html.theme-switching .grain::before,
+html.theme-switching-plain .pulse-ring,
+html.theme-switching-plain .animate-marquee,
+html.theme-switching-plain .grain::before {
+  animation-play-state: paused;
 }
 
 body {

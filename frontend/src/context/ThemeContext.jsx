@@ -1,4 +1,3 @@
-// context/ThemeContext.jsx
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 
 const ThemeContext = createContext();
@@ -57,14 +56,27 @@ const applyThemeVars = (theme) => {
   });
 };
 
-// Feature-detect once — iOS Safari < 18 and some Android WebViews don't
-// support this yet, so every call site needs a plain-toggle fallback.
+// View Transitions require taking a full-page snapshot and animating a
+// clip-path over it. That's cheap on a desktop GPU but noticeably heavy on
+// mobile GPUs when the page has large blurred elements, a full-bleed photo,
+// and dozens of framer-motion nodes (exactly this page). So we only use the
+// fancy circle-reveal on devices that can actually afford it — fine pointer
+// (mouse) + a reasonably large viewport. Touch/mobile always takes the plain
+// CSS-variable crossfade path instead, which is far cheaper.
 const supportsViewTransitions = () =>
-  typeof document !== 'undefined' && typeof document.startViewTransition === 'function';
+  typeof document !== 'undefined' &&
+  typeof document.startViewTransition === 'function' &&
+  typeof window !== 'undefined' &&
+  window.matchMedia('(pointer: fine) and (min-width: 1024px)').matches;
 
 const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// How long the plain (mobile) crossfade transition takes. Must match the
+// transition-duration set on the universal selector in themes.css so the
+// "theme-switching-plain" class is removed right as the crossfade finishes.
+const PLAIN_TRANSITION_MS = 220;
 
 export const ThemeProvider = ({ children }) => {
   const getInitialTheme = () => {
@@ -101,9 +113,6 @@ export const ThemeProvider = ({ children }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  // origin — where in the viewport the circle-reveal should expand from.
-  // Falls back to viewport center if no click coordinates were given
-  // (e.g. toggled via keyboard or programmatically).
   const setToggleOrigin = (originX, originY) => {
     const root = document.documentElement;
     const x = originX ?? window.innerWidth / 2;
@@ -112,25 +121,37 @@ export const ThemeProvider = ({ children }) => {
     root.style.setProperty('--toggle-y', `${y}px`);
   };
 
-  // Runs the actual theme flip. If the browser supports the View Transition
-  // API (and the user hasn't asked for reduced motion), the change is wrapped
-  // so the CSS circle-reveal in themes.css actually fires. Otherwise it's a
-  // plain state update and the page relies on the CSS `transition:` fallback
-  // on background-color/color for a soft crossfade instead of a hard snap.
   const runThemeChange = useCallback((nextTheme, originX, originY) => {
     const applyChange = () => setTheme(nextTheme);
 
-    if (!supportsViewTransitions() || prefersReducedMotion()) {
+    // Reduced motion: just flip instantly, no animation work at all.
+    if (prefersReducedMotion()) {
       applyChange();
       return;
     }
 
+    // Mobile / coarse-pointer / small-viewport path: skip the expensive
+    // full-page view-transition snapshot entirely. Instead we add a class
+    // that (a) lets themes.css run a short, cheap CSS-variable crossfade on
+    // a *scoped* set of properties, and (b) pauses decorative animations
+    // (marquee, pulse ring, grain) for that same short window so they're not
+    // competing with the repaint on the main thread. This is what removes
+    // the stutter you see on phones.
+    if (!supportsViewTransitions()) {
+      setIsTransitioning(true);
+      document.documentElement.classList.add('theme-switching-plain');
+      applyChange();
+
+      window.setTimeout(() => {
+        setIsTransitioning(false);
+        document.documentElement.classList.remove('theme-switching-plain');
+      }, PLAIN_TRANSITION_MS);
+      return;
+    }
+
+    // Desktop path: full circle-reveal view transition.
     setToggleOrigin(originX, originY);
     setIsTransitioning(true);
-
-    // Mark the transition as in-progress so themes.css can suppress the
-    // per-element fallback transition while the circle-reveal runs —
-    // otherwise both animate colors at once and it looks muddy.
     document.documentElement.classList.add('theme-switching');
 
     const transition = document.startViewTransition(applyChange);
@@ -142,8 +163,6 @@ export const ThemeProvider = ({ children }) => {
       });
   }, []);
 
-  // Both accept an optional { x, y } origin (e.g. from a click event) so the
-  // circle-reveal expands from wherever the user tapped the toggle.
   const toggleTheme = useCallback((origin) => {
     const next = theme === 'dark' ? 'light' : 'dark';
     runThemeChange(next, origin?.x, origin?.y);
