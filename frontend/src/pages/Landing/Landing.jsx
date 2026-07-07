@@ -96,13 +96,22 @@ const THEME = {
 
 // ─── One-time static stylesheet ───────────────────────────────────────────────
 // This string is created exactly once (module scope) and NEVER touches theme
-// state. Every value that used to be interpolated per-theme now reads a CSS
-// variable set by ThemeContext, so a theme toggle updates variables (cheap)
-// instead of forcing React to replace this whole tag's text (expensive: full
-// re-parse + full-document style recalculation = the forced reflow you saw).
+// state. Theme switching is now handled by the View Transitions API in
+// ThemeContext.jsx, so there's no per-element transition rule here anymore —
+// see themes.css for the ::view-transition-* rules.
+//
+// NOTE: the Google Fonts @import that used to live here has been REMOVED.
+// An @import inside a JS-injected <style> tag is only discovered after
+// React mounts and hydrates, which is late and render-blocking on slow
+// mobile connections. Move these two lines into the <head> of index.html
+// instead, so the browser starts fetching fonts immediately during HTML
+// parsing, before any JS even runs:
+//
+//   <link rel="preconnect" href="https://fonts.googleapis.com">
+//   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+//   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,700;1,9..40,900&display=swap">
+//   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
 const LANDING_STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,700;1,9..40,900&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body { background: var(--bg); color: var(--text); overflow-x: hidden; }
@@ -119,6 +128,14 @@ const LANDING_STYLES = `
     opacity: var(--grain-opacity); pointer-events: none; z-index: 9998; animation: grain 0.5s steps(2) infinite;
   }
   @keyframes grain { 0%,100%{transform:translate(0,0)}10%{transform:translate(-2%,-3%)}20%{transform:translate(3%,2%)}30%{transform:translate(-1%,4%)}40%{transform:translate(4%,-1%)}50%{transform:translate(-3%,3%)}60%{transform:translate(2%,-4%)}70%{transform:translate(-4%,1%)}80%{transform:translate(1%,-2%)}90%{transform:translate(-2%,4%)} }
+  /* Perf: the animated feTurbulence grain is expensive to rasterize and was
+     repainting a full-viewport fixed layer every 250ms for the entire
+     session, even when scrolled off. On phones (and for anyone with
+     reduced-motion) we keep the grain texture visually but freeze it —
+     same look at rest, zero ongoing compositor cost. */
+  @media (max-width: 768px) {
+    .grain::before { animation: none; }
+  }
   .glow-text { text-shadow: 0 0 80px color-mix(in srgb, var(--accent) 30%, transparent); }
   .scanline { background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px); pointer-events: none; }
   @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2.2); opacity: 0; } }
@@ -131,18 +148,22 @@ const LANDING_STYLES = `
     outline-offset: 2px;
     border-radius: 4px;
   }
-  /* GPU-friendly: theme + motion transitions only ever affect color/background/
-     opacity/transform — never width/height/layout — so the compositor can
-     handle them without triggering layout at all. */
-  body, .bebas, .dm, a, button, [class*="bg-"] {
-    transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease;
+  /* Perf: decorative background blur orbs are cheap on desktop GPUs but
+     blur() repaint cost scales with layer size, and these sit under a
+     scroll-linked hero transform — meaning they can repaint every scroll
+     frame on mobile. Shrinking radius + blur amount below 640px keeps the
+     same visual glow without the repaint cost. */
+  .decor-orb-lg { width: 500px; height: 500px; filter: blur(150px); }
+  .decor-orb-md { width: 400px; height: 400px; filter: blur(120px); }
+  @media (max-width: 640px) {
+    .decor-orb-lg { width: 220px; height: 220px; filter: blur(70px); }
+    .decor-orb-md { width: 180px; height: 180px; filter: blur(60px); }
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .animate-marquee { animation: none !important; }
     .grain::before { animation: none !important; }
     .pulse-ring { animation: none !important; }
-    body, .bebas, .dm, a, button, [class*="bg-"] { transition: none !important; }
   }
 `;
 
@@ -532,14 +553,8 @@ const Landing = () => {
 
   // Replace with your real auth check
   const isAuthenticated = false;
-  // isDark is still read from context, but ONLY for the one thing that truly
-  // needs a JS branch: the hero photo's filter. Everything else below is
-  // driven by CSS variables and never re-renders on theme change.
   const { isDark } = useTheme();
 
-  // navInk: while unscrolled, the navbar sits transparently on the hero photo
-  // and needs literal white text regardless of theme; once scrolled it uses
-  // the normal theme ink() (which itself is theme-invariant as a string).
   const navInk = useCallback((alpha) => (scrolled ? ink(alpha) : `rgba(255,255,255,${alpha})`), [scrolled]);
 
   useEffect(() => {
@@ -667,8 +682,12 @@ const Landing = () => {
             <div className="absolute inset-0" style={{ background: `linear-gradient(to right, ${bgAlpha(70)} 0%, transparent 60%)` }} />
             <div className="absolute inset-0 scanline opacity-40" />
           </motion.div>
-          <div className="absolute top-20 left-[10%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full blur-[100px] sm:blur-[150px] pointer-events-none" style={{ backgroundColor: accentAlpha(9) }} />
-          <div className="absolute bottom-0 right-[5%] w-[240px] sm:w-[400px] h-[240px] sm:h-[400px] rounded-full blur-[90px] sm:blur-[120px] pointer-events-none" style={{ backgroundColor: accentAlpha(15) }} />
+          {/* Perf: fixed px sizes + CSS-driven blur (via .decor-orb-* classes)
+              instead of Tailwind's blur-[150px]/blur-[120px] utilities, so
+              mobile gets a much cheaper blur radius via the media query in
+              LANDING_STYLES rather than the same 150px blur as desktop. */}
+          <div className="decor-orb-lg absolute top-20 left-[10%] rounded-full pointer-events-none" style={{ backgroundColor: accentAlpha(9) }} />
+          <div className="decor-orb-md absolute bottom-0 right-[5%] rounded-full pointer-events-none" style={{ backgroundColor: accentAlpha(15) }} />
 
           <motion.div className="relative z-10 max-w-360 mx-auto w-full px-5 sm:px-8" style={{ opacity: heroOpacity }}>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="flex items-center gap-3 mb-8 sm:mb-12">
