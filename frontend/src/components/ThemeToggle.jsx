@@ -1,21 +1,14 @@
-// components/ThemeToggle.jsx
-import React, { useRef } from 'react';
+import React from 'react';
 import { useTheme } from '../hooks/useTheme';
 
 const ThemeToggle = ({ className = '' }) => {
   const { isDark, toggleTheme, isTransitioning } = useTheme();
-  const btnRef = useRef(null);
+  const handleClick = (e) => {
+    toggleTheme({ x: e.clientX, y: e.clientY });
+  };
 
-  const handleClick = () => {
-     const rect = btnRef.current?.getBoundingClientRect();
-     const origin = rect
-          ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
-          : undefined;
-        toggleTheme(origin);
-};
   return (
     <button
-      ref={btnRef}
       type="button"
       onClick={handleClick}
       disabled={isTransitioning}

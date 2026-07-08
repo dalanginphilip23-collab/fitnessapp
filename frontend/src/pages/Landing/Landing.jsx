@@ -2,15 +2,6 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 import ThemeToggle from '../../components/ThemeToggle';
-// FIX #1: `useTheme` is no longer imported here. Landing previously called
-// useTheme() solely to read `isDark` for the hero <img> filter. Because the
-// ThemeContext provider value changes on every toggle (and again 180ms
-// later when isTransitioning flips back), subscribing to it forced this
-// entire ~700-line component tree to re-render twice per toggle. The hero
-// filter now reads `var(--hero-filter)`, which ThemeContext sets directly
-// via `root.style.setProperty()` — no React re-render involved at all.
-// ThemeToggle (the button) still uses useTheme() internally, which is fine:
-// it's a single small component, not the whole page.
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const GYM_BG_BASE = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=70';

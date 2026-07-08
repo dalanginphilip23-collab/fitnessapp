@@ -105,18 +105,17 @@ export const ThemeProvider = ({ children }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const setToggleOrigin = (originX, originY) => {
-    const root = document.documentElement;
-    const x = originX ?? window.innerWidth / 2;
-    const y = originY ?? window.innerHeight / 2;
-    root.style.setProperty('--toggle-x', `${x}px`);
-    root.style.setProperty('--toggle-y', `${y}px`);
-  };
+ const setToggleOrigin = (originX, originY) => {
+  const root = document.documentElement;
+  const x = originX ?? window.innerWidth / 2;
+  const y = originY ?? window.innerHeight / 2;  // same
+  root.style.setProperty('--toggle-x', `${x}px`);
+  root.style.setProperty('--toggle-y', `${y}px`);
+};
 
   const runThemeChange = useCallback((nextTheme, originX, originY) => {
     const applyChange = () => setTheme(nextTheme);
 
-    // Reduced motion: just flip instantly, no animation work at all.
     if (prefersReducedMotion()) {
       applyChange();
       return;
