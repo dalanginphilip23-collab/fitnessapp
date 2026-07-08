@@ -7,17 +7,12 @@ const ThemeToggle = ({ className = '' }) => {
   const btnRef = useRef(null);
 
   const handleClick = () => {
-    // Circle-reveal in themes.css expands from --toggle-x/--toggle-y, so we
-    // hand it the toggle button's own center — feels like the theme is
-    // "pouring out" from the switch itself instead of the whole page
-    // just snapping to new colors.
-    const rect = btnRef.current?.getBoundingClientRect();
-    const origin = rect
-      ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
-      : undefined;
-    toggleTheme(origin);
-  };
-
+     const rect = btnRef.current?.getBoundingClientRect();
+     const origin = rect
+          ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+          : undefined;
+        toggleTheme(origin);
+};
   return (
     <button
       ref={btnRef}
