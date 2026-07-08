@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 
 const ThemeContext = createContext();
 
@@ -24,6 +24,7 @@ const THEME_VARS = {
     '--section-num-color': 'rgba(255,255,255,0.03)',
     '--ink-base': '255 255 255',
     '--bg-marquee': '#0a0a0a',
+    '--hero-filter': 'brightness(0.2) saturate(0.7)',
   },
   light: {
     '--accent': '#5E9E4A',
@@ -45,6 +46,7 @@ const THEME_VARS = {
     '--section-num-color': 'rgba(0,0,0,0.03)',
     '--ink-base': '20 20 20',
     '--bg-marquee': '#f0f0f0',
+    '--hero-filter': 'brightness(0.8) saturate(0.5)',
   },
 };
 
@@ -56,13 +58,6 @@ const applyThemeVars = (theme) => {
   });
 };
 
-// View Transitions require taking a full-page snapshot and animating a
-// clip-path over it. That's cheap on a desktop GPU but noticeably heavy on
-// mobile GPUs when the page has large blurred elements, a full-bleed photo,
-// and dozens of framer-motion nodes (exactly this page). So we only use the
-// fancy circle-reveal on devices that can actually afford it — fine pointer
-// (mouse) + a reasonably large viewport. Touch/mobile always takes the plain
-// CSS-variable crossfade path instead, which is far cheaper.
 const supportsViewTransitions = () =>
   typeof document !== 'undefined' &&
   typeof document.startViewTransition === 'function' &&
@@ -76,7 +71,7 @@ const prefersReducedMotion = () =>
 // How long the plain (mobile) crossfade transition takes. Must match the
 // transition-duration set on the universal selector in themes.css so the
 // "theme-switching-plain" class is removed right as the crossfade finishes.
-const PLAIN_TRANSITION_MS = 220;
+const PLAIN_TRANSITION_MS = 180;
 
 export const ThemeProvider = ({ children }) => {
   const getInitialTheme = () => {
@@ -174,15 +169,23 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [runThemeChange]);
 
+  // FIX #1: memoize the provider value. Without this, ThemeProvider creates
+  // a brand-new object on every render (including the isTransitioning
+  // true -> false flip 180ms after every toggle), which forces every
+  // consumer of useTheme() to re-render even if the field they care about
+  // didn't change. This turned one theme toggle into two full re-renders
+  // of every subscribed component's tree.
+  const value = useMemo(() => ({
+    theme,
+    toggleTheme,
+    setTheme: setThemeValue,
+    isTransitioning,
+    isDark: theme === 'dark',
+    isLight: theme === 'light',
+  }), [theme, toggleTheme, setThemeValue, isTransitioning]);
+
   return (
-    <ThemeContext.Provider value={{
-      theme,
-      toggleTheme,
-      setTheme: setThemeValue,
-      isTransitioning,
-      isDark: theme === 'dark',
-      isLight: theme === 'light',
-    }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );

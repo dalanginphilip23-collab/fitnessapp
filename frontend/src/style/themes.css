@@ -154,9 +154,11 @@
   /* Mobile / plain path: ThemeContext adds this class for a short window
      (PLAIN_TRANSITION_MS) instead of using a view transition. We deliberately
      re-declare a *scoped* transition here (no box-shadow, same duration) so
-     intent is explicit and easy to tune independently of the base rule above. */
+     intent is explicit and easy to tune independently of the base rule above.
+     NOTE: 180ms here must stay in sync with PLAIN_TRANSITION_MS in
+     ThemeContext.jsx — that's the timer that removes this class. */
   html.theme-switching-plain :where(*, *::before, *::after) {
-    transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
   }
 }
 

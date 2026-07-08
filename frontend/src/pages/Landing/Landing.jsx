@@ -1,8 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
-import { useTheme } from '../../hooks/useTheme';
 import ThemeToggle from '../../components/ThemeToggle';
+// FIX #1: `useTheme` is no longer imported here. Landing previously called
+// useTheme() solely to read `isDark` for the hero <img> filter. Because the
+// ThemeContext provider value changes on every toggle (and again 180ms
+// later when isTransitioning flips back), subscribing to it forced this
+// entire ~700-line component tree to re-render twice per toggle. The hero
+// filter now reads `var(--hero-filter)`, which ThemeContext sets directly
+// via `root.style.setProperty()` — no React re-render involved at all.
+// ThemeToggle (the button) still uses useTheme() internally, which is fine:
+// it's a single small component, not the whole page.
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const GYM_BG_BASE = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=70';
@@ -67,14 +75,6 @@ const buildPlansPath = ({ planId = null, tab = 'explore' } = {}) => {
   return `/dashboard/plans?${params.toString()}`;
 };
 
-// ─── Theme-aware color helpers ────────────────────────────────────────────────
-// IMPORTANT: these all return CSS variable / color-mix() expressions, NOT
-// resolved hex/rgba strings. That means their *string output never changes*
-// when the theme flips — only the underlying CSS variable value (set once,
-// on :root, by ThemeContext) changes. So React doesn't need to re-render or
-// recompute a single one of these on toggle, and the browser only has to
-// recompute the actual affected paint layers — no stylesheet reparse, no
-// forced reflow, no animation stutter.
 const ink = (alpha) => `rgb(var(--ink-base) / ${alpha})`;
 const accentAlpha = (pct) => `color-mix(in srgb, var(--accent) ${pct}%, transparent)`;
 const bgAlpha = (pct) => `color-mix(in srgb, var(--bg) ${pct}%, transparent)`;
@@ -94,12 +94,6 @@ const THEME = {
   shadow: 'var(--shadow-color)',
 };
 
-// ─── One-time static stylesheet ───────────────────────────────────────────────
-// This string is created exactly once (module scope) and NEVER touches theme
-// state. Every value that used to be interpolated per-theme now reads a CSS
-// variable set by ThemeContext, so a theme toggle updates variables (cheap)
-// instead of forcing React to replace this whole tag's text (expensive: full
-// re-parse + full-document style recalculation = the forced reflow you saw).
 const LANDING_STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,900;1,9..40,700;1,9..40,900&display=swap');
   @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
@@ -131,18 +125,11 @@ const LANDING_STYLES = `
     outline-offset: 2px;
     border-radius: 4px;
   }
-  /* GPU-friendly: theme + motion transitions only ever affect color/background/
-     opacity/transform — never width/height/layout — so the compositor can
-     handle them without triggering layout at all. */
-  body, .bebas, .dm, a, button, [class*="bg-"] {
-    transition: background-color 220ms ease, color 220ms ease, border-color 220ms ease;
-  }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .animate-marquee { animation: none !important; }
     .grain::before { animation: none !important; }
     .pulse-ring { animation: none !important; }
-    body, .bebas, .dm, a, button, [class*="bg-"] { transition: none !important; }
   }
 `;
 
@@ -179,7 +166,10 @@ const Icon = React.memo(({ name, className = '' }) => (
 ));
 
 // ─── Horizontal Slider ────────────────────────────────────────────────────────
-const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px]', canHover }) => {
+// FIX #3: memoized. HorizontalSlider only re-renders when its own state
+// (index) or props (items/renderItem/canHover) change now — not whenever an
+// ancestor re-renders for an unrelated reason.
+const HorizontalSlider = React.memo(({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px]', canHover }) => {
   const [index, setIndex] = useState(0);
   const trackRef = useRef(null);
   const itemWidthRef = useRef(0);
@@ -194,9 +184,7 @@ const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
   }, [index]);
 
-  // Measure item width once (and on resize) instead of reading offsetWidth
-  // synchronously inside the scroll handler — that was a forced-reflow read
-  // firing on every scroll event.
+
   useEffect(() => {
     const measure = () => {
       itemWidthRef.current = trackRef.current?.children?.[0]?.offsetWidth ?? 0;
@@ -273,11 +261,14 @@ const HorizontalSlider = ({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px
       )}
     </div>
   );
-};
+});
 
 // ─── Marquee ──────────────────────────────────────────────────────────────────
 const MARQUEE_ITEMS = ['Neural Biometrics', 'Adaptive Coaching', 'Vision Nutrition', 'Performance Lab', 'Ecosystem Sync', 'Vault Privacy'];
-const Marquee = () => (
+// FIX #3: memoized. Zero props — once mounted this should never re-render
+// again, but without React.memo it re-executes (and re-renders all 18
+// marquee spans) every time Landing re-renders for any reason.
+const Marquee = React.memo(() => (
   <div
     className="relative overflow-hidden py-5 border-y"
     style={{ borderColor: ink(0.05), backgroundColor: THEME.bgMarquee }}
@@ -294,7 +285,7 @@ const Marquee = () => (
       ))}
     </div>
   </div>
-);
+));
 
 // ─── Cursor glow ──────────────────────────────────────────────────────────────
 const CursorGlow = ({ enabled }) => {
@@ -319,7 +310,8 @@ const CursorGlow = ({ enabled }) => {
 };
 
 // ─── Stat counter ─────────────────────────────────────────────────────────────
-const StatCounter = ({ value, label }) => {
+// FIX #3: memoized.
+const StatCounter = React.memo(({ value, label }) => {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
@@ -340,10 +332,10 @@ const StatCounter = ({ value, label }) => {
       <div className="text-[10px] font-black uppercase tracking-[0.3em]" style={{ color: ink(0.3) }}>{label}</div>
     </div>
   );
-};
+});
 
-// ─── Mobile Menu ──────────────────────────────────────────────────────────────
-const MobileMenu = ({ open, onClose, navigate, canHover }) => (
+
+const MobileMenu = React.memo(({ open, onClose, navigate, canHover }) => (
   <AnimatePresence>
     {open && (
       <motion.div
@@ -395,10 +387,10 @@ const MobileMenu = ({ open, onClose, navigate, canHover }) => (
       </motion.div>
     )}
   </AnimatePresence>
-);
+));
 
-// ─── Feature Card ─────────────────────────────────────────────────────────────
-const FeatureCard = ({ icon, title, desc, num, index, canHover }) => {
+// ─── Feature Card 
+const FeatureCard = React.memo(({ icon, title, desc, num, index, canHover }) => {
   const [hovered, setHovered] = useState(false);
   const active = canHover && hovered;
   return (
@@ -438,10 +430,10 @@ const FeatureCard = ({ icon, title, desc, num, index, canHover }) => {
       </div>
     </motion.div>
   );
-};
+});
 
-// ─── Pricing Card ─────────────────────────────────────────────────────────────
-const PricingCard = ({ plan, navigate, isAuthenticated = false }) => {
+// ─── Pricing Card 
+const PricingCard = React.memo(({ plan, navigate, isAuthenticated = false }) => {
   const { popular, planId, ctaLabel, ctaDest, features } = plan;
 
   const handleCTA = () => {
@@ -515,7 +507,7 @@ const PricingCard = ({ plan, navigate, isAuthenticated = false }) => {
       </div>
     </div>
   );
-};
+});
 
 // MAIN
 const Landing = () => {
@@ -532,10 +524,9 @@ const Landing = () => {
 
   // Replace with your real auth check
   const isAuthenticated = false;
-  // isDark is still read from context, but ONLY for the one thing that truly
-  // needs a JS branch: the hero photo's filter. Everything else below is
-  // driven by CSS variables and never re-renders on theme change.
-  const { isDark } = useTheme();
+  // FIX #1: no more `const { isDark } = useTheme();` here. Landing does not
+  // subscribe to ThemeContext at all now — see the hero <img> below, which
+  // reads `var(--hero-filter)` set directly by ThemeContext instead.
 
   // navInk: while unscrolled, the navbar sits transparently on the hero photo
   // and needs literal white text regardless of theme; once scrolled it uses
@@ -661,7 +652,12 @@ const Landing = () => {
               fetchpriority="high"
               decoding="async"
               className="w-full h-full object-cover object-center"
-              style={{ filter: isDark ? 'brightness(0.2) saturate(0.7)' : 'brightness(0.8) saturate(0.5)' }}
+              // FIX #1: was `filter: isDark ? '...' : '...'` (a JS ternary
+              // read from ThemeContext). Now reads the CSS variable that
+              // ThemeContext sets directly via setProperty() on toggle — the
+              // image updates on the paint layer without React re-rendering
+              // Landing (or anything else) to get there.
+              style={{ filter: 'var(--hero-filter)' }}
             />
             <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${bgAlpha(50)} 0%, ${bgAlpha(20)} 40%, var(--bg) 100%)` }} />
             <div className="absolute inset-0" style={{ background: `linear-gradient(to right, ${bgAlpha(70)} 0%, transparent 60%)` }} />
