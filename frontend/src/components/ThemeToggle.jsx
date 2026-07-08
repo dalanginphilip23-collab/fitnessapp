@@ -3,6 +3,7 @@ import { useTheme } from '../hooks/useTheme';
 
 const ThemeToggle = ({ className = '' }) => {
   const { isDark, toggleTheme, isTransitioning } = useTheme();
+
   const handleClick = (e) => {
     toggleTheme({ x: e.clientX, y: e.clientY });
   };

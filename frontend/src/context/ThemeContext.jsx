@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { flushSync } from 'react-dom';
 
 const ThemeContext = createContext();
 
@@ -105,25 +106,24 @@ export const ThemeProvider = ({ children }) => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
- const setToggleOrigin = (originX, originY) => {
-  const root = document.documentElement;
-  const x = originX ?? window.innerWidth / 2;
-  const y = originY ?? window.innerHeight / 2;  // same
-  root.style.setProperty('--toggle-x', `${x}px`);
-  root.style.setProperty('--toggle-y', `${y}px`);
-};
+  const setToggleOrigin = (originX, originY) => {
+    const root = document.documentElement;
+    const x = originX ?? window.innerWidth / 2;
+    const y = originY ?? window.innerHeight / 2;
+    root.style.setProperty('--toggle-x', `${x}px`);
+    root.style.setProperty('--toggle-y', `${y}px`);
+  };
 
   const runThemeChange = useCallback((nextTheme, originX, originY) => {
-    const applyChange = () => setTheme(nextTheme);
-
     if (prefersReducedMotion()) {
-      applyChange();
+      setTheme(nextTheme);
       return;
     }
+
     if (!supportsViewTransitions()) {
       setIsTransitioning(true);
       document.documentElement.classList.add('theme-switching-plain');
-      applyChange();
+      setTheme(nextTheme);
 
       window.setTimeout(() => {
         setIsTransitioning(false);
@@ -137,7 +137,12 @@ export const ThemeProvider = ({ children }) => {
     setIsTransitioning(true);
     document.documentElement.classList.add('theme-switching');
 
-    const transition = document.startViewTransition(applyChange);
+    const transition = document.startViewTransition(() => {
+      flushSync(() => {
+        setTheme(nextTheme);
+      });
+    });
+
     transition.finished
       .catch(() => {}) // a transition can be interrupted by a second rapid toggle — not an error
       .finally(() => {
@@ -147,9 +152,12 @@ export const ThemeProvider = ({ children }) => {
   }, []);
 
   const toggleTheme = useCallback((origin) => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    runThemeChange(next, origin?.x, origin?.y);
-  }, [theme, runThemeChange]);
+    setTheme((current) => {
+      const next = current === 'dark' ? 'light' : 'dark';
+      runThemeChange(next, origin?.x, origin?.y);
+      return current; // runThemeChange owns the actual state write; this call is just to read `current` safely
+    });
+  }, [runThemeChange]);
 
   const setThemeValue = useCallback((newTheme, origin) => {
     if (newTheme === 'light' || newTheme === 'dark') {
