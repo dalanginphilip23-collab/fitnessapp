@@ -68,9 +68,6 @@ const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// How long the plain (mobile) crossfade transition takes. Must match the
-// transition-duration set on the universal selector in themes.css so the
-// "theme-switching-plain" class is removed right as the crossfade finishes.
 const PLAIN_TRANSITION_MS = 180;
 
 export const ThemeProvider = ({ children }) => {
@@ -124,14 +121,6 @@ export const ThemeProvider = ({ children }) => {
       applyChange();
       return;
     }
-
-    // Mobile / coarse-pointer / small-viewport path: skip the expensive
-    // full-page view-transition snapshot entirely. Instead we add a class
-    // that (a) lets themes.css run a short, cheap CSS-variable crossfade on
-    // a *scoped* set of properties, and (b) pauses decorative animations
-    // (marquee, pulse ring, grain) for that same short window so they're not
-    // competing with the repaint on the main thread. This is what removes
-    // the stutter you see on phones.
     if (!supportsViewTransitions()) {
       setIsTransitioning(true);
       document.documentElement.classList.add('theme-switching-plain');
@@ -169,12 +158,6 @@ export const ThemeProvider = ({ children }) => {
     }
   }, [runThemeChange]);
 
-  // FIX #1: memoize the provider value. Without this, ThemeProvider creates
-  // a brand-new object on every render (including the isTransitioning
-  // true -> false flip 180ms after every toggle), which forces every
-  // consumer of useTheme() to re-render even if the field they care about
-  // didn't change. This turned one theme toggle into two full re-renders
-  // of every subscribed component's tree.
   const value = useMemo(() => ({
     theme,
     toggleTheme,
