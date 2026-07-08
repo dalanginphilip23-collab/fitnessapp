@@ -152,12 +152,9 @@ export const ThemeProvider = ({ children }) => {
   }, []);
 
   const toggleTheme = useCallback((origin) => {
-    setTheme((current) => {
-      const next = current === 'dark' ? 'light' : 'dark';
-      runThemeChange(next, origin?.x, origin?.y);
-      return current; // runThemeChange owns the actual state write; this call is just to read `current` safely
-    });
-  }, [runThemeChange]);
+    const next = theme === 'dark' ? 'light' : 'dark';
+    runThemeChange(next, origin?.x, origin?.y);
+  }, [theme, runThemeChange]);
 
   const setThemeValue = useCallback((newTheme, origin) => {
     if (newTheme === 'light' || newTheme === 'dark') {
