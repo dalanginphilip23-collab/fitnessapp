@@ -23,6 +23,7 @@ export default defineConfig({
         ], 
       },
       workbox: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
           {
@@ -70,9 +71,19 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'motion-vendor': ['framer-motion'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (
+              id.includes('react-dom') ||
+              id.includes('/react/') ||
+              id.includes('react-router-dom')
+            ) {
+              return 'react-vendor';
+            }
+            if (id.includes('framer-motion')) {
+              return 'motion-vendor';
+            }
+          }
         },
       },
     },
