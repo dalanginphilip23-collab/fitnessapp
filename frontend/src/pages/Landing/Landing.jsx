@@ -157,9 +157,6 @@ const Icon = React.memo(({ name, className = '' }) => (
 ));
 
 // ─── Horizontal Slider ────────────────────────────────────────────────────────
-// FIX #3: memoized. HorizontalSlider only re-renders when its own state
-// (index) or props (items/renderItem/canHover) change now — not whenever an
-// ancestor re-renders for an unrelated reason.
 const HorizontalSlider = React.memo(({ items, renderItem, itemWidth = 'w-[80vw] sm:w-[340px]', canHover }) => {
   const [index, setIndex] = useState(0);
   const trackRef = useRef(null);
@@ -256,9 +253,6 @@ const HorizontalSlider = React.memo(({ items, renderItem, itemWidth = 'w-[80vw] 
 
 // ─── Marquee ──────────────────────────────────────────────────────────────────
 const MARQUEE_ITEMS = ['Neural Biometrics', 'Adaptive Coaching', 'Vision Nutrition', 'Performance Lab', 'Ecosystem Sync', 'Vault Privacy'];
-// FIX #3: memoized. Zero props — once mounted this should never re-render
-// again, but without React.memo it re-executes (and re-renders all 18
-// marquee spans) every time Landing re-renders for any reason.
 const Marquee = React.memo(() => (
   <div
     className="relative overflow-hidden py-5 border-y"
@@ -279,7 +273,7 @@ const Marquee = React.memo(() => (
 ));
 
 // ─── Cursor glow ──────────────────────────────────────────────────────────────
-const CursorGlow = ({ enabled }) => {
+const CursorGlow = React.memo(({ enabled }) => {
   const mx = useMotionValue(-400);
   const my = useMotionValue(-400);
   const sx = useSpring(mx, { stiffness: 80, damping: 20 });
@@ -298,10 +292,9 @@ const CursorGlow = ({ enabled }) => {
       <div className="w-64 h-64 rounded-full blur-[60px]" style={{ backgroundColor: accentAlpha(13) }} />
     </motion.div>
   );
-};
+});
 
 // ─── Stat counter ─────────────────────────────────────────────────────────────
-// FIX #3: memoized.
 const StatCounter = React.memo(({ value, label }) => {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -515,13 +508,7 @@ const Landing = () => {
 
   // Replace with your real auth check
   const isAuthenticated = false;
-  // FIX #1: no more `const { isDark } = useTheme();` here. Landing does not
-  // subscribe to ThemeContext at all now — see the hero <img> below, which
-  // reads `var(--hero-filter)` set directly by ThemeContext instead.
 
-  // navInk: while unscrolled, the navbar sits transparently on the hero photo
-  // and needs literal white text regardless of theme; once scrolled it uses
-  // the normal theme ink() (which itself is theme-invariant as a string).
   const navInk = useCallback((alpha) => (scrolled ? ink(alpha) : `rgba(255,255,255,${alpha})`), [scrolled]);
 
   useEffect(() => {
@@ -546,15 +533,32 @@ const Landing = () => {
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
-  const handleHeroCTA = () => {
+  // useCallback: these were plain functions recreated every render before.
+  // They're only called from onClick, so it never affected re-render
+  // behavior of memoized children — but stabilizing them is free and avoids
+  // needless allocation every time Landing re-renders (e.g. on scroll).
+  const handleHeroCTA = useCallback(() => {
     if (isAuthenticated) navigate(buildPlansPath({ tab: 'explore' }));
     else navigate('/register');
-  };
+  }, [isAuthenticated, navigate]);
 
-  const handleBottomCTA = () => {
+  const handleBottomCTA = useCallback(() => {
     if (isAuthenticated) navigate(buildPlansPath({ tab: 'find' }));
     else navigate('/register');
-  };
+  }, [isAuthenticated, navigate]);
+
+  // useCallback + useMemo: renderItem was previously declared inline as
+  // `renderItem={(plan) => (...)}` directly in JSX, which created a brand
+  // new function reference on every Landing render. HorizontalSlider is
+  // wrapped in React.memo, so a changing `renderItem` prop reference broke
+  // that memoization every single time — the memo comparison always failed
+  // and the slider (plus every PricingCard inside it) re-rendered whenever
+  // Landing did (e.g. on every scroll-driven state update), even though
+  // nothing about the pricing plans or slider actually changed.
+  const renderPricingCard = useCallback(
+    (plan) => <PricingCard plan={plan} navigate={navigate} isAuthenticated={isAuthenticated} />,
+    [navigate, isAuthenticated]
+  );
 
   return (
     <>
@@ -640,14 +644,9 @@ const Landing = () => {
               sizes="100vw"
               alt=""
               aria-hidden
-              fetchpriority="high"
+              fetchPriority="high"
               decoding="async"
               className="w-full h-full object-cover object-center"
-              // FIX #1: was `filter: isDark ? '...' : '...'` (a JS ternary
-              // read from ThemeContext). Now reads the CSS variable that
-              // ThemeContext sets directly via setProperty() on toggle — the
-              // image updates on the paint layer without React re-rendering
-              // Landing (or anything else) to get there.
               style={{ filter: 'var(--hero-filter)' }}
             />
             <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${bgAlpha(50)} 0%, ${bgAlpha(20)} 40%, var(--bg) 100%)` }} />
@@ -843,9 +842,7 @@ const Landing = () => {
                 items={PRICING}
                 itemWidth="w-[80vw] max-w-[320px]"
                 canHover={canHover}
-                renderItem={(plan) => (
-                  <PricingCard plan={plan} navigate={navigate} isAuthenticated={isAuthenticated} />
-                )}
+                renderItem={renderPricingCard}
               />
             </div>
             <div className="hidden md:grid grid-cols-3 gap-5 max-w-5xl mx-auto">
