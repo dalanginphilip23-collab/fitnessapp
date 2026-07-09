@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 import ThemeToggle from '../../components/ThemeToggle';
@@ -52,6 +52,32 @@ const ABOUT_VALUES = [
   { title: 'Scientific Rigor',  desc: 'Every feature is backed by peer-reviewed research and clinical validation.', icon: 'science'       },
   { title: 'Human-Centered',    desc: 'Technology serves people, not the other way around.',                        icon: 'favorite'      },
 ];
+
+// OPTIMIZATION: previously defined inline inside the JSX (`{[...].map(...)}`),
+// which allocated a brand-new array + two new objects on every Landing render.
+// Hoisted here so it's created once at module load, exactly like the other
+// static datasets above.
+const ABOUT_MISSION_VISION = [
+  { icon: 'rocket_launch', title: 'Our Mission', body: 'To democratize elite-level performance optimization by making clinical-grade biometric intelligence accessible to everyone, not just professional athletes.' },
+  { icon: 'visibility',    title: 'Our Vision',  body: 'A world where every person has the tools and insights to understand their body, optimize their health, and unlock their full potential.' },
+];
+
+// OPTIMIZATION: same reasoning — was an inline array literal in the footer JSX.
+const SOCIAL_LINKS = [
+  { icon: 'alternate_email', label: 'Twitter/X' },
+  { icon: 'camera_alt',      label: 'Instagram' },
+  { icon: 'work',            label: 'LinkedIn'  },
+];
+
+// OPTIMIZATION: was an inline array of objects (each containing a nested
+// array) rebuilt every render inside the footer JSX.
+const FOOTER_COLUMNS = [
+  { heading: 'Product', links: ['Features', 'Pricing'] },
+  { heading: 'Company', links: ['About', 'Contact'] },
+];
+
+// OPTIMIZATION: was `[30, 50, 70].map(...)` inline in the hero JSX.
+const HERO_AVATAR_ALPHAS = [30, 50, 70];
 
 const NAV_LINKS = [
   { href: '#features', label: 'Features' },
@@ -116,6 +142,14 @@ const LANDING_STYLES = `
     outline-offset: 2px;
     border-radius: 4px;
   }
+  /* OPTIMIZATION: content-visibility skips layout/paint work for these
+     sections until they're near the viewport. contain-intrinsic-size gives
+     the browser a placeholder height so scrollbar/scroll-position math stays
+     correct before the section has actually rendered — no layout jump.
+     If you ever notice a scroll-jank/height mismatch on your content, it's
+     safe to delete this rule and the "cv-auto" classNames below; everything
+     else is unaffected. */
+  .cv-auto { content-visibility: auto; contain-intrinsic-size: 1px 1200px; }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .animate-marquee { animation: none !important; }
@@ -505,8 +539,6 @@ const Landing = () => {
 
   const canHover = useCanHover();
   const prefersReducedMotion = usePrefersReducedMotion();
-
-  // Replace with your real auth check
   const isAuthenticated = false;
 
   const navInk = useCallback((alpha) => (scrolled ? ink(alpha) : `rgba(255,255,255,${alpha})`), [scrolled]);
@@ -532,11 +564,6 @@ const Landing = () => {
   }, [menuOpen]);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
-
-  // useCallback: these were plain functions recreated every render before.
-  // They're only called from onClick, so it never affected re-render
-  // behavior of memoized children — but stabilizing them is free and avoids
-  // needless allocation every time Landing re-renders (e.g. on scroll).
   const handleHeroCTA = useCallback(() => {
     if (isAuthenticated) navigate(buildPlansPath({ tab: 'explore' }));
     else navigate('/register');
@@ -547,14 +574,6 @@ const Landing = () => {
     else navigate('/register');
   }, [isAuthenticated, navigate]);
 
-  // useCallback + useMemo: renderItem was previously declared inline as
-  // `renderItem={(plan) => (...)}` directly in JSX, which created a brand
-  // new function reference on every Landing render. HorizontalSlider is
-  // wrapped in React.memo, so a changing `renderItem` prop reference broke
-  // that memoization every single time — the memo comparison always failed
-  // and the slider (plus every PricingCard inside it) re-rendered whenever
-  // Landing did (e.g. on every scroll-driven state update), even though
-  // nothing about the pricing plans or slider actually changed.
   const renderPricingCard = useCallback(
     (plan) => <PricingCard plan={plan} navigate={navigate} isAuthenticated={isAuthenticated} />,
     [navigate, isAuthenticated]
@@ -562,7 +581,6 @@ const Landing = () => {
 
   return (
     <>
-      {/* Static — created once at module load, never re-injected on theme change */}
       <style>{LANDING_STYLES}</style>
 
       <div className="grain dm w-screen min-h-screen bg-(--bg) text-(--text) overflow-x-hidden">
@@ -704,7 +722,7 @@ const Landing = () => {
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  {[30, 50, 70].map((pct, i) => (
+                  {HERO_AVATAR_ALPHAS.map((pct, i) => (
                     <div
                       key={i}
                       className="w-6 h-6 rounded-full border"
@@ -768,7 +786,7 @@ const Landing = () => {
         </section>
 
         {/* ── About ──────────────────────────────────────────────────────── */}
-        <section id="about" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: THEME.bgAlt }}>
+        <section id="about" className="cv-auto py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: THEME.bgAlt }}>
           <div className="section-num absolute -top-4 right-0 select-none pointer-events-none">ABOT</div>
           <div className="max-w-360 mx-auto">
             <div className="text-center mb-14 sm:mb-24">
@@ -782,10 +800,7 @@ const Landing = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-16 sm:mb-24">
-              {[
-                { icon: 'rocket_launch', title: 'Our Mission', body: 'To democratize elite-level performance optimization by making clinical-grade biometric intelligence accessible to everyone, not just professional athletes.' },
-                { icon: 'visibility',    title: 'Our Vision',  body: 'A world where every person has the tools and insights to understand their body, optimize their health, and unlock their full potential.' },
-              ].map((item, i) => (
+              {ABOUT_MISSION_VISION.map((item, i) => (
                 <motion.div
                   key={item.title} initial={{ opacity: 0, x: i === 0 ? -40 : 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, ease: EASE_EXPO }}
                   className="group relative rounded-2xl p-7 sm:p-10 overflow-hidden border transition-colors"
@@ -826,7 +841,7 @@ const Landing = () => {
         </section>
 
         {/* ── Pricing ────────────────────────────────────────────────────── */}
-        <section id="pricing" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: THEME.bg }}>
+        <section id="pricing" className="cv-auto py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: THEME.bg }}>
           <div className="section-num absolute -top-4 -left-4 select-none pointer-events-none">PRCE</div>
           <div className="max-w-360 mx-auto">
             <div className="text-center mb-14 sm:mb-20">
@@ -860,7 +875,7 @@ const Landing = () => {
         </section>
 
         {/* ── CTA ────────────────────────────────────────────────────────── */}
-        <section className="py-14 sm:py-24 px-5 sm:px-8" style={{ backgroundColor: THEME.bg }}>
+        <section className="cv-auto py-14 sm:py-24 px-5 sm:px-8" style={{ backgroundColor: THEME.bg }}>
           <div className="max-w-360 mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.9, ease: EASE_EXPO }}
@@ -907,7 +922,7 @@ const Landing = () => {
                   The world's most advanced human performance platform.
                 </p>
                 <div className="flex items-center gap-2">
-                  {[{ icon: 'alternate_email', label: 'Twitter/X' }, { icon: 'camera_alt', label: 'Instagram' }, { icon: 'work', label: 'LinkedIn' }].map(({ icon, label }) => (
+                  {SOCIAL_LINKS.map(({ icon, label }) => (
                     <a
                       key={label} href="#" aria-label={label}
                       className="w-9 h-9 rounded-lg border flex items-center justify-center transition-all duration-300 group"
@@ -922,10 +937,7 @@ const Landing = () => {
               </div>
 
               <div className="flex gap-10 sm:gap-16">
-                {[
-                  { heading: 'Product', links: ['Features', 'Pricing'] },
-                  { heading: 'Company', links: ['About', 'Contact'] },
-                ].map(({ heading, links }) => (
+                {FOOTER_COLUMNS.map(({ heading, links }) => (
                   <div key={heading}>
                     <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-4" style={{ color: ink(0.25) }}>{heading}</h4>
                     <ul className="flex flex-col gap-2.5">
