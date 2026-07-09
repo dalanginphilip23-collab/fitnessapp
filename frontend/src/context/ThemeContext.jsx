@@ -69,7 +69,9 @@ const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const PLAIN_TRANSITION_MS = 180;
+const FADE_OUT_MS = 120; 
+const FADE_IN_MS = 140;    
+const DIM_OPACITY = '0.45';
 
 export const ThemeProvider = ({ children }) => {
   const getInitialTheme = () => {
@@ -121,14 +123,27 @@ export const ThemeProvider = ({ children }) => {
     }
 
     if (!supportsViewTransitions()) {
+
+      const root = document.documentElement;
+      const body = document.body;
+
       setIsTransitioning(true);
-      document.documentElement.classList.add('theme-switching-plain');
-      setTheme(nextTheme);
+      root.classList.add('theme-switching-plain');
+      body.style.opacity = DIM_OPACITY;
 
       window.setTimeout(() => {
-        setIsTransitioning(false);
-        document.documentElement.classList.remove('theme-switching-plain');
-      }, PLAIN_TRANSITION_MS);
+        setTheme(nextTheme);
+
+        requestAnimationFrame(() => {
+          body.style.opacity = '1';
+
+          window.setTimeout(() => {
+            root.classList.remove('theme-switching-plain');
+            body.style.opacity = '';
+            setIsTransitioning(false);
+          }, FADE_IN_MS);
+        });
+      }, FADE_OUT_MS);
       return;
     }
 
@@ -144,7 +159,7 @@ export const ThemeProvider = ({ children }) => {
     });
 
     transition.finished
-      .catch(() => {}) // a transition can be interrupted by a second rapid toggle — not an error
+      .catch(() => {}) 
       .finally(() => {
         setIsTransitioning(false);
         document.documentElement.classList.remove('theme-switching');
