@@ -124,6 +124,7 @@
     transition-timing-function: ease;
   }
 
+ 
   .shadow-transition {
     transition: box-shadow 200ms ease;
   }
@@ -131,7 +132,6 @@
   html.theme-switching :where(*, *::before, *::after) {
     transition: none !important;
   }
-
   html.theme-switching-plain :where(*, *::before, *::after) {
     transition: none !important;
   }
@@ -140,6 +140,7 @@
     transition: opacity 130ms ease;
   }
 }
+
 
 html.theme-switching .pulse-ring,
 html.theme-switching .animate-marquee,
@@ -153,6 +154,12 @@ html.theme-switching-plain .grain::before {
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
+}
+
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
 }
 
 ::view-transition-group(root) {
