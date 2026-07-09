@@ -23,9 +23,20 @@ export default defineConfig({
         ], 
       },
       workbox: {
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB limit (default is 2MB)
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
+          {
+            urlPattern: /\.woff2?$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'font-cache',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // fonts don't change often — 1 year
+              },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
           {
             urlPattern: /https:\/\/.*basemaps\.cartocdn\.com\/.*/,
             handler: 'CacheFirst',
@@ -55,6 +66,16 @@ export default defineConfig({
   ],
   optimizeDeps: {
     exclude: ['@mediapipe/pose'],
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'motion-vendor': ['framer-motion'],
+        },
+      },
+    },
   },
   server: {
     proxy: {
