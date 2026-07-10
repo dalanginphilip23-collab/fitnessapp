@@ -1,7 +1,7 @@
 :root,
 .dark-theme {
   --bg-primary: #0e0e0e;
-  --bg-secondary: #131313;
+  --bg-secondary: #0f0f0f;
   --bg-tertiary: #1c1b1b;
   --bg-card: #141414;
   --bg-hover: rgba(255, 255, 255, 0.05);
@@ -56,6 +56,7 @@
   --section-num-color: rgba(255, 255, 255, 0.03);
   --ink-base: 255 255 255;
   --bg-marquee: #0a0a0a;
+  --hero-filter: brightness(0.2) saturate(0.7);
 }
 
 .light-theme {
@@ -115,6 +116,7 @@
   --section-num-color: rgba(0, 0, 0, 0.03);
   --ink-base: 20 20 20;
   --bg-marquee: #f0f0f0;
+  --hero-filter: brightness(0.8) saturate(0.5);
 }
 
 @media not (prefers-reduced-motion: reduce) {
@@ -124,7 +126,6 @@
     transition-timing-function: ease;
   }
 
- 
   .shadow-transition {
     transition: box-shadow 200ms ease;
   }
@@ -138,6 +139,7 @@
 
   html.theme-switching-plain body {
     transition: opacity 130ms ease;
+    will-change: opacity;
   }
 }
 
