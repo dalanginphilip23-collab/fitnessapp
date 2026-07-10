@@ -124,6 +124,7 @@
     transition-timing-function: ease;
   }
 
+ 
   .shadow-transition {
     transition: box-shadow 200ms ease;
   }
@@ -139,6 +140,7 @@
     transition: opacity 130ms ease;
   }
 }
+
 
 html.theme-switching .pulse-ring,
 html.theme-switching .animate-marquee,
