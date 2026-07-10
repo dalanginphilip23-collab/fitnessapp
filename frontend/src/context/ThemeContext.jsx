@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useState, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
 import { flushSync } from 'react-dom';
 
 const ThemeContext = createContext();
@@ -87,8 +87,7 @@ export const ThemeProvider = ({ children }) => {
 
   const [theme, setTheme] = useState(getInitialTheme);
   const [isTransitioning, setIsTransitioning] = useState(false);
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     const root = document.documentElement;
     root.classList.remove('light-theme', 'dark-theme');
     root.classList.add(`${theme}-theme`);
