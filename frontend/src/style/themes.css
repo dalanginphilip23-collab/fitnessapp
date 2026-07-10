@@ -124,6 +124,7 @@
     transition-timing-function: ease;
   }
 
+ 
   .shadow-transition {
     transition: box-shadow 200ms ease;
   }
@@ -136,11 +137,10 @@
   }
 
   html.theme-switching-plain body {
-    /* Kept in sync with FADE_OUT_MS/FADE_IN_MS in ThemeContext.jsx.
-       If you change one, change the other. */
-    transition: opacity 40ms ease;
+    transition: opacity 130ms ease;
   }
 }
+
 
 html.theme-switching .pulse-ring,
 html.theme-switching .animate-marquee,
