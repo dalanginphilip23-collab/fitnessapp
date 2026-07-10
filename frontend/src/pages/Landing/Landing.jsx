@@ -53,30 +53,22 @@ const ABOUT_VALUES = [
   { title: 'Human-Centered',    desc: 'Technology serves people, not the other way around.',                        icon: 'favorite'      },
 ];
 
-// OPTIMIZATION: previously defined inline inside the JSX (`{[...].map(...)}`),
-// which allocated a brand-new array + two new objects on every Landing render.
-// Hoisted here so it's created once at module load, exactly like the other
-// static datasets above.
 const ABOUT_MISSION_VISION = [
   { icon: 'rocket_launch', title: 'Our Mission', body: 'To democratize elite-level performance optimization by making clinical-grade biometric intelligence accessible to everyone, not just professional athletes.' },
   { icon: 'visibility',    title: 'Our Vision',  body: 'A world where every person has the tools and insights to understand their body, optimize their health, and unlock their full potential.' },
 ];
 
-// OPTIMIZATION: same reasoning — was an inline array literal in the footer JSX.
 const SOCIAL_LINKS = [
   { icon: 'alternate_email', label: 'Twitter/X' },
   { icon: 'camera_alt',      label: 'Instagram' },
   { icon: 'work',            label: 'LinkedIn'  },
 ];
 
-// OPTIMIZATION: was an inline array of objects (each containing a nested
-// array) rebuilt every render inside the footer JSX.
 const FOOTER_COLUMNS = [
   { heading: 'Product', links: ['Features', 'Pricing'] },
   { heading: 'Company', links: ['About', 'Contact'] },
 ];
 
-// OPTIMIZATION: was `[30, 50, 70].map(...)` inline in the hero JSX.
 const HERO_AVATAR_ALPHAS = [30, 50, 70];
 
 const NAV_LINKS = [
@@ -92,9 +84,36 @@ const buildPlansPath = ({ planId = null, tab = 'explore' } = {}) => {
   return `/dashboard/plans?${params.toString()}`;
 };
 
-const ink = (alpha) => `rgb(var(--ink-base) / ${alpha})`;
-const accentAlpha = (pct) => `color-mix(in srgb, var(--accent) ${pct}%, transparent)`;
-const bgAlpha = (pct) => `color-mix(in srgb, var(--bg) ${pct}%, transparent)`;
+
+const inkCache = new Map();
+const ink = (alpha) => {
+  let v = inkCache.get(alpha);
+  if (v === undefined) {
+    v = `rgb(var(--ink-base) / ${alpha})`;
+    inkCache.set(alpha, v);
+  }
+  return v;
+};
+
+const accentAlphaCache = new Map();
+const accentAlpha = (pct) => {
+  let v = accentAlphaCache.get(pct);
+  if (v === undefined) {
+    v = `color-mix(in srgb, var(--accent) ${pct}%, transparent)`;
+    accentAlphaCache.set(pct, v);
+  }
+  return v;
+};
+
+const bgAlphaCache = new Map();
+const bgAlpha = (pct) => {
+  let v = bgAlphaCache.get(pct);
+  if (v === undefined) {
+    v = `color-mix(in srgb, var(--bg) ${pct}%, transparent)`;
+    bgAlphaCache.set(pct, v);
+  }
+  return v;
+};
 
 const THEME = {
   accent: 'var(--accent)',
@@ -109,6 +128,28 @@ const THEME = {
   border: 'var(--border-color)',
   navBg: 'var(--nav-bg)',
   shadow: 'var(--shadow-color)',
+};
+
+const HERO_GRADIENT_VERTICAL = {
+  background: `linear-gradient(to bottom, ${bgAlpha(50)} 0%, ${bgAlpha(20)} 40%, var(--bg) 100%)`,
+};
+const HERO_GRADIENT_HORIZONTAL = {
+  background: `linear-gradient(to right, ${bgAlpha(70)} 0%, transparent 60%)`,
+};
+const HERO_GLOW_TOP_LEFT_STYLE = {
+  backgroundColor: accentAlpha(9),
+  transform: 'translateZ(0)',
+};
+const HERO_GLOW_BOTTOM_RIGHT_STYLE = {
+  backgroundColor: accentAlpha(15),
+  transform: 'translateZ(0)',
+};
+const ABOUT_HOVER_GLOW_STYLE = {
+  backgroundColor: accentAlpha(4),
+  transform: 'translateZ(0)',
+};
+const CTA_GLOW_STYLE = {
+  transform: 'translateZ(0)',
 };
 
 const LANDING_STYLES = `
@@ -142,13 +183,10 @@ const LANDING_STYLES = `
     outline-offset: 2px;
     border-radius: 4px;
   }
-  /* OPTIMIZATION: content-visibility skips layout/paint work for these
-     sections until they're near the viewport. contain-intrinsic-size gives
-     the browser a placeholder height so scrollbar/scroll-position math stays
-     correct before the section has actually rendered — no layout jump.
-     If you ever notice a scroll-jank/height mismatch on your content, it's
-     safe to delete this rule and the "cv-auto" classNames below; everything
-     else is unaffected. */
+  /* content-visibility skips layout/paint work for these sections until
+     they're near the viewport. contain-intrinsic-size gives the browser a
+     placeholder height so scrollbar/scroll-position math stays correct
+     before the section has actually rendered — no layout jump. */
   .cv-auto { content-visibility: auto; contain-intrinsic-size: 1px 1200px; }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
@@ -287,13 +325,14 @@ const HorizontalSlider = React.memo(({ items, renderItem, itemWidth = 'w-[80vw] 
 
 // ─── Marquee ──────────────────────────────────────────────────────────────────
 const MARQUEE_ITEMS = ['Neural Biometrics', 'Adaptive Coaching', 'Vision Nutrition', 'Performance Lab', 'Ecosystem Sync', 'Vault Privacy'];
+const MARQUEE_LOOP = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
 const Marquee = React.memo(() => (
   <div
     className="relative overflow-hidden py-5 border-y"
     style={{ borderColor: ink(0.05), backgroundColor: THEME.bgMarquee }}
   >
     <div className="flex animate-marquee whitespace-nowrap gap-0">
-      {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
+      {MARQUEE_LOOP.map((item, i) => (
         <span key={i} className="inline-flex items-center gap-6 px-8">
           <span className="text-[11px] font-black uppercase tracking-[0.35em]" style={{ color: ink(0.25) }}>{item}</span>
           <span
@@ -667,12 +706,12 @@ const Landing = () => {
               className="w-full h-full object-cover object-center"
               style={{ filter: 'var(--hero-filter)' }}
             />
-            <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${bgAlpha(50)} 0%, ${bgAlpha(20)} 40%, var(--bg) 100%)` }} />
-            <div className="absolute inset-0" style={{ background: `linear-gradient(to right, ${bgAlpha(70)} 0%, transparent 60%)` }} />
+            <div className="absolute inset-0" style={HERO_GRADIENT_VERTICAL} />
+            <div className="absolute inset-0" style={HERO_GRADIENT_HORIZONTAL} />
             <div className="absolute inset-0 scanline opacity-40" />
           </motion.div>
-          <div className="absolute top-20 left-[10%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full blur-[100px] sm:blur-[150px] pointer-events-none" style={{ backgroundColor: accentAlpha(9) }} />
-          <div className="absolute bottom-0 right-[5%] w-[240px] sm:w-[400px] h-[240px] sm:h-[400px] rounded-full blur-[90px] sm:blur-[120px] pointer-events-none" style={{ backgroundColor: accentAlpha(15) }} />
+          <div className="absolute top-20 left-[10%] w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full blur-[100px] sm:blur-[150px] pointer-events-none" style={HERO_GLOW_TOP_LEFT_STYLE} />
+          <div className="absolute bottom-0 right-[5%] w-[240px] sm:w-[400px] h-[240px] sm:h-[400px] rounded-full blur-[90px] sm:blur-[120px] pointer-events-none" style={HERO_GLOW_BOTTOM_RIGHT_STYLE} />
 
           <motion.div className="relative z-10 max-w-360 mx-auto w-full px-5 sm:px-8" style={{ opacity: heroOpacity }}>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="flex items-center gap-3 mb-8 sm:mb-12">
@@ -808,7 +847,7 @@ const Landing = () => {
                   onMouseEnter={e => { if (canHover) e.currentTarget.style.borderColor = accentAlpha(20); }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.06); }}
                 >
-                  <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={{ backgroundColor: accentAlpha(4) }} />
+                  <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={ABOUT_HOVER_GLOW_STYLE} />
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style={{ backgroundColor: accentAlpha(10) }}>
                     <Icon name={item.icon} className="text-2xl" />
                   </div>
@@ -883,7 +922,7 @@ const Landing = () => {
               style={{ backgroundColor: THEME.accent }}
             >
               <div className="absolute -right-8 -bottom-8 bebas text-[80px] sm:text-[200px] text-black/9 leading-none select-none pointer-events-none">EVOLVE</div>
-              <div className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none" />
+              <div className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none" style={CTA_GLOW_STYLE} />
               <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8 sm:gap-10">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.35em] text-black/40 mb-3">Start Today</p>
@@ -906,7 +945,12 @@ const Landing = () => {
         </section>
 
         {/* ── Footer ─────────────────────────────────────────────────────── */}
-        <footer className="border-t" style={{ borderColor: ink(0.05), backgroundColor: THEME.bgFooter }}>
+        {/* OPTIMIZATION: added cv-auto — same reasoning as the About/Pricing/CTA
+            sections above it. The footer is always below the fold on first
+            load, so there's no reason the browser should pay its layout/paint
+            cost until the person actually scrolls near it. Visually identical;
+            just deferred. */}
+        <footer className="cv-auto border-t" style={{ borderColor: ink(0.05), backgroundColor: THEME.bgFooter }}>
           <div className="max-w-360 mx-auto px-5 sm:px-8">
 
             <div className="py-12 sm:py-14 flex flex-col sm:flex-row sm:items-start justify-between gap-8 sm:gap-10">
