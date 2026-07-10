@@ -87,6 +87,7 @@ export const ThemeProvider = ({ children }) => {
 
   const [theme, setTheme] = useState(getInitialTheme);
   const [isTransitioning, setIsTransitioning] = useState(false);
+
   useLayoutEffect(() => {
     const root = document.documentElement;
     root.classList.remove('light-theme', 'dark-theme');

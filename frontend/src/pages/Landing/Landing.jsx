@@ -7,6 +7,7 @@ import {
   FlaskConical, Heart, AtSign, Briefcase, Check,
 } from 'lucide-react';
 import ThemeToggle from '../../components/ThemeToggle';
+import { useTheme } from '../../hooks/useTheme';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const GYM_BG_BASE = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=70';
@@ -89,16 +90,6 @@ const buildPlansPath = ({ planId = null, tab = 'explore' } = {}) => {
   return `/dashboard/plans?${params.toString()}`;
 };
 
-// OPTIMIZATION: ink()/accentAlpha()/bgAlpha() return strings that only
-// reference CSS custom properties (e.g. "rgb(var(--ink-base) / 0.5)") —
-// they never contain a resolved color, so the same alpha/pct input always
-// produces the exact same output string regardless of theme. That makes
-// them pure, cacheable functions. Previously each call allocated a brand
-// new template-literal string; with a fixed set of alpha values reused
-// dozens of times across the page, that's a lot of avoidable string
-// allocation on every re-render (scroll toggling `scrolled`, menu open/
-// close, card hover state, etc). A tiny Map cache removes that cost
-// entirely with zero behavior change — same output, every time.
 const inkCache = new Map();
 const ink = (alpha) => {
   let v = inkCache.get(alpha);
@@ -144,14 +135,6 @@ const THEME = {
   shadow: 'var(--shadow-color)',
 };
 
-// OPTIMIZATION: these style objects don't depend on any component state or
-// props — they were previously written inline inside the JSX, which meant
-// a brand-new object (and brand-new gradient string) was allocated every
-// single time Landing re-rendered (on scroll-threshold cross, menu open/
-// close, etc), even though the value never changes. Hoisting them to
-// module scope means they're computed once, at module load, and every
-// render just reuses the same reference. Purely a cost reduction — the
-// rendered output is byte-for-byte identical to before.
 const HERO_GRADIENT_VERTICAL = {
   background: `linear-gradient(to bottom, ${bgAlpha(50)} 0%, ${bgAlpha(20)} 40%, var(--bg) 100%)`,
 };
@@ -159,14 +142,6 @@ const HERO_GRADIENT_HORIZONTAL = {
   background: `linear-gradient(to right, ${bgAlpha(70)} 0%, transparent 60%)`,
 };
 
-// OPTIMIZATION: `transform: translateZ(0)` promotes each blurred decorative
-// orb to its own GPU compositor layer. Without it, a large-radius CSS
-// `blur()` filter can get swept into the same paint region as whatever is
-// near it, so any nearby repaint (theme toggle, hover, scroll) forces the
-// browser to redo the expensive blur math too. Isolating them onto their
-// own layer means the browser composites the pre-rendered blurred layer
-// as-is instead of recomputing it. This is invisible — same look, cheaper
-// to redraw around.
 const HERO_GLOW_TOP_LEFT_STYLE = {
   backgroundColor: accentAlpha(9),
   transform: 'translateZ(0)',
@@ -214,10 +189,6 @@ const LANDING_STYLES = `
     outline-offset: 2px;
     border-radius: 4px;
   }
-  /* content-visibility skips layout/paint work for these sections until
-     they're near the viewport. contain-intrinsic-size gives the browser a
-     placeholder height so scrollbar/scroll-position math stays correct
-     before the section has actually rendered — no layout jump. */
   .cv-auto { content-visibility: auto; contain-intrinsic-size: 1px 1200px; }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
@@ -356,10 +327,6 @@ const HorizontalSlider = React.memo(({ items, renderItem, itemWidth = 'w-[80vw] 
 
 // ─── Marquee ──────────────────────────────────────────────────────────────────
 const MARQUEE_ITEMS = ['Neural Biometrics', 'Adaptive Coaching', 'Vision Nutrition', 'Performance Lab', 'Ecosystem Sync', 'Vault Privacy'];
-// OPTIMIZATION: hoisted out of the JSX (was `[...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map(...)`
-// computed inline). Marquee has no props so it only ever renders once
-// anyway, but there's no reason to leave the triple-spread inline when it
-// can just be a constant like every other static dataset in this file.
 const MARQUEE_LOOP = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
 const Marquee = React.memo(() => (
   <div
@@ -399,6 +366,24 @@ const CursorGlow = React.memo(({ enabled }) => {
     <motion.div className="pointer-events-none fixed z-[9999] top-0 left-0 hidden lg:block" style={{ x: sx, y: sy, translateX: '-50%', translateY: '-50%' }}>
       <div className="w-64 h-64 rounded-full blur-[60px]" style={{ backgroundColor: accentAlpha(13) }} />
     </motion.div>
+  );
+});
+
+// ─── Cursor glow theme gate ─────────────────────────────────────────────────
+// FIX: this tiny wrapper is the ONLY thing in the tree that subscribes to
+// ThemeContext (via useTheme). It exists so that toggling `isTransitioning`
+// only re-renders this one leaf component — not the entire Landing page.
+// If Landing itself called useTheme(), every theme toggle would force a
+// re-render of the whole tree (hero, feature cards, pricing cards, marquee,
+// about section, footer — everything), which is expensive enough on real
+// mobile hardware to visibly stall the fade transition. Isolating the
+// subscription here keeps the re-render blast radius to almost nothing
+// while the cursor glow still pauses itself during a theme switch — same
+// behavior, same visuals as before, just cheaper to compute.
+const CursorGlowGate = React.memo(({ canHover, prefersReducedMotion }) => {
+  const { isTransitioning } = useTheme();
+  return (
+    <CursorGlow enabled={canHover && !prefersReducedMotion && !isTransitioning} />
   );
 });
 
@@ -615,6 +600,10 @@ const Landing = () => {
   const prefersReducedMotion = usePrefersReducedMotion();
   const isAuthenticated = false;
 
+  // NOTE: Landing intentionally does NOT call useTheme() — see
+  // CursorGlowGate above. Keeping this component off ThemeContext means a
+  // theme toggle never forces this whole tree to re-render.
+
   const navInk = useCallback((alpha) => (scrolled ? ink(alpha) : `rgba(255,255,255,${alpha})`), [scrolled]);
 
   useEffect(() => {
@@ -658,7 +647,7 @@ const Landing = () => {
       <style>{LANDING_STYLES}</style>
 
       <div className="grain dm w-screen min-h-screen bg-(--bg) text-(--text) overflow-x-hidden">
-        <CursorGlow enabled={canHover && !prefersReducedMotion} />
+        <CursorGlowGate canHover={canHover} prefersReducedMotion={prefersReducedMotion} />
 
         {/* ── Navbar ─────────────────────────────────────────────────────── */}
         <motion.nav
@@ -980,11 +969,6 @@ const Landing = () => {
         </section>
 
         {/* ── Footer ─────────────────────────────────────────────────────── */}
-        {/* OPTIMIZATION: added cv-auto — same reasoning as the About/Pricing/CTA
-            sections above it. The footer is always below the fold on first
-            load, so there's no reason the browser should pay its layout/paint
-            cost until the person actually scrolls near it. Visually identical;
-            just deferred. */}
         <footer className="cv-auto border-t" style={{ borderColor: ink(0.05), backgroundColor: THEME.bgFooter }}>
           <div className="max-w-360 mx-auto px-5 sm:px-8">
 
