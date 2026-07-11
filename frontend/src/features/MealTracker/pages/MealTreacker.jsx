@@ -471,6 +471,35 @@ function AISuggestion({ meal, onClose, userId }) {
 }
 
 /**
+ * Tracks real pixel viewport size via JS instead of CSS vh/dvh units.
+ * Needed because standalone/installed PWAs (especially iOS home-screen
+ * apps) frequently report an inaccurate viewport through CSS units,
+ * causing "fullscreen" overlays to fall short of the real screen size.
+ */
+function useViewportSize() {
+  const [size, setSize] = useState(() => ({
+    width: typeof window !== "undefined" ? window.innerWidth : 0,
+    height: typeof window !== "undefined" ? window.innerHeight : 0,
+  }));
+
+  useEffect(() => {
+    const update = () => setSize({ width: window.innerWidth, height: window.innerHeight });
+    window.addEventListener("resize", update);
+    window.addEventListener("orientationchange", update);
+    // Standalone iOS PWAs sometimes report a stale size immediately on mount;
+    // a short delayed re-check catches that.
+    const t = setTimeout(update, 150);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
+      clearTimeout(t);
+    };
+  }, []);
+
+  return size;
+}
+
+/**
  * Fullscreen, native-camera-style capture experience.
  * Rendered as a fixed overlay above the entire app (z-[100]) so it
  * escapes the small upload card and takes over the whole viewport,
@@ -486,6 +515,37 @@ function FullscreenCamera({ onCapture, onClose }) {
   const [error,       setError]     = useState(null);
   const [flash,       setFlash]     = useState(false);
   const [captured,    setCaptured]  = useState(null);
+
+  // Standalone/installed PWAs (especially iOS home-screen apps) frequently
+  // miscalculate CSS viewport units (vh/dvh) for fixed-position elements
+  // once the browser chrome is gone. Measuring the real viewport in JS
+  // pixels via window.visualViewport and applying it as inline width/height
+  // sidesteps that platform quirk entirely.
+  const [viewportSize, setViewportSize] = useState(() => ({
+    width:  window.visualViewport?.width  ?? window.innerWidth,
+    height: window.visualViewport?.height ?? window.innerHeight,
+  }));
+
+  useEffect(() => {
+    const updateSize = () => {
+      setViewportSize({
+        width:  window.visualViewport?.width  ?? window.innerWidth,
+        height: window.visualViewport?.height ?? window.innerHeight,
+      });
+    };
+    updateSize();
+    // Standalone iOS PWAs sometimes report a stale size immediately on mount.
+    const t = setTimeout(updateSize, 150);
+    window.visualViewport?.addEventListener("resize", updateSize);
+    window.addEventListener("resize", updateSize);
+    window.addEventListener("orientationchange", updateSize);
+    return () => {
+      clearTimeout(t);
+      window.visualViewport?.removeEventListener("resize", updateSize);
+      window.removeEventListener("resize", updateSize);
+      window.removeEventListener("orientationchange", updateSize);
+    };
+  }, []);
 
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -543,7 +603,10 @@ function FullscreenCamera({ onCapture, onClose }) {
   const flipCamera     = () => setFacingMode((m) => (m === "environment" ? "user" : "environment"));
 
   return createPortal(
-    <div className="fixed inset-0 z-[999999] bg-black flex flex-col">
+    <div
+      className="fixed inset-0 z-[999999] bg-black flex flex-col"
+      style={{ height: `${viewportHeight}px`, width: "100vw" }}
+    >
       {flash && (
         <div className="absolute inset-0 bg-white z-20 pointer-events-none transition-opacity duration-150" />
       )}
