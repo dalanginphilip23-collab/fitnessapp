@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../../config/port";
 import { Sidebar, Topbar, MobileNav } from "../../../components";
@@ -541,8 +542,11 @@ function FullscreenCamera({ onCapture, onClose }) {
   const handleClose    = () => { stopStream(); onClose(); };
   const flipCamera     = () => setFacingMode((m) => (m === "environment" ? "user" : "environment"));
 
-  return (
-    <div className="fixed inset-0 z-[100] bg-black flex flex-col">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[999999] bg-black flex flex-col"
+      style={{ height: "100dvh" }}
+    >
       {flash && (
         <div className="absolute inset-0 bg-white z-20 pointer-events-none transition-opacity duration-150" />
       )}
@@ -636,7 +640,8 @@ function FullscreenCamera({ onCapture, onClose }) {
           )
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
