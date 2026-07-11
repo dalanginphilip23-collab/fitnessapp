@@ -171,10 +171,20 @@ const LANDING_STYLES = `
   .section-num { font-family: 'Bebas Neue', sans-serif; font-size: clamp(80px, 12vw, 140px); color: var(--section-num-color); line-height: 1; }
   section[id] { scroll-margin-top: 5rem; }
   .hero-min-h { min-height: 100vh; min-height: 100dvh; }
+
+  /* ── FIX ────────────────────────────────────────────────────────────────
+     Original rule used "opacity: var(--grain-opacity);" with NO fallback.
+     If --grain-opacity is ever unset/undefined at paint time (e.g. themes.css
+     not yet applied, class not yet on <html>, FOUC on first paint, etc.),
+     an invalid var() reference makes the "opacity" property fall back to
+     its INITIAL value, which is 1 (fully opaque) — that's the solid TV-static
+     look. Adding an explicit fallback guarantees it never renders above 3%
+     even if the CSS variable is missing for any reason. */
   .grain::before {
     content: ''; position: fixed; inset: -50%; width: 200%; height: 200%;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-    opacity: var(--grain-opacity); pointer-events: none; z-index: 9998; animation: grain 0.5s steps(2) infinite;
+    opacity: var(--grain-opacity, 0.03);
+    pointer-events: none; z-index: 9998; animation: grain 0.5s steps(2) infinite;
   }
   @keyframes grain { 0%,100%{transform:translate(0,0)}10%{transform:translate(-2%,-3%)}20%{transform:translate(3%,2%)}30%{transform:translate(-1%,4%)}40%{transform:translate(4%,-1%)}50%{transform:translate(-3%,3%)}60%{transform:translate(2%,-4%)}70%{transform:translate(-4%,1%)}80%{transform:translate(1%,-2%)}90%{transform:translate(-2%,4%)} }
   .glow-text { text-shadow: 0 0 80px color-mix(in srgb, var(--accent) 30%, transparent); }
@@ -370,16 +380,6 @@ const CursorGlow = React.memo(({ enabled }) => {
 });
 
 // ─── Cursor glow theme gate ─────────────────────────────────────────────────
-// FIX: this tiny wrapper is the ONLY thing in the tree that subscribes to
-// ThemeContext (via useTheme). It exists so that toggling `isTransitioning`
-// only re-renders this one leaf component — not the entire Landing page.
-// If Landing itself called useTheme(), every theme toggle would force a
-// re-render of the whole tree (hero, feature cards, pricing cards, marquee,
-// about section, footer — everything), which is expensive enough on real
-// mobile hardware to visibly stall the fade transition. Isolating the
-// subscription here keeps the re-render blast radius to almost nothing
-// while the cursor glow still pauses itself during a theme switch — same
-// behavior, same visuals as before, just cheaper to compute.
 const CursorGlowGate = React.memo(({ canHover, prefersReducedMotion }) => {
   const { isTransitioning } = useTheme();
   return (
@@ -599,10 +599,6 @@ const Landing = () => {
   const canHover = useCanHover();
   const prefersReducedMotion = usePrefersReducedMotion();
   const isAuthenticated = false;
-
-  // NOTE: Landing intentionally does NOT call useTheme() — see
-  // CursorGlowGate above. Keeping this component off ThemeContext means a
-  // theme toggle never forces this whole tree to re-render.
 
   const navInk = useCallback((alpha) => (scrolled ? ink(alpha) : `rgba(255,255,255,${alpha})`), [scrolled]);
 
