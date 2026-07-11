@@ -172,17 +172,15 @@ const LANDING_STYLES = `
   section[id] { scroll-margin-top: 5rem; }
   .hero-min-h { min-height: 100vh; min-height: 100dvh; }
 
-  /* ── FIX ────────────────────────────────────────────────────────────────
-     Original rule used "opacity: var(--grain-opacity);" with NO fallback.
-     If --grain-opacity is ever unset/undefined at paint time (e.g. themes.css
-     not yet applied, class not yet on <html>, FOUC on first paint, etc.),
-     an invalid var() reference makes the "opacity" property fall back to
-     its INITIAL value, which is 1 (fully opaque) — that's the solid TV-static
-     look. Adding an explicit fallback guarantees it never renders above 3%
-     even if the CSS variable is missing for any reason. */
   .grain::before {
     content: ''; position: fixed; inset: -50%; width: 200%; height: 200%;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    /* Fallback value added: if --grain-opacity hasn't resolved yet on the
+       very first paint (e.g. this inline <style> tag mounts a frame before
+       themes.css finishes applying), opacity now safely defaults to 0.03
+       instead of falling back to the CSS-initial value of 1 (fully opaque),
+       which was causing the solid static/noise flash. No visual change
+       once themes.css is applied — same 0.03/0.015 values as before. */
     opacity: var(--grain-opacity, 0.03);
     pointer-events: none; z-index: 9998; animation: grain 0.5s steps(2) infinite;
   }
