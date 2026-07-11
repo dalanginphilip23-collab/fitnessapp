@@ -501,7 +501,7 @@ function useViewportSize() {
 
 /**
  * Fullscreen, native-camera-style capture experience.
- * Rendered as a fixed overlay above the entire app (z-[100]) so it
+ * Rendered as a fixed overlay above the entire app (z-[999999]) so it
  * escapes the small upload card and takes over the whole viewport,
  * mirroring the iOS/Android camera UX (live feed, shutter, flip,
  * retake / use-photo confirmation).
@@ -516,36 +516,9 @@ function FullscreenCamera({ onCapture, onClose }) {
   const [flash,       setFlash]     = useState(false);
   const [captured,    setCaptured]  = useState(null);
 
-  // Standalone/installed PWAs (especially iOS home-screen apps) frequently
-  // miscalculate CSS viewport units (vh/dvh) for fixed-position elements
-  // once the browser chrome is gone. Measuring the real viewport in JS
-  // pixels via window.visualViewport and applying it as inline width/height
-  // sidesteps that platform quirk entirely.
-  const [viewportSize, setViewportSize] = useState(() => ({
-    width:  window.visualViewport?.width  ?? window.innerWidth,
-    height: window.visualViewport?.height ?? window.innerHeight,
-  }));
-
-  useEffect(() => {
-    const updateSize = () => {
-      setViewportSize({
-        width:  window.visualViewport?.width  ?? window.innerWidth,
-        height: window.visualViewport?.height ?? window.innerHeight,
-      });
-    };
-    updateSize();
-    // Standalone iOS PWAs sometimes report a stale size immediately on mount.
-    const t = setTimeout(updateSize, 150);
-    window.visualViewport?.addEventListener("resize", updateSize);
-    window.addEventListener("resize", updateSize);
-    window.addEventListener("orientationchange", updateSize);
-    return () => {
-      clearTimeout(t);
-      window.visualViewport?.removeEventListener("resize", updateSize);
-      window.removeEventListener("resize", updateSize);
-      window.removeEventListener("orientationchange", updateSize);
-    };
-  }, []);
+  // Shared hook: avoids duplicating viewport-tracking logic. See
+  // useViewportSize's docstring above for why this exists.
+  const { height: viewportHeight } = useViewportSize();
 
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
