@@ -543,10 +543,7 @@ function FullscreenCamera({ onCapture, onClose }) {
   const flipCamera     = () => setFacingMode((m) => (m === "environment" ? "user" : "environment"));
 
   return createPortal(
-    <div
-      className="fixed inset-0 z-[999999] bg-black flex flex-col"
-      style={{ height: "100dvh" }}
-    >
+    <div className="fixed inset-0 z-[999999] bg-black flex flex-col">
       {flash && (
         <div className="absolute inset-0 bg-white z-20 pointer-events-none transition-opacity duration-150" />
       )}
