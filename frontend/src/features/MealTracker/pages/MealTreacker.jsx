@@ -469,55 +469,185 @@ function AISuggestion({ meal, onClose, userId }) {
   );
 }
 
-function UploadSection({ onAnalyze, isAnalyzing }) {
-  const fileInputRef = useRef(null);
-  const videoRef     = useRef(null);
-  const streamRef    = useRef(null);
+/**
+ * Fullscreen, native-camera-style capture experience.
+ * Rendered as a fixed overlay above the entire app (z-[100]) so it
+ * escapes the small upload card and takes over the whole viewport,
+ * mirroring the iOS/Android camera UX (live feed, shutter, flip,
+ * retake / use-photo confirmation).
+ */
+function FullscreenCamera({ onCapture, onClose }) {
+  const videoRef  = useRef(null);
+  const streamRef = useRef(null);
 
-  const [preview,     setPreview]     = useState(null);
-  const [dragOver,    setDragOver]    = useState(false);
-  const [compressing, setCompressing] = useState(false);
-  const [tab,         setTab]         = useState("upload");
-  const [cameraReady, setCameraReady] = useState(false);
-  const [cameraError, setCameraError] = useState(null);
+  const [facingMode, setFacingMode] = useState("environment");
+  const [ready,       setReady]     = useState(false);
+  const [error,       setError]     = useState(null);
+  const [flash,       setFlash]     = useState(false);
+  const [captured,    setCaptured]  = useState(null);
 
-  const stopCamera = useCallback(() => {
+  const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
-    setCameraReady(false);
   }, []);
 
-  const startCamera = useCallback(async () => {
-    setCameraError(null);
-    setCameraReady(false);
+  const startStream = useCallback(async (mode) => {
+    setError(null);
+    setReady(false);
+    stopStream();
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: mode },
+        audio: false,
+      });
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.onloadedmetadata = () => setCameraReady(true);
+        videoRef.current.onloadedmetadata = () => setReady(true);
       }
     } catch {
-      setCameraError("Camera access denied or not available.");
+      setError("Camera access denied or not available.");
     }
-  }, []);
+  }, [stopStream]);
 
   useEffect(() => {
-    if (tab === "camera" && !preview) startCamera();
-    else stopCamera();
-    return () => stopCamera();
-  }, [tab, preview, startCamera, stopCamera]);
+    if (!captured) startStream(facingMode);
+    return () => stopStream();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [facingMode, captured]);
 
-  const handleCapture = () => {
+  // Lock background scroll while the fullscreen camera is open.
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prevOverflow; };
+  }, []);
+
+  const handleShutter = () => {
     const video = videoRef.current;
     if (!video) return;
     const canvas = document.createElement("canvas");
     canvas.width  = video.videoWidth;
     canvas.height = video.videoHeight;
     canvas.getContext("2d").drawImage(video, 0, 0);
-    setPreview(canvas.toDataURL("image/jpeg", 0.92));
-    stopCamera();
+    setFlash(true);
+    setTimeout(() => setFlash(false), 150);
+    setCaptured(canvas.toDataURL("image/jpeg", 0.92));
+    stopStream();
   };
+
+  const handleRetake   = () => setCaptured(null);
+  const handleUsePhoto = () => onCapture(captured);
+  const handleClose    = () => { stopStream(); onClose(); };
+  const flipCamera     = () => setFacingMode((m) => (m === "environment" ? "user" : "environment"));
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-black flex flex-col">
+      {flash && (
+        <div className="absolute inset-0 bg-white z-20 pointer-events-none transition-opacity duration-150" />
+      )}
+
+      <div
+        className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 sm:px-6"
+        style={{ paddingTop: "max(env(safe-area-inset-top), 1rem)" }}
+      >
+        <button
+          onClick={handleClose}
+          aria-label="Close camera"
+          className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white touch-manipulation"
+        >
+          <Icon name="close" className="text-xl" />
+        </button>
+
+        {!captured && (
+          <button
+            onClick={flipCamera}
+            aria-label="Switch camera"
+            className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white touch-manipulation"
+          >
+            <Icon name="cameraswitch" className="text-xl" />
+          </button>
+        )}
+      </div>
+
+      <div className="flex-1 relative overflow-hidden">
+        {captured ? (
+          <img src={captured} alt="Captured meal" className="absolute inset-0 w-full h-full object-cover" />
+        ) : (
+          <>
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ display: error ? "none" : "block" }}
+            />
+            {error && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center">
+                <span className="text-4xl">🚫</span>
+                <p className="text-red-400 text-sm font-medium">{error}</p>
+                <button
+                  onClick={() => startStream(facingMode)}
+                  className="px-4 py-2 rounded-lg bg-white/10 text-white text-xs font-semibold touch-manipulation"
+                >
+                  Try again
+                </button>
+              </div>
+            )}
+            {!ready && !error && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                <Spinner />
+                <p className="text-white/70 text-xs">Starting camera…</p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      <div
+        className="relative z-10 flex items-center justify-center px-6 py-6 sm:py-8"
+        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1.5rem)" }}
+      >
+        {captured ? (
+          <div className="flex items-center gap-4 w-full max-w-sm">
+            <button
+              onClick={handleRetake}
+              className="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-white touch-manipulation"
+            >
+              Retake
+            </button>
+            <button
+              onClick={handleUsePhoto}
+              className="flex-1 py-3 rounded-xl text-sm font-bold bg-(--accent) text-[#131313] touch-manipulation"
+            >
+              Use Photo
+            </button>
+          </div>
+        ) : (
+          ready && !error && (
+            <button
+              onClick={handleShutter}
+              aria-label="Take photo"
+              className="w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-white border-4 border-white/30 shadow-lg active:scale-90 transition-transform touch-manipulation flex items-center justify-center"
+            >
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/80" />
+            </button>
+          )
+        )}
+      </div>
+    </div>
+  );
+}
+
+function UploadSection({ onAnalyze, isAnalyzing }) {
+  const fileInputRef = useRef(null);
+
+  const [preview,      setPreview]      = useState(null);
+  const [dragOver,     setDragOver]     = useState(false);
+  const [compressing,  setCompressing]  = useState(false);
+  const [tab,          setTab]          = useState("upload");
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
 
   const handleFile = (file) => {
     if (!file || !file.type.startsWith("image/")) return;
@@ -529,7 +659,7 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
   const handleClear = () => {
     setPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
-    if (tab === "camera") startCamera();
+    if (tab === "camera") setIsCameraOpen(true);
   };
 
   const handleAnalyzeClick = async () => {
@@ -543,6 +673,12 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
     if (next === tab) return;
     setPreview(null);
     setTab(next);
+    if (next === "camera") setIsCameraOpen(true);
+  };
+
+  const handleCameraCapture = (photo) => {
+    setPreview(photo);
+    setIsCameraOpen(false);
   };
 
   const busy = isAnalyzing || compressing;
@@ -595,36 +731,25 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
       )}
 
       {tab === "camera" && (
-        <div className="relative rounded-xl overflow-hidden bg-black" style={{ minHeight: 180 }}>
+        <div
+          className="relative rounded-xl overflow-hidden bg-black flex items-center justify-center cursor-pointer"
+          style={{ minHeight: 180 }}
+          onClick={() => !preview && setIsCameraOpen(true)}
+        >
           {preview ? (
             <>
               <img src={preview} alt="Captured meal" className="w-full rounded-xl object-cover" style={{ maxHeight: 240 }} />
-              <button onClick={handleClear} className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold transition-colors touch-manipulation">✕</button>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleClear(); }}
+                className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold transition-colors touch-manipulation"
+              >✕</button>
             </>
           ) : (
-            <>
-              <video ref={videoRef} autoPlay playsInline muted className="w-full rounded-xl object-cover" style={{ maxHeight: 240, display: cameraError ? "none" : "block" }} />
-              {cameraError && (
-                <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                  <span className="text-3xl mb-2">🚫</span>
-                  <p className="text-red-400 text-xs font-medium">{cameraError}</p>
-                  <button onClick={startCamera} className="mt-3 px-3 py-1.5 rounded-lg bg-(--bg-hover) text-(--text-muted) text-xs hover:bg-(--bg-active) transition-colors">Try again</button>
-                </div>
-              )}
-              {!cameraReady && !cameraError && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                  <Spinner />
-                  <p className="text-(--text-muted) text-xs">Starting camera…</p>
-                </div>
-              )}
-              {cameraReady && !cameraError && (
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
-                  <button onClick={handleCapture} className="w-14 h-14 rounded-full bg-white border-4 border-white/30 shadow-lg hover:scale-105 active:scale-95 transition-transform touch-manipulation flex items-center justify-center" aria-label="Take photo">
-                    <div className="w-10 h-10 rounded-full bg-white/80" />
-                  </button>
-                </div>
-              )}
-            </>
+            <div className="flex flex-col items-center justify-center py-10 sm:py-12 px-4 text-center">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-3 text-2xl">📷</div>
+              <p className="text-white text-xs sm:text-sm font-medium mb-1">Tap to open camera</p>
+              <p className="text-white/50 text-xs">Fullscreen capture</p>
+            </div>
           )}
         </div>
       )}
@@ -646,6 +771,13 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
           <span className="flex items-center justify-center gap-2"><Spinner /> Analyzing with AI…</span>
         ) : "Analyze Meal"}
       </button>
+
+      {isCameraOpen && (
+        <FullscreenCamera
+          onCapture={handleCameraCapture}
+          onClose={() => setIsCameraOpen(false)}
+        />
+      )}
     </div>
   );
 }
