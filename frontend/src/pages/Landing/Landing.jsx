@@ -172,6 +172,30 @@ const LANDING_STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
+
+  /* Locked-in white palette for the landing page only. Scoped to
+     .vitalis-landing.light-theme (two classes = higher specificity than
+     the single .light-theme rule in themes.css), so this page always
+     renders a clean, solid white theme no matter what the shared
+     themes.css file defines or what theme the rest of the app is on.
+     None of this touches the dashboard/app theme. */
+  .vitalis-landing.light-theme {
+    --bg: #ffffff;
+    --bg-alt: #ffffff;
+    --bg-secondary: #f7f7f7;
+    --bg-footer: #fafafa;
+    --bg-marquee: #f5f5f5;
+    --text: #1a1a1a;
+    --text-strong: #0a0a0a;
+    --text-soft: rgba(10,10,10,0.55);
+    --ink-base: 10 10 10;
+    --border-color: rgba(0,0,0,0.08);
+    --nav-bg: rgba(255,255,255,0.95);
+    --section-num-color: rgba(0,0,0,0.03);
+    --selection-bg: #5E9E4A;
+    --selection-text: #ffffff;
+  }
+
   body { background: var(--bg); color: var(--text); overflow-x: hidden; }
   ::selection { background: var(--selection-bg); color: var(--selection-text); }
   .bebas { font-family: 'Bebas Neue', sans-serif; }
@@ -184,7 +208,7 @@ const LANDING_STYLES = `
   .grain::before {
     content: ''; position: fixed; inset: -50%; width: 200%; height: 200%;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-    opacity: var(--grain-opacity, 0.03);
+    opacity: var(--grain-opacity, 0.015);
     pointer-events: none; z-index: 9998; animation: grain 0.5s steps(2) infinite;
   }
   @keyframes grain { 0%,100%{transform:translate(0,0)}10%{transform:translate(-2%,-3%)}20%{transform:translate(3%,2%)}30%{transform:translate(-1%,4%)}40%{transform:translate(4%,-1%)}50%{transform:translate(-3%,3%)}60%{transform:translate(2%,-4%)}70%{transform:translate(-4%,1%)}80%{transform:translate(1%,-2%)}90%{transform:translate(-2%,4%)} }
