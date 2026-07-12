@@ -6,8 +6,6 @@ import {
   Activity, ChevronLeft, ChevronRight, PlayCircle, Rocket, Eye,
   FlaskConical, Heart, AtSign, Briefcase, Check,
 } from 'lucide-react';
-import ThemeToggle from '../../components/ThemeToggle';
-import { useTheme } from '../../hooks/useTheme';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const GYM_BG_BASE = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=70';
@@ -175,12 +173,6 @@ const LANDING_STYLES = `
   .grain::before {
     content: ''; position: fixed; inset: -50%; width: 200%; height: 200%;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-    /* Fallback value added: if --grain-opacity hasn't resolved yet on the
-       very first paint (e.g. this inline <style> tag mounts a frame before
-       themes.css finishes applying), opacity now safely defaults to 0.03
-       instead of falling back to the CSS-initial value of 1 (fully opaque),
-       which was causing the solid static/noise flash. No visual change
-       once themes.css is applied — same 0.03/0.015 values as before. */
     opacity: var(--grain-opacity, 0.03);
     pointer-events: none; z-index: 9998; animation: grain 0.5s steps(2) infinite;
   }
@@ -377,14 +369,6 @@ const CursorGlow = React.memo(({ enabled }) => {
   );
 });
 
-// ─── Cursor glow theme gate ─────────────────────────────────────────────────
-const CursorGlowGate = React.memo(({ canHover, prefersReducedMotion }) => {
-  const { isTransitioning } = useTheme();
-  return (
-    <CursorGlow enabled={canHover && !prefersReducedMotion && !isTransitioning} />
-  );
-});
-
 // ─── Stat counter ─────────────────────────────────────────────────────────────
 const StatCounter = React.memo(({ value, label }) => {
   const ref = useRef(null);
@@ -464,7 +448,7 @@ const MobileMenu = React.memo(({ open, onClose, navigate, canHover }) => (
   </AnimatePresence>
 ));
 
-// ─── Feature Card 
+// ─── Feature Card ───────────────────────────────────────────────────────────
 const FeatureCard = React.memo(({ icon, title, desc, num, index, canHover }) => {
   const [hovered, setHovered] = useState(false);
   const active = canHover && hovered;
@@ -507,7 +491,7 @@ const FeatureCard = React.memo(({ icon, title, desc, num, index, canHover }) => 
   );
 });
 
-// ─── Pricing Card 
+// ─── Pricing Card ───────────────────────────────────────────────────────────
 const PricingCard = React.memo(({ plan, navigate, isAuthenticated = false }) => {
   const { popular, planId, ctaLabel, ctaDest, features } = plan;
 
@@ -584,7 +568,7 @@ const PricingCard = React.memo(({ plan, navigate, isAuthenticated = false }) => 
   );
 });
 
-// MAIN
+// ─── MAIN ─────────────────────────────────────────────────────────────────────
 const Landing = () => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -640,10 +624,9 @@ const Landing = () => {
     <>
       <style>{LANDING_STYLES}</style>
 
-      <div className="grain dm w-screen min-h-screen bg-(--bg) text-(--text) overflow-x-hidden">
-        <CursorGlowGate canHover={canHover} prefersReducedMotion={prefersReducedMotion} />
+      <div className="light-theme grain dm w-screen min-h-screen bg-(--bg) text-(--text) overflow-x-hidden">
+        {canHover && !prefersReducedMotion && <CursorGlow enabled />}
 
-        {/* ── Navbar ─────────────────────────────────────────────────────── */}
         <motion.nav
           animate={{ borderBottomColor: scrolled ? THEME.border : 'transparent', backdropFilter: scrolled ? 'blur(20px)' : 'blur(0px)', backgroundColor: scrolled ? THEME.navBg : 'transparent' }}
           transition={{ duration: 0.4 }}
@@ -676,7 +659,6 @@ const Landing = () => {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3 lg:gap-5">
-              <ThemeToggle />
               <motion.button
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
                 onClick={() => navigate('/login')}
@@ -710,7 +692,6 @@ const Landing = () => {
           <MobileMenu open={menuOpen} onClose={closeMenu} navigate={navigate} canHover={canHover} />
         </div>
 
-        {/* ── HERO ───────────────────────────────────────────────────────── */}
         <section ref={heroRef} className="hero-min-h relative flex flex-col justify-end pb-14 sm:pb-24 pt-20 overflow-hidden">
           <motion.div className="absolute inset-0" style={{ y: heroY }}>
             <img
@@ -803,10 +784,8 @@ const Landing = () => {
           </motion.div>
         </section>
 
-        {/* ── Marquee ────────────────────────────────────────────────────── */}
         <Marquee />
 
-        {/* ── Stats ──────────────────────────────────────────────────────── */}
         <section className="py-14 sm:py-24 px-5 sm:px-8" style={{ backgroundColor: THEME.bg }}>
           <div className="max-w-360 mx-auto">
             <div
@@ -820,7 +799,6 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* ── Features ───────────────────────────────────────────────────── */}
         <section id="features" className="py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: THEME.bg }}>
           <div className="section-num absolute -top-4 -left-4 select-none pointer-events-none">FEAT</div>
           <div className="max-w-360 mx-auto">
@@ -842,7 +820,6 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* ── About ──────────────────────────────────────────────────────── */}
         <section id="about" className="cv-auto py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: THEME.bgAlt }}>
           <div className="section-num absolute -top-4 right-0 select-none pointer-events-none">ABOT</div>
           <div className="max-w-360 mx-auto">
@@ -897,7 +874,6 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* ── Pricing ────────────────────────────────────────────────────── */}
         <section id="pricing" className="cv-auto py-14 sm:py-24 lg:py-32 px-5 sm:px-8 relative overflow-hidden" style={{ backgroundColor: THEME.bg }}>
           <div className="section-num absolute -top-4 -left-4 select-none pointer-events-none">PRCE</div>
           <div className="max-w-360 mx-auto">
@@ -926,12 +902,11 @@ const Landing = () => {
             </div>
 
             <p className="text-center text-[11px] uppercase tracking-widest mt-10 font-bold" style={{ color: ink(0.2) }}>
-              No contracts · Cancel anytime · 30-day money-back guarantee
+              No contracts, cancel anytime, 30-day money-back guarantee
             </p>
           </div>
         </section>
 
-        {/* ── CTA ────────────────────────────────────────────────────────── */}
         <section className="cv-auto py-14 sm:py-24 px-5 sm:px-8" style={{ backgroundColor: THEME.bg }}>
           <div className="max-w-360 mx-auto">
             <motion.div
@@ -962,7 +937,6 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* ── Footer ─────────────────────────────────────────────────────── */}
         <footer className="cv-auto border-t" style={{ borderColor: ink(0.05), backgroundColor: THEME.bgFooter }}>
           <div className="max-w-360 mx-auto px-5 sm:px-8">
 
@@ -979,26 +953,28 @@ const Landing = () => {
                   The world's most advanced human performance platform.
                 </p>
                 <div className="flex items-center gap-2">
-                  {SOCIAL_LINKS.map(({ icon, label }) => (
+                  {SOCIAL_LINKS.map((item) => (
                     <a
-                      key={label} href="#" aria-label={label}
+                      key={item.label}
+                      href="#"
+                      aria-label={item.label}
                       className="w-9 h-9 rounded-lg border flex items-center justify-center transition-all duration-300 group"
                       style={{ backgroundColor: ink(0.05), borderColor: ink(0.08) }}
                       onMouseEnter={e => { if (canHover) { e.currentTarget.style.backgroundColor = THEME.accent; e.currentTarget.style.borderColor = THEME.accent; } }}
                       onMouseLeave={e => { e.currentTarget.style.backgroundColor = ink(0.05); e.currentTarget.style.borderColor = ink(0.08); }}
                     >
-                      <Icon name={icon} className="text-base" />
+                      <Icon name={item.icon} className="text-base" />
                     </a>
                   ))}
                 </div>
               </div>
 
               <div className="flex gap-10 sm:gap-16">
-                {FOOTER_COLUMNS.map(({ heading, links }) => (
-                  <div key={heading}>
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-4" style={{ color: ink(0.25) }}>{heading}</h4>
+                {FOOTER_COLUMNS.map((col) => (
+                  <div key={col.heading}>
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-4" style={{ color: ink(0.25) }}>{col.heading}</h4>
                     <ul className="flex flex-col gap-2.5">
-                      {links.map(link => (
+                      {col.links.map((link) => (
                         <li key={link}>
                           <a
                             href="#"
@@ -1006,7 +982,9 @@ const Landing = () => {
                             style={{ color: ink(0.3) }}
                             onMouseEnter={e => { if (canHover) e.currentTarget.style.color = THEME.accent; }}
                             onMouseLeave={e => { e.currentTarget.style.color = ink(0.3); }}
-                          >{link}</a>
+                          >
+                            {link}
+                          </a>
                         </li>
                       ))}
                     </ul>
@@ -1019,7 +997,7 @@ const Landing = () => {
 
             <div className="py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
               <p className="text-[11px] font-medium tracking-wide" style={{ color: ink(0.2) }}>
-                © 2026 <span className="font-bold" style={{ color: ink(0.35) }}>Vitalis Labs Inc.</span> All rights reserved.
+                Copyright 2026 <span className="font-bold" style={{ color: ink(0.35) }}>Vitalis Labs Inc.</span> All rights reserved.
               </p>
               <p className="text-[11px] font-medium tracking-wide" style={{ color: ink(0.2) }}>
                 Developed by <span className="font-bold" style={{ color: ink(0.35) }}>STC Students</span>
