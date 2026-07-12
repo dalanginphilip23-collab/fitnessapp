@@ -175,13 +175,20 @@ const LANDING_STYLES = `
      that was the bug causing the black hairlines and the solid-black
      watermark numbers (FEAT / ABOT / PRCE): every var(--border-color)
      and var(--section-num-color) was resolving to nothing, so the
-     browser fell back to plain black. */
+     browser fell back to plain black.
+
+     FIX (mobile menu): --bg-menu was missing from this list entirely.
+     MobileMenu's background relied on var(--bg-menu) with no fallback,
+     so it resolved to nothing/transparent — the hero photo and hero
+     buttons showed through the open menu, and the dark nav-link text
+     became invisible against that dark photo. Added below. */
   .vitalis-landing.light-theme {
     --bg: #ffffff;
     --bg-alt: #ffffff;
     --bg-secondary: #f7f7f7;
     --bg-footer: #fafafa;
     --bg-marquee: #f5f5f5;
+    --bg-menu: #ffffff;
     --text: #1a1a1a;
     --text-strong: #0a0a0a;
     --text-soft: rgba(10,10,10,0.55);
@@ -435,7 +442,7 @@ const MobileMenu = React.memo(({ open, onClose, navigate, canHover }) => (
         exit={{ opacity: 0, clipPath: 'inset(0 0 100% 0)' }}
         transition={{ duration: 0.4, ease: EASE_EXPO }}
         className="lg:hidden fixed inset-0 z-99 flex flex-col pt-24 overflow-y-auto"
-        style={{ backgroundColor: 'var(--bg-menu)' }}
+        style={{ backgroundColor: 'var(--bg-menu, #ffffff)' }}
         role="dialog"
         aria-modal="true"
       >
@@ -713,7 +720,7 @@ const Landing = () => {
               >Join the Lab</motion.button>
               <button
                 type="button"
-                onClick={() => setMenuOpen(o => !o)}
+                onClick={(e) => { setMenuOpen(o => !o); e.currentTarget.blur(); }}
                 aria-label="Toggle menu"
                 aria-expanded={menuOpen}
                 aria-controls="mobile-menu"
