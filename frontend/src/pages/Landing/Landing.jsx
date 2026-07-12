@@ -108,16 +108,6 @@ const accentAlpha = (pct) => {
   return v;
 };
 
-const bgAlphaCache = new Map();
-const bgAlpha = (pct) => {
-  let v = bgAlphaCache.get(pct);
-  if (v === undefined) {
-    v = `color-mix(in srgb, var(--bg) ${pct}%, transparent)`;
-    bgAlphaCache.set(pct, v);
-  }
-  return v;
-};
-
 const THEME = {
   accent: 'var(--accent)',
   bg: 'var(--bg)',
