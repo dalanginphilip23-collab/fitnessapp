@@ -16,6 +16,23 @@ const GOALS = [
   'Recovery Optimization',
 ];
 
+// Simple inline eye / eye-off icons — matches the ones added to Login.jsx.
+// If your project already uses lucide-react elsewhere, swap these for
+// <Eye /> and <EyeOff /> from 'lucide-react' instead.
+const EyeIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12Z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
+const EyeOffIcon = ({ className = '' }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19.5C5 19.5 1.5 12 1.5 12a20.86 20.86 0 0 1 4.22-5.94M9.9 4.24A10.4 10.4 0 0 1 12 4.5c7 0 10.5 7.5 10.5 7.5a20.83 20.83 0 0 1-2.42 3.6M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+    <path d="M1.5 1.5l21 21" />
+  </svg>
+);
+
 const Register = () => {
   const [formData, setFormData] = useState({
     name:     '',
@@ -24,6 +41,7 @@ const Register = () => {
     goal:     'Peak Metabolic Efficiency',
   });
   const [focused, setFocused] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const { loading, error, showSuccessModal, handleRegister, handleModalConfirm } = useRegister();
 
@@ -306,20 +324,38 @@ const Register = () => {
                 >
                   Password
                 </label>
-                <input
-                  type="password"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
-                  style={{
-                    borderColor: focused === 'password' ? `${ACCENT}80` : undefined,
-                    backgroundColor: focused === 'password' ? `${ACCENT}0d` : undefined,
-                  }}
-                  placeholder="••••••••••••"
-                  required
-                  value={formData.password}
-                  onChange={update('password')}
-                  onFocus={() => setFocused('password')}
-                  onBlur={() => setFocused('')}
-                />
+                {/* Wrapping div is relative so the eye toggle button can be
+                    absolutely positioned inside the input on the right side. */}
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 pr-11 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                    style={{
+                      borderColor: focused === 'password' ? `${ACCENT}80` : undefined,
+                      backgroundColor: focused === 'password' ? `${ACCENT}0d` : undefined,
+                    }}
+                    placeholder="••••••••••••"
+                    required
+                    value={formData.password}
+                    onChange={update('password')}
+                    onFocus={() => setFocused('password')}
+                    onBlur={() => setFocused('')}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(s => !s)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-pressed={showPassword}
+                    tabIndex={-1}
+                    className="absolute right-0 top-0 h-full w-11 flex items-center justify-center text-white/35 hover:text-white/70 transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOffIcon className="w-[18px] h-[18px]" />
+                    ) : (
+                      <EyeIcon className="w-[18px] h-[18px]" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               {/* Goal */}
