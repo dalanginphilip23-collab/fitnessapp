@@ -163,25 +163,6 @@ const LANDING_STYLES = `
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
 
-  /* Locked-in white palette for the landing page only. Scoped to
-     .vitalis-landing.light-theme (two classes = higher specificity than
-     the single .light-theme rule in themes.css), so this page always
-     renders a clean, solid white theme no matter what the shared
-     themes.css file defines or what theme the rest of the app is on.
-     None of this touches the dashboard/app theme.
-
-     IMPORTANT: the wrapping <div> below must carry BOTH classes
-     ("vitalis-landing light-theme") or none of these variables apply —
-     that was the bug causing the black hairlines and the solid-black
-     watermark numbers (FEAT / ABOT / PRCE): every var(--border-color)
-     and var(--section-num-color) was resolving to nothing, so the
-     browser fell back to plain black.
-
-     FIX (mobile menu): --bg-menu was missing from this list entirely.
-     MobileMenu's background relied on var(--bg-menu) with no fallback,
-     so it resolved to nothing/transparent — the hero photo and hero
-     buttons showed through the open menu, and the dark nav-link text
-     became invisible against that dark photo. Added below. */
   .vitalis-landing.light-theme {
     --bg: #ffffff;
     --bg-alt: #ffffff;
@@ -621,7 +602,16 @@ const Landing = () => {
   const prefersReducedMotion = usePrefersReducedMotion();
   const isAuthenticated = false;
 
-  const navInk = useCallback((alpha) => (scrolled ? ink(alpha) : `rgba(255,255,255,${alpha})`), [scrolled]);
+  // navInk decides light-on-dark (white, over the hero photo) vs dark-on-light
+  // (once scrolled onto a flat section). The mobile menu ALSO has a light/white
+  // backdrop (--bg-menu), so while it's open the nav must use dark text too —
+  // otherwise the "Vitalis" wordmark and the hamburger-turned-X lines render
+  // white-on-white against the open menu and become invisible, even though
+  // they're technically still there.
+  const navInk = useCallback(
+    (alpha) => (scrolled || menuOpen ? ink(alpha) : `rgba(255,255,255,${alpha})`),
+    [scrolled, menuOpen]
+  );
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -663,14 +653,6 @@ const Landing = () => {
     <>
       <style>{LANDING_STYLES}</style>
 
-      {/* FIX: this div now carries BOTH "vitalis-landing" and "light-theme".
-          The CSS rule above is scoped to .vitalis-landing.light-theme (both
-          classes together) so it wins over any shared/global theme file.
-          Previously only "light-theme" was present, so the rule never
-          matched and every CSS variable (--bg, --border-color,
-          --section-num-color, --accent, etc.) fell back to browser
-          defaults — that's what produced the black hairline borders and
-          the solid black "FEAT" / "ABOT" / "PRCE" watermark text. */}
       <div className="vitalis-landing light-theme grain dm w-screen min-h-screen bg-(--bg) text-(--text) overflow-x-hidden">
         {canHover && !prefersReducedMotion && <CursorGlow enabled />}
 
