@@ -133,11 +133,22 @@ const THEME = {
   shadow: 'var(--shadow-color)',
 };
 
+// Hero sits on a photo, so its overlay/text are intentionally NOT tied to
+// the light/dark theme variables (--bg, --ink-base) — those are meant for
+// flat surfaces, not a photographic background. Keeping these fixed avoids
+// the hero washing out / text losing contrast when the theme changes.
+const HERO_TEXT_WHITE = '#ffffff';
+const HERO_TEXT_SOFT = 'rgba(255,255,255,0.75)';
+const HERO_TEXT_MUTED = 'rgba(255,255,255,0.55)';
+const HERO_TEXT_FAINT = 'rgba(255,255,255,0.3)';
+const HERO_BORDER = 'rgba(255,255,255,0.18)';
+const HERO_FILTER = 'brightness(0.4) saturate(0.7)';
+
 const HERO_GRADIENT_VERTICAL = {
-  background: `linear-gradient(to bottom, ${bgAlpha(50)} 0%, ${bgAlpha(20)} 40%, var(--bg) 100%)`,
+  background: 'linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.85) 100%)',
 };
 const HERO_GRADIENT_HORIZONTAL = {
-  background: `linear-gradient(to right, ${bgAlpha(70)} 0%, transparent 60%)`,
+  background: 'linear-gradient(to right, rgba(0,0,0,0.55) 0%, transparent 65%)',
 };
 
 const HERO_GLOW_TOP_LEFT_STYLE = {
@@ -703,7 +714,7 @@ const Landing = () => {
               fetchPriority="high"
               decoding="async"
               className="w-full h-full object-cover object-center"
-              style={{ filter: 'var(--hero-filter)' }}
+              style={{ filter: HERO_FILTER }}
             />
             <div className="absolute inset-0" style={HERO_GRADIENT_VERTICAL} />
             <div className="absolute inset-0" style={HERO_GRADIENT_HORIZONTAL} />
@@ -714,12 +725,12 @@ const Landing = () => {
 
           <motion.div className="relative z-10 max-w-360 mx-auto w-full px-5 sm:px-8" style={{ opacity: heroOpacity }}>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="flex items-center gap-3 mb-8 sm:mb-12">
-              <div className="flex items-center gap-2.5 px-3.5 sm:px-4 py-2 rounded-full border backdrop-blur-sm" style={{ borderColor: ink(0.1), backgroundColor: ink(0.05) }}>
+              <div className="flex items-center gap-2.5 px-3.5 sm:px-4 py-2 rounded-full border backdrop-blur-sm" style={{ borderColor: HERO_BORDER, backgroundColor: 'rgba(255,255,255,0.06)' }}>
                 <span className="relative flex items-center justify-center w-2 h-2 shrink-0">
                   <span className="pulse-ring absolute inline-block w-2 h-2 rounded-full" style={{ backgroundColor: accentAlpha(50) }} />
                   <span className="relative w-1.5 h-1.5 rounded-full" style={{ backgroundColor: THEME.accent, boxShadow: `0 0 8px ${THEME.accent}` }} />
                 </span>
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em]" style={{ color: ink(0.5) }}>Institutional Grade Biometrics</span>
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] sm:tracking-[0.25em]" style={{ color: HERO_TEXT_SOFT }}>Institutional Grade Biometrics</span>
               </div>
             </motion.div>
 
@@ -729,13 +740,13 @@ const Landing = () => {
                   key={word}
                   initial={{ y: '110%' }} animate={{ y: 0 }} transition={{ duration: 1, delay: 0.4 + i * 0.12, ease: EASE_EXPO }}
                   className={i === 1 ? 'italic' : ''}
-                  style={{ color: i === 1 ? ink(0.15) : THEME.text }}
+                  style={{ color: i === 1 ? HERO_TEXT_FAINT : HERO_TEXT_WHITE }}
                 >{word}</motion.div>
               ))}
             </div>
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, delay: 0.75 }} className="flex flex-col gap-8 max-w-lg">
-              <p className="text-base sm:text-lg leading-relaxed font-medium" style={{ color: ink(0.45) }}>
+              <p className="text-base sm:text-lg leading-relaxed font-medium" style={{ color: HERO_TEXT_SOFT }}>
                 Vitalis is a high-performance OS for the human body. We bridge the gap between clinical data and daily action.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
@@ -749,37 +760,37 @@ const Landing = () => {
                 </button>
                 <button
                   type="button"
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-3 px-8 py-4 rounded-xl border transition-all group whitespace-nowrap"
-                  style={{ borderColor: ink(0.1), color: ink(0.45) }}
-                  onMouseEnter={e => { if (canHover) { e.currentTarget.style.borderColor = ink(0.25); e.currentTarget.style.color = THEME.text; } }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.1); e.currentTarget.style.color = ink(0.45); }}
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl border transition-all group whitespace-nowrap"
+                  style={{ borderColor: HERO_BORDER, color: HERO_TEXT_SOFT }}
+                  onMouseEnter={e => { if (canHover) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'; e.currentTarget.style.color = HERO_TEXT_WHITE; } }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = HERO_BORDER; e.currentTarget.style.color = HERO_TEXT_SOFT; }}
                 >
-                  <Icon name="play_circle" className="text-2xl transition-colors shrink-0" />
-                  <span className="text-[11px] font-bold uppercase tracking-widest">Watch Film</span>
+                  <PlayCircle size={20} strokeWidth={2} className="shrink-0" />
+                  <span className="text-[11px] font-bold uppercase tracking-widest leading-none">Watch Film</span>
                 </button>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <div className="flex -space-x-2">
                   {HERO_AVATAR_ALPHAS.map((pct, i) => (
                     <div
                       key={i}
-                      className="w-6 h-6 rounded-full border"
-                      style={{ borderColor: THEME.bg, backgroundColor: accentAlpha(pct) }}
+                      className="w-6 h-6 rounded-full border-2"
+                      style={{ borderColor: 'rgba(0,0,0,0.5)', backgroundColor: accentAlpha(pct + 20) }}
                     />
                   ))}
                 </div>
-                <span className="text-[11px] font-medium" style={{ color: ink(0.3) }}>
-                  Joined by <span style={{ color: ink(0.55), fontWeight: 700 }}>50K+</span> athletes worldwide
+                <span className="text-[11px] font-medium" style={{ color: HERO_TEXT_MUTED }}>
+                  Joined by <span style={{ color: HERO_TEXT_WHITE, fontWeight: 700 }}>50K+</span> athletes worldwide
                 </span>
               </div>
             </motion.div>
           </motion.div>
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="hidden sm:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2">
-            <span className="text-[9px] font-black uppercase tracking-[0.4em]" style={{ color: ink(0.25) }}>Scroll</span>
+            <span className="text-[9px] font-black uppercase tracking-[0.4em]" style={{ color: HERO_TEXT_FAINT }}>Scroll</span>
             <motion.div
               animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
-              className="w-px h-8" style={{ background: `linear-gradient(to bottom, ${ink(0.25)}, transparent)` }}
+              className="w-px h-8" style={{ background: `linear-gradient(to bottom, ${HERO_TEXT_FAINT}, transparent)` }}
             />
           </motion.div>
         </section>
