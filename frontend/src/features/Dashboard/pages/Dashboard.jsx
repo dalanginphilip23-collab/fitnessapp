@@ -85,14 +85,6 @@ const Dashboard = () => {
   // the old goal line instead. Wire this up once the endpoint has the field.
   const activeProgramCount = data.stats?.active_program_count ?? 0;
 
-  // Same idea for the "activity %" ring — derived from steps against a fixed
-  // 10,000/day target for now. Swap this for your real step-goal logic if you
-  // track one elsewhere (e.g. in the user's profile settings).
-  const activityPct = Math.min(
-    Math.round(((data.stats?.steps || 0) / 10000) * 100),
-    100
-  );
-
   if (loading)  return null;
   if (!USER_ID) return null;
 
@@ -135,8 +127,8 @@ const Dashboard = () => {
                     : 'No active program'
                 }
                 calories={{ value: data.stats?.calories_burned || 0, goal: 800 }}
-                activityPct={{ value: activityPct, goal: 100 }}
-                durationMins={{ value: data.stats?.workout_duration_mins || 0, goal: 90 }}
+                steps={{ value: data.stats?.steps || 0, goal: 10000 }}
+                sessionLoadMins={{ value: data.stats?.workout_duration_mins || 0, goal: 120 }}
                 onChangeProgram={() => navigate('/dashboard/plans')}
                 onSeeMore={() => navigate('/dashboard/analytics')}
               />
