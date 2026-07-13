@@ -5,6 +5,7 @@ import { API_BASE_URL } from "../../../config/port";
 import { Sidebar, Topbar, MobileNav } from "../../../components";
 import { useAuth } from "../../../hooks/useAuth";
 import { useNutritionTracker } from "../hooks/useNutritionTracker";
+import RadialProgress from "../../../components/RadialProgress";
 
 const CALORIE_GOAL   = 2000;
 const MACRO_TARGETS  = { protein: 120, carbs: 200, fat: 60 };
@@ -49,6 +50,17 @@ function MacroBar({ label, value, unit, color, pct }) {
           style={{ width: `${Math.min(pct, 100)}%`, background: color }}
         />
       </div>
+    </div>
+  );
+}
+
+function RingLabel({ icon, color, children }) {
+  return (
+    <div className="flex items-center gap-1">
+      <Icon name={icon} className="text-[11px]" style={{ color }} />
+      <span className="text-[9px] font-black uppercase tracking-[0.18em] text-(--text-muted)">
+        {children}
+      </span>
     </div>
   );
 }
@@ -1032,59 +1044,75 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
   }, [userId, refreshSeed, selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const consumed  = Math.round(summary.total_calories);
-  const over      = consumed > CALORIE_GOAL;
-  const remaining = Math.max(CALORIE_GOAL - consumed, 0);
-  const pct       = Math.min((consumed / CALORIE_GOAL) * 100, 100);
   const isToday   = selectedDate === new Date().toISOString().split("T")[0];
+  const dateLabel = isToday
+    ? "Today's Summary"
+    : `Summary · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 
-  const macroRows = [
-    { label: "Protein", value: `${Math.round(summary.total_protein)}g`, target: `${MACRO_TARGETS.protein}g`, pct: (summary.total_protein / MACRO_TARGETS.protein) * 100, color: "#60a5fa" },
-    { label: "Carbs",   value: `${Math.round(summary.total_carbs)}g`,   target: `${MACRO_TARGETS.carbs}g`,   pct: (summary.total_carbs   / MACRO_TARGETS.carbs)   * 100, color: "var(--accent)" },
-    { label: "Fat",     value: `${Math.round(summary.total_fat)}g`,     target: `${MACRO_TARGETS.fat}g`,     pct: (summary.total_fat     / MACRO_TARGETS.fat)     * 100, color: "#f97316" },
-  ];
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
-    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light)">
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <SectionLabel text={isToday ? "Today's Summary" : `Summary · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`} />
+    <div className="bg-(--bg-tertiary) border border-(--border-light) rounded-2xl p-[22px] flex flex-col gap-6">
+      {/* Header row */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-(--accent) shadow-[0_0_6px_var(--accent)]" />
+          <span className="text-[12px] font-bold text-(--text-secondary)">{dateLabel}</span>
+        </div>
         {loading && <Spinner />}
       </div>
 
-      <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4 sm:mb-5">
-        {[
-          { label: "Goal",                 val: CALORIE_GOAL,                            cls: "text-(--text-primary)" },
-          { label: "Consumed",             val: consumed,                                cls: over ? "text-red-400" : "text-(--accent)" },
-          { label: over ? "Over" : "Left", val: over ? consumed - CALORIE_GOAL : remaining, cls: over ? "text-red-400" : "text-(--text-primary)" },
-        ].map(({ label, val, cls }) => (
-          <div key={label} className="bg-(--bg-hover) rounded-xl p-2 sm:p-3 text-center">
-            <p className={`text-base sm:text-lg font-black ${cls}`}>{val}</p>
-            <p className="text-[9px] sm:text-[10px] text-(--text-muted) mt-0.5">{label}</p>
-          </div>
-        ))}
+      {/* Rings row */}
+      <div className="flex items-start justify-around">
+        <div className="flex flex-col items-center gap-2.5">
+          <RadialProgress
+            value={consumed}
+            goal={CALORIE_GOAL}
+            color="var(--accent)"
+            displayValue={consumed.toLocaleString()}
+          />
+          <RingLabel icon="local_fire_department" color="var(--accent)">Calories</RingLabel>
+        </div>
+
+        <div className="flex flex-col items-center gap-2.5">
+          <RadialProgress
+            value={summary.total_protein}
+            goal={MACRO_TARGETS.protein}
+            color="#60a5fa"
+            displayValue={`${Math.round(summary.total_protein)}g`}
+          />
+          <RingLabel icon="egg" color="#60a5fa">Protein</RingLabel>
+        </div>
+
+        <div className="flex flex-col items-center gap-2.5">
+          <RadialProgress
+            value={summary.total_carbs}
+            goal={MACRO_TARGETS.carbs}
+            color="#f2c448"
+            displayValue={`${Math.round(summary.total_carbs)}g`}
+          />
+          <RingLabel icon="grain" color="#f2c448">Carbs</RingLabel>
+        </div>
       </div>
 
-      <div className="mb-4 sm:mb-5">
-        <div className="flex justify-between text-[10px] text-(--text-muted) mb-1.5">
-          <span>Calorie progress</span>
-          <span>{Math.round(pct)}%</span>
-        </div>
-        <div className="h-2.5 rounded-full bg-(--bg-hover) overflow-hidden">
-          <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: over ? "#ef4444" : "var(--accent)" }} />
-        </div>
-      </div>
-
-      <div className="space-y-2 sm:space-y-3">
-        {macroRows.map((r) => (
-          <div key={r.label}>
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs text-(--text-muted)">{r.label}</span>
-              <span className="text-xs text-(--text-muted)">{r.value} / {r.target}</span>
-            </div>
-            <div className="h-1.5 rounded-full bg-(--bg-hover) overflow-hidden">
-              <div className="h-full rounded-full transition-all duration-700" style={{ width: `${Math.min(r.pct, 100)}%`, background: r.color }} />
-            </div>
-          </div>
-        ))}
+      {/* Actions row */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button
+          type="button"
+          onClick={() => scrollTo("log-meal-section")}
+          className="flex-1 bg-(--accent) text-[#131313] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-xl hover:brightness-95 active:scale-[0.98] transition-all cursor-pointer border-none"
+        >
+          Log Meal
+        </button>
+        <button
+          type="button"
+          onClick={() => scrollTo("meal-history-section")}
+          className="flex-1 bg-transparent text-(--text-secondary) text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-xl border border-(--border-medium) hover:bg-(--bg-hover) active:scale-[0.98] transition-all cursor-pointer"
+        >
+          See More
+        </button>
       </div>
     </div>
   );
@@ -1220,7 +1248,7 @@ const NutritionTracker = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
 
-            <div className="flex flex-col gap-3 sm:gap-4">
+            <div id="log-meal-section" className="flex flex-col gap-3 sm:gap-4">
               <UploadSection onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
               {result && <ResultCard result={result} onLog={handleLog} isLogging={isLogging} />}
               <ManualLogForm onLog={handleLog} />
@@ -1237,7 +1265,7 @@ const NutritionTracker = () => {
               )}
             </div>
 
-            <div className="flex flex-col gap-3 sm:gap-4 md:col-span-2 lg:col-span-1">
+            <div id="meal-history-section" className="flex flex-col gap-3 sm:gap-4 md:col-span-2 lg:col-span-1">
               <MealHistory meals={history} loading={historyLoading} onDeleteMeal={handleDeleteMeal} selectedDate={selectedDate} />
             </div>
 
