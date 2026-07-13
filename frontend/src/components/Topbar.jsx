@@ -10,9 +10,9 @@ import ThemeToggle from './ThemeToggle';
 import FeedbackModal from './FeedbackModal';
 
 const NAV_LINKS = [
-  { name: 'Overview',       path: '/dashboard' },
-  { name: 'Meal Tracker',   path: '/dashboard/meal-tracker' },
-  { name: 'Virtual Clinic', path: '/dashboard/virtual-clinic' },
+  { name: 'Overview',       path: '/dashboard',               icon: 'grid_view' },
+  { name: 'Meal Tracker',   path: '/dashboard/meal-tracker',   icon: 'restaurant' },
+  { name: 'Virtual Clinic', path: '/dashboard/virtual-clinic', icon: 'medical_services' },
 ];
 
 /* ══════════════════════════════════════════════════════════════
@@ -560,7 +560,11 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                   onClick={() => handleNavClick(item.path)}
                   className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-[13px] sm:text-[14px] font-medium transition-colors border-none bg-transparent text-left cursor-pointer ${activePath === item.path ? 'bg-(--accent-bg) text-(--accent)' : 'text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-hover)'}`}
                 >
-                  <span className="w-[16px] sm:w-[17px] shrink-0" />
+                  <Icon
+                    name={item.icon}
+                    className="text-[16px] sm:text-[17px]"
+                    fill={activePath === item.path ? 1 : 0}
+                  />
                   {item.name}
                 </button>
               ))}
