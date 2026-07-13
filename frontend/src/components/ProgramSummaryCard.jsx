@@ -44,7 +44,7 @@ const ProgramSummaryCard = ({
       </div>
 
       {/* Rings row */}
-      <div className="flex items-start justify-around sm:justify-start sm:gap-10">
+      <div className="flex items-start justify-around">
         <div className="flex flex-col items-center gap-2.5">
           <RadialProgress
             value={calories.value}

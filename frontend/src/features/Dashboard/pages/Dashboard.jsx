@@ -114,7 +114,7 @@ const Dashboard = () => {
           />
 
           {/* Main Grid - 4 columns on desktop */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
 
             {/* Left Column - 3 cols on desktop */}
             <div className="lg:col-span-3 flex flex-col gap-6">
