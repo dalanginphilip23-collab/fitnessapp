@@ -47,13 +47,13 @@ const AvatarPickerModal = ({
               >
                 <div className={`w-14 h-14 rounded-full overflow-hidden border-2 transition-all ${
                   isActive
-                    ? 'border-[#c7f248] shadow-[0_0_12px_#c7f24840]'
-                    : 'border-[var(--border-medium)] hover:border-[#c7f248]/50'
+                    ? 'border-[#62aa1a] shadow-[0_0_12px_#62aa1a40]'
+                    : 'border-[var(--border-medium)] hover:border-[#62aa1a]/50'
                 }`}>
                   <img src={url} alt={av.label} className="w-full h-full object-cover" />
                 </div>
                 <span className={`text-[8px] uppercase tracking-widest font-bold transition-colors ${
-                  isActive ? 'text-[#c7f248]' : 'text-[var(--text-muted)] group-hover:text-[var(--text-secondary)]'
+                  isActive ? 'text-[#62aa1a]' : 'text-[var(--text-muted)] group-hover:text-[var(--text-secondary)]'
                 }`}>
                   {av.label}
                 </span>
@@ -76,21 +76,21 @@ const AvatarPickerModal = ({
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full py-3.5 border border-dashed border-[var(--border-medium)] hover:border-[#c7f248]/50 rounded-xl flex items-center justify-center gap-3 transition-all group"
+            className="w-full py-3.5 border border-dashed border-[var(--border-medium)] hover:border-[#62aa1a]/50 rounded-xl flex items-center justify-center gap-3 transition-all group"
           >
-            <Icon name="upload" className="text-[var(--text-muted)] group-hover:text-[#c7f248] transition-colors text-lg" />
+            <Icon name="upload" className="text-[var(--text-muted)] group-hover:text-[#62aa1a] transition-colors text-lg" />
             <span className="text-[10px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] uppercase tracking-widest transition-colors">
               Upload Photo
             </span>
           </button>
           {uploadPreview && (
-            <div className="mt-4 flex items-center gap-3 bg-[var(--bg-primary)] p-3 rounded-xl border border-[#c7f248]/20">
+            <div className="mt-4 flex items-center gap-3 bg-[var(--bg-primary)] p-3 rounded-xl border border-[#62aa1a]/20">
               <img
                 src={uploadPreview}
                 alt="Preview"
-                className="w-10 h-10 rounded-full object-cover border border-[#c7f248]/40"
+                className="w-10 h-10 rounded-full object-cover border border-[#62aa1a]/40"
               />
-              <span className="text-[10px] text-[#c7f248] font-bold uppercase tracking-widest">
+              <span className="text-[10px] text-[#62aa1a] font-bold uppercase tracking-widest">
                 Custom photo selected
               </span>
             </div>

@@ -24,7 +24,7 @@ const AvatarSection = ({
       <div className="flex items-center gap-4 sm:gap-5">
         {/* Avatar circle */}
         <div className="relative flex-shrink-0">
-          <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full overflow-hidden border-2 border-[#c7f248]/20 bg-[var(--surface-active)] flex items-center justify-center">
+          <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full overflow-hidden border-2 border-[#62aa1a]/20 bg-[var(--surface-active)] flex items-center justify-center">
             {avatarSrc ? (
               <img
                 src={avatarSrc}
@@ -32,7 +32,7 @@ const AvatarSection = ({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <span className="text-[20px] sm:text-[22px] font-black text-[#c7f248] font-['Manrope']">
+              <span className="text-[20px] sm:text-[22px] font-black text-[#62aa1a] font-['Manrope']">
                 {initials}
               </span>
             )}
@@ -42,7 +42,7 @@ const AvatarSection = ({
           <button
             onClick={() => setPickerOpen(v => !v)}
             aria-label="Edit avatar"
-            className="absolute bottom-0 right-0 w-6 h-6 bg-[#c7f248] rounded-full flex items-center justify-center border-2 border-[var(--bg-card)] transition-transform hover:scale-110 active:scale-95"
+            className="absolute bottom-0 right-0 w-6 h-6 bg-[#62aa1a] rounded-full flex items-center justify-center border-2 border-[var(--bg-card)] transition-transform hover:scale-110 active:scale-95"
           >
             <span className="material-symbols-outlined text-[11px] text-[#1a2800]">edit</span>
           </button>
@@ -101,15 +101,15 @@ const AvatarSection = ({
                   <div
                     className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 transition-all ${
                       isActive
-                        ? 'border-[#c7f248] shadow-[0_0_0_3px_rgba(199,242,72,0.12)]'
-                        : 'border-[var(--border-medium)] group-hover:border-[#c7f248]/40'
+                        ? 'border-[#62aa1a] shadow-[0_0_0_3px_rgba(199,242,72,0.12)]'
+                        : 'border-[var(--border-medium)] group-hover:border-[#62aa1a]/40'
                     }`}
                   >
                     <img src={url} alt={av.label} className="w-full h-full object-cover" />
                   </div>
                   <span
                     className={`text-[8px] font-bold uppercase tracking-widest transition-colors ${
-                      isActive ? 'text-[#c7f248]' : 'text-[var(--text-muted)] group-hover:text-[var(--text-secondary)]'
+                      isActive ? 'text-[#62aa1a]' : 'text-[var(--text-muted)] group-hover:text-[var(--text-secondary)]'
                     }`}
                   >
                     {av.label}
@@ -138,11 +138,11 @@ const AvatarSection = ({
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full py-3 border border-dashed border-[var(--border-medium)] hover:border-[#c7f248]/40
+              className="w-full py-3 border border-dashed border-[var(--border-medium)] hover:border-[#62aa1a]/40
                 rounded-xl flex items-center justify-center gap-2.5 transition-all group
-                hover:bg-[#c7f248]/[0.03]"
+                hover:bg-[#62aa1a]/[0.03]"
             >
-              <span className="material-symbols-outlined text-[16px] text-[var(--text-muted)] group-hover:text-[#c7f248] transition-colors">
+              <span className="material-symbols-outlined text-[16px] text-[var(--text-muted)] group-hover:text-[#62aa1a] transition-colors">
                 upload
               </span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
@@ -151,13 +151,13 @@ const AvatarSection = ({
             </button>
 
             {uploadPreview && (
-              <div className="mt-3 flex items-center gap-3 bg-[var(--bg-primary)] px-3 py-2.5 rounded-xl border border-[#c7f248]/15">
+              <div className="mt-3 flex items-center gap-3 bg-[var(--bg-primary)] px-3 py-2.5 rounded-xl border border-[#62aa1a]/15">
                 <img
                   src={uploadPreview}
                   alt="Upload preview"
-                  className="w-8 h-8 rounded-full object-cover border border-[#c7f248]/30 flex-shrink-0"
+                  className="w-8 h-8 rounded-full object-cover border border-[#62aa1a]/30 flex-shrink-0"
                 />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#c7f248] truncate">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#62aa1a] truncate">
                   Custom photo ready
                 </span>
               </div>

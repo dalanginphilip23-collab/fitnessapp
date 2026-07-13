@@ -44,7 +44,7 @@ const SuccessModal = ({
         {/* Icon */}
         <div className="w-14 h-14 bg-[#c7f248]/10 rounded-full flex items-center
           justify-center mx-auto mb-5">
-          <span className="material-symbols-outlined text-[28px] text-[#c7f248]">
+          <span className="material-symbols-outlined text-[28px] text-[#62aa1a]">
             check_circle
           </span>
         </div>
@@ -63,7 +63,7 @@ const SuccessModal = ({
         {/* CTA */}
         <button
           onClick={onClose}
-          className="mt-7 w-full py-3 bg-[#c7f248] text-[#1a2800] text-[10px] font-black
+          className="mt-7 w-full py-3 bg-[#62aa1a] text-[#1a2800] text-[10px] font-black
             uppercase tracking-widest rounded-xl hover:brightness-105 active:scale-[0.98]
             transition-all"
         >

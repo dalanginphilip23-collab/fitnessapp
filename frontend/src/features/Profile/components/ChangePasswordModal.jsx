@@ -155,7 +155,7 @@ const ChangePasswordModal = ({ onClose, onSuccess }) => {
               type="checkbox"
               checked={showPw}
               onChange={(e) => setShowPw(e.target.checked)}
-              className="accent-[#c7f248]"
+              className="accent-[#62aa1a]"
             />
             <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
               Show passwords
@@ -165,7 +165,7 @@ const ChangePasswordModal = ({ onClose, onSuccess }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-[#c7f248] text-[#1a2800] text-[10px] font-black uppercase tracking-widest rounded-xl hover:brightness-105 active:scale-[0.98] transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+            className="w-full py-3 bg-[#62aa1a] text-[#1a2800] text-[10px] font-black uppercase tracking-widest rounded-xl hover:brightness-105 active:scale-[0.98] transition-all disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {loading && <span className="w-3 h-3 border-2 border-[#1a2800]/30 border-t-[#1a2800] rounded-full animate-spin" />}
             {loading ? 'Updating…' : 'Update password'}

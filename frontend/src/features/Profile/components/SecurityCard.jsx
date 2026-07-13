@@ -40,7 +40,7 @@ const SessionItem = ({ session, onRevoke }) => {
       <div
         className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center flex-shrink-0
           ${session.is_current
-            ? 'bg-[#c7f248]/10 text-[#c7f248]'
+            ? 'bg-[#c7f248]/10 text-[#62aa1a]'
             : 'bg-[var(--bg-hover)] text-[var(--text-secondary)]'
           }`}
       >
@@ -53,7 +53,7 @@ const SessionItem = ({ session, onRevoke }) => {
         <p className="text-[9px] sm:text-[10px] text-[var(--text-muted)] mt-0.5 flex items-center gap-1 sm:gap-1.5 flex-wrap">
           {session.is_current ? (
             <>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#c7f248] inline-block animate-pulse flex-shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#62aa1a] inline-block animate-pulse flex-shrink-0" />
               <span className="truncate">Active now · {location}</span>
             </>
           ) : (
@@ -65,7 +65,7 @@ const SessionItem = ({ session, onRevoke }) => {
       {/* Badge / action */}
       {session.is_current ? (
         <span className="flex-shrink-0 text-[8px] font-black tracking-[0.12em] uppercase
-          bg-[#c7f248]/10 text-[#c7f248] border border-[#c7f248]/20 px-1.5 sm:px-2 py-0.5 rounded-md whitespace-nowrap">
+          bg-[#62aa1a]/10 text-[#62aa1a] border border-[#62aa1a]/20 px-1.5 sm:px-2 py-0.5 rounded-md whitespace-nowrap">
           Current
         </span>
       ) : (

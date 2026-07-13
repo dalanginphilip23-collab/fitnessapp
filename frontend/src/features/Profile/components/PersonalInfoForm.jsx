@@ -53,7 +53,7 @@ const PersonalInfoForm = ({ formData, isEditing, onInputChange, onToggleEdit }) 
           className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest
             border rounded-lg px-3 py-1.5 transition-all
             ${isEditing
-              ? 'border-[#c7f248]/30 bg-[#c7f248]/8 text-[#c7f248]'
+              ? 'border-[#c7f248]/30 bg-[#c7f248]/8 text-[#62aa1a]'
               : 'border-[var(--border-medium)] bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:border-[var(--border-heavy)] hover:text-[var(--text-primary)]'
             }`}
         >
