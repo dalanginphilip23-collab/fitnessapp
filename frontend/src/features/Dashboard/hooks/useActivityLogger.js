@@ -14,12 +14,20 @@ export const useActivityLogger = (
       const hasActivity = calories > 0 || steps > 0 || minutes > 0;
 
       if (hasActivity) {
-        await fetch(`${API_BASE_URL}/api/logs/${USER_ID}`, {
+        const logRes = await fetch(`${API_BASE_URL}/api/logs/${USER_ID}`, {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify({ calories, steps, minutes }),
         });
+
+        if (!logRes.ok) {
+          const errBody = await logRes.text().catch(() => '');
+          console.error(`Log save failed (${logRes.status}):`, errBody);
+          // Bail out here — nothing was actually saved, so refetching the
+          // dashboard below would just redisplay stale data and mask the failure.
+          return;
+        }
       }
 
       const [updatedRes, bioRes] = await Promise.all([
@@ -27,14 +35,19 @@ export const useActivityLogger = (
         fetch(`${API_BASE_URL}/api/sleep/${USER_ID}?range=D&metric=duration`, { credentials: 'include' }),
       ]);
 
+      if (!updatedRes.ok) {
+        console.error(`Dashboard refetch failed (${updatedRes.status})`);
+        return;
+      }
+
       const updatedData     = await updatedRes.json();
-      const freshBiometrics = await bioRes.json();
+      const freshBiometrics = bioRes.ok ? await bioRes.json() : [];
 
       const latestSleepRes = await fetch(
         `${API_BASE_URL}/api/sleep/${USER_ID}/today`,
         { credentials: 'include' }
       );
-      const latestSleep = await latestSleepRes.json();
+      const latestSleep = latestSleepRes.ok ? await latestSleepRes.json() : {};
 
       const newStats = {
         ...updatedData.stats,
@@ -43,7 +56,7 @@ export const useActivityLogger = (
         sleep_quality:   latestSleep?.sleep_quality   || 0,
       };
 
-      // mergeData 
+      // mergeData
       setData(mergeData({
         ...updatedData,
         stats: newStats,
