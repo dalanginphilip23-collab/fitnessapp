@@ -1,18 +1,27 @@
 import Icon from './Icon';
 import RadialProgress from './RadialProgress';
 
-const formatDuration = (mins = 0) => {
+const formatSessionLoad = (mins = 0) => {
   const safe = Number(mins) || 0;
   const h = Math.floor(safe / 60);
   const m = safe % 60;
   return `${h}:${String(m).padStart(2, '0')}`;
 };
 
+const RingLabel = ({ icon, color, children }) => (
+  <div className="flex items-center gap-1">
+    <Icon name={icon} className="text-[11px]" style={{ color }} />
+    <span className="text-[9px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)]">
+      {children}
+    </span>
+  </div>
+);
+
 const ProgramSummaryCard = ({
   goalLabel = 'No active program',
   calories = { value: 0, goal: 800 },
-  activityPct = { value: 0, goal: 100 },
-  durationMins = { value: 0, goal: 90 },
+  steps = { value: 0, goal: 10000 },
+  sessionLoadMins = { value: 0, goal: 120 },
   weekLabel = 'For the week',
   onChangeProgram,
   onSeeMore,
@@ -36,27 +45,35 @@ const ProgramSummaryCard = ({
 
       {/* Rings row */}
       <div className="flex items-start justify-around sm:justify-start sm:gap-10">
-        <RadialProgress
-          value={calories.value}
-          goal={calories.goal}
-          color="var(--accent)"
-          displayValue={Number(calories.value || 0).toLocaleString()}
-          label="Calories"
-        />
-        <RadialProgress
-          value={activityPct.value}
-          goal={activityPct.goal}
-          color="#60a5fa"
-          displayValue={`${Math.round(activityPct.value || 0)}%`}
-          label="Activity"
-        />
-        <RadialProgress
-          value={durationMins.value}
-          goal={durationMins.goal}
-          color="#f2c448"
-          displayValue={formatDuration(durationMins.value)}
-          label="Duration"
-        />
+        <div className="flex flex-col items-center gap-2.5">
+          <RadialProgress
+            value={calories.value}
+            goal={calories.goal}
+            color="var(--accent)"
+            displayValue={Number(calories.value || 0).toLocaleString()}
+          />
+          <RingLabel icon="local_fire_department" color="var(--accent)">Calories</RingLabel>
+        </div>
+
+        <div className="flex flex-col items-center gap-2.5">
+          <RadialProgress
+            value={steps.value}
+            goal={steps.goal}
+            color="#60a5fa"
+            displayValue={Number(steps.value || 0).toLocaleString()}
+          />
+          <RingLabel icon="footprint" color="#60a5fa">Steps</RingLabel>
+        </div>
+
+        <div className="flex flex-col items-center gap-2.5">
+          <RadialProgress
+            value={sessionLoadMins.value}
+            goal={sessionLoadMins.goal}
+            color="#f2c448"
+            displayValue={formatSessionLoad(sessionLoadMins.value)}
+          />
+          <RingLabel icon="timer" color="#f2c448">Session Load</RingLabel>
+        </div>
       </div>
 
       {/* Actions row */}
