@@ -10,15 +10,16 @@ export const useActivityLogger = (
       const calories = formData.calories ? parseInt(formData.calories) : 0;
       const steps    = formData.steps    ? parseInt(formData.steps)    : 0;
       const minutes  = formData.minutes  ? parseInt(formData.minutes)  : 0;
+      const water    = formData.water    ? parseInt(formData.water)    : 0;
 
-      const hasActivity = calories > 0 || steps > 0 || minutes > 0;
+      const hasActivity = calories > 0 || steps > 0 || minutes > 0 || water > 0;
 
       if (hasActivity) {
         const logRes = await fetch(`${API_BASE_URL}/api/logs/${USER_ID}`, {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ calories, steps, minutes }),
+          body: JSON.stringify({ calories, steps, minutes, water }),
         });
 
         if (!logRes.ok) {
