@@ -22,7 +22,7 @@ router.get('/stream/:userId', (req, res) => {
   clients.set(userKey, res);
   console.log(`✅ SSE connected: user ${userId} (total: ${clients.size})`);
 
-  
+
   const heartbeat = setInterval(() => {
     try {
       res.write(': heartbeat\n\n');
@@ -56,6 +56,7 @@ router.get('/:userId', async (req, res) => {
     );
     res.json({ count: result.count, notifications });
   } catch (err) {
+    console.error('GET /api/notifications/:userId failed:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -66,10 +67,15 @@ router.get('/:userId', async (req, res) => {
 router.post('/', async (req, res) => {
   const { user_id, message, type = 'info' } = req.body;
 
+  // Fail fast with a clear message instead of letting a bad insert throw a vague 500
+  if (!user_id || !message) {
+    return res.status(400).json({ error: 'user_id and message are required' });
+  }
+
   try {
     await db.execute(
-      'INSERT INTO notifications (user_id, message) VALUES (?, ?)',
-      [user_id, message]
+      'INSERT INTO notifications (user_id, message, type) VALUES (?, ?, ?)',
+      [user_id, message, type]
     );
 
     const client = clients.get(String(user_id));
@@ -85,6 +91,7 @@ router.post('/', async (req, res) => {
 
     res.json({ success: true });
   } catch (err) {
+    console.error('POST /api/notifications failed:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -98,6 +105,7 @@ router.put('/:id/read', async (req, res) => {
     await db.execute('UPDATE notifications SET is_read = TRUE WHERE id = ?', [id]);
     res.json({ success: true });
   } catch (err) {
+    console.error('PUT /api/notifications/:id/read failed:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -111,6 +119,7 @@ router.put('/read-all/:userId', async (req, res) => {
     await db.execute('UPDATE notifications SET is_read = TRUE WHERE user_id = ?', [userId]);
     res.json({ success: true });
   } catch (err) {
+    console.error('PUT /api/notifications/read-all/:userId failed:', err);
     res.status(500).json({ error: err.message });
   }
 });
