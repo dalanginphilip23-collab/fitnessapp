@@ -178,13 +178,13 @@ const Profile = () => {
               <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-4 border-(--bg-primary) bg-(--bg-tertiary) flex items-center justify-center shadow-xl">
                 {avatarSrc
                   ? <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
-                  : <span className="text-3xl font-black text-[#7dd625e1] font-['Manrope']">{initials}</span>
+                  : <span className="text-3xl font-black text-[#62aa1a] font-['Manrope']">{initials}</span>
                 }
               </div>
               <button
                 onClick={() => setPickerOpen(v => !v)}
                 aria-label="Edit avatar"
-                className="absolute bottom-0 right-0 w-8 h-8 bg-[#7dd625e1] rounded-full flex items-center justify-center border-2 border-(--bg-primary) hover:scale-105 active:scale-95 transition-transform shadow-lg"
+                className="absolute bottom-0 right-0 w-8 h-8 bg-[#62aa1a] rounded-full flex items-center justify-center border-2 border-(--bg-primary) hover:scale-105 active:scale-95 transition-transform shadow-lg"
               >
                 <span className="material-symbols-outlined text-[14px] text-[#1a2800]">photo_camera</span>
               </button>
@@ -194,7 +194,7 @@ const Profile = () => {
               <h1 className="text-2xl sm:text-3xl font-['Manrope'] font-black text-(--text-primary) tracking-tight">
                 {formData.fullName || 'Your Name'}
               </h1>
-              <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#7dd625e1]/10 text-[#7dd625e1] border border-[#7dd625e1]/20">
+              <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#62aa1a]/10 text-[#62aa1a] border border-[#62aa1a]/20">
                 Pro Member
               </span>
             </div>
