@@ -6,9 +6,7 @@ import {
   Sidebar,
   Topbar,
   Hero,
-  CaloriesCard,
-  LoadCard,
-  ActivityCard,
+  ProgramSummaryCard,
   ClinicalAssistant,
   SleepHoursGraph,
   MobileNav,
@@ -81,6 +79,20 @@ const Dashboard = () => {
     [data.profile?.avatar_url, user?.avatar]
   );
 
+  // NOTE: your /api/dashboard/:userId response doesn't currently return an
+  // active-program count. Until the backend adds `stats.active_program_count`,
+  // this falls back to 0 and Hero/ProgramSummaryCard show "No active program" /
+  // the old goal line instead. Wire this up once the endpoint has the field.
+  const activeProgramCount = data.stats?.active_program_count ?? 0;
+
+  // Same idea for the "activity %" ring — derived from steps against a fixed
+  // 10,000/day target for now. Swap this for your real step-goal logic if you
+  // track one elsewhere (e.g. in the user's profile settings).
+  const activityPct = Math.min(
+    Math.round(((data.stats?.steps || 0) / 10000) * 100),
+    100
+  );
+
   if (loading)  return null;
   if (!USER_ID) return null;
 
@@ -106,20 +118,28 @@ const Dashboard = () => {
             name={heroName}
             goal={heroGoal}
             avatar={heroAvatar}
+            activeProgramCount={activeProgramCount}
           />
 
           {/* Main Grid - 4 columns on desktop */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            
+
             {/* Left Column - 3 cols on desktop */}
             <div className="lg:col-span-3 flex flex-col gap-6">
-              
-              {/* Stats Cards Row - 3 columns */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <CaloriesCard value={data.stats?.calories_burned || 0} />
-                <LoadCard minutes={data.stats?.workout_duration_mins || 0} />
-                <ActivityCard steps={data.stats?.steps || 0} />
-              </div>
+
+              {/* Program summary: 3 radial rings replacing the old 3-card row */}
+              <ProgramSummaryCard
+                goalLabel={
+                  activeProgramCount > 0
+                    ? `${activeProgramCount} active program${activeProgramCount !== 1 ? 's' : ''}`
+                    : 'No active program'
+                }
+                calories={{ value: data.stats?.calories_burned || 0, goal: 800 }}
+                activityPct={{ value: activityPct, goal: 100 }}
+                durationMins={{ value: data.stats?.workout_duration_mins || 0, goal: 90 }}
+                onChangeProgram={() => navigate('/dashboard/plans')}
+                onSeeMore={() => navigate('/dashboard/analytics')}
+              />
 
               {/* Sleep Graph Section */}
               <div className="w-full relative">

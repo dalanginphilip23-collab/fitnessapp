@@ -15,7 +15,7 @@ const getGreeting = () => {
   return 'Good evening';
 };
 
-const Hero = ({ name = 'Athlete', goal = 'Unspecified', avatar }) => {
+const Hero = ({ name = 'Athlete', goal = 'Unspecified', avatar, activeProgramCount = 0 }) => {
   const goalLabel = GOAL_LABELS[goal] || goal;
 
   return (
@@ -28,10 +28,23 @@ const Hero = ({ name = 'Athlete', goal = 'Unspecified', avatar }) => {
           {name}
         </h1>
         <div className="flex items-center gap-1.5 mt-1.5">
-          <Icon name="flag" className="text-[13px] text-[var(--text-muted)]" />
-          <span className="text-[11px] text-[var(--text-muted)] font-medium">
-            Goal: <span className="text-[var(--text-secondary)] font-semibold">{goalLabel}</span>
-          </span>
+          {activeProgramCount > 0 ? (
+            <>
+              <Icon name="bolt" className="text-[13px] text-[var(--accent)]" fill={1} />
+              <span className="text-[11px] text-[var(--text-muted)] font-medium">
+                <span className="text-[var(--text-secondary)] font-semibold">
+                  {activeProgramCount} active program{activeProgramCount !== 1 ? 's' : ''}
+                </span>
+              </span>
+            </>
+          ) : (
+            <>
+              <Icon name="flag" className="text-[13px] text-[var(--text-muted)]" />
+              <span className="text-[11px] text-[var(--text-muted)] font-medium">
+                Goal: <span className="text-[var(--text-secondary)] font-semibold">{goalLabel}</span>
+              </span>
+            </>
+          )}
         </div>
       </div>
 
