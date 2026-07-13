@@ -962,6 +962,12 @@ function ManualLogForm({ onLog }) {
 function ResultCard({ result, onLog, isLogging }) {
   if (!result) return null;
 
+  const macros = [
+    { label: "Protein", value: result.protein, unit: "g", color: "#60a5fa",      pct: (result.protein / MACRO_TARGETS.protein) * 100 },
+    { label: "Carbs",   value: result.carbs,   unit: "g", color: "var(--accent)", pct: (result.carbs   / MACRO_TARGETS.carbs)   * 100 },
+    { label: "Fat",     value: result.fat,     unit: "g", color: "#f97316",       pct: (result.fat     / MACRO_TARGETS.fat)     * 100 },
+  ];
+
   return (
     <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light)">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -969,7 +975,7 @@ function ResultCard({ result, onLog, isLogging }) {
         <span className="text-[10px] bg-(--accent-bg) text-(--accent) px-2 py-0.5 rounded-full font-semibold">AI Estimated</span>
       </div>
 
-      <div className="flex items-start gap-3 mb-5 sm:mb-6">
+      <div className="flex items-start gap-3 mb-4 sm:mb-5">
         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-(--bg-hover) flex items-center justify-center text-xl sm:text-2xl shrink-0">🍽️</div>
         <div className="flex-1 min-w-0">
           <p className="text-(--text-primary) font-semibold text-sm sm:text-base leading-tight truncate">{result.food_name}</p>
@@ -983,37 +989,8 @@ function ResultCard({ result, onLog, isLogging }) {
         </div>
       </div>
 
-      {/* Rings row */}
-      <div className="flex items-start justify-around mb-5 sm:mb-6">
-        <div className="flex flex-col items-center gap-2.5">
-          <RadialProgress
-            value={result.protein}
-            goal={MACRO_TARGETS.protein}
-            color="#60a5fa"
-            displayValue={`${Math.round(result.protein)}g`}
-          />
-          <RingLabel icon="egg" color="#60a5fa">Protein</RingLabel>
-        </div>
-
-        <div className="flex flex-col items-center gap-2.5">
-          <RadialProgress
-            value={result.carbs}
-            goal={MACRO_TARGETS.carbs}
-            color="var(--accent)"
-            displayValue={`${Math.round(result.carbs)}g`}
-          />
-          <RingLabel icon="grain" color="var(--accent)">Carbs</RingLabel>
-        </div>
-
-        <div className="flex flex-col items-center gap-2.5">
-          <RadialProgress
-            value={result.fat}
-            goal={MACRO_TARGETS.fat}
-            color="#f97316"
-            displayValue={`${Math.round(result.fat)}g`}
-          />
-          <RingLabel icon="water_drop" color="#f97316">Fat</RingLabel>
-        </div>
+      <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-5">
+        {macros.map((m) => <MacroBar key={m.label} {...m} />)}
       </div>
 
       <button
