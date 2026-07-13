@@ -11,29 +11,24 @@ export default function AnalyticsMobileNav({ navigate }) {
   };
 
   return (
-    // Outer wrapper handles the "floating" positioning: inset from the
-    // screen edges instead of pinned flush to them, plus safe-area padding
-    // so it clears the home-indicator on iOS.
-    <div
-      className="md:hidden fixed left-3 right-3 z-[70]"
-      style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+    // Docked bottom bar: flush to left/right/bottom edges, no floating
+    // inset, safe-area padding folded into the bar's own height so the
+    // background still reaches the very bottom of the screen on iOS.
+    <nav
+      className="md:hidden fixed left-0 right-0 bottom-0 z-[70] border-t border-[var(--border-light)] flex items-center"
+      style={{
+        backgroundColor: 'var(--bg-secondary)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      }}
     >
-      <nav
-        style={{
-          backgroundColor: 'var(--bg-secondary)',
-          borderRadius: '9999px',
-          boxShadow:
-            '0 8px 30px rgb(0 0 0 / 0.12), 0 2px 8px rgb(0 0 0 / 0.08)',
-        }}
-        className="h-16 backdrop-blur-xl border border-[var(--border-light)] flex justify-around items-center px-2 mx-auto max-w-md"
-      >
+      <div className="flex justify-around items-center w-full h-16 px-1">
         {navList.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <button
               key={item.name}
               onClick={() => handleNav(item.path)}
-              className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-[300ms] outline-none h-full w-full ${
+              className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-[300ms] outline-none h-full flex-1 min-w-11 ${
                 isActive ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'
               }`}
             >
@@ -55,7 +50,7 @@ export default function AnalyticsMobileNav({ navigate }) {
             </button>
           );
         })}
-      </nav>
-    </div>
+      </div>
+    </nav>
   );
 }

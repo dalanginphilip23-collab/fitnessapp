@@ -17,22 +17,17 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
   };
 
   return (
-    // Outer wrapper handles the "floating" positioning: inset from the
-    // screen edges instead of pinned flush to them, plus safe-area padding
-    // so it clears the home-indicator on iOS.
-    <div
-      className="md:hidden fixed left-3 right-3 z-70"
-      style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}
+    // Docked bottom bar: flush to left/right/bottom edges, no floating
+    // inset, safe-area padding folded into the bar's own height so the
+    // background still reaches the very bottom of the screen on iOS.
+    <nav
+      className="md:hidden fixed left-0 right-0 bottom-0 z-70 border-t border-(--border-light) flex items-center"
+      style={{
+        backgroundColor: 'var(--bg-secondary)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      }}
     >
-      <nav
-        style={{
-          backgroundColor: 'var(--bg-secondary)',
-          borderRadius: '9999px',
-          boxShadow:
-            '0 8px 30px rgb(0 0 0 / 0.12), 0 2px 8px rgb(0 0 0 / 0.08)',
-        }}
-        className="h-16 backdrop-blur-xl border border-(--border-light) flex justify-around items-center px-2 mx-auto max-w-md"
-      >
+      <div className="flex justify-around items-center w-full h-16 px-1">
         {items.map((item) => {
           const key = item.label || item.name;
           const isActive = location.pathname === item.path;
@@ -40,7 +35,7 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
             <button
               key={key}
               onClick={() => handleNavClick(item.path)}
-              className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full w-full ${
+              className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full flex-1 min-w-11 ${
                 isActive ? 'text-(--accent)' : 'text-(--text-muted)'
               }`}
             >
@@ -69,7 +64,7 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
         {onFeedback && (
           <button
             onClick={onFeedback}
-            className="relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full w-full text-(--text-muted) hover:text-(--accent)"
+            className="relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full flex-1 min-w-11 text-(--text-muted) hover:text-(--accent)"
           >
             <div className="relative flex items-center justify-center transition-transform duration-300 scale-100">
               <Icon
@@ -80,8 +75,8 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
             </div>
           </button>
         )}
-      </nav>
-    </div>
+      </div>
+    </nav>
   );
 };
 
