@@ -1285,18 +1285,17 @@ const NutritionTracker = () => {
       <main className={`pt-14 sm:pt-16 md:pt-16 pb-24 md:pb-8 px-3 sm:px-4 md:px-6 lg:px-8 transition-all duration-[400ms] ${sidebarExpanded ? "md:ml-[240px]" : "md:ml-[72px]"}`}>
         <div className="max-w-5xl mx-auto">
 
-          <div className="flex justify-end mb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-(--text-primary)">Nutrition Tracker</h1>
+              <p className="text-(--text-muted) text-xs sm:text-sm mt-0.5">
+                {consumed} / {CALORIE_GOAL} kcal ·{" "}
+                {selectedDate === new Date().toISOString().split("T")[0]
+                  ? "today"
+                  : new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+              </p>
+            </div>
             <DateNavigator currentDate={selectedDate} onDateChange={setSelectedDate} />
-          </div>
-
-          <div className="mb-4 sm:mb-6">
-            <h1 className="text-xl sm:text-2xl font-black text-(--text-primary)">Nutrition Tracker</h1>
-            <p className="text-(--text-muted) text-xs sm:text-sm mt-0.5">
-              {consumed} / {CALORIE_GOAL} kcal ·{" "}
-              {selectedDate === new Date().toISOString().split("T")[0]
-                ? "today"
-                : new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
