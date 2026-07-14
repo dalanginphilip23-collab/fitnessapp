@@ -1285,7 +1285,7 @@ const NutritionTracker = () => {
       <main className={`pt-16 sm:pt-[72px] md:pt-20 pb-24 md:pb-8 px-3 sm:px-4 md:px-6 lg:px-8 transition-all duration-[400ms] ${sidebarExpanded ? "md:ml-[240px]" : "md:ml-[72px]"}`}>
         <div className="max-w-5xl mx-auto">
 
-          <div className="flex justify-end mb-4 pt-2">
+          <div className="flex justify-end mb-3">
             <DateNavigator currentDate={selectedDate} onDateChange={setSelectedDate} />
           </div>
 
