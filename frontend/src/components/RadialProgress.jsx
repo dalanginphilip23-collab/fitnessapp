@@ -43,7 +43,7 @@ const RadialProgress = ({
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
           <span
-            className="font-['Manrope'] font-extrabold text-[var(--text-primary)] tracking-tight"
+            className="stat-digital font-extrabold text-[var(--text-primary)] tracking-tight"
             style={{ fontSize: size * 0.19 }}
           >
             {shown}

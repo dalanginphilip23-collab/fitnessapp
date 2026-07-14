@@ -27,7 +27,7 @@ const ProgramSummaryCard = ({
   onSeeMore,
 }) => {
   return (
-    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[14px] p-[22px] flex flex-col gap-6">
+    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[16px] p-[22px] flex flex-col gap-6">
       {/* Header row */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">

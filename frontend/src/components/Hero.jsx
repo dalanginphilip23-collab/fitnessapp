@@ -19,7 +19,7 @@ const Hero = ({ name = 'Athlete', goal = 'Unspecified', avatar, activeProgramCou
   const goalLabel = GOAL_LABELS[goal] || goal;
 
   return (
-    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[14px] p-[22px] mb-6 flex items-center justify-between gap-4">
+    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[16px] p-[22px] mb-6 flex items-center justify-between gap-4">
       <div className="min-w-0">
         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--accent)] mb-1.5">
           {getGreeting()}
