@@ -1285,7 +1285,7 @@ const NutritionTracker = () => {
       <main className={`pt-14 sm:pt-16 md:pt-16 pb-24 md:pb-8 px-3 sm:px-4 md:px-6 lg:px-8 transition-all duration-[400ms] ${sidebarExpanded ? "md:ml-[240px]" : "md:ml-[72px]"}`}>
         <div className="max-w-5xl mx-auto">
 
-          <div className="flex items-center justify-between gap-2 sm:gap-3 mb-4 sm:mb-6">
+          <div className="flex items-center justify-between gap-2 sm:gap-3 mt-2 sm:mt-3 mb-4 sm:mb-6">
             <div className="min-w-0">
               <h1 className="text-lg sm:text-2xl font-black text-(--text-primary) truncate">Nutrition Tracker</h1>
               <p className="text-(--text-muted) text-[11px] sm:text-sm mt-0.5 truncate">
