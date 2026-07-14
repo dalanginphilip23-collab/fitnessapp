@@ -900,11 +900,17 @@ function ManualLogForm({ onLog }) {
 
   return (
     <>
-      {/* Floating trigger button */}
+      {/*
+        Floating trigger button. Positioned bottom-LEFT on mobile (not
+        bottom-right) because bottom-right is where each meal row's delete
+        button sits — the FAB was rendering on top of it (z-50) and
+        completely blocking it from view/taps. Desktop keeps bottom-right
+        since the layout has more horizontal room there.
+      */}
       <button
         onClick={() => setOpen(true)}
         aria-label="Log meal manually"
-        className="fixed bottom-24 right-6 md:bottom-8 md:right-8 w-14 h-14 bg-(--accent) rounded-full shadow-lg shadow-(--accent)/20 flex items-center justify-center hover:scale-110 transition-transform active:scale-95 z-50"
+        className="fixed bottom-24 left-6 md:bottom-8 md:left-auto md:right-8 w-14 h-14 bg-(--accent) rounded-full shadow-lg shadow-(--accent)/20 flex items-center justify-center hover:scale-110 transition-transform active:scale-95 z-50"
       >
         <Icon name="edit" className="text-[#131313] text-[24px]" fill={1} />
       </button>
