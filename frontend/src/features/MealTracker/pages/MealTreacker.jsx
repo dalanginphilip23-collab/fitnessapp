@@ -1014,37 +1014,29 @@ function ResultCard({ result, onLog, isLogging }) {
         </div>
       </div>
 
-      {/* Rings row */}
-      <div className="flex items-start justify-around mb-5 sm:mb-6">
-        <div className="flex flex-col items-center gap-2.5">
-          <RadialProgress
-            value={result.protein}
-            goal={MACRO_TARGETS.protein}
-            color="#60a5fa"
-            displayValue={`${Math.round(result.protein)}g`}
-          />
-          <RingLabel icon="egg" color="#60a5fa">Protein</RingLabel>
-        </div>
-
-        <div className="flex flex-col items-center gap-2.5">
-          <RadialProgress
-            value={result.carbs}
-            goal={MACRO_TARGETS.carbs}
-            color="var(--accent)"
-            displayValue={`${Math.round(result.carbs)}g`}
-          />
-          <RingLabel icon="grain" color="var(--accent)">Carbs</RingLabel>
-        </div>
-
-        <div className="flex flex-col items-center gap-2.5">
-          <RadialProgress
-            value={result.fat}
-            goal={MACRO_TARGETS.fat}
-            color="#f97316"
-            displayValue={`${Math.round(result.fat)}g`}
-          />
-          <RingLabel icon="water_drop" color="#f97316">Fat</RingLabel>
-        </div>
+      {/* Macro bars (horizontal) */}
+      <div className="flex flex-col gap-3 mb-5 sm:mb-6">
+        <MacroBar
+          label="Protein"
+          value={Math.round(result.protein)}
+          unit="g"
+          color="#60a5fa"
+          pct={(result.protein / MACRO_TARGETS.protein) * 100}
+        />
+        <MacroBar
+          label="Carbs"
+          value={Math.round(result.carbs)}
+          unit="g"
+          color="var(--accent)"
+          pct={(result.carbs / MACRO_TARGETS.carbs) * 100}
+        />
+        <MacroBar
+          label="Fat"
+          value={Math.round(result.fat)}
+          unit="g"
+          color="#f97316"
+          pct={(result.fat / MACRO_TARGETS.fat) * 100}
+        />
       </div>
 
       <button
@@ -1199,18 +1191,19 @@ function MealHistory({ meals, loading, onDeleteMeal, selectedDate }) {
                 )}
               </div>
               {/*
-                Delete icon is now always visible on mobile (opacity-100 by default)
-                and only hidden-until-hover on desktop (sm:opacity-0 sm:group-hover:opacity-100),
-                since touch devices have no hover state and the icon was previously
-                untappable on mobile.
+                Delete button: shrink-0 keeps it from being squeezed by the flex
+                row (this was the bug — it used to collapse to a sliver next to
+                the calorie text). Always visible on mobile (opacity-100 by
+                default) and hidden-until-hover on desktop, since touch devices
+                have no hover state.
               */}
               <button
                 onClick={() => handleDelete(meal.id)}
                 disabled={deletingId === meal.id}
-                className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-red-500/20 text-red-400 disabled:opacity-50"
                 title="Delete meal"
+                className="shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 rounded-lg hover:bg-red-500/20 text-red-400 disabled:opacity-50"
               >
-                {deletingId === meal.id ? <Spinner /> : <Icon name="delete" className="text-sm" />}
+                {deletingId === meal.id ? <Spinner /> : <Icon name="delete" className="text-base" />}
               </button>
             </div>
           ))}
