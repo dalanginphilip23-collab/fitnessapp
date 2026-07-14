@@ -901,14 +901,13 @@ function ManualLogForm({ onLog }) {
   return (
     <>
       {/*
-        Floating trigger button. Kept on the bottom-right, at bottom-14 —
-        low enough to clear the meal history rows, high enough to stay clear
-        of the mobile nav bar.
+        Floating trigger button. Kept on the bottom-right, at bottom-[4.5rem]
+        — small nudge up from bottom-14 for clearance from the row above.
       */}
       <button
         onClick={() => setOpen(true)}
         aria-label="Log meal manually"
-        className="fixed bottom-14 right-6 md:bottom-8 md:right-8 w-14 h-14 bg-(--accent) rounded-full shadow-lg shadow-(--accent)/20 flex items-center justify-center hover:scale-110 transition-transform active:scale-95 z-50"
+        className="fixed bottom-[4.5rem] right-6 md:bottom-8 md:right-8 w-14 h-14 bg-(--accent) rounded-full shadow-lg shadow-(--accent)/20 flex items-center justify-center hover:scale-110 transition-transform active:scale-95 z-50"
       >
         <Icon name="edit" className="text-[#131313] text-[24px]" fill={1} />
       </button>
