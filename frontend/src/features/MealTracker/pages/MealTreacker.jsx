@@ -26,6 +26,29 @@ const EMPTY_FORM = {
   mealType: "Breakfast", image_url: "",
 };
 
+// Plain inline SVG — used where we can't risk the material-symbols
+// icon font failing to load (it collapses to a near-invisible sliver
+// instead of the trash icon when that happens).
+function TrashIcon({ className = "" }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
+      <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+    </svg>
+  );
+}
+
 function Icon({ name, className = "", fill = 0, weight = 300 }) {
   return (
     <span
@@ -1191,19 +1214,21 @@ function MealHistory({ meals, loading, onDeleteMeal, selectedDate }) {
                 )}
               </div>
               {/*
-                Delete button: shrink-0 keeps it from being squeezed by the flex
-                row (this was the bug — it used to collapse to a sliver next to
-                the calorie text). Always visible on mobile (opacity-100 by
-                default) and hidden-until-hover on desktop, since touch devices
-                have no hover state.
+                Delete button: fixed w-8/h-8 + shrink-0 so it can never be
+                squeezed by the flex row, and a plain inline SVG (TrashIcon)
+                instead of the material-symbols font — the font icon was
+                rendering as a near-invisible sliver when it failed to load.
+                Always visible on mobile (opacity-100 by default) and
+                hidden-until-hover on desktop, since touch devices have no
+                hover state.
               */}
               <button
                 onClick={() => handleDelete(meal.id)}
                 disabled={deletingId === meal.id}
                 title="Delete meal"
-                className="shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-2 rounded-lg hover:bg-red-500/20 text-red-400 disabled:opacity-50"
+                className="shrink-0 w-8 h-8 flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 disabled:opacity-50"
               >
-                {deletingId === meal.id ? <Spinner /> : <Icon name="delete" className="text-base" />}
+                {deletingId === meal.id ? <Spinner /> : <TrashIcon className="w-4 h-4" />}
               </button>
             </div>
           ))}
