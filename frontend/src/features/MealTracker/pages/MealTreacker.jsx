@@ -209,19 +209,19 @@ function DateNavigator({ currentDate, onDateChange }) {
     calendarMonth.month === now.getMonth();
 
   return (
-    <div className="flex items-center gap-2 bg-(--bg-tertiary) rounded-2xl p-1.5 sm:p-2 border border-(--border-light)">
-      <button onClick={() => shiftDay(-1)} className="p-1.5 sm:p-2 rounded-xl hover:bg-(--bg-hover) transition-colors" aria-label="Previous day">
-        <Icon name="chevron_left" className="text-(--text-muted) text-sm sm:text-base" />
+    <div className="flex items-center gap-1.5 bg-(--bg-tertiary) rounded-xl p-1 border border-(--border-light)">
+      <button onClick={() => shiftDay(-1)} className="p-1 sm:p-1.5 rounded-lg hover:bg-(--bg-hover) transition-colors" aria-label="Previous day">
+        <Icon name="chevron_left" className="text-(--text-muted) text-xs sm:text-sm" />
       </button>
 
       <div className="relative" ref={calendarRef}>
         <button
           onClick={() => setIsCalendarOpen((v) => !v)}
-          className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-(--bg-hover) hover:bg-(--bg-active) transition-colors"
+          className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-(--bg-hover) hover:bg-(--bg-active) transition-colors"
         >
-          <Icon name="calendar_today" className="text-(--accent) text-sm sm:text-base" />
-          <span className="text-(--text-primary) text-xs sm:text-sm font-medium whitespace-nowrap">{formattedDate}</span>
-          <Icon name="expand_more" className="text-(--text-muted) text-sm" />
+          <Icon name="calendar_today" className="text-(--accent) text-xs sm:text-sm" />
+          <span className="text-(--text-primary) text-[11px] sm:text-xs font-medium whitespace-nowrap">{formattedDate}</span>
+          <Icon name="expand_more" className="text-(--text-muted) text-xs" />
         </button>
 
         {isCalendarOpen && (
@@ -289,14 +289,14 @@ function DateNavigator({ currentDate, onDateChange }) {
       <button
         onClick={() => shiftDay(1)}
         disabled={isToday}
-        className={`p-1.5 sm:p-2 rounded-xl transition-colors ${isToday ? "opacity-30 cursor-not-allowed" : "hover:bg-(--bg-hover)"}`}
+        className={`p-1 sm:p-1.5 rounded-lg transition-colors ${isToday ? "opacity-30 cursor-not-allowed" : "hover:bg-(--bg-hover)"}`}
         aria-label="Next day"
       >
-        <Icon name="chevron_right" className="text-(--text-muted) text-sm sm:text-base" />
+        <Icon name="chevron_right" className="text-(--text-muted) text-xs sm:text-sm" />
       </button>
 
       {!isToday && (
-        <button onClick={goToToday} className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-(--accent-bg) text-(--accent) text-[10px] sm:text-xs font-bold transition-colors whitespace-nowrap">
+        <button onClick={goToToday} className="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-(--accent-bg) text-(--accent) text-[9px] sm:text-[11px] font-bold transition-colors whitespace-nowrap">
           Today
         </button>
       )}
@@ -1285,7 +1285,7 @@ const NutritionTracker = () => {
       <main className={`pt-14 sm:pt-16 md:pt-16 pb-24 md:pb-8 px-3 sm:px-4 md:px-6 lg:px-8 transition-all duration-[400ms] ${sidebarExpanded ? "md:ml-[240px]" : "md:ml-[72px]"}`}>
         <div className="max-w-5xl mx-auto">
 
-          <div className="flex items-center justify-between gap-2 sm:gap-3 mt-2 sm:mt-3 mb-4 sm:mb-6">
+          <div className="flex items-center justify-between gap-2 sm:gap-3 mt-5 sm:mt-6 mb-4 sm:mb-6">
             <div className="min-w-0">
               <h1 className="text-lg sm:text-2xl font-black text-(--text-primary) truncate">Nutrition Tracker</h1>
               <p className="text-(--text-muted) text-[11px] sm:text-sm mt-0.5 truncate">
