@@ -3,21 +3,18 @@ import { io } from 'socket.io-client';
 import { API_BASE_URL } from '../../../config/port';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000';
-
 const socket = io(SOCKET_URL, { withCredentials: true });
+const getTodayKey = () => new Date().toLocaleDateString('en-CA');
 
 export const useDashboardData = (USER_ID) => {
   const [data, setData]             = useState({ stats: {}, profile: {} });
   const [insights, setInsights]     = useState([]);
   const [biometrics, setBiometrics] = useState([]);
-
-  // Holds the latest auth-sourced name/avatar so every setData call merges them in
   const authOverrideRef = useRef({ name: null, avatar: null });
+  const insightsDayRef = useRef(getTodayKey());
 
-  // Called by Dashboard whenever AuthContext user changes
   const setAuthOverride = (name, avatar) => {
     authOverrideRef.current = { name, avatar };
-    // Also immediately patch current data so Hero updates right away
     setData(prev => ({
       ...prev,
       profile: {
@@ -28,7 +25,6 @@ export const useDashboardData = (USER_ID) => {
     }));
   };
 
-  // Wraps every raw API result so auth values always win
   const mergeData = (apiResult) => ({
     ...apiResult,
     profile: {
@@ -37,6 +33,23 @@ export const useDashboardData = (USER_ID) => {
       ...(authOverrideRef.current.avatar && { avatar_url: authOverrideRef.current.avatar }),
     },
   });
+
+  const applyInsights = (incoming, { mode = 'replace' } = {}) => {
+    const today = getTodayKey();
+
+    if (insightsDayRef.current !== today) {
+      insightsDayRef.current = today;
+      setInsights(Array.isArray(incoming) ? incoming : []);
+      return;
+    }
+
+    if (mode === 'replace') {
+      setInsights(Array.isArray(incoming) ? incoming : []);
+    } else {
+      // 'prepend' — used by the socket handler
+      setInsights(prev => [incoming, ...prev].slice(0, 5));
+    }
+  };
 
   useEffect(() => {
     if (!USER_ID) return;
@@ -49,7 +62,6 @@ export const useDashboardData = (USER_ID) => {
         const sleepRes  = await fetch(`${API_BASE_URL}/api/sleep/${USER_ID}/today`, { credentials: 'include' });
         const sleepData = await sleepRes.json();
 
-        // ✅ mergeData ensures auth name/avatar override API values
         setData(mergeData({
           ...result,
           stats: {
@@ -65,8 +77,12 @@ export const useDashboardData = (USER_ID) => {
         if (Array.isArray(bioData) && bioData.length > 0) {
           setBiometrics(bioData);
         }
-
-        if (result.insights) setInsights(result.insights);
+        insightsDayRef.current = getTodayKey();
+        if (result.insights) {
+          setInsights(result.insights);
+        } else {
+          setInsights([]);
+        }
 
       } catch (error) {
         console.error('Fetch Error:', error);
@@ -87,15 +103,24 @@ export const useDashboardData = (USER_ID) => {
     };
 
     const handleNewInsight = (insight) => {
-      setInsights(prev => [insight, ...prev].slice(0, 5));
+      applyInsights(insight, { mode: 'prepend' });
     };
 
     socket.on('new-biometric-data',   handleNewBiometric);
     socket.on('new-clinical-insight', handleNewInsight);
 
+    const dayCheckInterval = setInterval(() => {
+      const today = getTodayKey();
+      if (insightsDayRef.current !== today) {
+        insightsDayRef.current = today;
+        setInsights([]);
+      }
+    }, 60 * 1000);
+
     return () => {
       socket.off('new-biometric-data',   handleNewBiometric);
       socket.off('new-clinical-insight', handleNewInsight);
+      clearInterval(dayCheckInterval);
     };
   }, [USER_ID]);
 
@@ -104,9 +129,9 @@ export const useDashboardData = (USER_ID) => {
     insights,
     biometrics,
     setData,
-    setInsights,
+    setInsights: (val) => applyInsights(val, { mode: 'replace' }),
     setBiometrics,
     setAuthOverride,
-    mergeData,   
+    mergeData,
   };
 };
