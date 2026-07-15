@@ -105,22 +105,19 @@ const Dashboard = () => {
           ${sidebarExpanded ? 'md:ml-[240px]' : 'md:ml-[72px] ml-0'}`}
       >
         <div className="max-w-[1400px] mx-auto">
-          {/* Hero Section — now the signature moment: greeting + today's
-              calorie ring at a glance, instead of a flat text bar. */}
+          {/* Hero Section */}
           <Hero
             name={heroName}
             goal={heroGoal}
             avatar={heroAvatar}
             activeProgramCount={activeProgramCount}
-            calories={data.stats?.calories_burned || 0}
-            caloriesGoal={800}
           />
 
-          {/* Main Grid - 4 columns on desktop, roomier gutters */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+          {/* Main Grid - 4 columns on desktop */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
 
             {/* Left Column - 3 cols on desktop */}
-            <div className="lg:col-span-3 flex flex-col gap-8">
+            <div className="lg:col-span-3 flex flex-col gap-6">
 
               {/* Program summary: 3 radial rings replacing the old 3-card row */}
               <ProgramSummaryCard
