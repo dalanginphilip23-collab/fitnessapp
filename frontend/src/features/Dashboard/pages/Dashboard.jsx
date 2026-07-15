@@ -79,17 +79,14 @@ const Dashboard = () => {
     [data.profile?.avatar_url, user?.avatar]
   );
 
-  // NOTE: your /api/dashboard/:userId response doesn't currently return an
-  // active-program count. Until the backend adds `stats.active_program_count`,
-  // this falls back to 0 and Hero/ProgramSummaryCard show "No active program" /
-  // the old goal line instead. Wire this up once the endpoint has the field.
   const activeProgramCount = data.stats?.active_program_count ?? 0;
 
   if (loading)  return null;
   if (!USER_ID) return null;
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-['Inter',sans-serif] overflow-x-hidden">
+    <div className="min-h-screen w-full bg-[var(--bg-primary)] text-[var(--text-primary)] font-['Inter',sans-serif] overflow-x-hidden">
+      {/* Sidebar only exists at md+ ; MobileNav covers everything below that */}
       <div className="hidden md:block">
         <Sidebar
           onClick={handleLogout}
@@ -98,13 +95,20 @@ const Dashboard = () => {
           onFeedback={openFeedback}
         />
       </div>
+
       <Topbar sidebarExpanded={sidebarExpanded} userId={USER_ID} />
 
       <main
-        className={`pt-[80px] pb-24 md:pb-10 px-4 md:px-6 min-h-screen transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]
-          ${sidebarExpanded ? 'md:ml-[240px]' : 'md:ml-[72px] ml-0'}`}
+        className={`
+          w-full min-h-screen
+          pt-[64px] sm:pt-[72px] md:pt-[80px]
+          pb-24 md:pb-10
+          px-3 sm:px-4 md:px-6 lg:px-8
+          transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]
+          ${sidebarExpanded ? 'md:ml-[240px]' : 'md:ml-[72px] ml-0'}
+        `}
       >
-        <div className="max-w-[1400px] mx-auto">
+        <div className="w-full max-w-[1400px] mx-auto">
           {/* Hero Section */}
           <Hero
             name={heroName}
@@ -113,13 +117,18 @@ const Dashboard = () => {
             activeProgramCount={activeProgramCount}
           />
 
-          {/* Main Grid - 4 columns on desktop */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+          {/*
+            Grid breakpoints:
+            - base (phones):        1 column, everything stacks
+            - md (tablets ~768px):  1 column still — 4-col squeeze at md
+                                     looked cramped on iPad-portrait/landscape
+            - xl (laptops+ 1280px): 4 columns, 3/1 split
+          */}
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 items-start">
 
-            {/* Left Column - 3 cols on desktop */}
-            <div className="lg:col-span-3 flex flex-col gap-6">
+            {/* Left Column */}
+            <div className="xl:col-span-3 flex flex-col gap-4 sm:gap-5 lg:gap-6 min-w-0">
 
-              {/* Program summary: 3 radial rings replacing the old 3-card row */}
               <ProgramSummaryCard
                 goalLabel={
                   activeProgramCount > 0
@@ -134,11 +143,13 @@ const Dashboard = () => {
               />
 
               {/* Sleep Graph Section */}
-              <div className="w-full relative">
+              <div className="w-full min-w-0 relative">
                 {isAnalyzing && (
-                  <div className="absolute top-4 right-4 z-10 flex items-center gap-2 bg-[var(--accent-bg)] px-3 py-1 rounded-full border border-[var(--accent-border)] shadow-lg">
-                    <div className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full animate-ping" />
-                    <span className="text-[9px] font-black text-[var(--accent)] uppercase tracking-widest">AI Scanning Vitals</span>
+                  <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 flex items-center gap-1.5 sm:gap-2 bg-[var(--accent-bg)] px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border border-[var(--accent-border)] shadow-lg max-w-[calc(100%-1rem)]">
+                    <div className="w-1.5 h-1.5 shrink-0 bg-[var(--accent)] rounded-full animate-ping" />
+                    <span className="text-[8px] sm:text-[9px] font-black text-[var(--accent)] uppercase tracking-widest truncate">
+                      AI Scanning Vitals
+                    </span>
                   </div>
                 )}
                 <SleepHoursGraph biometrics={biometrics} userId={USER_ID} />
@@ -146,7 +157,7 @@ const Dashboard = () => {
             </div>
 
             {/* Right Column - Clinical Assistant */}
-            <div className="lg:col-span-1">
+            <div className="xl:col-span-1 min-w-0">
               <ClinicalAssistant
                 insights={insights}
                 water={data.stats?.water_intake_ml || 0}
