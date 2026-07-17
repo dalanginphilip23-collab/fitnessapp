@@ -51,7 +51,7 @@ const REST_ACTIVITY_TYPES = new Set(['Recovery', 'Mobility', 'Flexibility']);
 // PLAN CARD COMPONENT
 const PlanCard = ({ plan, onOpen, onEnroll, onContinue, style = {} }) => (
   <div
-    className="group relative rounded-2xl overflow-hidden border flex flex-col shadow-[var(--shadow-md)] cursor-pointer transition-all duration-500 hover:border-[var(--accent-border)] hover:shadow-[var(--shadow-lg)]"
+    className="group relative rounded-[var(--card-radius-lg)] overflow-hidden border flex flex-col shadow-[var(--shadow-md)] cursor-pointer transition-all duration-500 hover:border-[var(--accent-border)] hover:shadow-[var(--shadow-lg)]"
     style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-light)', ...style }}
     onClick={() => onOpen(plan)}
   >
@@ -872,7 +872,7 @@ const Explore = ({ plans, onOpen, onEnroll, onContinue }) => {
             {featured.map((plan, i) => (
               <div
                 key={plan.id}
-                className="relative overflow-hidden rounded-2xl cursor-pointer group border transition-all duration-500"
+                className="relative overflow-hidden rounded-[var(--card-radius-lg)] cursor-pointer group border transition-all duration-500"
                 style={{ borderColor: 'var(--border-light)', animation: `slideUp 0.4s ease ${i * 0.1}s both` }}
                 onClick={() => onOpen(plan)}
               >
