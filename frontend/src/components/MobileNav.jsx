@@ -17,18 +17,17 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
   };
 
   return (
-    // Floating pill bar: inset from all edges with its own rounded card
-    // and shadow (matches reference), instead of a flush docked bar.
-    // Safe-area handled as bottom margin so the pill never sits under
-    // the iOS home indicator.
+    // Docked bottom bar: flush to left/right/bottom edges, no floating
+    // inset, no rounded pill. Safe-area folded into the bar's own height
+    // so the background still reaches the very bottom edge on iOS.
     <nav
-      className="md:hidden fixed left-3 right-3 bottom-3 z-70"
-      style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      className="md:hidden fixed left-0 right-0 bottom-0 z-[70] border-t border-(--border-light) flex items-center"
+      style={{
+        backgroundColor: 'var(--bg-secondary)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      }}
     >
-      <div
-        className="flex justify-around items-center w-full h-16 px-2 rounded-[28px] border border-(--border-light) shadow-(--shadow-lg)"
-        style={{ backgroundColor: 'var(--bg-secondary)' }}
-      >
+      <div className="flex justify-around items-center w-full h-16 px-1">
         {items.map((item) => {
           const key = item.label || item.name;
           const isActive = location.pathname === item.path;
