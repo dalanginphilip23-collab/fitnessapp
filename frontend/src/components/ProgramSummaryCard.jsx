@@ -27,7 +27,7 @@ const ProgramSummaryCard = ({
   onSeeMore,
 }) => {
   return (
-    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[16px] p-[22px] flex flex-col gap-6">
+    <div className="bg-[var(--bg-card)] bg-[image:var(--card-gradient)] border border-[var(--border-light)] shadow-[var(--shadow-sm)] rounded-[var(--card-radius-lg)] p-[22px] flex flex-col gap-6">
       {/* Header row */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
@@ -81,14 +81,14 @@ const ProgramSummaryCard = ({
         <button
           type="button"
           onClick={onChangeProgram}
-          className="flex-1 bg-[var(--accent)] text-[#131313] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-xl hover:brightness-95 active:scale-[0.98] transition-all cursor-pointer border-none"
+          className="flex-1 bg-[var(--accent)] text-[#131313] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-2xl hover:brightness-95 active:scale-[0.98] transition-all cursor-pointer border-none"
         >
           Change Program
         </button>
         <button
           type="button"
           onClick={onSeeMore}
-          className="flex-1 bg-transparent text-[var(--text-secondary)] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-xl border border-[var(--border-medium)] hover:bg-[var(--bg-hover)] active:scale-[0.98] transition-all cursor-pointer"
+          className="flex-1 bg-transparent text-[var(--text-secondary)] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-2xl border border-[var(--border-medium)] hover:bg-[var(--bg-hover)] active:scale-[0.98] transition-all cursor-pointer"
         >
           See More
         </button>

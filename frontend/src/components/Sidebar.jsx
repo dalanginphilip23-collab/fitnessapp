@@ -33,7 +33,7 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
       >
         {/* Logo */}
         <div className="flex items-center gap-3.5 px-5 mb-9 overflow-hidden">
-          <div className="min-w-8 h-8 bg-(--accent) flex items-center justify-center rounded-md shrink-0">
+          <div className="min-w-8 h-8 bg-(--accent) flex items-center justify-center rounded-xl shrink-0">
             <Icon name="pulse_alert" fill={1} weight={400} className="text-[#161f00] text-[18px]" />
           </div>
           <span
@@ -46,7 +46,7 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
         </div>
 
         {/* Primary nav */}
-        <nav className="flex-1 flex flex-col gap-0.5">
+        <nav className="flex-1 flex flex-col gap-1 px-3">
           {NAV_ITEMS.map((item) => {
             const isActive = location.pathname === item.path;
             return (
@@ -54,11 +54,11 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
                 key={item.label}
                 to={item.path}
                 className={`
-                  flex items-center gap-4.5 px-5 h-11 whitespace-nowrap overflow-hidden
+                  flex items-center gap-4.5 px-3.5 h-11 rounded-2xl whitespace-nowrap overflow-hidden
                   text-[11px] uppercase tracking-[0.15em] no-underline transition-all duration-200
                   ${
                     isActive
-                      ? 'text-(--accent) border-r-2 border-(--accent) bg-(--bg-active)'
+                      ? 'text-[#161f00] bg-(--accent) shadow-(--shadow-sm)'
                       : 'text-(--text-muted) hover:bg-(--bg-hover) hover:text-(--text-secondary)'
                   }
                 `}
@@ -81,10 +81,10 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
         </nav>
 
         {/* Bottom links */}
-        <div className="border-t border-(--border-light) pt-2">
+        <div className="border-t border-(--border-light) pt-2 px-3">
           <button
             onClick={() => setShowFeedback(true)}
-            className="w-full flex items-center gap-4.5 px-5 h-11 text-[11px] uppercase tracking-[0.15em] text-(--text-muted) hover:text-(--accent) hover:bg-(--accent-bg) whitespace-nowrap overflow-hidden transition-colors duration-200 border-none bg-transparent cursor-pointer"
+            className="w-full flex items-center gap-4.5 px-3.5 h-11 rounded-2xl text-[11px] uppercase tracking-[0.15em] text-(--text-muted) hover:text-(--accent) hover:bg-(--accent-bg) whitespace-nowrap overflow-hidden transition-colors duration-200 border-none bg-transparent cursor-pointer"
           >
             <Icon name="feedback" className="text-[20px] min-w-5 shrink-0" />
             <span
@@ -97,7 +97,7 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
           </button>
           <button
             onClick={onClick}
-            className="w-full flex items-center gap-4.5 px-5 h-11 text-[11px] uppercase tracking-[0.15em] text-(--text-muted) hover:text-(--text-secondary) whitespace-nowrap overflow-hidden transition-colors duration-200 border-none bg-transparent cursor-pointer"
+            className="w-full flex items-center gap-4.5 px-3.5 h-11 rounded-2xl text-[11px] uppercase tracking-[0.15em] text-(--text-muted) hover:text-(--text-secondary) hover:bg-(--bg-hover) whitespace-nowrap overflow-hidden transition-colors duration-200 border-none bg-transparent cursor-pointer"
           >
             <Icon name="logout" className="text-[20px] min-w-5 shrink-0" />
             <span

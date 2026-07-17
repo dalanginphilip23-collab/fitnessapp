@@ -11,9 +11,6 @@ export default function AnalyticsMobileNav({ navigate }) {
   };
 
   return (
-    // Docked bottom bar: flush to left/right/bottom edges, no floating
-    // inset, safe-area padding folded into the bar's own height so the
-    // background still reaches the very bottom of the screen on iOS.
     <nav
       className="md:hidden fixed left-0 right-0 bottom-0 z-[70] border-t border-[var(--border-light)] flex items-center"
       style={{
