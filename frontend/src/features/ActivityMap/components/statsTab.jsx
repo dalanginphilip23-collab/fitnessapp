@@ -19,7 +19,7 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
 
         {!statsLoading && !statsError && stats && (
           <div className="space-y-3">
-            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-3">
+            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl p-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[8px] text-[var(--text-muted)] uppercase tracking-wider">Total Runs</p>
@@ -29,7 +29,7 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
               </div>
             </div>
 
-            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-3">
+            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl p-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[8px] text-[var(--text-muted)] uppercase tracking-wider">Total Distance</p>
@@ -42,7 +42,7 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
               </div>
             </div>
 
-            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-3">
+            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl p-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[8px] text-[var(--text-muted)] uppercase tracking-wider">Total Time</p>
@@ -54,7 +54,7 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
               </div>
             </div>
 
-            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-3">
+            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl p-3">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[8px] text-[var(--text-muted)] uppercase tracking-wider">Calories Burned</p>
@@ -74,7 +74,7 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
                   <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-3">Average per Run</p>
                 </div>
                 
-                <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-3">
+                <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl p-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[8px] text-[var(--text-muted)] uppercase tracking-wider">Avg Distance</p>
@@ -87,7 +87,7 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
                   </div>
                 </div>
 
-                <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-3">
+                <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl p-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[8px] text-[var(--text-muted)] uppercase tracking-wider">Avg Time</p>
@@ -99,7 +99,7 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
                   </div>
                 </div>
 
-                <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-3">
+                <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl p-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[8px] text-[var(--text-muted)] uppercase tracking-wider">Avg Calories</p>
@@ -141,7 +141,7 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
       )}
 
       {statsError && (
-        <div className="text-center py-12 bg-red-500/10 border border-red-500/20 rounded-xl p-6">
+        <div className="text-center py-12 bg-red-500/10 border border-red-500/20 rounded-2xl p-6">
           <p className="text-red-400 text-sm font-medium">⚠ {statsError}</p>
           <p className="text-[var(--text-muted)] text-xs mt-2">Unable to load statistics</p>
         </div>
@@ -151,7 +151,7 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
         <div className="space-y-6">
           {/* Main Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-5">
+            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl shadow-[var(--shadow-sm)] p-5">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-2xl">🏃</span>
                 <h3 className="text-[11px] font-black uppercase tracking-widest text-[var(--text-muted)]">Total Runs</h3>
@@ -161,7 +161,7 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
               </p>
             </div>
 
-            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-5">
+            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl shadow-[var(--shadow-sm)] p-5">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-2xl">📏</span>
                 <h3 className="text-[11px] font-black uppercase tracking-widest text-[var(--text-muted)]">Total Distance</h3>
@@ -172,7 +172,7 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
               </p>
             </div>
 
-            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-5">
+            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl shadow-[var(--shadow-sm)] p-5">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-2xl">⏱️</span>
                 <h3 className="text-[11px] font-black uppercase tracking-widest text-[var(--text-muted)]">Total Time</h3>
@@ -182,7 +182,7 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
               </p>
             </div>
 
-            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-5">
+            <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl shadow-[var(--shadow-sm)] p-5">
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-2xl">🔥</span>
                 <h3 className="text-[11px] font-black uppercase tracking-widest text-[var(--text-muted)]">Calories Burned</h3>
@@ -202,20 +202,20 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
                   Average Per Run
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-4">
+                  <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl p-4">
                     <p className="text-[9px] text-[var(--text-muted)] uppercase tracking-wider mb-2">Avg Distance</p>
                     <p className="text-2xl font-black text-[var(--accent)]">
                       {(stats.totalDistance / stats.totalRuns).toFixed(1)}
                       <span className="text-xs text-[var(--text-muted)] ml-1">km</span>
                     </p>
                   </div>
-                  <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-4">
+                  <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl p-4">
                     <p className="text-[9px] text-[var(--text-muted)] uppercase tracking-wider mb-2">Avg Time</p>
                     <p className="text-xl font-black text-[var(--accent)]">
                       {formatTime(Math.floor(stats.totalDuration / stats.totalRuns))}
                     </p>
                   </div>
-                  <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-4">
+                  <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl p-4">
                     <p className="text-[9px] text-[var(--text-muted)] uppercase tracking-wider mb-2">Avg Calories</p>
                     <p className="text-2xl font-black text-[var(--accent)]">
                       {Math.floor(stats.totalCalories / stats.totalRuns)}
@@ -233,7 +233,7 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
               <h3 className="text-[11px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-4">
                 Best Performance
               </h3>
-              <div className="bg-gradient-to-r from-[var(--accent-bg)] to-transparent border border-[var(--accent-border)] rounded-xl p-4">
+              <div className="bg-gradient-to-r from-[var(--accent-bg)] to-transparent border border-[var(--accent-border)] rounded-2xl p-4">
                 <div className="flex items-center justify-between flex-wrap gap-3">
                   <div>
                     <p className="text-[9px] text-[var(--accent)] uppercase tracking-wider">Longest Distance</p>
@@ -257,7 +257,7 @@ const StatsTab = ({ stats, statsLoading, statsError, formatTime, isOverlay = fal
       )}
 
       {!statsLoading && !statsError && !stats && (
-        <div className="text-center py-16 bg-[var(--bg-tertiary)] rounded-xl border border-[var(--border-light)]">
+        <div className="text-center py-16 bg-[var(--bg-tertiary)] rounded-2xl border border-[var(--border-light)]">
           <div className="text-4xl mb-3">📊</div>
           <p className="text-[var(--text-secondary)] font-medium">No statistics yet</p>
           <p className="text-[var(--text-muted)] text-xs mt-1">Complete your first run to see stats!</p>

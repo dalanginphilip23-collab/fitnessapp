@@ -28,7 +28,7 @@ const StatsPanel = ({ metrics, splits, formatTime, isDesktop }) => {
 
         <div className="flex items-center justify-between p-3 xl:p-4 rounded-2xl bg-[var(--accent-bg)] border border-[var(--accent-border)]">
           <div className="flex items-center gap-2 xl:gap-3">
-            <div className="w-8 h-8 xl:w-9 xl:h-9 rounded-xl bg-[var(--accent)] flex items-center justify-center text-black font-black text-sm">P</div>
+            <div className="w-8 h-8 xl:w-9 xl:h-9 rounded-2xl bg-[var(--accent)] flex items-center justify-center text-black font-black text-sm">P</div>
             <div>
               <p className="text-xs font-bold text-[var(--text-primary)]">Pace</p>
               <p className="text-[9px] text-[var(--text-muted)] uppercase">Min/KM</p>
@@ -39,7 +39,7 @@ const StatsPanel = ({ metrics, splits, formatTime, isDesktop }) => {
 
         <div className="flex items-center justify-between p-3 xl:p-4 rounded-2xl bg-[var(--bg-hover)] border border-[var(--border-light)]">
           <div className="flex items-center gap-2 xl:gap-3">
-            <div className="w-8 h-8 xl:w-9 xl:h-9 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-500 font-black text-sm">C</div>
+            <div className="w-8 h-8 xl:w-9 xl:h-9 rounded-2xl bg-orange-500/20 flex items-center justify-center text-orange-500 font-black text-sm">C</div>
             <div>
               <p className="text-xs font-bold text-[var(--text-primary)]">Calories</p>
               <p className="text-[9px] text-[var(--text-muted)] uppercase">Est.</p>
@@ -55,7 +55,7 @@ const StatsPanel = ({ metrics, splits, formatTime, isDesktop }) => {
               <p className="text-[10px] text-[var(--text-muted)] text-center py-3">No splits yet</p>
             ) : (
               splits.map((s) => (
-                <div key={s.km} className="flex justify-between px-3 py-2 xl:py-2.5 rounded-xl bg-[var(--bg-hover)] border border-[var(--border-light)]">
+                <div key={s.km} className="flex justify-between px-3 py-2 xl:py-2.5 rounded-2xl bg-[var(--bg-hover)] border border-[var(--border-light)]">
                   <span className="text-[9px] font-bold text-[var(--text-muted)]">KM {s.km}</span>
                   <span className="text-[10px] font-black italic text-[var(--accent)]">{s.pace}</span>
                 </div>
@@ -118,19 +118,19 @@ const StatsPanel = ({ metrics, splits, formatTime, isDesktop }) => {
               </button>
             </div>
             <div className="grid grid-cols-2 gap-2 mb-3">
-              <div className="bg-[var(--bg-hover)] rounded-xl p-2.5 border border-[var(--border-light)]">
+              <div className="bg-[var(--bg-hover)] rounded-2xl p-2.5 border border-[var(--border-light)]">
                 <p className="text-[8px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-0.5">Time</p>
                 <p className="text-lg font-black italic tracking-tighter text-[var(--text-primary)]">{formatTime(metrics.time)}</p>
               </div>
-              <div className="bg-[var(--bg-hover)] rounded-xl p-2.5 border border-[var(--border-light)]">
+              <div className="bg-[var(--bg-hover)] rounded-2xl p-2.5 border border-[var(--border-light)]">
                 <p className="text-[8px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-0.5">Dist (km)</p>
                 <p className="text-lg font-black italic tracking-tighter text-[var(--text-primary)]">{metrics.distance.toFixed(2)}</p>
               </div>
-              <div className="bg-[var(--bg-hover)] rounded-xl p-2.5 border border-[var(--border-light)]">
+              <div className="bg-[var(--bg-hover)] rounded-2xl p-2.5 border border-[var(--border-light)]">
                 <p className="text-[8px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-0.5">Pace</p>
                 <p className="text-lg font-black italic tracking-tighter text-[var(--accent)]">{metrics.pace}</p>
               </div>
-              <div className="bg-[var(--bg-hover)] rounded-xl p-2.5 border border-[var(--border-light)]">
+              <div className="bg-[var(--bg-hover)] rounded-2xl p-2.5 border border-[var(--border-light)]">
                 <p className="text-[8px] text-[var(--text-muted)] uppercase font-black tracking-widest mb-0.5">Cal</p>
                 <p className="text-lg font-black italic tracking-tighter text-[var(--text-primary)]">{metrics.calories}</p>
               </div>
@@ -138,7 +138,7 @@ const StatsPanel = ({ metrics, splits, formatTime, isDesktop }) => {
             {splits.length > 0 && (
               <div className="max-h-[90px] overflow-y-auto space-y-1.5 scrollbar-none">
                 {splits.map((s) => (
-                  <div key={s.km} className="flex justify-between px-3 py-1.5 rounded-xl bg-[var(--bg-hover)] border border-[var(--border-light)]">
+                  <div key={s.km} className="flex justify-between px-3 py-1.5 rounded-2xl bg-[var(--bg-hover)] border border-[var(--border-light)]">
                     <span className="text-[9px] font-bold text-[var(--text-muted)]">KM {s.km}</span>
                     <span className="text-[10px] font-black italic text-[var(--accent)]">{s.pace}</span>
                   </div>

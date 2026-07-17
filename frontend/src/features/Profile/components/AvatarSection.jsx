@@ -58,7 +58,7 @@ const AvatarSection = ({
               onClick={() => setPickerOpen(v => !v)}
               className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest
                 bg-[var(--bg-hover)] hover:bg-[var(--surface-hover)] border border-[var(--border-medium)] hover:border-[var(--border-heavy)]
-                text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-2.5 sm:px-3 py-1.5 rounded-lg transition-all whitespace-nowrap"
+                text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-2.5 sm:px-3 py-1.5 rounded-2xl transition-all whitespace-nowrap"
             >
               <span className="material-symbols-outlined text-[13px]">grid_view</span>
               Choose
@@ -68,7 +68,7 @@ const AvatarSection = ({
                 onClick={onRemove}
                 className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest
                   bg-[var(--bg-hover)] hover:bg-red-500/10 border border-[var(--border-medium)] hover:border-red-500/20
-                  text-[var(--text-secondary)] hover:text-red-400 px-2.5 sm:px-3 py-1.5 rounded-lg transition-all whitespace-nowrap"
+                  text-[var(--text-secondary)] hover:text-red-400 px-2.5 sm:px-3 py-1.5 rounded-2xl transition-all whitespace-nowrap"
               >
                 <span className="material-symbols-outlined text-[13px]">delete</span>
                 Remove
@@ -139,7 +139,7 @@ const AvatarSection = ({
             <button
               onClick={() => fileInputRef.current?.click()}
               className="w-full py-3 border border-dashed border-[var(--border-medium)] hover:border-[#62aa1a]/40
-                rounded-xl flex items-center justify-center gap-2.5 transition-all group
+                rounded-2xl flex items-center justify-center gap-2.5 transition-all group
                 hover:bg-[#62aa1a]/[0.03]"
             >
               <span className="material-symbols-outlined text-[16px] text-[var(--text-muted)] group-hover:text-[#62aa1a] transition-colors">
@@ -151,7 +151,7 @@ const AvatarSection = ({
             </button>
 
             {uploadPreview && (
-              <div className="mt-3 flex items-center gap-3 bg-[var(--bg-primary)] px-3 py-2.5 rounded-xl border border-[#62aa1a]/15">
+              <div className="mt-3 flex items-center gap-3 bg-[var(--bg-primary)] px-3 py-2.5 rounded-2xl border border-[#62aa1a]/15">
                 <img
                   src={uploadPreview}
                   alt="Upload preview"

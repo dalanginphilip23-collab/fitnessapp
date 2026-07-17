@@ -43,7 +43,7 @@ function MiniCalendar({ activeDays, selectedKey, onSelect }) {
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
   return (
-    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl sm:rounded-3xl p-4 sm:p-6 w-full">
+    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl sm:rounded-3xl shadow-[var(--shadow-sm)] p-4 sm:p-6 w-full">
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={prevMonth}
@@ -266,14 +266,14 @@ const Log = () => {
                     { label: 'Reps',      val: dayStats.totalReps },
                     { label: 'Done',      val: dayStats.completed  },
                   ].map(({ label, val }) => (
-                    <div key={label} className="flex-1 bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-3 text-center">
+                    <div key={label} className="flex-1 bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl p-3 text-center">
                       <span className="text-[var(--accent)] text-xl font-black italic block leading-none">{val}</span>
                       <span className="text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)] mt-1 block">{label}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="hidden lg:block bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-3xl p-6 space-y-3">
+                <div className="hidden lg:block bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-3xl shadow-[var(--shadow-sm)] p-6 space-y-3">
                   <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-3">
                     Day Summary
                   </p>

@@ -43,7 +43,7 @@ const Login = () => {
       <button
         type="button"
         onClick={() => navigate('/')}
-        className="fixed top-5 left-5 sm:top-8 sm:left-8 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md text-[11px] font-semibold tracking-widest uppercase text-white/60 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all"
+        className="fixed top-5 left-5 sm:top-8 sm:left-8 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md text-[11px] font-semibold tracking-widest uppercase text-white/60 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all"
       >
         <span className="text-base leading-none">←</span>
         Back
@@ -180,7 +180,7 @@ const Login = () => {
 
             {/* Logo */}
             <div className="v-card-logo flex items-center gap-3 mb-7 sm:mb-9">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: ACCENT }}>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl flex items-center justify-center shrink-0" style={{ backgroundColor: ACCENT }}>
                 <svg viewBox="0 0 24 24" className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] fill-none stroke-[#161f00] stroke-[2.2] stroke-linecap-round stroke-linejoin-round">
                   <path d="M3 12h3l3-8 4 16 3-10 2 2h3" />
                 </svg>
@@ -193,7 +193,7 @@ const Login = () => {
 
             <form onSubmit={(e) => handleSubmit(e, { email, password })} className="space-y-4 sm:space-y-5">
               {error && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[10px] font-semibold tracking-widest uppercase p-2.5 text-center">
+                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-[10px] font-semibold tracking-widest uppercase p-2.5 text-center">
                   {error}
                 </div>
               )}
@@ -208,7 +208,7 @@ const Login = () => {
                 </label>
                 <input
                   type="email"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
                   style={{
                     borderColor: focused === 'email' ? `${ACCENT}80` : undefined,
                     backgroundColor: focused === 'email' ? `${ACCENT}0d` : undefined,
@@ -235,7 +235,7 @@ const Login = () => {
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 pr-11 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl text-sm p-3 sm:p-3.5 pr-11 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
                     style={{
                       borderColor: focused === 'password' ? `${ACCENT}80` : undefined,
                       backgroundColor: focused === 'password' ? `${ACCENT}0d` : undefined,
@@ -279,7 +279,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="v-card-btn group relative w-full text-[#161f00] font-bold text-[11px] tracking-[0.25em] uppercase p-3.5 sm:p-4 rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden flex items-center justify-center gap-2"
+                className="v-card-btn group relative w-full text-[#161f00] font-bold text-[11px] tracking-[0.25em] uppercase p-3.5 sm:p-4 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden flex items-center justify-center gap-2"
                 style={{ backgroundColor: ACCENT }}
                 onMouseEnter={e => { if (!loading) e.currentTarget.style.backgroundColor = ACCENT_HOVER; }}
                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = ACCENT; }}
@@ -301,7 +301,7 @@ const Login = () => {
               <button
                 type="button"
                 onClick={() => loginWithGoogle()}
-                className="v-card-google w-full bg-white/5 border border-white/10 rounded-xl text-[11px] font-semibold tracking-widest uppercase p-3 sm:p-3.5 flex items-center justify-center gap-2.5 hover:bg-white/10 transition-colors text-[#e5e2e1]"
+                className="v-card-google w-full bg-white/5 border border-white/10 rounded-2xl text-[11px] font-semibold tracking-widest uppercase p-3 sm:p-3.5 flex items-center justify-center gap-2.5 hover:bg-white/10 transition-colors text-[#e5e2e1]"
               >
                 <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>

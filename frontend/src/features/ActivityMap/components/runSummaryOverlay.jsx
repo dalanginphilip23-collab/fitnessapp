@@ -26,7 +26,7 @@ const RunSummaryOverlay = ({ metrics, splits, formatTime, onSave, onDiscard, isS
             { val: metrics.pace || '–', label: 'Pace', unit: '/km' },
             { val: metrics.calories || 0, label: 'Calories', unit: 'kcal' },
           ].map(({ val, label, unit }) => (
-            <div key={label} className="bg-white/5 border border-[var(--border-light)] rounded-xl sm:rounded-2xl p-2.5 sm:p-3 text-center">
+            <div key={label} className="bg-white/5 border border-[var(--border-light)] rounded-2xl sm:rounded-2xl p-2.5 sm:p-3 text-center">
               <p className="text-base sm:text-lg md:text-xl font-black italic tracking-tighter text-[var(--text-primary)] leading-none">
                 {val}
                 {unit && <span className="text-[9px] sm:text-[10px] text-[var(--text-muted)] font-semibold ml-0.5">{unit}</span>}
@@ -40,7 +40,7 @@ const RunSummaryOverlay = ({ metrics, splits, formatTime, onSave, onDiscard, isS
         {splits.length > 0 && (
           <div className="mb-3 sm:mb-4 max-h-[72px] sm:max-h-[80px] overflow-y-auto space-y-1.5 scrollbar-none">
             {splits.map((s) => (
-              <div key={s.km} className="flex justify-between bg-white/5 border border-[var(--border-light)] rounded-xl px-3 sm:px-4 py-1.5">
+              <div key={s.km} className="flex justify-between bg-white/5 border border-[var(--border-light)] rounded-2xl px-3 sm:px-4 py-1.5">
                 <span className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">KM {s.km}</span>
                 <span className="text-[10px] font-black italic text-[var(--accent)]">{s.pace}</span>
               </div>

@@ -108,7 +108,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
     : (insights.length > 0 ? insights : history.slice(0, 5));
 
   return (
-    <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[14px] p-[22px] flex flex-col overflow-hidden">
+    <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[var(--card-radius-md)] shadow-[var(--shadow-sm)] p-[22px] flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-5 flex-shrink-0">
         <div className="flex items-center gap-2.5">
@@ -148,7 +148,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
           onClick={() => setShowHistory(prev => !prev)}
           disabled={!userId || isAnalyzing}
           className={`
-            w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg
+            w-full flex items-center justify-center gap-2 py-2 px-3 rounded-2xl
             text-[10px] font-black uppercase tracking-widest
             border transition-all duration-200 cursor-pointer
             ${showHistory
@@ -189,7 +189,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
         )}
 
         {historyError && !historyLoad && (
-          <div className="h-full flex items-center justify-center border-2 border-dashed border-red-500/10 rounded-xl">
+          <div className="h-full flex items-center justify-center border-2 border-dashed border-red-500/10 rounded-2xl">
             <p className="text-[11px] text-red-400/50 italic text-center px-4">
               Failed to load history. Check your connection.
             </p>
@@ -197,7 +197,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
         )}
 
         {!historyLoad && !historyError && activeInsights.length === 0 && (
-          <div className="h-full flex items-center justify-center border-2 border-dashed border-[var(--border-light)] rounded-xl">
+          <div className="h-full flex items-center justify-center border-2 border-dashed border-[var(--border-light)] rounded-2xl">
             <p className="text-[11px] text-[var(--text-muted)] italic text-center px-4">
               {showHistory
                 ? 'No history found. Your AI insights will appear here after analysis.'

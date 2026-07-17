@@ -4,7 +4,7 @@ import { API_BASE_URL } from '../../../config/port';
 
 const labelCls = 'block text-[9px] font-black tracking-[0.2em] uppercase text-[var(--text-muted)] mb-2';
 const inputCls =
-  'w-full rounded-xl px-3.5 py-2.5 text-[13px] font-medium outline-none transition-all ' +
+  'w-full rounded-2xl px-3.5 py-2.5 text-[13px] font-medium outline-none transition-all ' +
   'bg-[var(--input-bg,var(--bg-hover))] border border-[var(--border-medium)] text-[var(--text-primary)] ' +
   'focus:border-[#c7f248]/50 focus:bg-[#c7f248]/[0.03] placeholder:text-[var(--text-disabled)]';
 
@@ -98,7 +98,7 @@ const ChangePasswordModal = ({ onClose, onSuccess }) => {
 
         <form onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[10px] font-semibold tracking-[0.05em] py-2.5 px-3.5 mb-4 text-center">
+            <div className="bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-[10px] font-semibold tracking-[0.05em] py-2.5 px-3.5 mb-4 text-center">
               {error}
             </div>
           )}
@@ -165,7 +165,7 @@ const ChangePasswordModal = ({ onClose, onSuccess }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-[#62aa1a] text-[#1a2800] text-[10px] font-black uppercase tracking-widest rounded-xl hover:brightness-105 active:scale-[0.98] transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+            className="w-full py-3 bg-[#62aa1a] text-[#1a2800] text-[10px] font-black uppercase tracking-widest rounded-2xl hover:brightness-105 active:scale-[0.98] transition-all disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {loading && <span className="w-3 h-3 border-2 border-[#1a2800]/30 border-t-[#1a2800] rounded-full animate-spin" />}
             {loading ? 'Updating…' : 'Update password'}

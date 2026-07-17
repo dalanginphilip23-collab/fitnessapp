@@ -183,7 +183,7 @@ const Register = () => {
             </p>
             <button
               onClick={handleModalConfirm}
-              className="w-full text-[#161f00] font-bold text-[11px] tracking-[0.2em] uppercase p-3.5 sm:p-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95"
+              className="w-full text-[#161f00] font-bold text-[11px] tracking-[0.2em] uppercase p-3.5 sm:p-4 rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95"
               style={{ backgroundColor: ACCENT }}
               onMouseEnter={e => e.currentTarget.style.backgroundColor = ACCENT_HOVER}
               onMouseLeave={e => e.currentTarget.style.backgroundColor = ACCENT}
@@ -238,7 +238,7 @@ const Register = () => {
 
             {/* Logo */}
             <div className="v-card-logo flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: ACCENT }}>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl flex items-center justify-center shrink-0" style={{ backgroundColor: ACCENT }}>
                 <svg viewBox="0 0 24 24" className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] fill-none stroke-[#161f00] stroke-[2.2] stroke-linecap-round stroke-linejoin-round">
                   <path d="M3 12h3l3-8 4 16 3-10 2 2h3" />
                 </svg>
@@ -263,7 +263,7 @@ const Register = () => {
 
             <form onSubmit={(e) => handleRegister(e, formData)} className="space-y-4 sm:space-y-5">
               {error && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[10px] font-semibold tracking-widest uppercase p-2.5 text-center">
+                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-[10px] font-semibold tracking-widest uppercase p-2.5 text-center">
                   {error}
                 </div>
               )}
@@ -278,7 +278,7 @@ const Register = () => {
                 </label>
                 <input
                   type="text"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
                   style={{
                     borderColor: focused === 'name' ? `${ACCENT}80` : undefined,
                     backgroundColor: focused === 'name' ? `${ACCENT}0d` : undefined,
@@ -302,7 +302,7 @@ const Register = () => {
                 </label>
                 <input
                   type="email"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
                   style={{
                     borderColor: focused === 'email' ? `${ACCENT}80` : undefined,
                     backgroundColor: focused === 'email' ? `${ACCENT}0d` : undefined,
@@ -329,7 +329,7 @@ const Register = () => {
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 pr-11 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl text-sm p-3 sm:p-3.5 pr-11 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
                     style={{
                       borderColor: focused === 'password' ? `${ACCENT}80` : undefined,
                       backgroundColor: focused === 'password' ? `${ACCENT}0d` : undefined,
@@ -367,7 +367,7 @@ const Register = () => {
                   Primary Goal
                 </label>
                 <select
-                  className="goal-select-custom w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none cursor-pointer appearance-none transition-all text-[#e5e2e1]"
+                  className="goal-select-custom w-full bg-white/5 border border-white/10 rounded-2xl text-sm p-3 sm:p-3.5 outline-none cursor-pointer appearance-none transition-all text-[#e5e2e1]"
                   style={{
                     borderColor: focused === 'goal' ? `${ACCENT}80` : undefined,
                     backgroundColor: focused === 'goal' ? `${ACCENT}0d` : undefined,
@@ -386,7 +386,7 @@ const Register = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="v-card-btn group relative w-full text-[#161f00] font-bold text-[11px] tracking-[0.25em] uppercase p-3.5 sm:p-4 rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden flex items-center justify-center gap-2"
+                className="v-card-btn group relative w-full text-[#161f00] font-bold text-[11px] tracking-[0.25em] uppercase p-3.5 sm:p-4 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden flex items-center justify-center gap-2"
                 style={{ backgroundColor: ACCENT }}
                 onMouseEnter={e => { if (!loading) e.currentTarget.style.backgroundColor = ACCENT_HOVER; }}
                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = ACCENT; }}

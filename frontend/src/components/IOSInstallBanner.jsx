@@ -81,7 +81,7 @@ export default function IOSInstallBanner() {
         className="fixed bottom-3 left-3 right-3 sm:left-auto sm:right-4 sm:bottom-4 sm:w-96 z-40 bg-(--bg-tertiary) border border-(--border-light) rounded-2xl shadow-lg p-4"
       >
         <div className="flex items-start gap-3">
-          <div className="w-9 h-9 rounded-xl bg-(--accent-bg) flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-2xl bg-(--accent-bg) flex items-center justify-center shrink-0">
             <ShareIcon className="w-4.5 h-4.5 text-(--accent)" />
           </div>
 
@@ -98,7 +98,7 @@ export default function IOSInstallBanner() {
           <button
             onClick={dismiss}
             aria-label="Dismiss"
-            className="shrink-0 text-(--text-muted) hover:text-(--text-primary) text-lg leading-none p-1 -m-1 rounded-lg hover:bg-(--bg-hover) transition-colors"
+            className="shrink-0 text-(--text-muted) hover:text-(--text-primary) text-lg leading-none p-1 -m-1 rounded-2xl hover:bg-(--bg-hover) transition-colors"
           >
             ✕
           </button>

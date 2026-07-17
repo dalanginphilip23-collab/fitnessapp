@@ -319,7 +319,7 @@ const HorizontalSlider = React.memo(({ items, renderItem, itemWidth = 'w-[80vw] 
               aria-label="Previous slide"
               onClick={prev}
               disabled={index === 0}
-              className="w-9 h-9 rounded-xl border flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+              className="w-9 h-9 rounded-2xl border flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed"
               style={{ borderColor: ink(0.1), color: ink(0.4) }}
               onMouseEnter={e => { if (canHover && index !== 0) { e.currentTarget.style.borderColor = accentAlpha(40); e.currentTarget.style.color = THEME.accent; } }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.1); e.currentTarget.style.color = ink(0.4); }}
@@ -331,7 +331,7 @@ const HorizontalSlider = React.memo(({ items, renderItem, itemWidth = 'w-[80vw] 
               aria-label="Next slide"
               onClick={next}
               disabled={index === total - 1}
-              className="w-9 h-9 rounded-xl border flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+              className="w-9 h-9 rounded-2xl border flex items-center justify-center transition-all disabled:opacity-20 disabled:cursor-not-allowed"
               style={{ borderColor: ink(0.1), color: ink(0.4) }}
               onMouseEnter={e => { if (canHover && index !== total - 1) { e.currentTarget.style.borderColor = accentAlpha(40); e.currentTarget.style.color = THEME.accent; } }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.1); e.currentTarget.style.color = ink(0.4); }}
@@ -449,7 +449,7 @@ const MobileMenu = React.memo(({ open, onClose, navigate, canHover }) => (
           <button
             type="button"
             onClick={() => { navigate('/login'); onClose(); }}
-            className="w-full py-4 rounded-xl text-[11px] font-black uppercase tracking-widest border transition-all"
+            className="w-full py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest border transition-all"
             style={{ color: ink(0.5), borderColor: ink(0.1) }}
           >
             Sign In
@@ -457,7 +457,7 @@ const MobileMenu = React.memo(({ open, onClose, navigate, canHover }) => (
           <button
             type="button"
             onClick={() => { navigate('/register'); onClose(); }}
-            className="w-full py-4 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] hover:brightness-110 transition-all"
+            className="w-full py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:brightness-110 transition-all"
             style={{ backgroundColor: THEME.accent, color: '#0a1000' }}
           >
             Join the Lab
@@ -497,7 +497,7 @@ const FeatureCard = React.memo(({ icon, title, desc, num, index, canHover }) => 
         <motion.div
           animate={{ backgroundColor: active ? THEME.accent : ink(0.05), color: active ? '#000' : ink(0.5) }}
           transition={{ duration: 0.3 }}
-          className="w-11 h-11 rounded-xl flex items-center justify-center mb-6 sm:mb-7"
+          className="w-11 h-11 rounded-2xl flex items-center justify-center mb-6 sm:mb-7"
         >
           <Icon name={icon} className="text-xl" />
         </motion.div>
@@ -574,7 +574,7 @@ const PricingCard = React.memo(({ plan, navigate, isAuthenticated = false }) => 
         <button
           type="button"
           onClick={handleCTA}
-          className="w-full py-4 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+          className="w-full py-4 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
           style={
             popular
               ? { backgroundColor: THEME.accent, color: '#000' }
@@ -665,7 +665,7 @@ const Landing = () => {
             <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2.5 sm:gap-3"
             >
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: THEME.accent, boxShadow: `0 0 20px ${THEME.shadow}` }}>
+              <div className="w-8 h-8 rounded-2xl flex items-center justify-center shrink-0" style={{ backgroundColor: THEME.accent, boxShadow: `0 0 20px ${THEME.shadow}` }}>
                 <Icon name="pulse_alert" className="text-[#0a1000] text-lg" />
               </div>
               <span className="bebas text-xl sm:text-2xl tracking-wider" style={{ color: navInk(1) }}>Vitalis</span>
@@ -706,7 +706,7 @@ const Landing = () => {
                 aria-label="Toggle menu"
                 aria-expanded={menuOpen}
                 aria-controls="mobile-menu"
-                className="lg:hidden flex flex-col gap-1.5 w-10 h-10 justify-center items-center rounded-xl transition-colors"
+                className="lg:hidden flex flex-col gap-1.5 w-10 h-10 justify-center items-center rounded-2xl transition-colors"
                 style={{ backgroundColor: 'transparent' }}
               >
                 <motion.span animate={{ rotate: menuOpen ? 45 : 0, y: menuOpen ? 8 : 0 }} className="w-5 h-0.5 block origin-center" style={{ backgroundColor: navInk(1) }} />
@@ -771,14 +771,14 @@ const Landing = () => {
                 <button
                   type="button"
                   onClick={handleHeroCTA}
-                  className="flex-1 sm:flex-none px-8 py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[11px] transition-all hover:-translate-y-1 active:translate-y-0 whitespace-nowrap text-center"
+                  className="flex-1 sm:flex-none px-8 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all hover:-translate-y-1 active:translate-y-0 whitespace-nowrap text-center"
                   style={{ backgroundColor: THEME.accent, color: '#0a1000', boxShadow: `0 20px 50px ${THEME.shadow}` }}
                 >
                   Initiate Protocol
                 </button>
                 <button
                   type="button"
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl border transition-all group whitespace-nowrap"
+                  className="flex-1 sm:flex-none flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl border transition-all group whitespace-nowrap"
                   style={{ borderColor: HERO_BORDER, color: HERO_TEXT_SOFT }}
                   onMouseEnter={e => { if (canHover) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)'; e.currentTarget.style.color = HERO_TEXT_WHITE; } }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = HERO_BORDER; e.currentTarget.style.color = HERO_TEXT_SOFT; }}
@@ -872,7 +872,7 @@ const Landing = () => {
                   onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.06); }}
                 >
                   <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style={ABOUT_HOVER_GLOW_STYLE} />
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style={{ backgroundColor: accentAlpha(10) }}>
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6" style={{ backgroundColor: accentAlpha(10) }}>
                     <Icon name={item.icon} className="text-2xl" />
                   </div>
                   <h3 className="bebas text-3xl sm:text-4xl mb-4 tracking-wide" style={{ color: THEME.textStrong }}>{item.title}</h3>
@@ -892,7 +892,7 @@ const Landing = () => {
                   onMouseEnter={e => { if (canHover) { e.currentTarget.style.borderColor = accentAlpha(25); e.currentTarget.style.backgroundColor = ink(0.05); } }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = ink(0.05); e.currentTarget.style.backgroundColor = ink(0.03); }}
                 >
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-4 transition-colors" style={{ backgroundColor: accentAlpha(10) }}>
+                  <div className="w-9 h-9 rounded-2xl flex items-center justify-center mb-4 transition-colors" style={{ backgroundColor: accentAlpha(10) }}>
                     <Icon name={v.icon} className="text-lg" />
                   </div>
                   <h4 className="font-black text-base mb-2 dm" style={{ color: THEME.textStrong }}>{v.title}</h4>
@@ -955,7 +955,7 @@ const Landing = () => {
                   <button
                     type="button"
                     onClick={handleBottomCTA}
-                    className="w-full sm:w-auto px-10 py-4 rounded-xl bg-black text-white font-black uppercase tracking-[0.2em] text-[11px] hover:scale-[1.03] transition-transform shadow-xl whitespace-nowrap"
+                    className="w-full sm:w-auto px-10 py-4 rounded-2xl bg-black text-white font-black uppercase tracking-[0.2em] text-[11px] hover:scale-[1.03] transition-transform shadow-xl whitespace-nowrap"
                   >
                     Secure Membership
                   </button>
@@ -973,7 +973,7 @@ const Landing = () => {
 
               <div className="max-w-[260px]">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.accent, boxShadow: `0 0 16px ${accentAlpha(25)}` }}>
+                  <div className="w-8 h-8 rounded-2xl flex items-center justify-center" style={{ backgroundColor: THEME.accent, boxShadow: `0 0 16px ${accentAlpha(25)}` }}>
                     <Icon name="pulse_alert" className="text-[#0a1000] text-base" />
                   </div>
                   <span className="bebas text-2xl tracking-wider" style={{ color: THEME.textStrong }}>Vitalis</span>
@@ -987,7 +987,7 @@ const Landing = () => {
                       key={item.label}
                       href="#"
                       aria-label={item.label}
-                      className="w-9 h-9 rounded-lg border flex items-center justify-center transition-all duration-300 group"
+                      className="w-9 h-9 rounded-2xl border flex items-center justify-center transition-all duration-300 group"
                       style={{ backgroundColor: ink(0.05), borderColor: ink(0.08) }}
                       onMouseEnter={e => { if (canHover) { e.currentTarget.style.backgroundColor = THEME.accent; e.currentTarget.style.borderColor = THEME.accent; } }}
                       onMouseLeave={e => { e.currentTarget.style.backgroundColor = ink(0.05); e.currentTarget.style.borderColor = ink(0.08); }}

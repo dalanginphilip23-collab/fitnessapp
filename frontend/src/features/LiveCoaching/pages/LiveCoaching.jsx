@@ -144,7 +144,7 @@ export default function LiveCoaching() {
               />
 
               {/* Coach PiP — top right */}
-              <div className="absolute top-4 right-4 z-20 w-28 rounded-xl overflow-hidden border-2 border-white/20">
+              <div className="absolute top-4 right-4 z-20 w-28 rounded-2xl overflow-hidden border-2 border-white/20">
                 <video ref={coachVideoRef} className="w-full object-cover" loop muted playsInline>
                   <source src={coachVideo} type="video/mp4" />
                 </video>
@@ -164,7 +164,7 @@ export default function LiveCoaching() {
 
             {/* AI feedback strip */}
             <div className="flex items-start gap-4 bg-[#111111] border border-white/5 rounded-2xl px-5 py-4">
-              <div className="w-9 h-9 rounded-xl bg-[#D1FD52]/10 flex items-center justify-center text-lg shrink-0">
+              <div className="w-9 h-9 rounded-2xl bg-[#D1FD52]/10 flex items-center justify-center text-lg shrink-0">
                 🧠
               </div>
               <div>
@@ -218,7 +218,7 @@ export default function LiveCoaching() {
                   { label: 'Status',   value: isRecording ? 'Live' : 'Idle'     },
                   { label: 'AI',       value: 'Active'                          },
                 ].map(({ label, value }) => (
-                  <div key={label} className="bg-white/[0.03] rounded-xl p-3">
+                  <div key={label} className="bg-white/[0.03] rounded-2xl p-3">
                     <p className="text-[10px] text-white/30 uppercase tracking-wider mb-1">{label}</p>
                     <p className="text-sm font-black text-white">{value}</p>
                   </div>

@@ -33,7 +33,7 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
       >
         {/* Logo */}
         <div className="flex items-center gap-3.5 px-5 mb-9 overflow-hidden">
-          <div className="min-w-8 h-8 bg-(--accent) flex items-center justify-center rounded-xl shrink-0">
+          <div className="min-w-8 h-8 bg-(--accent) flex items-center justify-center rounded-2xl shrink-0">
             <Icon name="pulse_alert" fill={1} weight={400} className="text-[#161f00] text-[18px]" />
           </div>
           <span

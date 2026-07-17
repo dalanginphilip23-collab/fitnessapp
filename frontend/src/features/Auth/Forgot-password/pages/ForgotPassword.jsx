@@ -89,7 +89,7 @@ const OtpInput = ({ value, onChange }) => {
           onChange={e => handleChange(e, i)}
           onKeyDown={e => handleKey(e, i)}
           onPaste={handlePaste}
-          className={`w-full aspect-square max-w-[52px] text-center text-[20px] font-bold rounded-xl border bg-white/5 text-[#e5e2e1] outline-none transition-all duration-200
+          className={`w-full aspect-square max-w-[52px] text-center text-[20px] font-bold rounded-2xl border bg-white/5 text-[#e5e2e1] outline-none transition-all duration-200
             ${digits[i]
               ? 'border-[#c7f248]/50 bg-[#c7f248]/[0.04] shadow-[0_0_0_3px_rgba(199,242,72,0.08)]'
               : 'border-white/10 focus:border-[#c7f248]/40 focus:bg-[#c7f248]/[0.04] focus:shadow-[0_0_0_3px_rgba(199,242,72,0.08)]'
@@ -101,7 +101,7 @@ const OtpInput = ({ value, onChange }) => {
 };
 
 const ErrorBox = ({ msg }) => (
-  <div className="bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[10px] font-semibold tracking-[0.1em] uppercase py-2.5 px-3.5 mb-5 text-center">
+  <div className="bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-[10px] font-semibold tracking-[0.1em] uppercase py-2.5 px-3.5 mb-5 text-center">
     {msg}
   </div>
 );
@@ -110,7 +110,7 @@ const SubmitBtn = ({ loading, label, disabled = false }) => (
   <button
     type="submit"
     disabled={loading || disabled}
-    className="btn-primary w-full bg-[#c7f248] text-[#161f00] font-bold text-[11px] tracking-[0.25em] uppercase p-[15px] rounded-[10px] cursor-pointer flex items-center justify-center gap-2 transition-all duration-200 relative overflow-hidden disabled:opacity-40 disabled:cursor-not-allowed"
+    className="btn-primary w-full bg-[#c7f248] text-[#161f00] font-bold text-[11px] tracking-[0.25em] uppercase p-[15px] rounded-2xl cursor-pointer flex items-center justify-center gap-2 transition-all duration-200 relative overflow-hidden disabled:opacity-40 disabled:cursor-not-allowed"
   >
     {loading ? (
       <><div className="w-[13px] h-[13px] rounded-full animate-spin border-2 border-black border-t-transparent" /> Processing...</>
@@ -249,7 +249,7 @@ const ForgotPassword = () => {
 
           {/* Logo */}
           <div className="flex items-center gap-2.5 mb-7">
-            <div className="w-[34px] h-[34px] bg-[#c7f248] rounded-lg flex items-center justify-center">
+            <div className="w-[34px] h-[34px] bg-[#c7f248] rounded-2xl flex items-center justify-center">
               <svg className="w-[17px] h-[17px]" viewBox="0 0 24 24" fill="none">
                 <path d="M3 12h3l3-8 4 16 3-10 2 2h3" stroke="#161f00" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -278,7 +278,7 @@ const ForgotPassword = () => {
                     onChange={e => { setEmail(e.target.value); clearError(); }}
                     onFocus={() => setFocused('email')}
                     onBlur={() => setFocused('')}
-                    className="w-full bg-white/5 border border-white/10 rounded-[10px] text-[#e5e2e1] text-[14px] p-[12px_15px] outline-none transition-all duration-200 placeholder:text-white/15 focus:border-[#c7f248]/45 focus:bg-[#c7f248]/[0.04] focus:ring-[3px] focus:ring-[#c7f248]/10 box-border"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl text-[#e5e2e1] text-[14px] p-[12px_15px] outline-none transition-all duration-200 placeholder:text-white/15 focus:border-[#c7f248]/45 focus:bg-[#c7f248]/[0.04] focus:ring-[3px] focus:ring-[#c7f248]/10 box-border"
                   />
                 </div>
                 <SubmitBtn loading={loading} label="Send Verification Code" />
@@ -346,7 +346,7 @@ const ForgotPassword = () => {
                       onChange={e => { setNewPassword(e.target.value); clearError(); }}
                       onFocus={() => setFocused('newpw')}
                       onBlur={() => setFocused('')}
-                      className="w-full bg-white/5 border border-white/10 rounded-[10px] text-[#e5e2e1] text-[14px] p-[12px_44px_12px_15px] outline-none transition-all duration-200 placeholder:text-white/15 focus:border-[#c7f248]/45 focus:bg-[#c7f248]/[0.04] focus:ring-[3px] focus:ring-[#c7f248]/10 box-border"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl text-[#e5e2e1] text-[14px] p-[12px_44px_12px_15px] outline-none transition-all duration-200 placeholder:text-white/15 focus:border-[#c7f248]/45 focus:bg-[#c7f248]/[0.04] focus:ring-[3px] focus:ring-[#c7f248]/10 box-border"
                     />
                     <button type="button" onClick={() => setShowPw(s => !s)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/60 transition-colors"
@@ -378,7 +378,7 @@ const ForgotPassword = () => {
                     onChange={e => { setConfirmPw(e.target.value); clearError(); }}
                     onFocus={() => setFocused('confirmpw')}
                     onBlur={() => setFocused('')}
-                    className={`w-full bg-white/5 border rounded-[10px] text-[#e5e2e1] text-[14px] p-[12px_15px] outline-none transition-all duration-200 placeholder:text-white/15 focus:ring-[3px] box-border
+                    className={`w-full bg-white/5 border rounded-2xl text-[#e5e2e1] text-[14px] p-[12px_15px] outline-none transition-all duration-200 placeholder:text-white/15 focus:ring-[3px] box-border
                       ${confirmPw && newPassword !== confirmPw
                         ? 'border-red-500/50 focus:border-red-500/50 focus:ring-red-500/10'
                         : 'border-white/10 focus:border-[#c7f248]/45 focus:bg-[#c7f248]/[0.04] focus:ring-[#c7f248]/10'

@@ -34,7 +34,7 @@ function Toast({ id, message, type, onClose }) {
     <div
       className={`
         flex items-start gap-3 w-[320px] px-4 py-3
-        bg-[#1a1a1a] border rounded-xl shadow-2xl
+        bg-[#1a1a1a] border rounded-2xl shadow-2xl
         transition-all duration-300 ease-out
         ${COLORS[type]}
         ${visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}

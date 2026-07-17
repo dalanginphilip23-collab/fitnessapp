@@ -31,7 +31,7 @@ function EarlyExitDialog({ reps, minReps, elapsedMins, requiredMins, onConfirm, 
          style={{ background: 'var(--bg-overlay)', backdropFilter: 'blur(6px)' }}>
       <div className="w-full max-w-sm mx-4 rounded-2xl border shadow-2xl p-6"
            style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-medium)' }}>
-        <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 mx-auto"
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 mx-auto"
              style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)' }}>
           <span className="material-symbols-outlined text-red-400 text-[22px]"
                 style={{ fontVariationSettings: "'FILL' 1" }}>warning</span>
@@ -51,14 +51,14 @@ function EarlyExitDialog({ reps, minReps, elapsedMins, requiredMins, onConfirm, 
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 py-2.5 rounded-xl font-bold text-sm border transition-all"
+            className="flex-1 py-2.5 rounded-2xl font-bold text-sm border transition-all"
             style={{ borderColor: 'var(--border-medium)', color: 'var(--text-muted)' }}
           >
             Keep Going
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 py-2.5 rounded-xl font-bold text-sm transition-all"
+            className="flex-1 py-2.5 rounded-2xl font-bold text-sm transition-all"
             style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171',
                      border: '1px solid rgba(239,68,68,0.3)' }}
           >

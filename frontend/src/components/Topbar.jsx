@@ -54,7 +54,7 @@ function NotificationOverlay({ notifications, onMarkRead, onMarkAllRead, onClose
           <button onClick={onMarkAllRead} className="text-[11px] text-(--accent)/80 hover:text-(--accent) transition-colors bg-transparent border-none cursor-pointer font-medium whitespace-nowrap px-1">
             Mark all read
           </button>
-          <button onClick={onClose} className="w-6 h-6 flex items-center justify-center rounded-lg bg-(--bg-hover) hover:bg-(--bg-active) transition-colors border-none cursor-pointer">
+          <button onClick={onClose} className="w-6 h-6 flex items-center justify-center rounded-2xl bg-(--bg-hover) hover:bg-(--bg-active) transition-colors border-none cursor-pointer">
             <Icon name="close" className="text-(--text-muted) text-[14px]" />
           </button>
         </div>
@@ -496,7 +496,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                     <button
                       key={label}
                       onClick={() => { action(); setSettingsOpen(false); }}
-                      className={'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] sm:text-[12px] transition-colors duration-150 text-left cursor-pointer border-none bg-transparent ' + (accent ? 'text-(--accent) hover:bg-(--accent-bg)' : 'text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-hover)')}
+                      className={'w-full flex items-center gap-2.5 px-3 py-2 rounded-2xl text-[11px] sm:text-[12px] transition-colors duration-150 text-left cursor-pointer border-none bg-transparent ' + (accent ? 'text-(--accent) hover:bg-(--accent-bg)' : 'text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-hover)')}
                     >
                       <Icon name={icon} className="text-[14px] sm:text-[15px]" />
                       {label}
@@ -505,7 +505,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                   <div className="border-t border-(--border-light) mt-1 pt-1">
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] sm:text-[12px] text-[#e05050] hover:bg-[#e05050]/10 transition-colors duration-150 cursor-pointer border-none bg-transparent"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-2xl text-[11px] sm:text-[12px] text-[#e05050] hover:bg-[#e05050]/10 transition-colors duration-150 cursor-pointer border-none bg-transparent"
                     >
                       <Icon name="logout" className="text-[14px] sm:text-[15px]" /> Log out
                     </button>

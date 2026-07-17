@@ -296,7 +296,7 @@ const VoiceCallScreen = ({ doctor, sessionId, onShowAlert, onEndCall }) => {
         {messages.length > 0 && (
           <div className="w-full max-w-sm max-h-36 overflow-y-auto flex flex-col gap-2 px-1 [&::-webkit-scrollbar]:hidden">
             {messages.map((m, i) => (
-              <div key={i} className={`text-[11px] px-3 py-1.5 rounded-xl max-w-[85%] leading-relaxed ${
+              <div key={i} className={`text-[11px] px-3 py-1.5 rounded-2xl max-w-[85%] leading-relaxed ${
                 m.from === 'patient'
                   ? 'self-end bg-(--accent-bg) text-(--accent) text-right'
                   : 'self-start bg-(--bg-hover) text-(--text-secondary)'
@@ -618,7 +618,7 @@ const VirtualClinic = () => {
 
       {/* Popup */}
       <div className={`fixed top-20 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:top-24 sm:right-6 z-100 w-[calc(100%-2rem)] sm:w-auto transition-all duration-500 transform ${showAlert ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'}`}>
-        <div className="bg-(--accent) text-black px-5 py-3 rounded-xl font-bold shadow-2xl flex items-center gap-3 border border-black/10 text-sm">
+        <div className="bg-(--accent) text-black px-5 py-3 rounded-2xl font-bold shadow-2xl flex items-center gap-3 border border-black/10 text-sm">
           <div className="w-2 h-2 bg-black rounded-full animate-pulse shrink-0" />
           {alertMessage}
         </div>

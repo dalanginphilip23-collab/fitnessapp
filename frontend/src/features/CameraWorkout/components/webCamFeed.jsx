@@ -135,7 +135,7 @@ export default function WebcamFeed({
       )}
 
       {loadError && (
-        <div className="absolute bottom-3 left-3 z-30 bg-(--error-bg) border border-(--error)/30 px-3 py-1.5 rounded-xl">
+        <div className="absolute bottom-3 left-3 z-30 bg-(--error-bg) border border-(--error)/30 px-3 py-1.5 rounded-2xl">
           <p className="text-[9px] text-(--error) font-bold uppercase tracking-widest">
             Pose AI failed to load — check your connection
           </p>
@@ -150,7 +150,7 @@ export default function WebcamFeed({
       {isMobile && (
         <button
           onClick={toggleFullscreen}
-          className="absolute top-3 right-3 z-40 flex items-center justify-center w-9 h-9 rounded-xl bg-(--bg-overlay) border border-(--border-medium) backdrop-blur-sm active:scale-95 transition-transform touch-manipulation"
+          className="absolute top-3 right-3 z-40 flex items-center justify-center w-9 h-9 rounded-2xl bg-(--bg-overlay) border border-(--border-medium) backdrop-blur-sm active:scale-95 transition-transform touch-manipulation"
           aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
         >
           <Icon

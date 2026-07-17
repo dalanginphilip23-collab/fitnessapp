@@ -91,12 +91,12 @@ function Icon({ name, className = '', fill = 0 }) {
 
 function TimeframeToggle({ timeframe, setTimeframe }) {
   return (
-    <div className="flex bg-(--bg-tertiary) p-1 rounded-xl border border-(--border-light) overflow-x-auto no-scrollbar shadow-xl self-start sm:self-auto shrink-0">
+    <div className="flex bg-(--bg-tertiary) p-1 rounded-2xl border border-(--border-light) overflow-x-auto no-scrollbar shadow-xl self-start sm:self-auto shrink-0">
       {['Weekly', 'Monthly', 'Quarterly'].map((t) => (
         <button
           key={t}
           onClick={() => setTimeframe(t)}
-          className={`px-3 sm:px-5 md:px-6 py-2 md:py-2.5 text-[9px] md:text-[10px] font-black uppercase tracking-[0.12em] sm:tracking-[0.15em] rounded-lg transition-all whitespace-nowrap touch-manipulation ${
+          className={`px-3 sm:px-5 md:px-6 py-2 md:py-2.5 text-[9px] md:text-[10px] font-black uppercase tracking-[0.12em] sm:tracking-[0.15em] rounded-2xl transition-all whitespace-nowrap touch-manipulation ${
             timeframe === t
               ? 'bg-(--accent) text-[#161f00] shadow-lg'
               : 'text-(--text-muted) hover:text-(--text-primary)'
@@ -252,7 +252,7 @@ function SleepSyncCard({ sleepHours, setSleepHours, sleepQuality, setSleepQualit
     <div className="col-span-1 lg:col-span-4">
       <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-6 md:p-8 border border-(--border-light) shadow-sm h-full">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <div className="p-2 sm:p-2.5 bg-(--bg-hover) rounded-xl">
+          <div className="p-2 sm:p-2.5 bg-(--bg-hover) rounded-2xl">
             <Icon name="bedtime" className="text-(--accent) text-xl sm:text-2xl" fill={1} />
           </div>
           <div className="flex flex-col items-end gap-1">
@@ -276,7 +276,7 @@ function SleepSyncCard({ sleepHours, setSleepHours, sleepQuality, setSleepQualit
           <button
             onClick={onSave}
             disabled={saveStatus === 'saving'}
-            className="w-full py-3 bg-(--accent) hover:bg-(--accent-dark) active:bg-(--accent-dark) disabled:opacity-50 text-[#161f00] text-[10px] font-black uppercase tracking-[0.15em] rounded-xl transition-all shadow-[0_5px_15px_rgba(209,253,82,0.2)] touch-manipulation"
+            className="w-full py-3 bg-(--accent) hover:bg-(--accent-dark) active:bg-(--accent-dark) disabled:opacity-50 text-[#161f00] text-[10px] font-black uppercase tracking-[0.15em] rounded-2xl transition-all shadow-[0_5px_15px_rgba(209,253,82,0.2)] touch-manipulation"
           >
             {saveStatus === 'saving' ? 'Syncing...' : 'Sync Sleep Data'}
           </button>

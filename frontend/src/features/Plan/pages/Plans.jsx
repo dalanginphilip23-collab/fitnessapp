@@ -117,7 +117,7 @@ const PlanCard = ({ plan, onOpen, onEnroll, onContinue, style = {} }) => (
         {plan.is_enrolled === 1 ? (
           <button
             onClick={e => { e.stopPropagation(); onContinue(plan); }}
-            className="px-3 sm:px-5 lg:px-6 py-2 sm:py-2.5 rounded-lg font-bold text-xs sm:text-sm active:scale-95 transition-all"
+            className="px-3 sm:px-5 lg:px-6 py-2 sm:py-2.5 rounded-2xl font-bold text-xs sm:text-sm active:scale-95 transition-all"
             style={{ background: 'var(--accent)', color: '#161f00' }}
           >
             Continue Plan
@@ -125,7 +125,7 @@ const PlanCard = ({ plan, onOpen, onEnroll, onContinue, style = {} }) => (
         ) : (
           <button
             onClick={e => { e.stopPropagation(); onEnroll(plan.id); }}
-            className="px-3 sm:px-5 lg:px-6 py-2 sm:py-2.5 rounded-lg font-bold text-xs sm:text-sm active:scale-95 transition-all"
+            className="px-3 sm:px-5 lg:px-6 py-2 sm:py-2.5 rounded-2xl font-bold text-xs sm:text-sm active:scale-95 transition-all"
             style={{ background: 'var(--accent)', color: '#161f00' }}
           >
             Get Access
@@ -202,7 +202,7 @@ const PlanDetailOverlay = ({ plan, onClose, onStart }) => {
               ].map(stat => (
                 <div
                   key={stat.label}
-                  className="rounded-xl p-2.5 sm:p-3 text-center border"
+                  className="rounded-2xl p-2.5 sm:p-3 text-center border"
                   style={{ background: 'var(--bg-hover)', borderColor: 'var(--border-light)' }}
                 >
                   <Icon name={stat.icon} className="text-[14px] sm:text-[16px] mb-0.5 sm:mb-1" style={{ color: 'var(--accent)' }} fill={1} />
@@ -212,7 +212,7 @@ const PlanDetailOverlay = ({ plan, onClose, onStart }) => {
               ))}
             </div>
             <div
-              className="rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 border"
+              className="rounded-2xl p-3 sm:p-4 mb-4 sm:mb-6 border"
               style={{ background: 'var(--accent-bg)', borderColor: 'var(--accent-border)' }}
             >
               <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest mb-1.5 sm:mb-2" style={{ color: 'var(--accent)' }}>
@@ -236,7 +236,7 @@ const PlanDetailOverlay = ({ plan, onClose, onStart }) => {
             </div>
             <button
               onClick={onStart}
-              className="w-full py-3 sm:py-3.5 rounded-xl font-black text-sm tracking-wide uppercase active:scale-[0.98] transition-all duration-200"
+              className="w-full py-3 sm:py-3.5 rounded-2xl font-black text-sm tracking-wide uppercase active:scale-[0.98] transition-all duration-200"
               style={{ background: 'var(--accent)', color: '#161f00' }}
             >
               {plan.is_enrolled === 1 ? 'Open Plan Tracker' : 'Start Plan → Day 1'}
@@ -301,7 +301,7 @@ const DayTracker = ({ plan, content, progress, onClose, onCompleteDay }) => {
           </p>
           <button
             onClick={onClose}
-            className="mt-2 px-6 py-2.5 rounded-lg font-bold text-sm"
+            className="mt-2 px-6 py-2.5 rounded-2xl font-bold text-sm"
             style={{ background: 'var(--accent)', color: '#161f00' }}
           >
             Back to Plans
@@ -372,7 +372,7 @@ const DayTracker = ({ plan, content, progress, onClose, onCompleteDay }) => {
           </div>
           {/* Mobile sidebar toggle */}
           <button
-            className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg border"
+            className="md:hidden w-8 h-8 flex items-center justify-center rounded-2xl border"
             style={{ borderColor: 'var(--border-light)', color: 'var(--text-muted)' }}
             onClick={() => setSidebarOpen(v => !v)}
             aria-label="Toggle day list"
@@ -524,7 +524,7 @@ const DayTracker = ({ plan, content, progress, onClose, onCompleteDay }) => {
               >
                 <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
                   <div
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center border flex-shrink-0"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center border flex-shrink-0"
                     style={{ background: 'var(--accent-bg)', borderColor: 'var(--accent-border)' }}
                   >
                     <Icon name="fitness_center" className="text-[18px] sm:text-[20px]" style={{ color: 'var(--accent)' }} fill={1} />
@@ -550,7 +550,7 @@ const DayTracker = ({ plan, content, progress, onClose, onCompleteDay }) => {
                     activeDayData.exercises.map((ex, idx) => (
                       <div
                         key={`${activeDayData.day_number}-${idx}`}
-                        className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border"
+                        className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-2xl border"
                         style={{ background: 'var(--bg-hover)', borderColor: 'var(--border-light)' }}
                       >
                         <span className="text-[9px] sm:text-[10px] font-black w-5 sm:w-6 flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
@@ -565,7 +565,7 @@ const DayTracker = ({ plan, content, progress, onClose, onCompleteDay }) => {
                     ))
                   ) : (
                     <div
-                      className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border"
+                      className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-2xl border"
                       style={{ background: 'var(--bg-hover)', borderColor: 'var(--border-light)' }}
                     >
                       <Icon name="info" className="text-[16px] flex-shrink-0 mt-0.5" style={{ color: 'var(--text-muted)' }} />
@@ -584,7 +584,7 @@ const DayTracker = ({ plan, content, progress, onClose, onCompleteDay }) => {
                       const next = content.find(d => d.day_number > activeDay);
                       if (next) setActiveDay(next.day_number);
                     }}
-                    className="flex-1 py-3 sm:py-3.5 rounded-xl border font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2"
+                    className="flex-1 py-3 sm:py-3.5 rounded-2xl border font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2"
                     style={{ borderColor: 'var(--border-medium)', color: 'var(--text-muted)' }}
                   >
                     <Icon name="skip_next" className="text-[16px] sm:text-[18px]" />
@@ -596,7 +596,7 @@ const DayTracker = ({ plan, content, progress, onClose, onCompleteDay }) => {
                 {isDayComplete ? (
                   <button
                     disabled
-                    className="flex-1 py-3 sm:py-3.5 rounded-xl font-black text-xs sm:text-sm tracking-wide uppercase flex items-center justify-center gap-1.5 sm:gap-2"
+                    className="flex-1 py-3 sm:py-3.5 rounded-2xl font-black text-xs sm:text-sm tracking-wide uppercase flex items-center justify-center gap-1.5 sm:gap-2"
                     style={{
                       background: 'var(--success-bg)',
                       color:      'var(--success)',
@@ -610,7 +610,7 @@ const DayTracker = ({ plan, content, progress, onClose, onCompleteDay }) => {
                   <button
                     onClick={handleComplete}
                     disabled={completing}
-                    className="flex-1 py-3 sm:py-3.5 rounded-xl font-black text-xs sm:text-sm tracking-wide uppercase transition-all flex items-center justify-center gap-1.5 sm:gap-2"
+                    className="flex-1 py-3 sm:py-3.5 rounded-2xl font-black text-xs sm:text-sm tracking-wide uppercase transition-all flex items-center justify-center gap-1.5 sm:gap-2"
                     style={{ background: 'var(--accent)', color: '#161f00', opacity: completing ? 0.7 : 1 }}
                   >
                     {completing ? (
@@ -622,7 +622,7 @@ const DayTracker = ({ plan, content, progress, onClose, onCompleteDay }) => {
                 ) : (
                   <button
                     onClick={handleStartWorkout}
-                    className="flex-1 py-3 sm:py-3.5 rounded-xl font-black text-xs sm:text-sm tracking-wide uppercase transition-all flex items-center justify-center gap-1.5 sm:gap-2 active:scale-[0.98]"
+                    className="flex-1 py-3 sm:py-3.5 rounded-2xl font-black text-xs sm:text-sm tracking-wide uppercase transition-all flex items-center justify-center gap-1.5 sm:gap-2 active:scale-[0.98]"
                     style={{ background: 'var(--accent)', color: '#161f00' }}
                   >
                     <Icon name="play_circle" className="text-[16px] sm:text-[18px]" fill={1} /> Start Workout
@@ -708,7 +708,7 @@ const MyPlans = ({ plans, onOpen, onContinue }) => {
                 </div>
                 <button
                   onClick={e => { e.stopPropagation(); onContinue(active); }}
-                  className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-black text-xs sm:text-sm tracking-wide uppercase active:scale-95 transition-all flex-shrink-0"
+                  className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl font-black text-xs sm:text-sm tracking-wide uppercase active:scale-95 transition-all flex-shrink-0"
                   style={{ background: 'var(--accent)', color: '#161f00' }}
                 >
                   Continue →
@@ -788,7 +788,7 @@ const FindPlan = ({ plans, onOpen, onEnroll, onContinue }) => {
           value={query}
           onChange={e => setQuery(e.target.value)}
           placeholder="Search blueprints..."
-          className="w-full rounded-xl pl-10 sm:pl-12 pr-4 py-3 sm:py-3.5 text-sm outline-none border transition-all"
+          className="w-full rounded-2xl pl-10 sm:pl-12 pr-4 py-3 sm:py-3.5 text-sm outline-none border transition-all"
           style={{ background: 'var(--bg-tertiary)', borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
         />
         {query && (
@@ -801,7 +801,7 @@ const FindPlan = ({ plans, onOpen, onEnroll, onContinue }) => {
           </button>
         )}
       </div>
-      <div className="rounded-xl p-3 sm:p-5 mb-6 sm:mb-8 space-y-3 sm:space-y-4 border" style={{ background: 'var(--bg-tertiary)', borderColor: 'var(--border-light)' }}>
+      <div className="rounded-2xl p-3 sm:p-5 mb-6 sm:mb-8 space-y-3 sm:space-y-4 border" style={{ background: 'var(--bg-tertiary)', borderColor: 'var(--border-light)' }}>
         {[
           { label: 'Intensity', opts: INTENSITY_OPTIONS, active: intensity, set: setIntensity },
           { label: 'Focus Area', opts: FOCUS_OPTIONS,    active: focus,     set: setFocus     },
@@ -917,7 +917,7 @@ const Explore = ({ plans, onOpen, onEnroll, onContinue }) => {
           <button
             key={cat.label}
             onClick={() => setActiveCategory(cat.tag)}
-            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[10px] sm:text-xs font-bold uppercase tracking-widest flex-shrink-0 transition-all border"
+            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-[10px] sm:text-xs font-bold uppercase tracking-widest flex-shrink-0 transition-all border"
             style={{
               background:  activeCategory === cat.tag ? 'var(--accent)'     : 'var(--bg-tertiary)',
               color:       activeCategory === cat.tag ? '#161f00'           : 'var(--text-muted)',
@@ -957,14 +957,14 @@ const TABS = [
 
 const TabBar = ({ active, onChange, enrolledCount }) => (
   <div
-    className="flex gap-1 rounded-xl p-1 w-full overflow-x-auto mb-6 sm:mb-10 border"
+    className="flex gap-1 rounded-2xl p-1 w-full overflow-x-auto mb-6 sm:mb-10 border"
     style={{ background: 'var(--bg-tertiary)', borderColor: 'var(--border-light)', scrollbarWidth: 'none' }}
   >
     {TABS.map(tab => (
       <button
         key={tab.id}
         onClick={() => onChange(tab.id)}
-        className="relative flex flex-1 min-w-0 whitespace-nowrap items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 lg:px-5 py-2 sm:py-2.5 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all"
+        className="relative flex flex-1 min-w-0 whitespace-nowrap items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-4 lg:px-5 py-2 sm:py-2.5 rounded-2xl text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all"
         style={{
           background: active === tab.id ? 'var(--accent)' : 'transparent',
           color:      active === tab.id ? '#161f00'       : 'var(--text-muted)',
@@ -1059,7 +1059,7 @@ const Plans = () => {
             </div>
             {enrolledCount > 0 && (
               <div
-                className="flex items-center gap-2 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 border self-start sm:self-auto"
+                className="flex items-center gap-2 rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 border self-start sm:self-auto"
                 style={{ background: 'var(--accent-bg)', borderColor: 'var(--accent-border)' }}
               >
                 <Icon name="trophy" className="text-[16px] sm:text-[18px]" style={{ color: 'var(--accent)' }} fill={1} />

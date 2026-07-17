@@ -316,7 +316,7 @@ const BMI = () => {
             )}
 
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-(--accent) rounded-lg">
+              <div className="p-2 bg-(--accent) rounded-2xl">
                 <Icon name="neurology" className="text-xl" style={{ color: 'var(--text-inverse)' }} />
               </div>
               <h3 className="font-black uppercase text-sm tracking-[0.15em] text-(--accent)">

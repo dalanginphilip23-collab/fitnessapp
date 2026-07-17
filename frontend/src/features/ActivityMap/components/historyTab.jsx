@@ -8,7 +8,7 @@ const HistoryTab = ({ history, historyLoading, historyError, formatTime, onRefre
         <div className="flex items-center justify-between mb-3">
           <button
             onClick={onRefresh}
-            className="text-[9px] font-black uppercase tracking-widest text-[var(--accent)] hover:opacity-70 px-2 py-1 rounded-lg bg-[var(--bg-hover)]"
+            className="text-[9px] font-black uppercase tracking-widest text-[var(--accent)] hover:opacity-70 px-2 py-1 rounded-2xl bg-[var(--bg-hover)]"
           >
             ↺ Refresh
           </button>
@@ -41,7 +41,7 @@ const HistoryTab = ({ history, historyLoading, historyError, formatTime, onRefre
               return (
                 <div
                   key={activity.id}
-                  className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-3 hover:border-[var(--accent-border)] transition-all duration-300"
+                  className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl shadow-[var(--shadow-sm)] p-3 hover:border-[var(--accent-border)] transition-all duration-300"
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
@@ -78,7 +78,7 @@ const HistoryTab = ({ history, historyLoading, historyError, formatTime, onRefre
                     </div>
                     <button
                       onClick={() => onDelete(activity.id)}
-                      className="text-[10px] font-medium text-red-400 hover:text-red-300 px-2 py-1 rounded-lg hover:bg-red-500/10 transition-colors"
+                      className="text-[10px] font-medium text-red-400 hover:text-red-300 px-2 py-1 rounded-2xl hover:bg-red-500/10 transition-colors"
                     >
                       ✕
                     </button>
@@ -102,7 +102,7 @@ const HistoryTab = ({ history, historyLoading, historyError, formatTime, onRefre
         <div className="flex gap-2">
           <button
             onClick={onRefresh}
-            className="text-[10px] font-black uppercase tracking-[0.15em] text-[var(--accent)] hover:opacity-70 transition-opacity px-3 py-1.5 rounded-lg bg-[var(--bg-hover)]"
+            className="text-[10px] font-black uppercase tracking-[0.15em] text-[var(--accent)] hover:opacity-70 transition-opacity px-3 py-1.5 rounded-2xl bg-[var(--bg-hover)]"
           >
             ↺ Refresh
           </button>
@@ -116,14 +116,14 @@ const HistoryTab = ({ history, historyLoading, historyError, formatTime, onRefre
       )}
 
       {historyError && (
-        <div className="text-center py-12 bg-red-500/10 border border-red-500/20 rounded-xl p-6">
+        <div className="text-center py-12 bg-red-500/10 border border-red-500/20 rounded-2xl p-6">
           <p className="text-red-400 text-sm font-medium">⚠ {historyError}</p>
           <p className="text-[var(--text-muted)] text-xs mt-2">Check your connection and try again</p>
         </div>
       )}
 
       {!historyLoading && !historyError && history.length === 0 && (
-        <div className="text-center py-16 bg-[var(--bg-tertiary)] rounded-xl border border-[var(--border-light)]">
+        <div className="text-center py-16 bg-[var(--bg-tertiary)] rounded-2xl border border-[var(--border-light)]">
           <div className="text-4xl mb-3">🏃</div>
           <p className="text-[var(--text-secondary)] font-medium">No activities yet</p>
           <p className="text-[var(--text-muted)] text-xs mt-1">Go to Run tab and start your first activity!</p>
@@ -137,7 +137,7 @@ const HistoryTab = ({ history, historyLoading, historyError, formatTime, onRefre
             return (
               <div
                 key={activity.id}
-                className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-xl p-4 hover:border-[var(--accent-border)] transition-all duration-300"
+                className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl shadow-[var(--shadow-sm)] p-4 hover:border-[var(--accent-border)] transition-all duration-300"
               >
                 <div className="flex items-start justify-between mb-3 flex-wrap gap-2">
                   <div>
@@ -159,7 +159,7 @@ const HistoryTab = ({ history, historyLoading, historyError, formatTime, onRefre
                     </span>
                     <button
                       onClick={() => onDelete(activity.id)}
-                      className="text-[11px] font-medium text-red-400 hover:text-red-300 transition-colors px-2 py-1 rounded-lg hover:bg-red-500/10"
+                      className="text-[11px] font-medium text-red-400 hover:text-red-300 transition-colors px-2 py-1 rounded-2xl hover:bg-red-500/10"
                     >
                       Delete
                     </button>
