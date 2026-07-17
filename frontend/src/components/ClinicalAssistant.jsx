@@ -67,22 +67,13 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
     return () => clearTimeout(timer);
   }, [water]);
 
-  useEffect(() => {
-    if (!userId || insights.length > 0) return;
-    const fetchLatestIfEmpty = async () => {
-      setHistoryLoad(true);
-      try {
-        const res  = await fetch(`${API_BASE_URL}/api/ai/history/${userId}`);
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) setHistory(data);
-      } catch (err) {
-        console.error('Initial fetch error:', err);
-      } finally {
-        setHistoryLoad(false);
-      }
-    };
-    fetchLatestIfEmpty();
-  }, [userId, insights.length]);
+  // NOTE: previously there was a "fetch history if insights is empty" effect
+  // here that backfilled the *Recent Insights* section with all-time history
+  // whenever `insights` was reset to []. That happens legitimately once a
+  // day (see useDashboardData's day-rollover check), so it was silently
+  // re-populating "Recent" with yesterday's (or older) cards. Removed —
+  // history is now ONLY ever fetched when the user explicitly opens
+  // "Show All History" below.
 
   useEffect(() => {
     if (!showHistory || !userId) return;
@@ -103,9 +94,10 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
     fetchHistory();
   }, [showHistory, userId]);
 
-  const activeInsights = showHistory
-    ? history
-    : (insights.length > 0 ? insights : history.slice(0, 5));
+  // "Recent Insights" now shows ONLY what today's live analysis produced.
+  // "Show All History" shows the full fetched history. No more silent
+  // fallback mixing the two, which is what caused stale days to linger.
+  const activeInsights = showHistory ? history : insights;
 
   return (
     <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[var(--card-radius-md)] shadow-[var(--shadow-sm)] p-[22px] flex flex-col overflow-hidden">
