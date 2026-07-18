@@ -6,7 +6,7 @@ import React from 'react';
  *
  * Theme-aware version:
  * - All hardcoded dark colors (bg-[#141414], text-white, border-white/X)
- *   replaced with CSS variables from themes.css so the card correctly
+ *   replaced with CSS variables from index.css so the card correctly
  *   flips between dark-theme / light-theme.
  * - Accent color (#c7f248) intentionally left hardcoded — it stays the
  *   same lime-green in both themes per product decision.
@@ -30,7 +30,7 @@ const FieldLabel = ({ children, locked = false }) => (
 );
 
 const fieldBase =
-  'w-full rounded-2xl px-3 py-2.5 text-[12px] font-medium outline-none transition-all font-sans';
+  'w-full rounded-lg px-3 py-2.5 text-[12px] font-medium outline-none transition-all font-sans';
 
 const editableClass =
   `${fieldBase} bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-primary)]
@@ -51,7 +51,7 @@ const PersonalInfoForm = ({ formData, isEditing, onInputChange, onToggleEdit }) 
         <button
           onClick={onToggleEdit}
           className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest
-            border rounded-2xl px-3 py-1.5 transition-all
+            border rounded-lg px-3 py-1.5 transition-all
             ${isEditing
               ? 'border-[#c7f248]/30 bg-[#c7f248]/8 text-[#62aa1a]'
               : 'border-[var(--border-medium)] bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:border-[var(--border-heavy)] hover:text-[var(--text-primary)]'

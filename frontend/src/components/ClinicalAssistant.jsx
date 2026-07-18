@@ -67,13 +67,22 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
     return () => clearTimeout(timer);
   }, [water]);
 
-  // NOTE: previously there was a "fetch history if insights is empty" effect
-  // here that backfilled the *Recent Insights* section with all-time history
-  // whenever `insights` was reset to []. That happens legitimately once a
-  // day (see useDashboardData's day-rollover check), so it was silently
-  // re-populating "Recent" with yesterday's (or older) cards. Removed —
-  // history is now ONLY ever fetched when the user explicitly opens
-  // "Show All History" below.
+  useEffect(() => {
+    if (!userId || insights.length > 0) return;
+    const fetchLatestIfEmpty = async () => {
+      setHistoryLoad(true);
+      try {
+        const res  = await fetch(`${API_BASE_URL}/api/ai/history/${userId}`);
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) setHistory(data);
+      } catch (err) {
+        console.error('Initial fetch error:', err);
+      } finally {
+        setHistoryLoad(false);
+      }
+    };
+    fetchLatestIfEmpty();
+  }, [userId, insights.length]);
 
   useEffect(() => {
     if (!showHistory || !userId) return;
@@ -94,13 +103,12 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
     fetchHistory();
   }, [showHistory, userId]);
 
-  // "Recent Insights" now shows ONLY what today's live analysis produced.
-  // "Show All History" shows the full fetched history. No more silent
-  // fallback mixing the two, which is what caused stale days to linger.
-  const activeInsights = showHistory ? history : insights;
+  const activeInsights = showHistory
+    ? history
+    : (insights.length > 0 ? insights : history.slice(0, 5));
 
   return (
-    <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[var(--card-radius-md)] shadow-[var(--shadow-sm)] p-[22px] flex flex-col overflow-hidden">
+    <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[14px] p-[22px] flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-5 flex-shrink-0">
         <div className="flex items-center gap-2.5">
@@ -140,7 +148,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
           onClick={() => setShowHistory(prev => !prev)}
           disabled={!userId || isAnalyzing}
           className={`
-            w-full flex items-center justify-center gap-2 py-2 px-3 rounded-2xl
+            w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg
             text-[10px] font-black uppercase tracking-widest
             border transition-all duration-200 cursor-pointer
             ${showHistory
@@ -181,7 +189,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
         )}
 
         {historyError && !historyLoad && (
-          <div className="h-full flex items-center justify-center border-2 border-dashed border-red-500/10 rounded-2xl">
+          <div className="h-full flex items-center justify-center border-2 border-dashed border-red-500/10 rounded-xl">
             <p className="text-[11px] text-red-400/50 italic text-center px-4">
               Failed to load history. Check your connection.
             </p>
@@ -189,7 +197,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
         )}
 
         {!historyLoad && !historyError && activeInsights.length === 0 && (
-          <div className="h-full flex items-center justify-center border-2 border-dashed border-[var(--border-light)] rounded-2xl">
+          <div className="h-full flex items-center justify-center border-2 border-dashed border-[var(--border-light)] rounded-xl">
             <p className="text-[11px] text-[var(--text-muted)] italic text-center px-4">
               {showHistory
                 ? 'No history found. Your AI insights will appear here after analysis.'

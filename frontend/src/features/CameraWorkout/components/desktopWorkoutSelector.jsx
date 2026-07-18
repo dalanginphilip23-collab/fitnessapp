@@ -23,7 +23,7 @@ export default function DesktopWorkoutSelector({ workoutType, onSelect }) {
             const opt = WORKOUT_OPTIONS.find(o => o.id === e.target.value);
             if (opt) onSelect(opt);
           }}
-          className="appearance-none w-full bg-[var(--bg-hover)] border border-[var(--border-medium)] text-[var(--text-primary)] text-[10px] font-black uppercase tracking-[0.15em] pl-14 pr-12 py-2.5 rounded-2xl cursor-pointer outline-none transition-all duration-300 hover:bg-[var(--surface-hover)] hover:border-[var(--border-heavy)] focus:border-[var(--accent-border)] focus:ring-1 focus:ring-[var(--accent-border)] min-w-0 sm:min-w-[240px] truncate"
+          className="appearance-none w-full bg-[var(--bg-hover)] border border-[var(--border-medium)] text-[var(--text-primary)] text-[10px] font-black uppercase tracking-[0.15em] pl-14 pr-12 py-2.5 rounded-xl cursor-pointer outline-none transition-all duration-300 hover:bg-[var(--surface-hover)] hover:border-[var(--border-heavy)] focus:border-[var(--accent-border)] focus:ring-1 focus:ring-[var(--accent-border)] min-w-0 sm:min-w-[240px] truncate"
         >
           {WORKOUT_OPTIONS.map((opt) => (
             <option key={opt.id} value={opt.id} className="bg-[var(--bg-secondary)] text-[var(--text-primary)]">

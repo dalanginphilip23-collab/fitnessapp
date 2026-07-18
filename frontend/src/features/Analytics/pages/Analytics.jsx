@@ -91,12 +91,12 @@ function Icon({ name, className = '', fill = 0 }) {
 
 function TimeframeToggle({ timeframe, setTimeframe }) {
   return (
-    <div className="flex bg-(--bg-tertiary) p-1 rounded-2xl border border-(--border-light) overflow-x-auto no-scrollbar shadow-xl self-start sm:self-auto shrink-0">
+    <div className="flex bg-(--bg-tertiary) p-1 rounded-xl border border-(--border-light) overflow-x-auto no-scrollbar shadow-xl self-start sm:self-auto shrink-0">
       {['Weekly', 'Monthly', 'Quarterly'].map((t) => (
         <button
           key={t}
           onClick={() => setTimeframe(t)}
-          className={`px-3 sm:px-5 md:px-6 py-2 md:py-2.5 text-[9px] md:text-[10px] font-black uppercase tracking-[0.12em] sm:tracking-[0.15em] rounded-2xl transition-all whitespace-nowrap touch-manipulation ${
+          className={`px-3 sm:px-5 md:px-6 py-2 md:py-2.5 text-[9px] md:text-[10px] font-black uppercase tracking-[0.12em] sm:tracking-[0.15em] rounded-lg transition-all whitespace-nowrap touch-manipulation ${
             timeframe === t
               ? 'bg-(--accent) text-[#161f00] shadow-lg'
               : 'text-(--text-muted) hover:text-(--text-primary)'
@@ -128,7 +128,7 @@ function ScatterLegend() {
     { dot: 'bg-(--accent)',                          label: 'Optimal' },
     { dot: 'bg-orange-400',                          label: 'Fair'    },
     { dot: 'bg-red-400',                             label: 'Low'     },
-    { dot: 'border-2 border-(--accent) bg-white',    label: 'Current' },
+    { dot: 'border-2 border-(--accent) bg-(--bg-secondary)',    label: 'Current' },
   ];
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-x-4 gap-y-2 text-[9px] font-black uppercase tracking-widest shrink-0">
@@ -226,7 +226,7 @@ function SleepScatterChart({ scatterData, sleepHours, sleepQuality }) {
 function SleepSlider({ label, valueLabel, labelColor, min, max, step, value, onChange, accent }) {
   return (
     <div className="space-y-2 sm:space-y-3">
-      <div className="flex justify-between text-[9px] text-white/20 font-black uppercase tracking-widest">
+      <div className="flex justify-between text-[9px] text-(--text-muted) font-black uppercase tracking-widest">
         <span>{label}</span>
         <span className={labelColor}>{valueLabel}</span>
       </div>
@@ -252,21 +252,21 @@ function SleepSyncCard({ sleepHours, setSleepHours, sleepQuality, setSleepQualit
     <div className="col-span-1 lg:col-span-4">
       <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-6 md:p-8 border border-(--border-light) shadow-sm h-full">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <div className="p-2 sm:p-2.5 bg-(--bg-hover) rounded-2xl">
+          <div className="p-2 sm:p-2.5 bg-(--bg-hover) rounded-xl">
             <Icon name="bedtime" className="text-(--accent) text-xl sm:text-2xl" fill={1} />
           </div>
           <div className="flex flex-col items-end gap-1">
             <span className={`text-[9px] font-black uppercase tracking-[0.15em] px-2 sm:px-3 py-1 rounded-md border ${sleepStatus.color} ${sleepStatus.border} ${sleepStatus.bg}`}>
               {sleepStatus.level}
             </span>
-            <span className="text-[10px] font-bold text-white/40 uppercase">Score: {sleepStatus.score}%</span>
+            <span className="text-[10px] font-bold text-(--text-muted) uppercase">Score: {sleepStatus.score}%</span>
           </div>
         </div>
 
         <h4 className="text-lg sm:text-xl font-black font-['Manrope'] mb-1 text-(--text-primary)">
           Rest: <span className={sleepStatus.color}>{sleepHours}h</span>
         </h4>
-        <p className="text-white/30 text-[11px] leading-relaxed mb-5 sm:mb-8 font-medium">{sleepStatus.label}</p>
+        <p className="text-(--text-secondary) text-[11px] leading-relaxed mb-5 sm:mb-8 font-medium">{sleepStatus.label}</p>
 
         <div className="space-y-4 sm:space-y-6">
           <SleepSlider label="Duration"  valueLabel={`${sleepHours} Hours`} labelColor="text-(--accent)"  min={0} max={12}   step={0.5} value={sleepHours}   onChange={(e) => setSleepHours(parseFloat(e.target.value))}  accent="accent-(--accent)"  />
@@ -276,7 +276,7 @@ function SleepSyncCard({ sleepHours, setSleepHours, sleepQuality, setSleepQualit
           <button
             onClick={onSave}
             disabled={saveStatus === 'saving'}
-            className="w-full py-3 bg-(--accent) hover:bg-(--accent-dark) active:bg-(--accent-dark) disabled:opacity-50 text-[#161f00] text-[10px] font-black uppercase tracking-[0.15em] rounded-2xl transition-all shadow-[0_5px_15px_rgba(209,253,82,0.2)] touch-manipulation"
+            className="w-full py-3 bg-(--accent) hover:bg-(--accent-dark) active:bg-(--accent-dark) disabled:opacity-50 text-[#161f00] text-[10px] font-black uppercase tracking-[0.15em] rounded-xl transition-all shadow-[0_5px_15px_rgba(209,253,82,0.2)] touch-manipulation"
           >
             {saveStatus === 'saving' ? 'Syncing...' : 'Sync Sleep Data'}
           </button>

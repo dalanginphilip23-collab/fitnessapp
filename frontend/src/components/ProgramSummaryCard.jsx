@@ -8,30 +8,12 @@ const formatSessionLoad = (mins = 0) => {
   return `${h}:${String(m).padStart(2, '0')}`;
 };
 
-const pctOf = (value = 0, goal = 1) => {
-  const safeGoal = goal > 0 ? goal : 1;
-  return Math.min(Math.max((Number(value) || 0) / safeGoal, 0), 1);
-};
-
-/* Compact stat tile — used for the secondary metrics next to the
-   featured ring (mirrors the reference's "Calories burn / Weight lose"
-   tile pair). */
-const StatTile = ({ icon, color, label, value, sub }) => (
-  <div className="flex-1 flex items-center gap-3 bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl px-4 py-3.5 min-w-0">
-    <div
-      className="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center"
-      style={{ backgroundColor: `color-mix(in srgb, ${color} 16%, transparent)` }}
-    >
-      <Icon name={icon} className="text-[16px]" style={{ color }} fill={1} />
-    </div>
-    <div className="min-w-0">
-      <p className="stat-digital text-[15px] font-extrabold text-[var(--text-primary)] leading-tight truncate m-0">
-        {value}
-      </p>
-      <p className="text-[9px] font-black uppercase tracking-[0.14em] text-[var(--text-muted)] m-0 truncate">
-        {sub || label}
-      </p>
-    </div>
+const RingLabel = ({ icon, color, children }) => (
+  <div className="flex items-center gap-1">
+    <Icon name={icon} className="text-[11px]" style={{ color }} />
+    <span className="text-[9px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)]">
+      {children}
+    </span>
   </div>
 );
 
@@ -44,19 +26,8 @@ const ProgramSummaryCard = ({
   onChangeProgram,
   onSeeMore,
 }) => {
-  // Overall completion driving the big featured ring — average progress
-  // across all three tracked metrics, same source data as before, just
-  // aggregated for the "Core Target"-style hero ring.
-  const overallPct = Math.round(
-    ((pctOf(calories.value, calories.goal) +
-      pctOf(steps.value, steps.goal) +
-      pctOf(sessionLoadMins.value, sessionLoadMins.goal)) /
-      3) *
-      100
-  );
-
   return (
-    <div className="bg-[var(--bg-card)] bg-[image:var(--card-gradient)] border border-[var(--border-light)] shadow-[var(--shadow-sm)] rounded-[var(--card-radius-lg)] p-[22px] flex flex-col gap-6">
+    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[16px] p-[22px] flex flex-col gap-6">
       {/* Header row */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
@@ -72,41 +43,36 @@ const ProgramSummaryCard = ({
         </button>
       </div>
 
-      {/* Featured ring + stat tiles row */}
-      <div className="flex items-center gap-5 flex-wrap sm:flex-nowrap">
-        <div className="flex flex-col items-center gap-2 shrink-0">
+      {/* Rings row */}
+      <div className="flex items-start justify-around">
+        <div className="flex flex-col items-center gap-2.5">
           <RadialProgress
-            value={overallPct}
-            goal={100}
-            size={128}
-            strokeWidth={10}
+            value={calories.value}
+            goal={calories.goal}
             color="var(--accent)"
-            displayValue={`${overallPct}%`}
+            displayValue={Number(calories.value || 0).toLocaleString()}
           />
-          <span className="text-[9px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)]">
-            Core Target
-          </span>
+          <RingLabel icon="local_fire_department" color="var(--accent)">Calories</RingLabel>
         </div>
 
-        <div className="flex flex-col gap-3 flex-1 min-w-[160px]">
-          <StatTile
-            icon="local_fire_department"
-            color="var(--accent)"
-            value={Number(calories.value || 0).toLocaleString()}
-            sub="Calories burn"
-          />
-          <StatTile
-            icon="footprint"
+        <div className="flex flex-col items-center gap-2.5">
+          <RadialProgress
+            value={steps.value}
+            goal={steps.goal}
             color="#60a5fa"
-            value={Number(steps.value || 0).toLocaleString()}
-            sub="Steps"
+            displayValue={Number(steps.value || 0).toLocaleString()}
           />
-          <StatTile
-            icon="timer"
+          <RingLabel icon="footprint" color="#60a5fa">Steps</RingLabel>
+        </div>
+
+        <div className="flex flex-col items-center gap-2.5">
+          <RadialProgress
+            value={sessionLoadMins.value}
+            goal={sessionLoadMins.goal}
             color="#f2c448"
-            value={formatSessionLoad(sessionLoadMins.value)}
-            sub="Session Load"
+            displayValue={formatSessionLoad(sessionLoadMins.value)}
           />
+          <RingLabel icon="timer" color="#f2c448">Session Load</RingLabel>
         </div>
       </div>
 
@@ -115,14 +81,14 @@ const ProgramSummaryCard = ({
         <button
           type="button"
           onClick={onChangeProgram}
-          className="flex-1 bg-[var(--accent)] text-[#131313] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-2xl hover:brightness-95 active:scale-[0.98] transition-all cursor-pointer border-none"
+          className="flex-1 bg-[var(--accent)] text-[#131313] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-xl hover:brightness-95 active:scale-[0.98] transition-all cursor-pointer border-none"
         >
           Change Program
         </button>
         <button
           type="button"
           onClick={onSeeMore}
-          className="flex-1 bg-transparent text-[var(--text-secondary)] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-2xl border border-[var(--border-medium)] hover:bg-[var(--bg-hover)] active:scale-[0.98] transition-all cursor-pointer"
+          className="flex-1 bg-transparent text-[var(--text-secondary)] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-xl border border-[var(--border-medium)] hover:bg-[var(--bg-hover)] active:scale-[0.98] transition-all cursor-pointer"
         >
           See More
         </button>

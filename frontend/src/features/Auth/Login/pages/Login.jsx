@@ -35,15 +35,14 @@ const Login = () => {
 
   return (
     <div
-      data-theme="dark"
-      className="relative min-h-screen min-h-[100dvh] w-full bg-[#0e0e0e] font-['DM_Sans'] text-[#e5e2e1] overflow-x-hidden"
+      className="relative min-h-screen min-h-[100dvh] w-full bg-(--bg-primary) font-['DM_Sans'] text-(--text-primary) overflow-x-hidden"
     >
 
       {/* Back to landing button */}
       <button
         type="button"
         onClick={() => navigate('/')}
-        className="fixed top-5 left-5 sm:top-8 sm:left-8 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md text-[11px] font-semibold tracking-widest uppercase text-white/60 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all"
+        className="fixed top-5 left-5 sm:top-8 sm:left-8 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-(--border-light) bg-(--bg-hover) backdrop-blur-md text-[11px] font-semibold tracking-widest uppercase text-(--text-secondary) hover:text-(--text-primary) hover:bg-(--bg-active) hover:border-(--border-medium) transition-all"
       >
         <span className="text-base leading-none">←</span>
         Back
@@ -51,7 +50,7 @@ const Login = () => {
 
       <style>{`
         .vitalis-vignette {
-          background: radial-gradient(ellipse at center, transparent 30%, #0e0e0e 100%);
+          background: radial-gradient(ellipse at center, transparent 30%, var(--bg-primary) 100%);
         }
         .vitalis-grid {
           background-image:
@@ -153,18 +152,18 @@ const Login = () => {
             <span style={{ color: ACCENT }}>RECOVER</span><br />
             SMARTER.
           </h1>
-          <p className="v-hero-sub text-[13px] text-[#e5e2e1]/45 max-w-[320px] leading-relaxed font-light mt-1">
+          <p className="v-hero-sub text-[13px] text-(--text-secondary) max-w-[320px] leading-relaxed font-light mt-1">
             AI-powered biometric tracking that adapts to your body in real time. Every rep, every rest, optimized.
           </p>
 
-          <div className="v-hero-stats flex gap-8 mt-6 pt-6 border-t border-white/10">
+          <div className="v-hero-stats flex gap-8 mt-6 pt-6 border-t border-(--border-light)">
             <div className="flex flex-col">
               <span className="font-['Bebas_Neue'] text-3xl leading-none" style={{ color: ACCENT }}>12K+</span>
-              <span className="text-[10px] tracking-widest uppercase text-white/30">Athletes</span>
+              <span className="text-[10px] tracking-widest uppercase text-(--text-muted)">Athletes</span>
             </div>
             <div className="flex flex-col">
               <span className="font-['Bebas_Neue'] text-3xl leading-none" style={{ color: ACCENT }}>98%</span>
-              <span className="text-[10px] tracking-widest uppercase text-white/30">Recovery</span>
+              <span className="text-[10px] tracking-widest uppercase text-(--text-muted)">Recovery</span>
             </div>
           </div>
         </div>
@@ -172,7 +171,7 @@ const Login = () => {
         {/* Right Glass Panel */}
         <div className="flex items-center justify-center px-4 py-8 sm:px-6 sm:py-10 lg:p-8 min-h-screen min-h-[100dvh] lg:min-h-0">
           <div
-            className="v-card relative w-full max-w-[400px] bg-[#121210]/65 backdrop-blur-[32px] saturate-[140%] rounded-[20px] p-6 sm:p-8 md:p-10 shadow-[0_32px_80px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.06)] my-auto"
+            className="v-card relative w-full max-w-[400px] bg-(--bg-card)/80 backdrop-blur-[32px] saturate-[140%] rounded-[20px] p-6 sm:p-8 md:p-10 shadow-[0_32px_80px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.06)] my-auto"
             style={{ border: `1px solid ${ACCENT_BORDER}` }}
           >
 
@@ -180,20 +179,20 @@ const Login = () => {
 
             {/* Logo */}
             <div className="v-card-logo flex items-center gap-3 mb-7 sm:mb-9">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl flex items-center justify-center shrink-0" style={{ backgroundColor: ACCENT }}>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: ACCENT }}>
                 <svg viewBox="0 0 24 24" className="w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] fill-none stroke-[#161f00] stroke-[2.2] stroke-linecap-round stroke-linejoin-round">
                   <path d="M3 12h3l3-8 4 16 3-10 2 2h3" />
                 </svg>
               </div>
-              <span className="font-['Bebas_Neue'] text-[20px] sm:text-[22px] tracking-[0.12em] text-[#e5e2e1]">VITALIS</span>
+              <span className="font-['Bebas_Neue'] text-[20px] sm:text-[22px] tracking-[0.12em] text-(--text-primary)">VITALIS</span>
             </div>
 
-            <h2 className="v-card-title font-['Bebas_Neue'] text-[26px] sm:text-[32px] tracking-wider leading-none mb-1.5 text-[#e5e2e1]">ACCESS PORTAL</h2>
-            <p className="v-card-sub text-xs text-[#c4c9b0]/55 tracking-wide mb-6 sm:mb-8">Enter credentials to synchronize biometrics.</p>
+            <h2 className="v-card-title font-['Bebas_Neue'] text-[26px] sm:text-[32px] tracking-wider leading-none mb-1.5 text-(--text-primary)">ACCESS PORTAL</h2>
+            <p className="v-card-sub text-xs text-(--text-secondary) tracking-wide mb-6 sm:mb-8">Enter credentials to synchronize biometrics.</p>
 
             <form onSubmit={(e) => handleSubmit(e, { email, password })} className="space-y-4 sm:space-y-5">
               {error && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-[10px] font-semibold tracking-widest uppercase p-2.5 text-center">
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[10px] font-semibold tracking-widest uppercase p-2.5 text-center">
                   {error}
                 </div>
               )}
@@ -202,13 +201,13 @@ const Login = () => {
               <div className="v-card-field1 relative">
                 <label
                   className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 transition-colors"
-                  style={{ color: focused === 'email' ? ACCENT : 'rgba(255,255,255,0.5)' }}
+                  style={{ color: focused === 'email' ? ACCENT : 'var(--text-secondary)' }}
                 >
                   Email Address
                 </label>
                 <input
                   type="email"
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                  className="w-full bg-(--input-bg) border border-(--input-border) rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-(--input-placeholder) text-(--text-primary)"
                   style={{
                     borderColor: focused === 'email' ? `${ACCENT}80` : undefined,
                     backgroundColor: focused === 'email' ? `${ACCENT}0d` : undefined,
@@ -226,7 +225,7 @@ const Login = () => {
               <div className="v-card-field2 relative">
                 <label
                   className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 transition-colors"
-                  style={{ color: focused === 'password' ? ACCENT : 'rgba(255,255,255,0.5)' }}
+                  style={{ color: focused === 'password' ? ACCENT : 'var(--text-secondary)' }}
                 >
                   Password
                 </label>
@@ -235,7 +234,7 @@ const Login = () => {
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl text-sm p-3 sm:p-3.5 pr-11 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                    className="w-full bg-(--input-bg) border border-(--input-border) rounded-xl text-sm p-3 sm:p-3.5 pr-11 outline-none transition-all placeholder:text-(--input-placeholder) text-(--text-primary)"
                     style={{
                       borderColor: focused === 'password' ? `${ACCENT}80` : undefined,
                       backgroundColor: focused === 'password' ? `${ACCENT}0d` : undefined,
@@ -253,7 +252,7 @@ const Login = () => {
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                     aria-pressed={showPassword}
                     tabIndex={-1}
-                    className="absolute right-0 top-0 h-full w-11 flex items-center justify-center text-white/35 hover:text-white/70 transition-colors"
+                    className="absolute right-0 top-0 h-full w-11 flex items-center justify-center text-(--text-muted) hover:text-(--text-secondary) transition-colors"
                   >
                     {showPassword ? (
                       <EyeOffIcon className="w-[18px] h-[18px]" />
@@ -279,7 +278,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="v-card-btn group relative w-full text-[#161f00] font-bold text-[11px] tracking-[0.25em] uppercase p-3.5 sm:p-4 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden flex items-center justify-center gap-2"
+                className="v-card-btn group relative w-full text-[#161f00] font-bold text-[11px] tracking-[0.25em] uppercase p-3.5 sm:p-4 rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.25)] hover:-translate-y-0.5 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden flex items-center justify-center gap-2"
                 style={{ backgroundColor: ACCENT }}
                 onMouseEnter={e => { if (!loading) e.currentTarget.style.backgroundColor = ACCENT_HOVER; }}
                 onMouseLeave={e => { e.currentTarget.style.backgroundColor = ACCENT; }}
@@ -293,15 +292,15 @@ const Login = () => {
               </button>
 
               <div className="v-card-divider flex items-center gap-3 py-1">
-                <div className="flex-1 h-[1px] bg-white/5" />
-                <span className="text-[10px] tracking-[0.3em] uppercase text-white/20">or</span>
-                <div className="flex-1 h-[1px] bg-white/5" />
+                <div className="flex-1 h-[1px] bg-(--border-light)" />
+                <span className="text-[10px] tracking-[0.3em] uppercase text-(--text-muted)">or</span>
+                <div className="flex-1 h-[1px] bg-(--border-light)" />
               </div>
 
               <button
                 type="button"
                 onClick={() => loginWithGoogle()}
-                className="v-card-google w-full bg-white/5 border border-white/10 rounded-2xl text-[11px] font-semibold tracking-widest uppercase p-3 sm:p-3.5 flex items-center justify-center gap-2.5 hover:bg-white/10 transition-colors text-[#e5e2e1]"
+                className="v-card-google w-full bg-(--input-bg) border border-(--input-border) rounded-xl text-[11px] font-semibold tracking-widest uppercase p-3 sm:p-3.5 flex items-center justify-center gap-2.5 hover:bg-(--bg-active) transition-colors text-(--text-primary)"
               >
                 <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -313,7 +312,7 @@ const Login = () => {
               </button>
             </form>
 
-            <div className="v-card-footer mt-6 sm:mt-7 text-center text-xs text-[#c4c9b0]/45">
+            <div className="v-card-footer mt-6 sm:mt-7 text-center text-xs text-(--text-muted)">
               Don't have an account?
               <a
                 href="/register"

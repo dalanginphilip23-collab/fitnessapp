@@ -23,7 +23,7 @@ export default function MobileWorkoutPills({ workoutType, onSelect }) {
         </div>
         <button
           onClick={() => setOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-[var(--accent-bg)] border border-[var(--accent-border)] text-[var(--accent)] text-[9px] font-black uppercase tracking-widest touch-manipulation"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--accent-bg)] border border-[var(--accent-border)] text-[var(--accent)] text-[9px] font-black uppercase tracking-widest touch-manipulation"
         >
           <Icon name="swap_vert" className="text-xs" />
           Change

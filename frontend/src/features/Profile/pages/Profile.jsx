@@ -48,7 +48,7 @@ const LogEntry = ({ icon, title, sub, current, onRevoke }) => (
     ) : (
       <button
         onClick={onRevoke}
-        className="text-[9px] font-bold uppercase tracking-widest text-red-400/50 hover:text-red-400 hover:bg-red-500/10 px-2 py-1 rounded-2xl transition-all border border-transparent hover:border-red-500/20 shrink-0"
+        className="text-[9px] font-bold uppercase tracking-widest text-red-400/50 hover:text-red-400 hover:bg-red-500/10 px-2 py-1 rounded-lg transition-all border border-transparent hover:border-red-500/20 shrink-0"
       >
         Revoke
       </button>
@@ -162,7 +162,7 @@ const Profile = () => {
           <button
             onClick={() => navigate(-1)}
             aria-label="Go back"
-            className="absolute top-4 left-4 sm:top-5 sm:left-6 w-9 h-9 rounded-2xl flex items-center justify-center
+            className="absolute top-4 left-4 sm:top-5 sm:left-6 w-9 h-9 rounded-xl flex items-center justify-center
               bg-(--bg-primary)/60 hover:bg-(--bg-primary)/90 border border-(--border-light) backdrop-blur-sm
               transition-all active:scale-95 z-20"
           >
@@ -211,14 +211,14 @@ const Profile = () => {
                 </span>
                 <button
                   onClick={handleDiscard}
-                  className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-(--text-muted) hover:text-(--text-secondary) rounded-2xl hover:bg-(--bg-hover) transition-all"
+                  className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-(--text-muted) hover:text-(--text-secondary) rounded-lg hover:bg-(--bg-hover) transition-all"
                 >
                   Discard
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="flex items-center gap-2 bg-[#62aa1a] text-[#161f00] px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.15em] active:scale-95 transition-all disabled:opacity-60 hover:brightness-105"
+                  className="flex items-center gap-2 bg-[#62aa1a] text-[#161f00] px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] active:scale-95 transition-all disabled:opacity-60 hover:brightness-105"
                 >
                   {isSaving && <span className="w-3 h-3 border-2 border-[#161f00]/30 border-t-[#161f00] rounded-full animate-spin" />}
                   {isSaving ? 'Saving…' : 'Save changes'}
@@ -241,7 +241,7 @@ const Profile = () => {
                   const isActive = avatarSrc === url;
                   return (
                     <button key={av.id} onClick={() => { handleSelectPreset(av.seed); setPickerOpen(false); setIsEditing(true); }} className="flex flex-col items-center gap-1.5 group">
-                      <div className={`w-12 h-12 rounded-2xl overflow-hidden border-2 transition-all ${isActive ? 'border-[#62aa1a] shadow-[0_0_0_3px_rgba(98,170,26,0.15)]' : 'border-(--border-medium) group-hover:border-[#62aa1a]/50'}`}>
+                      <div className={`w-12 h-12 rounded-xl overflow-hidden border-2 transition-all ${isActive ? 'border-[#62aa1a] shadow-[0_0_0_3px_rgba(98,170,26,0.15)]' : 'border-(--border-medium) group-hover:border-[#62aa1a]/50'}`}>
                         <img src={url} alt={av.label} className="w-full h-full object-cover" />
                       </div>
                       <span className={`text-[8px] font-bold uppercase tracking-widest ${isActive ? 'text-[#62aa1a]' : 'text-(--text-muted)'}`}>{av.label}</span>
@@ -250,13 +250,13 @@ const Profile = () => {
                 })}
               </div>
               <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { handleFileChange(e); setPickerOpen(false); setIsEditing(true); }} />
-              <button onClick={() => fileInputRef.current?.click()} className="w-full py-3 border border-dashed border-(--border-medium) hover:border-[#62aa1a]/40 rounded-2xl flex items-center justify-center gap-2 hover:bg-[#62aa1a]/3 transition-all group">
+              <button onClick={() => fileInputRef.current?.click()} className="w-full py-3 border border-dashed border-(--border-medium) hover:border-[#62aa1a]/40 rounded-xl flex items-center justify-center gap-2 hover:bg-[#62aa1a]/3 transition-all group">
                 <span className="material-symbols-outlined text-[16px] text-(--text-muted) group-hover:text-[#62aa1a] transition-colors">upload</span>
                 <span className="text-[10px] font-bold uppercase tracking-widest text-(--text-muted) group-hover:text-(--text-secondary) transition-colors">Upload custom photo</span>
               </button>
               {uploadPreview && (
-                <div className="mt-3 flex items-center gap-3 bg-[#62aa1a]/5 px-3 py-2.5 rounded-2xl border border-[#62aa1a]/15">
-                  <img src={uploadPreview} alt="Preview" className="w-8 h-8 rounded-2xl object-cover border border-[#62aa1a]/30" />
+                <div className="mt-3 flex items-center gap-3 bg-[#62aa1a]/5 px-3 py-2.5 rounded-xl border border-[#62aa1a]/15">
+                  <img src={uploadPreview} alt="Preview" className="w-8 h-8 rounded-lg object-cover border border-[#62aa1a]/30" />
                   <span className="text-[10px] font-bold uppercase tracking-widest text-[#62aa1a]">Custom photo ready</span>
                 </div>
               )}
@@ -338,7 +338,7 @@ const Profile = () => {
               <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-3">Chart notes · Goal</p>
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-2xl bg-[#7dd625e1]/10 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-[#7dd625e1]/10 flex items-center justify-center shrink-0">
                     <span className="material-symbols-outlined text-[18px] text-[#7dd625e1]">flag</span>
                   </div>
                   <div>
@@ -364,7 +364,7 @@ const Profile = () => {
                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Patient information</p>
                   <button
                     onClick={() => setIsEditing(v => !v)}
-                    className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest border rounded-2xl px-3 py-1.5 transition-all ${
+                    className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest border rounded-lg px-3 py-1.5 transition-all ${
                       isEditing
                         ? 'border-[#62aa1a]/30 bg-[#62aa1a]/8 text-[#62aa1a] hover:border-[#62aa1a]/50 hover:text-[#62aa1a]'
                         : 'border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:border-(--border-heavy) hover:text-(--text-primary)'
@@ -415,7 +415,7 @@ const Profile = () => {
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-3">Account</p>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-red-400 text-[11px] font-bold hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
+                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-red-400 text-[11px] font-bold hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
                 >
                   <span className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-[16px]">logout</span>
@@ -474,7 +474,7 @@ const Profile = () => {
 
               <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-2xl bg-(--bg-hover) flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-(--bg-hover) flex items-center justify-center shrink-0">
                     <span className="material-symbols-outlined text-[20px] text-(--text-secondary)">lock</span>
                   </div>
                   <div className="flex-1">
@@ -483,7 +483,7 @@ const Profile = () => {
                   </div>
                   <button
                     onClick={() => setChangePwOpen(true)}
-                    className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest border border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:text-(--text-primary) hover:border-(--border-heavy) px-4 py-2.5 rounded-2xl transition-all"
+                    className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest border border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:text-(--text-primary) hover:border-(--border-heavy) px-4 py-2.5 rounded-xl transition-all"
                   >
                     <span className="material-symbols-outlined text-[14px]">key</span>
                     Change

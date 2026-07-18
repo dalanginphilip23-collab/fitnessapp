@@ -54,7 +54,7 @@ function NotificationOverlay({ notifications, onMarkRead, onMarkAllRead, onClose
           <button onClick={onMarkAllRead} className="text-[11px] text-(--accent)/80 hover:text-(--accent) transition-colors bg-transparent border-none cursor-pointer font-medium whitespace-nowrap px-1">
             Mark all read
           </button>
-          <button onClick={onClose} className="w-6 h-6 flex items-center justify-center rounded-2xl bg-(--bg-hover) hover:bg-(--bg-active) transition-colors border-none cursor-pointer">
+          <button onClick={onClose} className="w-6 h-6 flex items-center justify-center rounded-lg bg-(--bg-hover) hover:bg-(--bg-active) transition-colors border-none cursor-pointer">
             <Icon name="close" className="text-(--text-muted) text-[14px]" />
           </button>
         </div>
@@ -146,7 +146,7 @@ function NotificationOverlay({ notifications, onMarkRead, onMarkAllRead, onClose
   }
 
   return (
-    <div className="absolute right-0 top-[calc(100%+10px)] w-95 bg-(--bg-secondary) border border-(--border-medium) rounded-[22px] shadow-(--shadow-lg) overflow-hidden z-9999">
+    <div className="absolute right-0 top-[calc(100%+10px)] w-95 bg-(--bg-secondary) border border-(--border-medium) rounded-2xl shadow-(--shadow-lg) overflow-hidden z-9999">
       {innerContent}
     </div>
   );
@@ -435,7 +435,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
           {/* Notification Bell */}
           <div className="relative flex items-center justify-center" ref={notifRef}>
             <button
-              className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-2xl cursor-pointer group bg-transparent border-none transition-all duration-200 hover:bg-(--bg-hover)"
+              className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl cursor-pointer group bg-transparent border-none transition-all duration-200 hover:bg-(--bg-hover)"
               onClick={() => {
                 // Close mobile menu when opening notification
                 if (mobileMenuOpen) setMobileMenuOpen(false);
@@ -473,7 +473,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                 setSettingsOpen(prev => !prev);
               }}
               className={
-                'w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-2xl transition-all duration-200 cursor-pointer border-none ' +
+                'w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer border-none ' +
                 (settingsOpen ? 'bg-(--accent) text-[#131313]' : 'text-(--text-muted) hover:text-(--accent) hover:bg-(--bg-hover) bg-transparent')
               }
             >
@@ -481,7 +481,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
             </button>
 
             {settingsOpen && !mobileMenuOpen && (
-              <div className="absolute right-0 top-[calc(100%+10px)] w-52.5 sm:w-55 bg-(--bg-secondary) border border-(--border-medium) rounded-[22px] shadow-(--shadow-lg) overflow-hidden z-9999">
+              <div className="absolute right-0 top-[calc(100%+10px)] w-52.5 sm:w-55 bg-(--bg-secondary) border border-(--border-medium) rounded-2xl shadow-(--shadow-lg) overflow-hidden z-9999">
                 <div className="flex items-center gap-3 px-4 py-3.5 border-b border-(--border-light) bg-(--surface)">
                   <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-(--accent)/20 bg-(--bg-tertiary) shrink-0">
                     <img src={avatarSrc} alt="User" className="w-full h-full object-cover" onError={handleAvatarError} />
@@ -496,7 +496,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                     <button
                       key={label}
                       onClick={() => { action(); setSettingsOpen(false); }}
-                      className={'w-full flex items-center gap-2.5 px-3 py-2 rounded-2xl text-[11px] sm:text-[12px] transition-colors duration-150 text-left cursor-pointer border-none bg-transparent ' + (accent ? 'text-(--accent) hover:bg-(--accent-bg)' : 'text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-hover)')}
+                      className={'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] sm:text-[12px] transition-colors duration-150 text-left cursor-pointer border-none bg-transparent ' + (accent ? 'text-(--accent) hover:bg-(--accent-bg)' : 'text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-hover)')}
                     >
                       <Icon name={icon} className="text-[14px] sm:text-[15px]" />
                       {label}
@@ -505,7 +505,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                   <div className="border-t border-(--border-light) mt-1 pt-1">
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-2xl text-[11px] sm:text-[12px] text-[#e05050] hover:bg-[#e05050]/10 transition-colors duration-150 cursor-pointer border-none bg-transparent"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] sm:text-[12px] text-[#e05050] hover:bg-[#e05050]/10 transition-colors duration-150 cursor-pointer border-none bg-transparent"
                     >
                       <Icon name="logout" className="text-[14px] sm:text-[15px]" /> Log out
                     </button>
@@ -558,7 +558,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                 <button
                   key={i}
                   onClick={() => handleNavClick(item.path)}
-                  className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl text-[13px] sm:text-[14px] font-medium transition-colors border-none bg-transparent text-left cursor-pointer ${activePath === item.path ? 'bg-(--accent-bg) text-(--accent)' : 'text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-hover)'}`}
+                  className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-[13px] sm:text-[14px] font-medium transition-colors border-none bg-transparent text-left cursor-pointer ${activePath === item.path ? 'bg-(--accent-bg) text-(--accent)' : 'text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-hover)'}`}
                 >
                   <Icon
                     name={item.icon}
@@ -581,7 +581,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                 <button
                   key={label}
                   onClick={() => { action(); setMobileMenuOpen(false); }}
-                  className="flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-(--text-muted) hover:text-(--text-primary) text-[13px] sm:text-[14px] border-none bg-transparent cursor-pointer rounded-2xl hover:bg-(--bg-hover) transition-colors"
+                  className="flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-(--text-muted) hover:text-(--text-primary) text-[13px] sm:text-[14px] border-none bg-transparent cursor-pointer rounded-xl hover:bg-(--bg-hover) transition-colors"
                 >
                   <Icon name={icon} className="text-[16px] sm:text-[17px]" /> {label}
                 </button>
@@ -590,7 +590,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
               {/* Feedback button */}
               <button
                 onClick={() => { setShowFeedback(true); setMobileMenuOpen(false); }}
-                className="flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-(--text-muted) hover:text-(--accent) text-[13px] sm:text-[14px] border-none bg-transparent cursor-pointer rounded-2xl hover:bg-(--accent-bg) transition-colors"
+                className="flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-(--text-muted) hover:text-(--accent) text-[13px] sm:text-[14px] border-none bg-transparent cursor-pointer rounded-xl hover:bg-(--accent-bg) transition-colors"
               >
                 <Icon name="feedback" className="text-[16px] sm:text-[17px]" /> Feedback
               </button>
@@ -599,7 +599,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
 
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[#e05050] text-[13px] sm:text-[14px] border-none bg-transparent cursor-pointer rounded-2xl hover:bg-[#e05050]/10 transition-colors"
+                className="flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[#e05050] text-[13px] sm:text-[14px] border-none bg-transparent cursor-pointer rounded-xl hover:bg-[#e05050]/10 transition-colors"
               >
                 <Icon name="logout" className="text-[16px] sm:text-[17px]" /> Logout
               </button>

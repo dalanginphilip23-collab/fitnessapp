@@ -113,7 +113,7 @@ const ClinicalMessenger = () => {
               <input
                 type="text"
                 placeholder="Search global users..."
-                className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-medium)] rounded-2xl py-2.5 pl-10 pr-4 text-xs outline-none focus:border-[var(--accent-border)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-all"
+                className="w-full bg-[var(--bg-tertiary)] border border-[var(--border-medium)] rounded-xl py-2.5 pl-10 pr-4 text-xs outline-none focus:border-[var(--accent-border)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] transition-all"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
               />
@@ -349,7 +349,7 @@ const ClinicalMessenger = () => {
                   />
                   <button
                     onClick={handleSendMessage}
-                    className="bg-[var(--accent)] text-[#161f00] p-2.5 rounded-2xl disabled:opacity-50 active:scale-95 transition-all shrink-0 hover:bg-[var(--accent-dark)]"
+                    className="bg-[var(--accent)] text-[#161f00] p-2.5 rounded-xl disabled:opacity-50 active:scale-95 transition-all shrink-0 hover:bg-[var(--accent-dark)]"
                     disabled={!inputValue.trim()}
                   >
                     <Icon name="send" weight={600} />

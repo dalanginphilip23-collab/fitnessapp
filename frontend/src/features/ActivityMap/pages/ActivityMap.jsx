@@ -326,7 +326,7 @@ const ActivityMap = () => {
                 <GpsBadge locationStatus={locationStatus} />
 
                 {locationStatus === 'denied' && (
-                  <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-1000 bg-(--error-bg) border border-(--error) px-3 py-2 rounded-2xl max-w-45">
+                  <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-1000 bg-(--error-bg) border border-(--error) px-3 py-2 rounded-xl max-w-45">
                     <p className="text-[9px] text-(--error) font-semibold leading-relaxed">
                       Location denied. Enable in browser settings for real GPS.
                     </p>

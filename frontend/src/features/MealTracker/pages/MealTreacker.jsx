@@ -111,7 +111,7 @@ function Spinner() {
 }
 
 function InputField({ label, type = "text", placeholder, value, onChange, error, className = "" }) {
-  const base = `w-full h-10 bg-(--bg-hover) rounded-2xl px-3 text-sm text-(--text-primary) border outline-none focus:border-(--accent)/50 transition-colors ${
+  const base = `w-full h-10 bg-(--bg-hover) rounded-xl px-3 text-sm text-(--text-primary) border outline-none focus:border-(--accent)/50 transition-colors ${
     error ? "border-red-500/60" : "border-(--border-light)"
   } ${className}`;
   return (
@@ -209,15 +209,15 @@ function DateNavigator({ currentDate, onDateChange }) {
     calendarMonth.month === now.getMonth();
 
   return (
-    <div className="flex items-center gap-1.5 bg-(--bg-tertiary) rounded-2xl p-1 border border-(--border-light)">
-      <button onClick={() => shiftDay(-1)} className="p-1 sm:p-1.5 rounded-2xl hover:bg-(--bg-hover) transition-colors" aria-label="Previous day">
+    <div className="flex items-center gap-1.5 bg-(--bg-tertiary) rounded-xl p-1 border border-(--border-light)">
+      <button onClick={() => shiftDay(-1)} className="p-1 sm:p-1.5 rounded-lg hover:bg-(--bg-hover) transition-colors" aria-label="Previous day">
         <Icon name="chevron_left" className="text-(--text-muted) text-xs sm:text-sm" />
       </button>
 
       <div className="relative" ref={calendarRef}>
         <button
           onClick={() => setIsCalendarOpen((v) => !v)}
-          className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-2xl bg-(--bg-hover) hover:bg-(--bg-active) transition-colors"
+          className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-(--bg-hover) hover:bg-(--bg-active) transition-colors"
         >
           <Icon name="calendar_today" className="text-(--accent) text-xs sm:text-sm" />
           <span className="text-(--text-primary) text-[11px] sm:text-xs font-medium whitespace-nowrap">{formattedDate}</span>
@@ -227,7 +227,7 @@ function DateNavigator({ currentDate, onDateChange }) {
         {isCalendarOpen && (
           <div className="absolute top-full mt-2 right-0 z-50 bg-(--bg-secondary) border border-(--border-medium) rounded-2xl shadow-(--shadow-lg) p-4 w-70 sm:w-75">
             <div className="flex items-center justify-between mb-3">
-              <button onClick={() => shiftMonth(-1)} className="p-1.5 rounded-2xl hover:bg-(--bg-hover) transition-colors" aria-label="Previous month">
+              <button onClick={() => shiftMonth(-1)} className="p-1.5 rounded-xl hover:bg-(--bg-hover) transition-colors" aria-label="Previous month">
                 <Icon name="chevron_left" className="text-(--text-muted) text-sm" />
               </button>
               <span className="text-(--text-primary) text-sm font-semibold">
@@ -236,7 +236,7 @@ function DateNavigator({ currentDate, onDateChange }) {
               <button
                 onClick={() => shiftMonth(1)}
                 disabled={atCurrentMonth}
-                className="p-1.5 rounded-2xl hover:bg-(--bg-hover) transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="p-1.5 rounded-xl hover:bg-(--bg-hover) transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                 aria-label="Next month"
               >
                 <Icon name="chevron_right" className="text-(--text-muted) text-sm" />
@@ -256,7 +256,7 @@ function DateNavigator({ currentDate, onDateChange }) {
                   disabled={isFuture}
                   onClick={() => { onDateChange(dateStr); setIsCalendarOpen(false); }}
                   className={[
-                    "aspect-square rounded-2xl text-[11px] sm:text-xs font-medium transition-all flex items-center justify-center",
+                    "aspect-square rounded-lg text-[11px] sm:text-xs font-medium transition-all flex items-center justify-center",
                     "disabled:opacity-25 disabled:cursor-not-allowed",
                     !isCurrentMonth ? "opacity-30" : "",
                     isSelected
@@ -274,11 +274,11 @@ function DateNavigator({ currentDate, onDateChange }) {
             <div className="mt-3 pt-3 border-t border-(--border-light) flex justify-between gap-2">
               <button
                 onClick={() => setCalendarMonth({ year: now.getFullYear(), month: now.getMonth() })}
-                className="flex-1 py-2 rounded-2xl text-xs font-medium bg-(--bg-hover) hover:bg-(--bg-active) text-(--text-secondary) transition-colors"
+                className="flex-1 py-2 rounded-xl text-xs font-medium bg-(--bg-hover) hover:bg-(--bg-active) text-(--text-secondary) transition-colors"
               >
                 Current Month
               </button>
-              <button onClick={goToToday} className="flex-1 py-2 rounded-2xl text-xs font-bold bg-(--accent-bg) text-(--accent) transition-colors">
+              <button onClick={goToToday} className="flex-1 py-2 rounded-xl text-xs font-bold bg-(--accent-bg) text-(--accent) transition-colors">
                 Today
               </button>
             </div>
@@ -289,14 +289,14 @@ function DateNavigator({ currentDate, onDateChange }) {
       <button
         onClick={() => shiftDay(1)}
         disabled={isToday}
-        className={`p-1 sm:p-1.5 rounded-2xl transition-colors ${isToday ? "opacity-30 cursor-not-allowed" : "hover:bg-(--bg-hover)"}`}
+        className={`p-1 sm:p-1.5 rounded-lg transition-colors ${isToday ? "opacity-30 cursor-not-allowed" : "hover:bg-(--bg-hover)"}`}
         aria-label="Next day"
       >
         <Icon name="chevron_right" className="text-(--text-muted) text-xs sm:text-sm" />
       </button>
 
       {!isToday && (
-        <button onClick={goToToday} className="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-2xl bg-(--accent-bg) text-(--accent) text-[9px] sm:text-[11px] font-bold transition-colors whitespace-nowrap">
+        <button onClick={goToToday} className="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-(--accent-bg) text-(--accent) text-[9px] sm:text-[11px] font-bold transition-colors whitespace-nowrap">
           Today
         </button>
       )}
@@ -386,8 +386,8 @@ function AISuggestion({ meal, onClose, userId }) {
     );
   } else if (error) {
     inner = (
-      <div className="bg-(--bg-tertiary) rounded-2xl shadow-[var(--shadow-sm)] p-4 sm:p-5 border border-(--border-light) relative">
-        <button onClick={onClose} className="absolute top-3 right-3 p-1 rounded-2xl hover:bg-(--bg-hover) transition-colors">
+      <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light) relative">
+        <button onClick={onClose} className="absolute top-3 right-3 p-1 rounded-lg hover:bg-(--bg-hover) transition-colors">
           <Icon name="close" className="text-(--text-muted) text-sm" />
         </button>
         <SectionLabel text="AI Coach — Burn It Off" />
@@ -399,7 +399,7 @@ function AISuggestion({ meal, onClose, userId }) {
   } else {
     inner = (
       <div className="bg-linear-to-br from-(--bg-tertiary) to-(--bg-card) rounded-2xl p-4 sm:p-5 border border-(--accent-border) relative">
-        <button onClick={onClose} className="absolute top-3 right-3 p-1 rounded-2xl hover:bg-(--bg-hover) transition-colors">
+        <button onClick={onClose} className="absolute top-3 right-3 p-1 rounded-lg hover:bg-(--bg-hover) transition-colors">
           <Icon name="close" className="text-(--text-muted) text-sm" />
         </button>
 
@@ -410,7 +410,7 @@ function AISuggestion({ meal, onClose, userId }) {
           <SectionLabel text="AI Coach — Burn It Off" />
         </div>
 
-        <div className="bg-(--accent-bg) rounded-2xl p-3 mb-4">
+        <div className="bg-(--accent-bg) rounded-xl p-3 mb-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-(--text-muted) text-[9px] uppercase tracking-wider">Meal Logged</p>
@@ -423,19 +423,19 @@ function AISuggestion({ meal, onClose, userId }) {
           </div>
         </div>
 
-        <div className="bg-black/30 rounded-2xl p-3 mb-4 border-l-2 border-(--accent)">
+        <div className="bg-(--bg-hover) rounded-xl p-3 mb-4 border-l-2 border-(--accent)">
           <p className="text-(--text-secondary) text-xs leading-relaxed">💡 {suggestion.message}</p>
         </div>
 
         {suggestion.recommended_plan ? (
-          <div className="rounded-2xl border border-(--accent-border) bg-(--accent-bg) p-3 mb-3">
+          <div className="rounded-xl border border-(--accent-border) bg-(--accent-bg) p-3 mb-3">
             <p className="text-(--text-muted) text-[9px] uppercase tracking-wider mb-2">
               {suggestion.recommended_source === "marketplace"
                 ? "🆕 Suggested plan — not enrolled yet"
                 : "⭐ Best plan to burn this meal"}
             </p>
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-2xl bg-(--bg-hover) flex items-center justify-center text-lg shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-(--bg-hover) flex items-center justify-center text-lg shrink-0">
                 {PLAN_TAG_ICONS[suggestion.recommended_plan.tag] ?? "⚡"}
               </div>
               <div className="flex-1 min-w-0">
@@ -472,13 +472,13 @@ function AISuggestion({ meal, onClose, userId }) {
               <div className="flex gap-2 mt-3">
                 <button
                   onClick={handleAcceptPlan}
-                  className="flex-1 py-2 rounded-2xl text-[11px] font-bold bg-(--accent) text-[#131313] transition-colors touch-manipulation"
+                  className="flex-1 py-2 rounded-lg text-[11px] font-bold bg-(--accent) text-[#131313] transition-colors touch-manipulation"
                 >
                   Yes, show me this plan
                 </button>
                 <button
                   onClick={() => setDecision("declined")}
-                  className="flex-1 py-2 rounded-2xl text-[11px] font-bold bg-(--bg-hover) text-(--text-muted) transition-colors touch-manipulation"
+                  className="flex-1 py-2 rounded-lg text-[11px] font-bold bg-(--bg-hover) text-(--text-muted) transition-colors touch-manipulation"
                 >
                   No thanks
                 </button>
@@ -486,7 +486,7 @@ function AISuggestion({ meal, onClose, userId }) {
             )}
           </div>
         ) : (
-          <div className="bg-(--accent-bg) border border-(--accent-border) rounded-2xl p-3 mb-3">
+          <div className="bg-(--accent-bg) border border-(--accent-border) rounded-xl p-3 mb-3">
             <p className="text-(--accent) text-[10px] font-semibold mb-2">
               💡 Enroll in a training plan to get personalized workout suggestions!
             </p>
@@ -496,14 +496,14 @@ function AISuggestion({ meal, onClose, userId }) {
 
         <button
           onClick={() => navigate(suggestion.has_enrolled_plans ? "/dashboard/plans?tab=my-plans" : "/dashboard/plans")}
-          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-2xl text-xs font-bold border border-(--accent-border) text-(--accent) bg-(--accent-bg) hover:bg-(--accent) hover:text-[#131313] transition-all mb-3"
+          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-bold border border-(--accent-border) text-(--accent) bg-(--accent-bg) hover:bg-(--accent) hover:text-[#131313] transition-all mb-3"
         >
           <Icon name="fitness_center" className="text-sm" fill={1} />
           {suggestion.has_enrolled_plans ? "View My Plans" : "Browse Plans"}
           <Icon name="arrow_forward" className="text-sm" />
         </button>
 
-        <div className="bg-(--bg-hover) rounded-2xl p-2 text-center">
+        <div className="bg-(--bg-hover) rounded-lg p-2 text-center">
           <p className="text-(--text-muted) text-[8px]">
             💪 Balance your intake with activity. Consistency is key!
           </p>
@@ -688,7 +688,7 @@ function FullscreenCamera({ onCapture, onClose }) {
                 <p className="text-red-400 text-sm font-medium">{error}</p>
                 <button
                   onClick={() => startStream(facingMode)}
-                  className="px-4 py-2 rounded-2xl bg-white/10 text-white text-xs font-semibold touch-manipulation"
+                  className="px-4 py-2 rounded-lg bg-white/10 text-white text-xs font-semibold touch-manipulation"
                 >
                   Try again
                 </button>
@@ -712,13 +712,13 @@ function FullscreenCamera({ onCapture, onClose }) {
           <div className="flex items-center gap-4 w-full max-w-sm">
             <button
               onClick={handleRetake}
-              className="flex-1 py-3 rounded-2xl text-sm font-bold bg-white/10 text-white touch-manipulation"
+              className="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-white touch-manipulation"
             >
               Retake
             </button>
             <button
               onClick={handleUsePhoto}
-              className="flex-1 py-3 rounded-2xl text-sm font-bold bg-(--accent) text-[#131313] touch-manipulation"
+              className="flex-1 py-3 rounded-xl text-sm font-bold bg-(--accent) text-[#131313] touch-manipulation"
             >
               Use Photo
             </button>
@@ -784,15 +784,15 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
   const busy = isAnalyzing || compressing;
 
   return (
-    <div className="bg-(--bg-tertiary) rounded-2xl shadow-[var(--shadow-sm)] p-4 sm:p-5 border border-(--border-light)">
+    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light)">
       <SectionLabel text="Meal Photo" />
 
-      <div className="flex gap-1.5 mb-3 bg-(--bg-hover) rounded-2xl p-1">
+      <div className="flex gap-1.5 mb-3 bg-(--bg-hover) rounded-xl p-1">
         {[{ id: "upload", icon: "📁", label: "Upload" }, { id: "camera", icon: "📷", label: "Camera" }].map(({ id, icon, label }) => (
           <button
             key={id}
             onClick={() => switchTab(id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-2xl text-xs font-semibold transition-all touch-manipulation ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all touch-manipulation ${
               tab === id ? "bg-(--accent) text-[#131313]" : "text-(--text-muted) hover:text-(--text-secondary)"
             }`}
           >
@@ -803,7 +803,7 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
 
       {tab === "upload" && (
         <div
-          className={`relative rounded-2xl border-2 border-dashed transition-colors duration-200 cursor-pointer ${
+          className={`relative rounded-xl border-2 border-dashed transition-colors duration-200 cursor-pointer ${
             dragOver ? "border-(--accent)/60 bg-(--accent-bg)" : "border-(--border-medium) hover:border-(--border-heavy)"
           } ${preview ? "border-solid border-(--border-medium)" : ""}`}
           style={{ minHeight: 180 }}
@@ -814,7 +814,7 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
         >
           {preview ? (
             <>
-              <img src={preview} alt="Meal preview" className="w-full rounded-2xl object-cover" style={{ maxHeight: 240 }} />
+              <img src={preview} alt="Meal preview" className="w-full rounded-xl object-cover" style={{ maxHeight: 240 }} />
               <button
                 onClick={(e) => { e.stopPropagation(); handleClear(); }}
                 className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/60 hover:bg-black/80 text-white rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-xs font-bold transition-colors touch-manipulation"
@@ -832,13 +832,13 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
 
       {tab === "camera" && (
         <div
-          className="relative rounded-2xl overflow-hidden bg-black flex items-center justify-center cursor-pointer"
+          className="relative rounded-xl overflow-hidden bg-(--bg-tertiary) border-2 border-dashed border-(--border-medium) hover:border-(--border-heavy) transition-colors flex items-center justify-center cursor-pointer"
           style={{ minHeight: 180 }}
           onClick={() => !preview && setIsCameraOpen(true)}
         >
           {preview ? (
             <>
-              <img src={preview} alt="Captured meal" className="w-full rounded-2xl object-cover" style={{ maxHeight: 240 }} />
+              <img src={preview} alt="Captured meal" className="w-full rounded-xl object-cover" style={{ maxHeight: 240 }} />
               <button
                 onClick={(e) => { e.stopPropagation(); handleClear(); }}
                 className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold transition-colors touch-manipulation"
@@ -846,9 +846,9 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
             </>
           ) : (
             <div className="flex flex-col items-center justify-center py-10 sm:py-12 px-4 text-center">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-3 text-2xl">📷</div>
-              <p className="text-white text-xs sm:text-sm font-medium mb-1">Tap to open camera</p>
-              <p className="text-white/50 text-xs">Fullscreen capture</p>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-(--bg-hover) flex items-center justify-center mb-3 text-2xl">📷</div>
+              <p className="text-(--text-primary) text-xs sm:text-sm font-medium mb-1">Tap to open camera</p>
+              <p className="text-(--text-muted) text-xs">Fullscreen capture</p>
             </div>
           )}
         </div>
@@ -859,7 +859,7 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
       <button
         onClick={handleAnalyzeClick}
         disabled={busy || !preview}
-        className={`mt-3 sm:mt-4 w-full py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold tracking-wide transition-all duration-200 touch-manipulation ${
+        className={`mt-3 sm:mt-4 w-full py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold tracking-wide transition-all duration-200 touch-manipulation ${
           busy || !preview
             ? "bg-(--bg-hover) text-(--text-muted) cursor-not-allowed"
             : "bg-(--accent) active:scale-[0.98] text-[#131313]"
@@ -970,14 +970,14 @@ function ManualLogForm({ onLog }) {
                   <div className="relative shrink-0">
                     <button
                       onClick={() => setEmojiOpen((v) => !v)}
-                      className="w-10 h-10 rounded-2xl bg-(--bg-hover) hover:bg-(--bg-active) flex items-center justify-center text-lg border border-(--border-light) touch-manipulation"
+                      className="w-10 h-10 rounded-xl bg-(--bg-hover) hover:bg-(--bg-active) flex items-center justify-center text-lg border border-(--border-light) touch-manipulation"
                     >
                       {form.emoji}
                     </button>
                     {emojiOpen && (
-                      <div className="absolute top-12 left-0 z-20 bg-(--bg-tertiary) border border-(--border-medium) rounded-2xl p-2 grid grid-cols-5 gap-1 shadow-xl w-max max-w-50">
+                      <div className="absolute top-12 left-0 z-20 bg-(--bg-tertiary) border border-(--border-medium) rounded-xl p-2 grid grid-cols-5 gap-1 shadow-xl w-max max-w-50">
                         {EMOJI_OPTIONS.map((em) => (
-                          <button key={em} onClick={() => { setField("emoji", em); setEmojiOpen(false); }} className="w-8 h-8 rounded-2xl hover:bg-(--bg-hover) flex items-center justify-center text-base touch-manipulation">
+                          <button key={em} onClick={() => { setField("emoji", em); setEmojiOpen(false); }} className="w-8 h-8 rounded-lg hover:bg-(--bg-hover) flex items-center justify-center text-base touch-manipulation">
                             {em}
                           </button>
                         ))}
@@ -990,7 +990,7 @@ function ManualLogForm({ onLog }) {
                       placeholder="e.g. Chicken Adobo"
                       value={form.name}
                       onChange={(e) => setField("name", e.target.value)}
-                      className={`w-full h-10 bg-(--bg-hover) rounded-2xl px-3 text-sm text-(--text-primary) border outline-none focus:border-(--accent)/50 transition-colors ${errors.name ? "border-red-500/60" : "border-(--border-light)"}`}
+                      className={`w-full h-10 bg-(--bg-hover) rounded-xl px-3 text-sm text-(--text-primary) border outline-none focus:border-(--accent)/50 transition-colors ${errors.name ? "border-red-500/60" : "border-(--border-light)"}`}
                     />
                     {errors.name && <p className="text-red-400 text-[10px] mt-1">{errors.name}</p>}
                   </div>
@@ -1004,7 +1004,7 @@ function ManualLogForm({ onLog }) {
                     <button
                       key={type}
                       onClick={() => setField("mealType", type)}
-                      className={`px-2.5 sm:px-3 py-1.5 rounded-2xl text-xs font-semibold border transition-all touch-manipulation ${
+                      className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all touch-manipulation ${
                         form.mealType === type
                           ? "bg-(--accent-bg) text-(--accent) border-(--accent-border)"
                           : "bg-(--bg-hover) text-(--text-muted) border-(--border-light) hover:border-(--border-medium)"
@@ -1031,7 +1031,7 @@ function ManualLogForm({ onLog }) {
                 ))}
               </div>
 
-              <button onClick={handleSubmit} className="w-full py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold bg-(--accent) text-[#131313] transition-colors touch-manipulation">
+              <button onClick={handleSubmit} className="w-full py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold bg-(--accent) text-[#131313] transition-colors touch-manipulation">
                 + Add to Log
               </button>
             </div>
@@ -1047,14 +1047,14 @@ function ResultCard({ result, onLog, isLogging }) {
   if (!result) return null;
 
   return (
-    <div className="bg-(--bg-tertiary) rounded-2xl shadow-[var(--shadow-sm)] p-4 sm:p-5 border border-(--border-light)">
+    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light)">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <SectionLabel text="Analysis Result" />
         <span className="text-[10px] bg-(--accent-bg) text-(--accent) px-2 py-0.5 rounded-full font-semibold">AI Estimated</span>
       </div>
 
       <div className="flex items-start gap-3 mb-5 sm:mb-6">
-        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-(--bg-hover) flex items-center justify-center text-xl sm:text-2xl shrink-0">🍽️</div>
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-(--bg-hover) flex items-center justify-center text-xl sm:text-2xl shrink-0">🍽️</div>
         <div className="flex-1 min-w-0">
           <p className="text-(--text-primary) font-semibold text-sm sm:text-base leading-tight truncate">{result.food_name}</p>
           {result.suggestion && (
@@ -1095,7 +1095,7 @@ function ResultCard({ result, onLog, isLogging }) {
       <button
         onClick={() => onLog(result)}
         disabled={isLogging}
-        className="w-full py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-(--bg-hover) hover:bg-(--accent-bg) hover:text-(--accent) text-(--text-primary) border border-(--border-light) transition-all touch-manipulation disabled:opacity-50"
+        className="w-full py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-(--bg-hover) hover:bg-(--accent-bg) hover:text-(--accent) text-(--text-primary) border border-(--border-light) transition-all touch-manipulation disabled:opacity-50"
       >
         {isLogging ? <span className="flex items-center justify-center gap-2"><Spinner /> Saving...</span> : "+ Log This Meal"}
       </button>
@@ -1149,7 +1149,7 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
     : `Summary · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 
   return (
-    <div className="bg-(--bg-tertiary) border border-(--border-light) rounded-2xl shadow-[var(--shadow-sm)] p-[22px] flex flex-col gap-6">
+    <div className="bg-(--bg-tertiary) border border-(--border-light) rounded-2xl p-[22px] flex flex-col gap-6">
       {/* Header row */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
@@ -1214,7 +1214,7 @@ function MealHistory({ meals, loading, onDeleteMeal, selectedDate }) {
     : `Meals · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 
   return (
-    <div className="bg-(--bg-tertiary) rounded-2xl shadow-[var(--shadow-sm)] p-4 sm:p-5 border border-(--border-light)">
+    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light)">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <SectionLabel text={dateLabel} />
         {loading && <Spinner />}
@@ -1227,8 +1227,8 @@ function MealHistory({ meals, loading, onDeleteMeal, selectedDate }) {
       ) : (
         <div className="space-y-2">
           {filteredMeals.map((meal) => (
-            <div key={meal.id} className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-2xl bg-(--bg-hover) transition-colors group">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-(--bg-hover) flex items-center justify-center text-base sm:text-lg shrink-0">
+            <div key={meal.id} className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-(--bg-hover) transition-colors group">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-(--bg-hover) flex items-center justify-center text-base sm:text-lg shrink-0">
                 {meal.emoji || "🍽️"}
               </div>
               <div className="flex-1 min-w-0">
@@ -1256,7 +1256,7 @@ function MealHistory({ meals, loading, onDeleteMeal, selectedDate }) {
                 onClick={() => handleDelete(meal.id)}
                 disabled={deletingId === meal.id}
                 title="Delete meal"
-                className="shrink-0 w-8 h-8 flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-2xl bg-red-500/10 hover:bg-red-500/20 text-red-400 disabled:opacity-50"
+                className="shrink-0 w-8 h-8 flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 disabled:opacity-50"
               >
                 {deletingId === meal.id ? <Spinner /> : <TrashIcon className="w-4 h-4" />}
               </button>

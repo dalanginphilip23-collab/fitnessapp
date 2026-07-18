@@ -10,7 +10,7 @@ import React from 'react';
  * For lightweight feedback (save, revoke session), use <Toast> instead.
  *
  * Theme-aware version: backgrounds/text now use CSS variables from
- * themes.css so the modal flips correctly between dark-theme / light-theme.
+ * index.css so the modal flips correctly between dark-theme / light-theme.
  * Accent color (#c7f248) intentionally left hardcoded in both themes.
  *
  * Props:
@@ -64,7 +64,7 @@ const SuccessModal = ({
         <button
           onClick={onClose}
           className="mt-7 w-full py-3 bg-[#62aa1a] text-[#1a2800] text-[10px] font-black
-            uppercase tracking-widest rounded-2xl hover:brightness-105 active:scale-[0.98]
+            uppercase tracking-widest rounded-xl hover:brightness-105 active:scale-[0.98]
             transition-all"
         >
           Got it

@@ -30,7 +30,7 @@ const SessionItem = ({ session, onRevoke }) => {
 
   return (
     <div
-      className={`flex items-center gap-2 sm:gap-3 px-2.5 sm:px-3 py-2.5 rounded-2xl border transition-all
+      className={`flex items-center gap-2 sm:gap-3 px-2.5 sm:px-3 py-2.5 rounded-xl border transition-all
         ${session.is_current
           ? 'bg-[#c7f248]/[0.04] border-[#c7f248]/10'
           : 'border-transparent hover:bg-[var(--bg-hover)] hover:border-[var(--border-light)]'
@@ -38,7 +38,7 @@ const SessionItem = ({ session, onRevoke }) => {
     >
       {/* Device icon */}
       <div
-        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-2xl flex items-center justify-center flex-shrink-0
+        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center flex-shrink-0
           ${session.is_current
             ? 'bg-[#c7f248]/10 text-[#62aa1a]'
             : 'bg-[var(--bg-hover)] text-[var(--text-secondary)]'
@@ -74,7 +74,7 @@ const SessionItem = ({ session, onRevoke }) => {
           className="flex-shrink-0 text-[9px] font-bold uppercase tracking-widest
             text-red-400/60 hover:text-red-400 border border-transparent
             hover:border-red-500/25 hover:bg-red-500/[0.08]
-            px-2 sm:px-2.5 py-1 rounded-2xl transition-all whitespace-nowrap"
+            px-2 sm:px-2.5 py-1 rounded-lg transition-all whitespace-nowrap"
         >
           Revoke
         </button>

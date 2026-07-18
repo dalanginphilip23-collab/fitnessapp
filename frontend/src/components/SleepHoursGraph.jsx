@@ -150,7 +150,7 @@ export const SleepHoursGraph = ({ userId = null }) => {
   })();
 
   return (
-    <div className="bg-[var(--bg-tertiary)] border min-h-[410px] border-[var(--border-light)] shadow-[var(--shadow-sm)] rounded-[var(--card-radius-lg)] p-6 pb-4 transition-all duration-300">
+    <div className="bg-[var(--bg-tertiary)] border min-h-[410px] border-[var(--border-light)] rounded-[16px] p-6 pb-4 transition-all duration-300">
 
       <div className="flex flex-wrap justify-between items-start gap-3 mb-5">
         <div>
@@ -187,14 +187,14 @@ export const SleepHoursGraph = ({ userId = null }) => {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-2xl p-1 gap-1">
+          <div className="flex bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-xl p-1 gap-1">
             {DATA_SOURCES.map(src => {
               const active = src.key === activeSource;
               return (
                 <button
                   key={src.key}
                   onClick={() => handleSourceSwitch(src.key)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-[10px] font-bold transition-all duration-200 cursor-pointer border-none ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-200 cursor-pointer border-none ${
                     active ? 'text-black shadow-md' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
                   }`}
                   style={active ? { background: src.color, boxShadow: `0 2px 12px ${src.color}40` } : {}}
@@ -220,7 +220,7 @@ export const SleepHoursGraph = ({ userId = null }) => {
             </span>
           )}
 
-          <div className="flex bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-2xl p-0.5">
+          <div className="flex bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-lg p-0.5">
             {TABS.map(t => (
               <button
                 key={t}

@@ -76,7 +76,7 @@ const AvatarPickerModal = ({
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full py-3.5 border border-dashed border-[var(--border-medium)] hover:border-[#62aa1a]/50 rounded-2xl flex items-center justify-center gap-3 transition-all group"
+            className="w-full py-3.5 border border-dashed border-[var(--border-medium)] hover:border-[#62aa1a]/50 rounded-xl flex items-center justify-center gap-3 transition-all group"
           >
             <Icon name="upload" className="text-[var(--text-muted)] group-hover:text-[#62aa1a] transition-colors text-lg" />
             <span className="text-[10px] font-bold text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] uppercase tracking-widest transition-colors">
@@ -84,7 +84,7 @@ const AvatarPickerModal = ({
             </span>
           </button>
           {uploadPreview && (
-            <div className="mt-4 flex items-center gap-3 bg-[var(--bg-primary)] p-3 rounded-2xl border border-[#62aa1a]/20">
+            <div className="mt-4 flex items-center gap-3 bg-[var(--bg-primary)] p-3 rounded-xl border border-[#62aa1a]/20">
               <img
                 src={uploadPreview}
                 alt="Preview"
