@@ -56,6 +56,9 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
                   fill={isActive ? 1 : 0}
                 />
               </div>
+              <span className="text-[9px] font-bold leading-none tracking-tight max-w-full truncate px-0.5">
+                {key}
+              </span>
             </button>
           );
         })}

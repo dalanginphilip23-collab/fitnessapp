@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
-import { MobileNav, Sidebar, Topbar } from '../../../components';
+import { MobileNav, Sidebar, Topbar, ProgressListItem } from '../../../components';
 import usePlans from '../hooks/usePlan';
 
 // ICON COMPONENT
@@ -723,11 +723,19 @@ const MyPlans = ({ plans, onOpen, onContinue }) => {
           <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest mb-3 sm:mb-4" style={{ color: 'var(--text-muted)' }}>
             All Enrolled Plans
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {enrolled.slice(1).map((plan, i) => (
-              <PlanCard
-                key={plan.id} plan={plan} onOpen={onOpen} onEnroll={() => {}} onContinue={onContinue}
-                style={{ animation: `slideUp 0.3s ease ${i * 0.06}s both` }}
+          <div className="flex flex-col gap-3 sm:gap-4">
+            {enrolled.slice(1).map((plan) => (
+              <ProgressListItem
+                key={plan.id}
+                thumbnail={`https://api.dicebear.com/7.x/shapes/svg?seed=${plan.image_seed}`}
+                title={plan.title}
+                meta={[
+                  { icon: 'schedule', label: plan.duration },
+                  { icon: 'bolt', label: plan.intensity || plan.tag || 'Program' },
+                ]}
+                progressPct={plan.progress_pct ?? 0}
+                completed={(plan.progress_pct ?? 0) >= 100}
+                onClick={() => onOpen(plan)}
               />
             ))}
           </div>
