@@ -70,23 +70,23 @@
 
 /* Light theme overrides */
 .light-theme {
-  /* Background colors - Light mode (WHITE) */
-  --bg-primary: #f5f5f5;
+  /* Background colors - Light mode (crisp white, not a gray wash) */
+  --bg-primary: #ffffff;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f8f8f8;
+  --bg-tertiary: #f3f9ee;
   --bg-card: #ffffff;
-  --bg-hover: rgba(0, 0, 0, 0.04);
-  --bg-active: rgba(0, 0, 0, 0.06);
+  --bg-hover: rgba(125, 214, 37, 0.08);
+  --bg-active: rgba(125, 214, 37, 0.14);
   --bg-overlay: rgba(0, 0, 0, 0.6);
   
   /* Surface colors */
   --surface: #ffffff;
-  --surface-hover: #f8f8f8;
-  --surface-active: #f0f0f0;
+  --surface-hover: #f3f9ee;
+  --surface-active: #e9f5df;
   --surface-elevated: #fafafa;
   
   /* Text colors - Light mode (DARK) */
-  --text-primary: #1a1a1a;
+  --text-primary: #14180f;
   --text-secondary: #4a4a4a;
   --text-muted: #888888;
   --text-disabled: #cccccc;
@@ -97,25 +97,25 @@
   --border-medium: rgba(0, 0, 0, 0.12);
   --border-heavy: rgba(0, 0, 0, 0.2);
   
-  /* Accent colors — muted forest green (not neon) */
-  --accent: #7dd625e1;
-  --accent-dark: #7dd625e1;
-  --accent-light: #7dd625e1;
-  --accent-bg: rgba(37, 73, 0, 0.10);
-  --accent-border: rgba(37, 73, 0, 0.22);
-  --accent-hover: #7dd625e1;
+  /* Accent colors — solid, vivid, fully opaque green (no alpha bleed) */
+  --accent: #7dd625;
+  --accent-dark: #63b019;
+  --accent-light: #a2e764;
+  --accent-bg: rgba(125, 214, 37, 0.12);
+  --accent-border: rgba(125, 214, 37, 0.35);
+  --accent-hover: #63b019;
   
   /* Shadows - Light mode */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
-  --shadow-glow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 4px 14px rgba(125, 214, 37, 0.18);
   
   /* Input */
   --input-bg: rgba(0, 0, 0, 0.03);
   --input-border: rgba(0, 0, 0, 0.1);
-  --input-focus: rgba(94, 158, 74, 0.3);
+  --input-focus: rgba(125, 214, 37, 0.3);
   --input-placeholder: #aaaaaa;
   
   /* Scrollbar */
@@ -124,8 +124,8 @@
   --scrollbar-thumb-hover: rgba(0, 0, 0, 0.2);
   
   /* Status */
-  --success: #7dd625e1;
-  --success-bg: rgba(37, 73, 0, 0.1);
+  --success: #7dd625;
+  --success-bg: rgba(125, 214, 37, 0.12);
   --error: #ef4444;
   --error-bg: rgba(239, 68, 68, 0.1);
   --warning: #f59e0b;
