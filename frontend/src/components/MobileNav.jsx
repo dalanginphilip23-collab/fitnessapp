@@ -35,30 +35,22 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
             <button
               key={key}
               onClick={() => handleNavClick(item.path)}
-              className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full flex-1 min-w-11 ${
+              className={`relative flex items-center justify-center bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full flex-1 min-w-11 ${
                 isActive ? 'text-(--accent)' : 'text-(--text-muted)'
               }`}
             >
               <div
-                className={`relative flex items-center justify-center transition-transform duration-300 ${
-                  isActive ? 'scale-110' : 'scale-100'
+                className={`relative flex items-center justify-center px-4 py-2 rounded-[var(--card-radius-sm)] transition-all duration-300 ${
+                  isActive ? 'scale-105' : 'scale-100'
                 }`}
+                style={isActive ? { backgroundColor: 'color-mix(in srgb, var(--accent) 14%, transparent)' } : undefined}
               >
-                {isActive && (
-                  <span
-                    className="absolute inset-[-6px] rounded-full"
-                    style={{ backgroundColor: 'color-mix(in srgb, var(--accent) 14%, transparent)' }}
-                  />
-                )}
                 <Icon
                   name={item.icon}
                   className="relative text-[20px] min-w-5 shrink-0"
                   fill={isActive ? 1 : 0}
                 />
               </div>
-              <span className="text-[9px] font-bold leading-none tracking-tight max-w-full truncate px-0.5">
-                {key}
-              </span>
             </button>
           );
         })}
@@ -67,9 +59,9 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
         {onFeedback && (
           <button
             onClick={onFeedback}
-            className="relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full flex-1 min-w-11 text-(--text-muted) hover:text-(--accent)"
+            className="relative flex items-center justify-center bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full flex-1 min-w-11 text-(--text-muted) hover:text-(--accent)"
           >
-            <div className="relative flex items-center justify-center transition-transform duration-300 scale-100">
+            <div className="relative flex items-center justify-center px-4 py-2 rounded-[var(--card-radius-sm)] transition-all duration-300">
               <Icon
                 name="feedback"
                 className="text-[20px] min-w-5 shrink-0"
