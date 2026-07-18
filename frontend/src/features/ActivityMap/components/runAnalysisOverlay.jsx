@@ -5,7 +5,7 @@ const RunAnalysisOverlay = ({ analysis, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[var(--bg-tertiary)] border border-[var(--border-medium)] rounded-3xl overflow-hidden shadow-2xl">
+      <div className="w-full max-w-md bg-[var(--bg-tertiary)] border border-[var(--border-medium)] rounded-[var(--card-radius-lg)] overflow-hidden shadow-2xl">
         {/* Header */}
         <div className="bg-gradient-to-r from-[var(--accent-bg)] to-transparent px-5 py-4 border-b border-[var(--border-light)] flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -48,11 +48,11 @@ const RunAnalysisOverlay = ({ analysis, onClose }) => {
             <p className="text-[9px] font-black uppercase tracking-widest text-[var(--accent)]/60 mb-1.5">Run Summary</p>
             <p className="text-[12px] sm:text-[13px] text-[var(--text-secondary)] leading-relaxed">{analysis.summary || 'Great run! Keep up the good work.'}</p>
           </div>
-          <div className="bg-[var(--accent-bg)] border border-[var(--accent-border)] rounded-2xl px-4 py-3">
+          <div className="bg-[var(--accent-bg)] border border-[var(--accent-border)] rounded-[var(--card-radius-md)] px-4 py-3">
             <p className="text-[9px] font-black uppercase tracking-widest text-[var(--accent)] mb-1.5">🔮 30-Day Prediction</p>
             <p className="text-[12px] sm:text-[13px] text-[var(--text-secondary)] leading-relaxed">{analysis.prediction || 'Consistency will lead to significant improvements.'}</p>
           </div>
-          <div className="bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-2xl px-4 py-3">
+          <div className="bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-[var(--card-radius-md)] px-4 py-3">
             <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-1.5">💡 Next Run Tip</p>
             <p className="text-[12px] sm:text-[13px] text-[var(--text-secondary)] leading-relaxed">{analysis.tip || 'Focus on maintaining a steady pace throughout.'}</p>
           </div>

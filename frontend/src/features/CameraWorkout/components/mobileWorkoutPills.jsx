@@ -55,7 +55,7 @@ export default function MobileWorkoutPills({ workoutType, onSelect }) {
                   <button
                     key={opt.id}
                     onClick={() => handleSelect(opt)}
-                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all touch-manipulation ${
+                    className={`flex flex-col items-center gap-2 p-3 rounded-[var(--card-radius-md)] border transition-all touch-manipulation ${
                       active
                         ? 'bg-[var(--accent)] border-[var(--accent)] text-[var(--text-inverse)]'
                         : 'bg-[var(--bg-hover)] border-[var(--border-light)] text-[var(--text-secondary)] active:bg-[var(--surface-hover)]'

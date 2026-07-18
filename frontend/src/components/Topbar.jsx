@@ -146,7 +146,7 @@ function NotificationOverlay({ notifications, onMarkRead, onMarkAllRead, onClose
   }
 
   return (
-    <div className="absolute right-0 top-[calc(100%+10px)] w-95 bg-(--bg-secondary) border border-(--border-medium) rounded-2xl shadow-(--shadow-lg) overflow-hidden z-9999">
+    <div className="absolute right-0 top-[calc(100%+10px)] w-95 bg-(--bg-secondary) border border-(--border-medium) rounded-[var(--card-radius-md)] shadow-(--shadow-lg) overflow-hidden z-9999">
       {innerContent}
     </div>
   );
@@ -481,7 +481,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
             </button>
 
             {settingsOpen && !mobileMenuOpen && (
-              <div className="absolute right-0 top-[calc(100%+10px)] w-52.5 sm:w-55 bg-(--bg-secondary) border border-(--border-medium) rounded-2xl shadow-(--shadow-lg) overflow-hidden z-9999">
+              <div className="absolute right-0 top-[calc(100%+10px)] w-52.5 sm:w-55 bg-(--bg-secondary) border border-(--border-medium) rounded-[var(--card-radius-md)] shadow-(--shadow-lg) overflow-hidden z-9999">
                 <div className="flex items-center gap-3 px-4 py-3.5 border-b border-(--border-light) bg-(--surface)">
                   <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-(--accent)/20 bg-(--bg-tertiary) shrink-0">
                     <img src={avatarSrc} alt="User" className="w-full h-full object-cover" onError={handleAvatarError} />

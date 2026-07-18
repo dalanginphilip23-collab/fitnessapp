@@ -43,7 +43,7 @@ function MiniCalendar({ activeDays, selectedKey, onSelect }) {
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
   return (
-    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl sm:rounded-3xl p-4 sm:p-6 w-full">
+    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[var(--card-radius-md)] sm:rounded-[var(--card-radius-lg)] p-4 sm:p-6 w-full">
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={prevMonth}
@@ -120,7 +120,7 @@ function MiniCalendar({ activeDays, selectedKey, onSelect }) {
 // ─── Session Card (mobile) ────────────────────────────────────────────────────
 function SessionCard({ session }) {
   return (
-    <div className="bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-2xl p-4 space-y-3">
+    <div className="bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-[var(--card-radius-md)] p-4 space-y-3">
       <div className="flex items-center justify-between">
         <span className="font-mono text-xs text-[var(--text-muted)]">
           #VTL-{session.id.toString().padStart(4, '0')}
@@ -273,7 +273,7 @@ const Log = () => {
                   ))}
                 </div>
 
-                <div className="hidden lg:block bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-3xl p-6 space-y-3">
+                <div className="hidden lg:block bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[var(--card-radius-lg)] p-6 space-y-3">
                   <p className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-3">
                     Day Summary
                   </p>
@@ -328,7 +328,7 @@ const Log = () => {
               )}
             </div>
 
-            <div className="hidden lg:block bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-3xl overflow-hidden backdrop-blur-md">
+            <div className="hidden lg:block bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-[var(--card-radius-lg)] overflow-hidden backdrop-blur-md">
               <div className="overflow-x-auto">
                 <table className="w-full text-left min-w-[600px]">
                   <thead>

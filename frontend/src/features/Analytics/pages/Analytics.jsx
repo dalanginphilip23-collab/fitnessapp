@@ -203,7 +203,7 @@ function SleepScatterChart({ scatterData, sleepHours, sleepQuality }) {
   };
 
   return (
-    <div className="col-span-1 lg:col-span-8 bg-(--bg-tertiary) rounded-2xl p-4 sm:p-6 md:p-8 border border-(--border-light) shadow-sm">
+    <div className="col-span-1 lg:col-span-8 bg-(--bg-tertiary) rounded-[var(--card-radius-md)] p-4 sm:p-6 md:p-8 border border-(--border-light) shadow-sm">
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4 sm:mb-6">
         <div className="min-w-0 flex-1">
           <h3 className="text-(--text-muted) text-[10px] font-bold uppercase tracking-[0.2em] mb-1 sm:mb-2">
@@ -250,7 +250,7 @@ function SleepSyncCard({ sleepHours, setSleepHours, sleepQuality, setSleepQualit
 
   return (
     <div className="col-span-1 lg:col-span-4">
-      <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-6 md:p-8 border border-(--border-light) shadow-sm h-full">
+      <div className="bg-(--bg-tertiary) rounded-[var(--card-radius-md)] p-4 sm:p-6 md:p-8 border border-(--border-light) shadow-sm h-full">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div className="p-2 sm:p-2.5 bg-(--bg-hover) rounded-xl">
             <Icon name="bedtime" className="text-(--accent) text-xl sm:text-2xl" fill={1} />
@@ -313,7 +313,7 @@ function ZoneBar({ zone }) {
 
 function DistributionZones({ zones, zonesLoading }) {
   return (
-    <div className="col-span-1 lg:col-span-12 bg-(--bg-tertiary) rounded-2xl p-4 sm:p-6 md:p-8 border border-(--border-light) shadow-sm">
+    <div className="col-span-1 lg:col-span-12 bg-(--bg-tertiary) rounded-[var(--card-radius-md)] p-4 sm:p-6 md:p-8 border border-(--border-light) shadow-sm">
       <div className="flex items-center justify-between mb-5 sm:mb-8">
         <h3 className="font-bold text-[10px] uppercase tracking-[0.25em] text-(--text-muted)">Distribution Zones</h3>
         {zonesLoading && (

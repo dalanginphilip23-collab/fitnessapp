@@ -80,7 +80,7 @@ const BMI = () => {
   const badgeColor = categoryColor[category] || 'var(--accent)';
 
   const inputCls =
-    'w-full bg-(--input-bg) border border-(--border-medium) rounded-2xl p-4 text-sm outline-none ' +
+    'w-full bg-(--input-bg) border border-(--border-medium) rounded-[var(--card-radius-md)] p-4 text-sm outline-none ' +
     'focus:border-(--accent) transition-all text-(--text-primary) placeholder:text-(--text-secondary)';
 
   const optionStyle = { backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' };
@@ -165,7 +165,7 @@ const BMI = () => {
                     <select
                       value={gender}
                       onChange={(e) => setGender(e.target.value)}
-                      className="w-full bg-(--input-bg) border border-(--border-medium) rounded-2xl p-4 text-sm outline-none focus:border-(--accent) text-(--text-primary) appearance-none cursor-pointer transition-all"
+                      className="w-full bg-(--input-bg) border border-(--border-medium) rounded-[var(--card-radius-md)] p-4 text-sm outline-none focus:border-(--accent) text-(--text-primary) appearance-none cursor-pointer transition-all"
                     >
                       <option value="male"   style={optionStyle}>Male</option>
                       <option value="female" style={optionStyle}>Female</option>
@@ -180,7 +180,7 @@ const BMI = () => {
                   <button
                     onClick={calculateBMI}
                     disabled={isAnalyzing}
-                    className="w-full py-4 bg-(--accent) text-(--text-inverse) font-black uppercase text-[11px] tracking-widest rounded-2xl hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full py-4 bg-(--accent) text-(--text-inverse) font-black uppercase text-[11px] tracking-widest rounded-[var(--card-radius-md)] hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {isAnalyzing ? 'Analyzing...' : 'Process Biometrics'}
                   </button>
@@ -325,7 +325,7 @@ const BMI = () => {
             </div>
 
             {bmi && (
-              <div className="flex items-center gap-3 mb-5 bg-(--bg-hover) rounded-2xl p-4">
+              <div className="flex items-center gap-3 mb-5 bg-(--bg-hover) rounded-[var(--card-radius-md)] p-4">
                 <span className="text-3xl font-black italic" style={{ color: badgeColor }}>
                   {bmi}
                 </span>
@@ -355,7 +355,7 @@ const BMI = () => {
             {!isAnalyzing && (
               <button
                 onClick={() => setShowAIModal(false)}
-                className="w-full mt-7 py-3.5 bg-(--accent) text-(--text-inverse) font-black uppercase text-[11px] tracking-widest rounded-2xl hover:brightness-110 active:scale-95 transition-all"
+                className="w-full mt-7 py-3.5 bg-(--accent) text-(--text-inverse) font-black uppercase text-[11px] tracking-widest rounded-[var(--card-radius-md)] hover:brightness-110 active:scale-95 transition-all"
               >
                 Got it
               </button>

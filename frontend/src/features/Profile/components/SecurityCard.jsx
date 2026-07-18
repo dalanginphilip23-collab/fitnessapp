@@ -88,7 +88,7 @@ const SecurityCard = ({ sessions = [], onRevoke }) => {
   const others = sessions.filter((s) => !s.is_current);
 
   return (
-    <section className="bg-[var(--bg-card)] border border-[var(--border-light)] rounded-2xl p-4 sm:p-6">
+    <section className="bg-[var(--bg-card)] border border-[var(--border-light)] rounded-[var(--card-radius-md)] p-4 sm:p-6">
       <p className="text-[9px] font-black tracking-[0.2em] uppercase text-[var(--text-muted)] mb-4 sm:mb-5">
         Active sessions
       </p>

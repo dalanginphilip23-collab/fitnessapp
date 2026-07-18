@@ -18,7 +18,7 @@ const AvatarPickerModal = ({
         onClick={onClose}
       />
       <div
-        className="bg-[var(--bg-card)] border border-[var(--border-light)] p-8 rounded-2xl shadow-2xl relative z-10 max-w-sm w-full"
+        className="bg-[var(--bg-card)] border border-[var(--border-light)] p-8 rounded-[var(--card-radius-md)] shadow-2xl relative z-10 max-w-sm w-full"
         style={{ animation: 'fadeIn 0.2s ease' }}
       >
         {/* Header */}

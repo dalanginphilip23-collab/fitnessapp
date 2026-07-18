@@ -2,7 +2,7 @@ import Icon from './Icon';
 
 // ─── Shell ────────────────────────────────────────────────────────────────────
 export const StatCard = ({ label, value, unit, icon, children }) => (
-  <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[16px] p-[22px] flex flex-col h-full">
+  <div className="fx-card p-[22px] flex flex-col h-full">
     <div className="flex justify-between items-start mb-6">
       <div>
         <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-muted)] mb-1">{label}</p>

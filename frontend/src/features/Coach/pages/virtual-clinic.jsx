@@ -36,7 +36,7 @@ const DOCTORS_DATA = {
 const CategoryCard = ({ title, subtitle, description, onClick, imageUrl }) => (
   <button
     onClick={onClick}
-    className={`w-full p-6 sm:p-8 rounded-3xl border border-(--border-medium) bg-(--bg-hover) hover:bg-(--accent-bg) hover:border-(--accent-border) hover:scale-[1.03] hover:shadow-(--shadow-lg) transition-all duration-300 flex flex-col items-center justify-center gap-3 group`}
+    className={`w-full p-6 sm:p-8 rounded-[var(--card-radius-lg)] border border-(--border-medium) bg-(--bg-hover) hover:bg-(--accent-bg) hover:border-(--accent-border) hover:scale-[1.03] hover:shadow-(--shadow-lg) transition-all duration-300 flex flex-col items-center justify-center gap-3 group`}
   >
     <div className="w-16 h-16 sm:w-24 sm:h-24 mb-2 sm:mb-4 group-hover:scale-110 transition-transform">
       <img src={imageUrl} alt={title} className="w-full h-full object-cover rounded-full border-4 border-(--border-medium) group-hover:border-(--accent-border) transition-colors shadow-lg" />
@@ -53,7 +53,7 @@ const CategoryCard = ({ title, subtitle, description, onClick, imageUrl }) => (
 const DoctorCard = ({ doctor, onSelect }) => (
   <div
     onClick={() => onSelect(doctor)}
-    className="p-4 sm:p-6 rounded-3xl border border-(--border-medium) bg-(--bg-hover) hover:bg-(--accent-bg) hover:border-(--accent-border) hover:-translate-y-1 sm:hover:-translate-y-2 cursor-pointer transition-all duration-300 flex flex-col items-center text-center group"
+    className="p-4 sm:p-6 rounded-[var(--card-radius-lg)] border border-(--border-medium) bg-(--bg-hover) hover:bg-(--accent-bg) hover:border-(--accent-border) hover:-translate-y-1 sm:hover:-translate-y-2 cursor-pointer transition-all duration-300 flex flex-col items-center text-center group"
   >
     <div className="relative mb-3 sm:mb-4">
       <img src={doctor.avatar} alt={doctor.name} className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-(--border-medium) group-hover:border-(--accent) transition-colors" />
@@ -288,7 +288,7 @@ const VoiceCallScreen = ({ doctor, sessionId, onShowAlert, onEndCall }) => {
         </div>
 
         {(callStatus === 'listening' && transcript) && (
-          <div className="bg-(--bg-hover) border border-(--border-medium) rounded-2xl px-5 py-3 max-w-xs text-center text-sm text-(--text-secondary) animate-fade-in">
+          <div className="bg-(--bg-hover) border border-(--border-medium) rounded-[var(--card-radius-md)] px-5 py-3 max-w-xs text-center text-sm text-(--text-secondary) animate-fade-in">
             "{transcript}"
           </div>
         )}
@@ -464,7 +464,7 @@ const ChatInterface = ({ doctor, sessionId, onShowAlert, onBack, onStartVoiceCal
   };
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-190px)] sm:h-[calc(100dvh-180px)] md:h-162.5 bg-(--bg-hover) border border-(--border-medium) rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl animate-fade-in">
+    <div className="flex flex-col h-[calc(100dvh-190px)] sm:h-[calc(100dvh-180px)] md:h-162.5 bg-(--bg-hover) border border-(--border-medium) rounded-[var(--card-radius-md)] sm:rounded-[var(--card-radius-lg)] overflow-hidden shadow-2xl animate-fade-in">
 
       <div className="p-3 sm:p-4 border-b border-(--border-light) flex items-center gap-2 sm:gap-4 bg-white/2 shrink-0">
         <button onClick={onBack} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:bg-(--bg-hover) flex items-center justify-center text-(--text-muted) hover:text-(--text-secondary) transition-colors shrink-0">
@@ -500,7 +500,7 @@ const ChatInterface = ({ doctor, sessionId, onShowAlert, onBack, onStartVoiceCal
 
       <div className="flex-1 overflow-y-auto p-3 sm:p-6 flex flex-col gap-3 sm:gap-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {messages.map((m, i) => (
-          <div key={i} className={`max-w-[85%] sm:max-w-[80%] p-3 sm:p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
+          <div key={i} className={`max-w-[85%] sm:max-w-[80%] p-3 sm:p-4 rounded-[var(--card-radius-md)] text-sm leading-relaxed shadow-sm ${
             m.sender === 'user'
               ? 'bg-(--accent) text-[#131313] self-end rounded-br-none font-medium'
               : 'bg-(--bg-hover) text-(--text-primary) rounded-bl-none border border-(--border-light)'
@@ -509,7 +509,7 @@ const ChatInterface = ({ doctor, sessionId, onShowAlert, onBack, onStartVoiceCal
           </div>
         ))}
         {isSending && (
-          <div className="max-w-[80%] p-3 sm:p-4 rounded-2xl bg-(--bg-hover) text-(--text-primary) rounded-bl-none border border-(--border-light) flex gap-1 items-center">
+          <div className="max-w-[80%] p-3 sm:p-4 rounded-[var(--card-radius-md)] bg-(--bg-hover) text-(--text-primary) rounded-bl-none border border-(--border-light) flex gap-1 items-center">
             <span className="w-2 h-2 bg-(--text-muted) rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
             <span className="w-2 h-2 bg-(--text-muted) rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
             <span className="w-2 h-2 bg-(--text-muted) rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -525,12 +525,12 @@ const ChatInterface = ({ doctor, sessionId, onShowAlert, onBack, onStartVoiceCal
           onKeyPress={e => e.key === 'Enter' && !isSending && handleSend()}
           placeholder="Describe your symptoms..."
           disabled={isSending}
-          className="flex-1 min-w-0 bg-(--bg-hover) border border-(--border-light) rounded-2xl px-4 py-3 text-sm text-(--text-primary) outline-none focus:border-(--accent-border) focus:bg-(--bg-active) transition-all disabled:opacity-50 placeholder:text-(--text-muted)"
+          className="flex-1 min-w-0 bg-(--bg-hover) border border-(--border-light) rounded-[var(--card-radius-md)] px-4 py-3 text-sm text-(--text-primary) outline-none focus:border-(--accent-border) focus:bg-(--bg-active) transition-all disabled:opacity-50 placeholder:text-(--text-muted)"
         />
         <button
           onClick={handleSend}
           disabled={isSending}
-          className="w-11 h-11 sm:w-12 sm:h-12 bg-(--accent) rounded-2xl flex items-center justify-center text-[#131313] hover:bg-(--accent-dark) active:scale-90 transition-all shadow-[0_0_15px_rgba(209,253,82,0.3)] disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          className="w-11 h-11 sm:w-12 sm:h-12 bg-(--accent) rounded-[var(--card-radius-md)] flex items-center justify-center text-[#131313] hover:bg-(--accent-dark) active:scale-90 transition-all shadow-[0_0_15px_rgba(209,253,82,0.3)] disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
         >
           <Icon name="send" />
         </button>

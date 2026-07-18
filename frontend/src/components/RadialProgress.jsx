@@ -7,6 +7,8 @@ const RadialProgress = ({
   trackColor = 'var(--bg-hover)',
   displayValue,
   label,
+  icon,       // optional: material-symbol name shown in a small badge above the ring
+  subtitle,   // optional: helper caption shown below the ring (e.g. "day streak this week!")
 }) => {
   const safeGoal = goal > 0 ? goal : 1;
   const pct = Math.min(Math.max((value / safeGoal) * 100, 0), 100);
@@ -18,6 +20,16 @@ const RadialProgress = ({
 
   return (
     <div className="flex flex-col items-center gap-2.5">
+      {icon && (
+        <span
+          className="flex items-center justify-center w-7 h-7 rounded-full -mb-1"
+          style={{ background: `${color}1a`, color }}
+        >
+          <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+            {icon}
+          </span>
+        </span>
+      )}
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
           <circle
@@ -54,6 +66,11 @@ const RadialProgress = ({
       {label && (
         <span className="text-[9px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)]">
           {label}
+        </span>
+      )}
+      {subtitle && (
+        <span className="text-[10px] text-[var(--text-muted)] font-medium text-center max-w-[10rem]">
+          {subtitle}
         </span>
       )}
     </div>

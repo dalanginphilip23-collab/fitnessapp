@@ -78,7 +78,7 @@ export default function IOSInstallBanner() {
       <div
         role="dialog"
         aria-label="Install this app"
-        className="fixed bottom-3 left-3 right-3 sm:left-auto sm:right-4 sm:bottom-4 sm:w-96 z-40 bg-(--bg-tertiary) border border-(--border-light) rounded-2xl shadow-lg p-4"
+        className="fixed bottom-3 left-3 right-3 sm:left-auto sm:right-4 sm:bottom-4 sm:w-96 z-40 bg-(--bg-tertiary) border border-(--border-light) rounded-[var(--card-radius-md)] shadow-lg p-4"
       >
         <div className="flex items-start gap-3">
           <div className="w-9 h-9 rounded-xl bg-(--accent-bg) flex items-center justify-center shrink-0">

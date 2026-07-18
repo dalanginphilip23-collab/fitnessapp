@@ -52,6 +52,7 @@ const ProgramSummaryCard = ({
             size={104}
             strokeWidth={8}
             color="var(--metric-calories)"
+            icon="local_fire_department"
             displayValue={Number(calories.value || 0).toLocaleString()}
           />
           <RingLabel icon="local_fire_department" color="var(--metric-calories)">Calories</RingLabel>
@@ -64,6 +65,7 @@ const ProgramSummaryCard = ({
             size={104}
             strokeWidth={8}
             color="var(--metric-steps)"
+            icon="footprint"
             displayValue={Number(steps.value || 0).toLocaleString()}
           />
           <RingLabel icon="footprint" color="var(--metric-steps)">Steps</RingLabel>
@@ -76,25 +78,32 @@ const ProgramSummaryCard = ({
             size={104}
             strokeWidth={8}
             color="var(--metric-load)"
+            icon="timer"
             displayValue={formatSessionLoad(sessionLoadMins.value)}
           />
           <RingLabel icon="timer" color="var(--metric-load)">Session Load</RingLabel>
         </div>
       </div>
 
+      {calories.value === 0 && steps.value === 0 && sessionLoadMins.value === 0 && (
+        <p className="text-[11px] text-[var(--text-muted)] text-center -mt-3">
+          Log an activity to start filling in today's rings.
+        </p>
+      )}
+
       {/* Actions row */}
       <div className="flex flex-col sm:flex-row gap-3">
         <button
           type="button"
           onClick={onChangeProgram}
-          className="flex-1 bg-[var(--accent)] text-[#131313] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-2xl hover:brightness-95 active:scale-[0.98] transition-all cursor-pointer border-none shadow-sm"
+          className="flex-1 bg-[var(--accent)] text-[#131313] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-[var(--card-radius-md)] hover:brightness-95 active:scale-[0.98] transition-all cursor-pointer border-none shadow-sm"
         >
           Change Program
         </button>
         <button
           type="button"
           onClick={onSeeMore}
-          className="flex-1 bg-transparent text-[var(--text-secondary)] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-2xl border border-[var(--border-medium)] hover:bg-[var(--bg-hover)] active:scale-[0.98] transition-all cursor-pointer"
+          className="flex-1 bg-transparent text-[var(--text-secondary)] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-[var(--card-radius-md)] border border-[var(--border-medium)] hover:bg-[var(--bg-hover)] active:scale-[0.98] transition-all cursor-pointer"
         >
           See More
         </button>

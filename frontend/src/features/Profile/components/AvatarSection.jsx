@@ -14,7 +14,7 @@ const AvatarSection = ({
   const [pickerOpen, setPickerOpen] = useState(false);
 
   return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border-light)] rounded-2xl p-4 sm:p-6">
+    <div className="bg-[var(--bg-card)] border border-[var(--border-light)] rounded-[var(--card-radius-md)] p-4 sm:p-6">
       {/* Section label */}
       <p className="text-[9px] font-bold tracking-[0.2em] uppercase text-[var(--text-muted)] mb-4 sm:mb-5">
         Avatar

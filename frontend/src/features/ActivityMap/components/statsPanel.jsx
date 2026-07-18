@@ -12,13 +12,13 @@ const StatsPanel = ({ metrics, splits, formatTime, isDesktop }) => {
         </h2>
 
         <div className="grid grid-cols-2 gap-2 xl:gap-3">
-          <div className="bg-[var(--bg-hover)] p-3 xl:p-4 rounded-2xl border border-[var(--border-light)]">
+          <div className="bg-[var(--bg-hover)] p-3 xl:p-4 rounded-[var(--card-radius-md)] border border-[var(--border-light)]">
             <p className="text-[9px] text-[var(--text-muted)] uppercase font-black tracking-[0.2em] mb-1">Time</p>
             <h3 className="text-xl xl:text-2xl font-black italic tracking-tighter text-[var(--text-primary)]">
               {formatTime(metrics.time)}
             </h3>
           </div>
-          <div className="bg-[var(--bg-hover)] p-3 xl:p-4 rounded-2xl border border-[var(--border-light)]">
+          <div className="bg-[var(--bg-hover)] p-3 xl:p-4 rounded-[var(--card-radius-md)] border border-[var(--border-light)]">
             <p className="text-[9px] text-[var(--text-muted)] uppercase font-black tracking-[0.2em] mb-1">Dist (km)</p>
             <h3 className="text-xl xl:text-2xl font-black italic tracking-tighter text-[var(--text-primary)]">
               {metrics.distance.toFixed(2)}
@@ -26,7 +26,7 @@ const StatsPanel = ({ metrics, splits, formatTime, isDesktop }) => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-3 xl:p-4 rounded-2xl bg-[var(--accent-bg)] border border-[var(--accent-border)]">
+        <div className="flex items-center justify-between p-3 xl:p-4 rounded-[var(--card-radius-md)] bg-[var(--accent-bg)] border border-[var(--accent-border)]">
           <div className="flex items-center gap-2 xl:gap-3">
             <div className="w-8 h-8 xl:w-9 xl:h-9 rounded-xl bg-[var(--accent)] flex items-center justify-center text-black font-black text-sm">P</div>
             <div>
@@ -37,7 +37,7 @@ const StatsPanel = ({ metrics, splits, formatTime, isDesktop }) => {
           <span className="text-lg xl:text-xl font-black italic text-[var(--accent)]">{metrics.pace}</span>
         </div>
 
-        <div className="flex items-center justify-between p-3 xl:p-4 rounded-2xl bg-[var(--bg-hover)] border border-[var(--border-light)]">
+        <div className="flex items-center justify-between p-3 xl:p-4 rounded-[var(--card-radius-md)] bg-[var(--bg-hover)] border border-[var(--border-light)]">
           <div className="flex items-center gap-2 xl:gap-3">
             <div className="w-8 h-8 xl:w-9 xl:h-9 rounded-xl bg-orange-500/20 flex items-center justify-center text-orange-500 font-black text-sm">C</div>
             <div>
@@ -78,7 +78,7 @@ const StatsPanel = ({ metrics, splits, formatTime, isDesktop }) => {
         >
           <button
             onClick={() => setSheetOpen(true)}
-            className="w-full bg-[var(--bg-secondary)]/90 backdrop-blur-md border border-[var(--border-medium)] rounded-2xl px-3 py-2.5 flex items-center justify-between shadow-[var(--shadow-lg)]"
+            className="w-full bg-[var(--bg-secondary)]/90 backdrop-blur-md border border-[var(--border-medium)] rounded-[var(--card-radius-md)] px-3 py-2.5 flex items-center justify-between shadow-[var(--shadow-lg)]"
           >
             <div className="flex items-center gap-3 min-w-0 overflow-hidden">
               <div className="flex-shrink-0">
@@ -107,7 +107,7 @@ const StatsPanel = ({ metrics, splits, formatTime, isDesktop }) => {
           className="fixed left-0 right-0 z-[900] px-3"
           style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 9rem)' }}
         >
-          <div className="w-full bg-[var(--bg-secondary)]/95 backdrop-blur-xl border border-[var(--border-medium)] rounded-2xl p-4 shadow-[var(--shadow-xl)]">
+          <div className="w-full bg-[var(--bg-secondary)]/95 backdrop-blur-xl border border-[var(--border-medium)] rounded-[var(--card-radius-md)] p-4 shadow-[var(--shadow-xl)]">
             <div className="flex items-center justify-between mb-3">
               <p className="text-[10px] font-black uppercase tracking-widest text-[var(--accent)]">Run Session</p>
               <button

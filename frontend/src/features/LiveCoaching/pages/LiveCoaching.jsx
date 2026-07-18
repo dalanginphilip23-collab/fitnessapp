@@ -128,10 +128,10 @@ export default function LiveCoaching() {
           <div className="flex flex-col gap-5">
 
             {/* Camera frame */}
-            <div className="relative w-full rounded-2xl overflow-hidden bg-black border border-white/5" style={{ aspectRatio: '16/9' }}>
+            <div className="relative w-full rounded-[var(--card-radius-md)] overflow-hidden bg-black border border-white/5" style={{ aspectRatio: '16/9' }}>
 
               {isRecording && (
-                <div className="absolute inset-0 z-10 pointer-events-none border border-[#D1FD52]/20 rounded-2xl">
+                <div className="absolute inset-0 z-10 pointer-events-none border border-[#D1FD52]/20 rounded-[var(--card-radius-md)]">
                   <div className="absolute top-0 left-0 right-0 h-px bg-[#D1FD52]/60 animate-[ping_3s_ease-in-out_infinite]" />
                 </div>
               )}
@@ -163,7 +163,7 @@ export default function LiveCoaching() {
             </div>
 
             {/* AI feedback strip */}
-            <div className="flex items-start gap-4 bg-[#111111] border border-white/5 rounded-2xl px-5 py-4">
+            <div className="flex items-start gap-4 bg-[#111111] border border-white/5 rounded-[var(--card-radius-md)] px-5 py-4">
               <div className="w-9 h-9 rounded-xl bg-[#D1FD52]/10 flex items-center justify-center text-lg shrink-0">
                 🧠
               </div>
@@ -184,7 +184,7 @@ export default function LiveCoaching() {
           <div className="flex flex-col gap-5">
 
             {/* Biometrics */}
-            <div className="bg-[#111111] border border-white/5 rounded-2xl p-5">
+            <div className="bg-[#111111] border border-white/5 rounded-[var(--card-radius-md)] p-5">
               <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-5">Live Biometrics</p>
               <div className="space-y-5">
                 {[
@@ -209,7 +209,7 @@ export default function LiveCoaching() {
             </div>
 
             {/* Session stats */}
-            <div className="bg-[#111111] border border-white/5 rounded-2xl p-5">
+            <div className="bg-[#111111] border border-white/5 rounded-[var(--card-radius-md)] p-5">
               <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-4">Session</p>
               <div className="grid grid-cols-2 gap-3">
                 {[
@@ -227,7 +227,7 @@ export default function LiveCoaching() {
             </div>
 
             {/* Neural status */}
-            <div className="bg-[#D1FD52]/5 border border-[#D1FD52]/15 rounded-2xl p-5">
+            <div className="bg-[#D1FD52]/5 border border-[#D1FD52]/15 rounded-[var(--card-radius-md)] p-5">
               <p className="text-[10px] font-black text-[#D1FD52] uppercase tracking-widest mb-3 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#D1FD52] animate-pulse" />
                 Neural Network
