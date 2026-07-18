@@ -355,7 +355,7 @@ const VoiceCallScreen = ({ doctor, sessionId, onShowAlert, onEndCall }) => {
           }`}
         >
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
-            stroke={callStatus === 'listening' ? '#000' : callStatus === 'thinking' || callStatus === 'connecting' ? 'var(--text-primary)' : '#000'}
+            stroke={callStatus === 'listening' ? '#000' : callStatus === 'thinking' || callStatus === 'connecting' ? '#fff' : '#000'}
             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>

@@ -10,7 +10,7 @@ import React from 'react';
  * For lightweight feedback (save, revoke session), use <Toast> instead.
  *
  * Theme-aware version: backgrounds/text now use CSS variables from
- * index.css so the modal flips correctly between dark-theme / light-theme.
+ * themes.css so the modal flips correctly between dark-theme / light-theme.
  * Accent color (#c7f248) intentionally left hardcoded in both themes.
  *
  * Props:

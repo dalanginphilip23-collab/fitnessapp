@@ -423,7 +423,7 @@ function AISuggestion({ meal, onClose, userId }) {
           </div>
         </div>
 
-        <div className="bg-(--bg-hover) rounded-xl p-3 mb-4 border-l-2 border-(--accent)">
+        <div className="bg-black/30 rounded-xl p-3 mb-4 border-l-2 border-(--accent)">
           <p className="text-(--text-secondary) text-xs leading-relaxed">💡 {suggestion.message}</p>
         </div>
 
@@ -832,7 +832,7 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
 
       {tab === "camera" && (
         <div
-          className="relative rounded-xl overflow-hidden bg-(--bg-tertiary) border-2 border-dashed border-(--border-medium) hover:border-(--border-heavy) transition-colors flex items-center justify-center cursor-pointer"
+          className="relative rounded-xl overflow-hidden bg-black flex items-center justify-center cursor-pointer"
           style={{ minHeight: 180 }}
           onClick={() => !preview && setIsCameraOpen(true)}
         >
@@ -846,9 +846,9 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
             </>
           ) : (
             <div className="flex flex-col items-center justify-center py-10 sm:py-12 px-4 text-center">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-(--bg-hover) flex items-center justify-center mb-3 text-2xl">📷</div>
-              <p className="text-(--text-primary) text-xs sm:text-sm font-medium mb-1">Tap to open camera</p>
-              <p className="text-(--text-muted) text-xs">Fullscreen capture</p>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-3 text-2xl">📷</div>
+              <p className="text-white text-xs sm:text-sm font-medium mb-1">Tap to open camera</p>
+              <p className="text-white/50 text-xs">Fullscreen capture</p>
             </div>
           )}
         </div>

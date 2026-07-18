@@ -27,12 +27,12 @@ const ProgramSummaryCard = ({
   onSeeMore,
 }) => {
   return (
-    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[16px] p-[22px] flex flex-col gap-6">
+    <div className="fx-card p-6 sm:p-7 flex flex-col gap-7">
       {/* Header row */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_6px_var(--accent)]" />
-          <span className="text-[12px] font-bold text-[var(--text-secondary)]">{goalLabel}</span>
+          <span className="text-[13px] font-bold text-[var(--text-secondary)]">{goalLabel}</span>
         </div>
         <button
           type="button"
@@ -44,35 +44,41 @@ const ProgramSummaryCard = ({
       </div>
 
       {/* Rings row */}
-      <div className="flex items-start justify-around">
-        <div className="flex flex-col items-center gap-2.5">
+      <div className="flex items-start justify-around flex-wrap gap-y-5">
+        <div className="flex flex-col items-center gap-3">
           <RadialProgress
             value={calories.value}
             goal={calories.goal}
-            color="var(--accent)"
+            size={104}
+            strokeWidth={8}
+            color="var(--metric-calories)"
             displayValue={Number(calories.value || 0).toLocaleString()}
           />
-          <RingLabel icon="local_fire_department" color="var(--accent)">Calories</RingLabel>
+          <RingLabel icon="local_fire_department" color="var(--metric-calories)">Calories</RingLabel>
         </div>
 
-        <div className="flex flex-col items-center gap-2.5">
+        <div className="flex flex-col items-center gap-3">
           <RadialProgress
             value={steps.value}
             goal={steps.goal}
-            color="#60a5fa"
+            size={104}
+            strokeWidth={8}
+            color="var(--metric-steps)"
             displayValue={Number(steps.value || 0).toLocaleString()}
           />
-          <RingLabel icon="footprint" color="#60a5fa">Steps</RingLabel>
+          <RingLabel icon="footprint" color="var(--metric-steps)">Steps</RingLabel>
         </div>
 
-        <div className="flex flex-col items-center gap-2.5">
+        <div className="flex flex-col items-center gap-3">
           <RadialProgress
             value={sessionLoadMins.value}
             goal={sessionLoadMins.goal}
-            color="#f2c448"
+            size={104}
+            strokeWidth={8}
+            color="var(--metric-load)"
             displayValue={formatSessionLoad(sessionLoadMins.value)}
           />
-          <RingLabel icon="timer" color="#f2c448">Session Load</RingLabel>
+          <RingLabel icon="timer" color="var(--metric-load)">Session Load</RingLabel>
         </div>
       </div>
 
@@ -81,14 +87,14 @@ const ProgramSummaryCard = ({
         <button
           type="button"
           onClick={onChangeProgram}
-          className="flex-1 bg-[var(--accent)] text-[#131313] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-xl hover:brightness-95 active:scale-[0.98] transition-all cursor-pointer border-none"
+          className="flex-1 bg-[var(--accent)] text-[#131313] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-2xl hover:brightness-95 active:scale-[0.98] transition-all cursor-pointer border-none shadow-sm"
         >
           Change Program
         </button>
         <button
           type="button"
           onClick={onSeeMore}
-          className="flex-1 bg-transparent text-[var(--text-secondary)] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-xl border border-[var(--border-medium)] hover:bg-[var(--bg-hover)] active:scale-[0.98] transition-all cursor-pointer"
+          className="flex-1 bg-transparent text-[var(--text-secondary)] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-2xl border border-[var(--border-medium)] hover:bg-[var(--bg-hover)] active:scale-[0.98] transition-all cursor-pointer"
         >
           See More
         </button>

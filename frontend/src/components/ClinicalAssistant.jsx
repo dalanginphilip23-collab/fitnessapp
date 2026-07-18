@@ -23,7 +23,7 @@ const InsightCard = ({ item }) => {
   const { icon, color } = trendIcon(item.trend);
   return (
     <div
-      className="rounded-r-lg p-4 border-l-[3px] bg-[var(--bg-hover)] transition-colors hover:bg-[var(--bg-active)] flex-shrink-0"
+      className="rounded-r-[var(--card-radius-sm)] p-4 border-l-[3px] bg-[var(--bg-hover)] transition-colors hover:bg-[var(--bg-active)] flex-shrink-0"
       style={{ borderColor: accent }}
     >
       <div className="flex items-center justify-between mb-2">
@@ -108,7 +108,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
     : (insights.length > 0 ? insights : history.slice(0, 5));
 
   return (
-    <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[14px] p-[22px] flex flex-col overflow-hidden">
+    <div className="fx-card h-full min-h-[600px] lg:h-[calc(100vh-120px)] p-6 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-5 flex-shrink-0">
         <div className="flex items-center gap-2.5">

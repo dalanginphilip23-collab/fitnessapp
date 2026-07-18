@@ -128,7 +128,7 @@ function ScatterLegend() {
     { dot: 'bg-(--accent)',                          label: 'Optimal' },
     { dot: 'bg-orange-400',                          label: 'Fair'    },
     { dot: 'bg-red-400',                             label: 'Low'     },
-    { dot: 'border-2 border-(--accent) bg-(--bg-secondary)',    label: 'Current' },
+    { dot: 'border-2 border-(--accent) bg-white',    label: 'Current' },
   ];
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-x-4 gap-y-2 text-[9px] font-black uppercase tracking-widest shrink-0">
@@ -226,7 +226,7 @@ function SleepScatterChart({ scatterData, sleepHours, sleepQuality }) {
 function SleepSlider({ label, valueLabel, labelColor, min, max, step, value, onChange, accent }) {
   return (
     <div className="space-y-2 sm:space-y-3">
-      <div className="flex justify-between text-[9px] text-(--text-muted) font-black uppercase tracking-widest">
+      <div className="flex justify-between text-[9px] text-white/20 font-black uppercase tracking-widest">
         <span>{label}</span>
         <span className={labelColor}>{valueLabel}</span>
       </div>
@@ -259,14 +259,14 @@ function SleepSyncCard({ sleepHours, setSleepHours, sleepQuality, setSleepQualit
             <span className={`text-[9px] font-black uppercase tracking-[0.15em] px-2 sm:px-3 py-1 rounded-md border ${sleepStatus.color} ${sleepStatus.border} ${sleepStatus.bg}`}>
               {sleepStatus.level}
             </span>
-            <span className="text-[10px] font-bold text-(--text-muted) uppercase">Score: {sleepStatus.score}%</span>
+            <span className="text-[10px] font-bold text-white/40 uppercase">Score: {sleepStatus.score}%</span>
           </div>
         </div>
 
         <h4 className="text-lg sm:text-xl font-black font-['Manrope'] mb-1 text-(--text-primary)">
           Rest: <span className={sleepStatus.color}>{sleepHours}h</span>
         </h4>
-        <p className="text-(--text-secondary) text-[11px] leading-relaxed mb-5 sm:mb-8 font-medium">{sleepStatus.label}</p>
+        <p className="text-white/30 text-[11px] leading-relaxed mb-5 sm:mb-8 font-medium">{sleepStatus.label}</p>
 
         <div className="space-y-4 sm:space-y-6">
           <SleepSlider label="Duration"  valueLabel={`${sleepHours} Hours`} labelColor="text-(--accent)"  min={0} max={12}   step={0.5} value={sleepHours}   onChange={(e) => setSleepHours(parseFloat(e.target.value))}  accent="accent-(--accent)"  />

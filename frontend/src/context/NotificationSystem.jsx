@@ -13,9 +13,9 @@ const ICONS = {
 };
 
 const COLORS = {
-  success: 'border-(--accent)/30 text-(--accent)',
+  success: 'border-[#D1FD52]/30 text-[#D1FD52]',
   error: 'border-[#e05050]/30 text-[#e05050]',
-  info: 'border-(--border-light) text-(--text-secondary)',
+  info: 'border-white/10 text-[#aaa]',
 };
 
 function Toast({ id, message, type, onClose }) {
@@ -34,7 +34,7 @@ function Toast({ id, message, type, onClose }) {
     <div
       className={`
         flex items-start gap-3 w-[320px] px-4 py-3
-        bg-(--bg-card) border rounded-xl shadow-(--shadow-lg)
+        bg-[#1a1a1a] border rounded-xl shadow-2xl
         transition-all duration-300 ease-out
         ${COLORS[type]}
         ${visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}
@@ -43,12 +43,12 @@ function Toast({ id, message, type, onClose }) {
       <span className="material-icons text-[18px] mt-0.5 shrink-0">
          <Icon name={'check_circle'} className={'text-[16px]'}/>
       </span>
-      <p className="text-[12px] text-(--text-primary) leading-relaxed flex-1 m-0">
+      <p className="text-[12px] text-[#e5e2e1] leading-relaxed flex-1 m-0">
         {message}
       </p>
       <button
         onClick={handleClose}
-        className="text-(--text-muted) hover:text-(--text-primary) transition-colors bg-transparent border-none cursor-pointer p-0 leading-none"
+        className="text-[#555] hover:text-[#e5e2e1] transition-colors bg-transparent border-none cursor-pointer p-0 leading-none"
       >
        <Icon name={'close'} className={'text-[16px]'}/>
       </button>

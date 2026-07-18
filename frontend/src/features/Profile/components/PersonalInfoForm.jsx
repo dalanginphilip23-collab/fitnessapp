@@ -6,7 +6,7 @@ import React from 'react';
  *
  * Theme-aware version:
  * - All hardcoded dark colors (bg-[#141414], text-white, border-white/X)
- *   replaced with CSS variables from index.css so the card correctly
+ *   replaced with CSS variables from themes.css so the card correctly
  *   flips between dark-theme / light-theme.
  * - Accent color (#c7f248) intentionally left hardcoded — it stays the
  *   same lime-green in both themes per product decision.

@@ -4,8 +4,8 @@ import SessionLogRow from "./sessionLogRow";
 export default function SessionLog({ logs }) {
   if (logs.length === 0) return null;
   return (
-    <div className="bg-(--bg-tertiary) p-5 sm:p-8 rounded-2xl sm:rounded-[3rem] border border-(--border-light)">
-      <h4 className="text-(--text-primary) font-black text-[10px] mb-4 uppercase tracking-[0.3em] flex items-center gap-2">
+    <div className="bg-[#111111] p-5 sm:p-8 rounded-2xl sm:rounded-[3rem] border border-white/5">
+      <h4 className="text-white font-black text-[10px] mb-4 uppercase tracking-[0.3em] flex items-center gap-2">
         <Icon name="history" className="text-[#D1FD52] text-sm" />
         Session Log
       </h4>
