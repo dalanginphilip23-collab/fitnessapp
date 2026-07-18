@@ -112,7 +112,7 @@ const BMI = () => {
 
             {/* ── Input Form ── */}
             <div className="lg:col-span-4 space-y-4">
-              <div className="bg-(--bg-tertiary) border border-(--border-medium) rounded-4xl p-6">
+              <div className="bg-(--bg-tertiary) border border-(--border-medium) rounded-[var(--card-radius-lg)] p-6">
                 <h2 className="text-(--accent) font-black uppercase text-[10px] tracking-[0.25em] mb-6">
                   Metrics Input
                 </h2>
@@ -188,7 +188,7 @@ const BMI = () => {
               </div>
 
               {/* BMI Scale */}
-              <div className="bg-(--bg-tertiary) border border-(--border-medium) rounded-4xl p-5">
+              <div className="bg-(--bg-tertiary) border border-(--border-medium) rounded-[var(--card-radius-lg)] p-5">
                 <h3 className="text-(--accent) font-black uppercase text-[10px] tracking-[0.25em] mb-4">
                   BMI Scale
                 </h3>
@@ -215,7 +215,7 @@ const BMI = () => {
             <div className="lg:col-span-8 flex flex-col gap-6">
 
               {/* BMI Big Card */}
-              <div className="bg-(--bg-tertiary) border border-(--border-medium) rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
+              <div className="bg-(--bg-tertiary) border border-(--border-medium) rounded-[var(--card-radius-lg)] p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
                 <div
                   className="absolute inset-0 pointer-events-none"
                   style={{
@@ -293,7 +293,7 @@ const BMI = () => {
           }}
         >
           <div
-            className="w-full max-w-md bg-(--bg-tertiary) border border-(--accent-border) rounded-4xl p-8 relative shadow-2xl"
+            className="w-full max-w-md bg-(--bg-tertiary) border border-(--accent-border) rounded-[var(--card-radius-lg)] p-8 relative shadow-2xl"
             style={{ animation: 'bmiModalIn 0.25s ease' }}
             onMouseDown={(e) => e.stopPropagation()}
           >

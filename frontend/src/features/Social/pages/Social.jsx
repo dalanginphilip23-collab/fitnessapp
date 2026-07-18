@@ -160,9 +160,9 @@ const ClinicalMessenger = () => {
             {/* AI contact — always pinned at top */}
             <div
               onClick={() => handleSelectContact(AI_CONTACT)}
-              className={`p-3 md:p-4 flex gap-3 md:gap-4 cursor-pointer hover:bg-[var(--bg-hover)] transition-colors ${
+              className={`mx-2 my-1 p-3 md:p-4 flex gap-3 md:gap-4 cursor-pointer rounded-[var(--card-radius-sm)] hover:bg-[var(--bg-hover)] transition-colors ${
                 activeContact?.id === 'ai-bot'
-                  ? 'bg-[var(--bg-hover)] border-l-2 border-[var(--accent)]'
+                  ? 'bg-[var(--accent-bg)]'
                   : ''
               }`}
             >
@@ -194,9 +194,9 @@ const ClinicalMessenger = () => {
                 <div
                   key={contact.id}
                   onClick={() => handleSelectContact(contact)}
-                  className={`p-3 md:p-4 flex gap-3 md:gap-4 cursor-pointer hover:bg-[var(--bg-hover)] transition-colors ${
+                  className={`mx-2 my-1 p-3 md:p-4 flex gap-3 md:gap-4 cursor-pointer rounded-[var(--card-radius-sm)] hover:bg-[var(--bg-hover)] transition-colors ${
                     activeContact?.id === contact.id
-                      ? 'bg-[var(--bg-hover)] border-l-2 border-[var(--accent)]'
+                      ? 'bg-[var(--accent-bg)]'
                       : ''
                   }`}
                 >
