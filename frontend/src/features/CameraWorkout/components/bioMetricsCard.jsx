@@ -7,7 +7,7 @@ export default function BiometricsCard({ biometrics }) {
     { label: 'Symmetry Index', val: biometrics.symmetry,  color: '#FF7A5C' },
   ];
   return (
-    <div className="bg-[var(--bg-card)] p-5 sm:p-8 rounded-[var(--card-radius-md)] sm:rounded-[3rem] border border-[var(--border-light)]">
+    <div className="bg-[var(--bg-card)] p-5 sm:p-8 rounded-2xl sm:rounded-[3rem] border border-[var(--border-light)]">
       <h4 className="text-[var(--text-primary)] font-black text-[10px] mb-5 sm:mb-8 uppercase tracking-[0.3em] flex items-center gap-2">
         <Icon name="monitor_heart" className="text-[var(--accent)] text-sm" />
         Live Biometrics

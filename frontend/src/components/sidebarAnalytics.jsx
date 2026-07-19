@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import Icon from "./Icon";
 import { useNavigate, useLocation } from "react-router-dom";
 import { navList } from "../constant/nav";
-import MobileNav from "./MobileNav";
 
 export default function SidebarAnalytics({ onExpandChange }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -46,6 +45,8 @@ export default function SidebarAnalytics({ onExpandChange }) {
               <button
                 key={i}
                 onClick={() => navigate(item.path)}
+                title={item.name}
+                aria-current={isActive ? 'page' : undefined}
                 className={`flex items-center gap-6 px-7 py-4 transition-all relative group ${
                   isActive
                     ? "text-[var(--accent)] bg-[var(--bg-active)]"
@@ -64,9 +65,6 @@ export default function SidebarAnalytics({ onExpandChange }) {
           })}
         </nav>
       </aside>
-
-      {/* ── Mobile Bottom Nav ── */}
-      <MobileNav items={navList} />
     </>
   );
 }

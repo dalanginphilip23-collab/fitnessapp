@@ -29,7 +29,7 @@ function EarlyExitDialog({ reps, minReps, elapsedMins, requiredMins, onConfirm, 
   return (
     <div className="fixed inset-0 z-200 flex items-center justify-center"
          style={{ background: 'var(--bg-overlay)', backdropFilter: 'blur(6px)' }}>
-      <div className="w-full max-w-sm mx-4 rounded-[var(--card-radius-md)] border shadow-2xl p-6"
+      <div className="w-full max-w-sm mx-4 rounded-2xl border shadow-2xl p-6"
            style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-medium)' }}>
         <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 mx-auto"
              style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)' }}>

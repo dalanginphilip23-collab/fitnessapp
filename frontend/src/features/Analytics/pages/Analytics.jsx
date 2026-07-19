@@ -113,9 +113,9 @@ function PageHeader({ timeframe, setTimeframe }) {
   return (
     <section className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 md:mb-10 lg:mb-12 gap-4 sm:gap-6">
       <div className="space-y-1 min-w-0">
-        <p className="text-(--accent) font-bold tracking-[0.25em] text-[10px] uppercase">Endurance Tracking</p>
+        <p className="text-(--accent) font-bold tracking-[0.25em] text-[10px] uppercase">Recovery Tracking</p>
         <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter font-['Manrope'] text-(--text-primary) leading-none">
-          Aerobic Engine
+          Sleep &amp; Rest
         </h2>
       </div>
       <TimeframeToggle timeframe={timeframe} setTimeframe={setTimeframe} />
@@ -203,7 +203,7 @@ function SleepScatterChart({ scatterData, sleepHours, sleepQuality }) {
   };
 
   return (
-    <div className="col-span-1 lg:col-span-8 bg-(--bg-tertiary) rounded-[var(--card-radius-md)] p-4 sm:p-6 md:p-8 border border-(--border-light) shadow-sm">
+    <div className="col-span-1 lg:col-span-8 bg-(--bg-tertiary) rounded-2xl p-4 sm:p-6 md:p-8 border border-(--border-light) shadow-sm">
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4 sm:mb-6">
         <div className="min-w-0 flex-1">
           <h3 className="text-(--text-muted) text-[10px] font-bold uppercase tracking-[0.2em] mb-1 sm:mb-2">
@@ -250,7 +250,7 @@ function SleepSyncCard({ sleepHours, setSleepHours, sleepQuality, setSleepQualit
 
   return (
     <div className="col-span-1 lg:col-span-4">
-      <div className="bg-(--bg-tertiary) rounded-[var(--card-radius-md)] p-4 sm:p-6 md:p-8 border border-(--border-light) shadow-sm h-full">
+      <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-6 md:p-8 border border-(--border-light) shadow-sm h-full">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div className="p-2 sm:p-2.5 bg-(--bg-hover) rounded-xl">
             <Icon name="bedtime" className="text-(--accent) text-xl sm:text-2xl" fill={1} />
@@ -264,9 +264,11 @@ function SleepSyncCard({ sleepHours, setSleepHours, sleepQuality, setSleepQualit
         </div>
 
         <h4 className="text-lg sm:text-xl font-black font-['Manrope'] mb-1 text-(--text-primary)">
-          Rest: <span className={sleepStatus.color}>{sleepHours}h</span>
+          Log Today's Sleep
         </h4>
-        <p className="text-white/30 text-[11px] leading-relaxed mb-5 sm:mb-8 font-medium">{sleepStatus.label}</p>
+        <p className="text-white/30 text-[11px] leading-relaxed mb-5 sm:mb-8 font-medium">
+          Currently set to <span className={sleepStatus.color}>{sleepHours}h</span> · {sleepStatus.label}
+        </p>
 
         <div className="space-y-4 sm:space-y-6">
           <SleepSlider label="Duration"  valueLabel={`${sleepHours} Hours`} labelColor="text-(--accent)"  min={0} max={12}   step={0.5} value={sleepHours}   onChange={(e) => setSleepHours(parseFloat(e.target.value))}  accent="accent-(--accent)"  />
@@ -313,7 +315,7 @@ function ZoneBar({ zone }) {
 
 function DistributionZones({ zones, zonesLoading }) {
   return (
-    <div className="col-span-1 lg:col-span-12 bg-(--bg-tertiary) rounded-[var(--card-radius-md)] p-4 sm:p-6 md:p-8 border border-(--border-light) shadow-sm">
+    <div className="col-span-1 lg:col-span-12 bg-(--bg-tertiary) rounded-2xl p-4 sm:p-6 md:p-8 border border-(--border-light) shadow-sm">
       <div className="flex items-center justify-between mb-5 sm:mb-8">
         <h3 className="font-bold text-[10px] uppercase tracking-[0.25em] text-(--text-muted)">Distribution Zones</h3>
         {zonesLoading && (

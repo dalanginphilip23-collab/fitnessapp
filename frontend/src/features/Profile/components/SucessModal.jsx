@@ -38,7 +38,7 @@ const SuccessModal = ({
 
       {/* Panel */}
       <div className="relative z-10 w-full max-w-sm bg-[var(--bg-card)] border border-[#c7f248]/25
-        rounded-[var(--card-radius-md)] p-8 text-center shadow-2xl
+        rounded-2xl p-8 text-center shadow-2xl
         animate-[fadeScale_0.25s_ease_forwards]">
 
         {/* Icon */}

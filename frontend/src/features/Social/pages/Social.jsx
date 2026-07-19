@@ -160,9 +160,9 @@ const ClinicalMessenger = () => {
             {/* AI contact — always pinned at top */}
             <div
               onClick={() => handleSelectContact(AI_CONTACT)}
-              className={`mx-2 my-1 p-3 md:p-4 flex gap-3 md:gap-4 cursor-pointer rounded-[var(--card-radius-sm)] hover:bg-[var(--bg-hover)] transition-colors ${
+              className={`p-3 md:p-4 flex gap-3 md:gap-4 cursor-pointer hover:bg-[var(--bg-hover)] transition-colors ${
                 activeContact?.id === 'ai-bot'
-                  ? 'bg-[var(--accent-bg)]'
+                  ? 'bg-[var(--bg-hover)] border-l-2 border-[var(--accent)]'
                   : ''
               }`}
             >
@@ -194,9 +194,9 @@ const ClinicalMessenger = () => {
                 <div
                   key={contact.id}
                   onClick={() => handleSelectContact(contact)}
-                  className={`mx-2 my-1 p-3 md:p-4 flex gap-3 md:gap-4 cursor-pointer rounded-[var(--card-radius-sm)] hover:bg-[var(--bg-hover)] transition-colors ${
+                  className={`p-3 md:p-4 flex gap-3 md:gap-4 cursor-pointer hover:bg-[var(--bg-hover)] transition-colors ${
                     activeContact?.id === contact.id
-                      ? 'bg-[var(--accent-bg)]'
+                      ? 'bg-[var(--bg-hover)] border-l-2 border-[var(--accent)]'
                       : ''
                   }`}
                 >
@@ -288,7 +288,7 @@ const ClinicalMessenger = () => {
                       }`}
                     >
                       <div
-                        className={`px-3 py-2.5 md:px-4 md:py-3 rounded-[var(--card-radius-md)] text-sm leading-relaxed shadow-sm ${
+                        className={`px-3 py-2.5 md:px-4 md:py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
                           msg.isMe
                             ? `bg-[var(--accent-bg)] border border-[var(--accent-border)] text-[var(--text-primary)] rounded-br-none${
                                 msg.failed ? ' opacity-50' : ''
@@ -313,7 +313,7 @@ const ClinicalMessenger = () => {
                 {/* AI typing indicator */}
                 {isAiTyping && (
                   <div className="flex flex-col gap-2 max-w-[75%] self-start items-start">
-                    <div className="px-4 py-3 rounded-[var(--card-radius-md)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-bl-none flex gap-1.5 items-center h-11">
+                    <div className="px-4 py-3 rounded-2xl bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-bl-none flex gap-1.5 items-center h-11">
                       <span
                         className="w-1.5 h-1.5 bg-[var(--text-muted)] rounded-full animate-bounce"
                         style={{ animationDelay: '0ms' }}
@@ -333,7 +333,7 @@ const ClinicalMessenger = () => {
 
               {/* Input footer */}
               <footer className="p-3 pb-20 md:p-6 md:pb-6 shrink-0 bg-[var(--bg-secondary)] border-t border-[var(--border-light)]">
-                <div className="bg-[var(--bg-tertiary)] border border-[var(--border-medium)] rounded-[var(--card-radius-md)] p-2 flex items-center gap-2 shadow-[var(--shadow-md)]">
+                <div className="bg-[var(--bg-tertiary)] border border-[var(--border-medium)] rounded-2xl p-2 flex items-center gap-2 shadow-[var(--shadow-md)]">
                   <textarea
                     className="flex-grow bg-transparent border-none outline-none text-sm text-[var(--text-primary)] p-2 resize-none no-scrollbar placeholder:text-[var(--text-muted)]"
                     placeholder={`Reply to ${activeContact.name}...`}

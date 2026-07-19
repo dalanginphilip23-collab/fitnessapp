@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
-import { MobileNav, Sidebar, Topbar, ProgressListItem } from '../../../components';
+import { MobileNav, Sidebar, Topbar } from '../../../components';
 import usePlans from '../hooks/usePlan';
 
 // ICON COMPONENT
@@ -51,7 +51,7 @@ const REST_ACTIVITY_TYPES = new Set(['Recovery', 'Mobility', 'Flexibility']);
 // PLAN CARD COMPONENT
 const PlanCard = ({ plan, onOpen, onEnroll, onContinue, style = {} }) => (
   <div
-    className="group relative rounded-[var(--card-radius-md)] overflow-hidden border flex flex-col shadow-[var(--shadow-md)] cursor-pointer transition-all duration-500 hover:border-[var(--accent-border)] hover:shadow-[var(--shadow-lg)]"
+    className="group relative rounded-2xl overflow-hidden border flex flex-col shadow-[var(--shadow-md)] cursor-pointer transition-all duration-500 hover:border-[var(--accent-border)] hover:shadow-[var(--shadow-lg)]"
     style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-light)', ...style }}
     onClick={() => onOpen(plan)}
   >
@@ -146,7 +146,7 @@ const PlanDetailOverlay = ({ plan, onClose, onStart }) => {
       onClick={onClose}
     >
       <div
-        className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-[var(--card-radius-md)] overflow-hidden shadow-2xl sm:my-auto max-h-[92vh] flex flex-col"
+        className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl sm:my-auto max-h-[92vh] flex flex-col"
         style={{
           background: 'var(--bg-secondary)',
           border: '1px solid var(--border-medium)',
@@ -290,7 +290,7 @@ const DayTracker = ({ plan, content, progress, onClose, onCompleteDay }) => {
         </div>
         <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center px-6">
           <div
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded-[var(--card-radius-md)] flex items-center justify-center border"
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center border"
             style={{ background: 'var(--accent-bg)', borderColor: 'var(--accent-border)' }}
           >
             <Icon name="hourglass_empty" className="text-[24px] sm:text-[28px]" style={{ color: 'var(--accent)' }} fill={1} />
@@ -519,7 +519,7 @@ const DayTracker = ({ plan, content, progress, onClose, onCompleteDay }) => {
               </p>
 
               <div
-                className="rounded-[var(--card-radius-md)] p-4 sm:p-6 mb-6 sm:mb-8 border"
+                className="rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 border"
                 style={{ background: 'var(--bg-tertiary)', borderColor: 'var(--border-light)' }}
               >
                 <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -652,7 +652,7 @@ const MyPlans = ({ plans, onOpen, onContinue }) => {
     return (
       <div className="flex flex-col items-center justify-center py-20 sm:py-28 gap-4 text-center" style={{ animation: 'fadeIn 0.3s ease' }}>
         <div
-          className="w-16 h-16 sm:w-20 sm:h-20 rounded-[var(--card-radius-md)] flex items-center justify-center mb-2 border"
+          className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center mb-2 border"
           style={{ background: 'var(--accent-bg)', borderColor: 'var(--accent-border)' }}
         >
           <Icon name="fitness_center" className="text-[28px] sm:text-[36px]" style={{ color: 'var(--accent)' }} fill={1} />
@@ -672,7 +672,7 @@ const MyPlans = ({ plans, onOpen, onContinue }) => {
         const progressPct = active.progress_pct ?? 0;
         return (
           <div
-            className="mb-6 sm:mb-10 rounded-[var(--card-radius-md)] overflow-hidden border cursor-pointer transition-all duration-300 group"
+            className="mb-6 sm:mb-10 rounded-2xl overflow-hidden border cursor-pointer transition-all duration-300 group"
             style={{ background: 'var(--bg-card)', borderColor: 'var(--accent-border)' }}
             onClick={() => onOpen(active)}
           >
@@ -723,19 +723,11 @@ const MyPlans = ({ plans, onOpen, onContinue }) => {
           <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest mb-3 sm:mb-4" style={{ color: 'var(--text-muted)' }}>
             All Enrolled Plans
           </p>
-          <div className="flex flex-col gap-3 sm:gap-4">
-            {enrolled.slice(1).map((plan) => (
-              <ProgressListItem
-                key={plan.id}
-                thumbnail={`https://api.dicebear.com/7.x/shapes/svg?seed=${plan.image_seed}`}
-                title={plan.title}
-                meta={[
-                  { icon: 'schedule', label: plan.duration },
-                  { icon: 'bolt', label: plan.intensity || plan.tag || 'Program' },
-                ]}
-                progressPct={plan.progress_pct ?? 0}
-                completed={(plan.progress_pct ?? 0) >= 100}
-                onClick={() => onOpen(plan)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {enrolled.slice(1).map((plan, i) => (
+              <PlanCard
+                key={plan.id} plan={plan} onOpen={onOpen} onEnroll={() => {}} onContinue={onContinue}
+                style={{ animation: `slideUp 0.3s ease ${i * 0.06}s both` }}
               />
             ))}
           </div>
@@ -880,7 +872,7 @@ const Explore = ({ plans, onOpen, onEnroll, onContinue }) => {
             {featured.map((plan, i) => (
               <div
                 key={plan.id}
-                className="relative overflow-hidden rounded-[var(--card-radius-md)] cursor-pointer group border transition-all duration-500"
+                className="relative overflow-hidden rounded-2xl cursor-pointer group border transition-all duration-500"
                 style={{ borderColor: 'var(--border-light)', animation: `slideUp 0.4s ease ${i * 0.1}s both` }}
                 onClick={() => onOpen(plan)}
               >

@@ -25,7 +25,7 @@ const rowEditable  = `${rowInputBase} text-(--text-primary) border-b border-tran
 const rowLocked    = `${rowInputBase} font-['JetBrains_Mono',monospace] text-(--text-secondary) cursor-default select-text`;
 
 const StatPill = ({ icon, value, label }) => (
-  <div className="flex flex-col items-center gap-1 bg-(--bg-hover) rounded-[var(--card-radius-md)] px-4 py-3 border border-(--border-light) flex-1 min-w-20">
+  <div className="flex flex-col items-center gap-1 bg-(--bg-hover) rounded-2xl px-4 py-3 border border-(--border-light) flex-1 min-w-20">
     <span className="material-symbols-outlined text-[18px] text-[#62aa1a]">{icon}</span>
     <span className="text-base font-black text-(--text-primary) leading-none">{value}</span>
     <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-muted)">{label}</span>
@@ -228,7 +228,7 @@ const Profile = () => {
           </div>
 
           {pickerOpen && (
-            <div className="mb-6 bg-(--bg-secondary) border border-(--border-medium) rounded-[var(--card-radius-md)] p-5" style={{ animation: 'fadeIn 0.15s ease' }}>
+            <div className="mb-6 bg-(--bg-secondary) border border-(--border-medium) rounded-2xl p-5" style={{ animation: 'fadeIn 0.15s ease' }}>
               <div className="flex items-center justify-between mb-4">
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Choose avatar</p>
                 <button onClick={() => setPickerOpen(false)} aria-label="Close avatar picker">
@@ -296,7 +296,7 @@ const Profile = () => {
           {activeTab === 'profile' && (
             <div className="flex flex-col gap-5">
 
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-[var(--card-radius-md)] p-5">
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-4">Today's activity</p>
                 <div className="flex gap-2">
                   <StatPill icon="local_fire_department" value={Number(dailyStats.calories_burned || 0).toLocaleString()} label="kcal" />
@@ -305,7 +305,7 @@ const Profile = () => {
                 </div>
               </div>
 
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-[var(--card-radius-md)] p-5">
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Vitals</p>
                   <span className="material-symbols-outlined text-[12px] text-(--text-disabled)">lock</span>
@@ -335,7 +335,7 @@ const Profile = () => {
                 </Link>
               </div>
 
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-[var(--card-radius-md)] p-5">
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-3">Chart notes · Goal</p>
                 <div className="flex items-start gap-3">
                   <div className="w-9 h-9 rounded-xl bg-[#7dd625e1]/10 flex items-center justify-center shrink-0">
@@ -354,7 +354,7 @@ const Profile = () => {
                 </div>
               </div>
 
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-[var(--card-radius-md)] p-6 relative overflow-hidden">
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6 relative overflow-hidden">
                 <div
                   className="absolute top-0 right-0 w-10 h-10 pointer-events-none"
                   style={{ background: 'linear-gradient(135deg, transparent 50%, var(--border-light) 50%)' }}
@@ -411,7 +411,7 @@ const Profile = () => {
                 </div>
               </div>
 
-              <div className="bg-(--bg-secondary) border border-red-500/10 rounded-[var(--card-radius-md)] p-5">
+              <div className="bg-(--bg-secondary) border border-red-500/10 rounded-2xl p-5">
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-3">Account</p>
                 <button
                   onClick={handleLogout}
@@ -429,7 +429,7 @@ const Profile = () => {
 
           {activeTab === 'security' && (
             <div className="flex flex-col gap-5">
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-[var(--card-radius-md)] p-6">
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6">
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-4">This device</p>
                 {currentSession ? (
                   <LogEntry
@@ -443,7 +443,7 @@ const Profile = () => {
                 )}
               </div>
 
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-[var(--card-radius-md)] p-6">
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Access log</p>
                   {otherSessions.length > 0 && (
@@ -472,7 +472,7 @@ const Profile = () => {
                 )}
               </div>
 
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-[var(--card-radius-md)] p-6">
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl bg-(--bg-hover) flex items-center justify-center shrink-0">
                     <span className="material-symbols-outlined text-[20px] text-(--text-secondary)">lock</span>

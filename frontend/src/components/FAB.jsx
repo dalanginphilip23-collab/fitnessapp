@@ -60,7 +60,7 @@ const FAB = ({ onSave }) => {
                     type="number"
                     required
                     placeholder="e.g. 500"
-                    className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-[var(--card-radius-md)] py-3.5 md:py-4 pl-12 pr-4 text-[var(--text-primary)] focus:border-[var(--accent)]/50 focus:bg-[var(--bg-active)] outline-none transition-all placeholder:text-[var(--input-placeholder)]"
+                    className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-2xl py-3.5 md:py-4 pl-12 pr-4 text-[var(--text-primary)] focus:border-[var(--accent)]/50 focus:bg-[var(--bg-active)] outline-none transition-all placeholder:text-[var(--input-placeholder)]"
                     value={formData.calories}
                     onChange={(e) => setFormData({...formData, calories: e.target.value})}
                   />
@@ -78,7 +78,7 @@ const FAB = ({ onSave }) => {
                     <input
                       type="number"
                       placeholder="10000"
-                      className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-[var(--card-radius-md)] py-3.5 md:py-4 pl-10 md:pl-11 pr-4 text-[var(--text-primary)] focus:border-[var(--accent)]/50 outline-none transition-all placeholder:text-[var(--input-placeholder)] text-sm md:text-base"
+                      className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-2xl py-3.5 md:py-4 pl-10 md:pl-11 pr-4 text-[var(--text-primary)] focus:border-[var(--accent)]/50 outline-none transition-all placeholder:text-[var(--input-placeholder)] text-sm md:text-base"
                       value={formData.steps}
                       onChange={(e) => setFormData({...formData, steps: e.target.value})}
                     />
@@ -93,7 +93,7 @@ const FAB = ({ onSave }) => {
                     <input
                       type="number"
                       placeholder="Mins"
-                      className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-[var(--card-radius-md)] py-3.5 md:py-4 pl-10 md:pl-11 pr-4 text-[var(--text-primary)] focus:border-[var(--accent)]/50 outline-none transition-all placeholder:text-[var(--input-placeholder)] text-sm md:text-base"
+                      className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-2xl py-3.5 md:py-4 pl-10 md:pl-11 pr-4 text-[var(--text-primary)] focus:border-[var(--accent)]/50 outline-none transition-all placeholder:text-[var(--input-placeholder)] text-sm md:text-base"
                       value={formData.minutes}
                       onChange={(e) => setFormData({...formData, minutes: e.target.value})}
                     />
@@ -111,7 +111,7 @@ const FAB = ({ onSave }) => {
                   <input
                     type="number"
                     placeholder="e.g. 2500"
-                    className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-[var(--card-radius-md)] py-3.5 md:py-4 pl-12 pr-4 text-[var(--text-primary)] focus:border-[var(--accent)]/50 outline-none transition-all placeholder:text-[var(--input-placeholder)]"
+                    className="w-full bg-[var(--input-bg)] border border-[var(--input-border)] rounded-2xl py-3.5 md:py-4 pl-12 pr-4 text-[var(--text-primary)] focus:border-[var(--accent)]/50 outline-none transition-all placeholder:text-[var(--input-placeholder)]"
                     value={formData.water}
                     onChange={(e) => setFormData({...formData, water: e.target.value})}
                   />
@@ -120,7 +120,7 @@ const FAB = ({ onSave }) => {
 
               <button
                 type="submit"
-                className="w-full bg-[var(--accent)] text-[#131313] font-bold py-4 md:py-5 rounded-[var(--card-radius-md)] mt-2 md:mt-4 hover:shadow-[0_0_20px_var(--accent)/20] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                className="w-full bg-[var(--accent)] text-[#131313] font-bold py-4 md:py-5 rounded-2xl mt-2 md:mt-4 hover:shadow-[0_0_20px_var(--accent)/20] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined font-bold text-[20px]">check_circle</span>
                 <span className="text-sm md:text-base">Update Vitalis Dashboard</span>

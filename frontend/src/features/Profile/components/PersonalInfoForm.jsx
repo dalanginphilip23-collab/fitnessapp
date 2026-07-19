@@ -42,7 +42,7 @@ const lockedClass =
 
 const PersonalInfoForm = ({ formData, isEditing, onInputChange, onToggleEdit }) => {
   return (
-    <section className="bg-[var(--bg-card)] border border-[var(--border-light)] rounded-[var(--card-radius-md)] p-6">
+    <section className="bg-[var(--bg-card)] border border-[var(--border-light)] rounded-2xl p-6">
       {/* Card header */}
       <div className="flex items-center justify-between mb-6">
         <p className="text-[9px] font-black tracking-[0.2em] uppercase text-[var(--text-muted)]">

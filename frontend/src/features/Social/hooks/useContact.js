@@ -31,16 +31,13 @@ export const useContacts = (userId) => {
           { credentials: 'include' }
         );
         const data = await res.json();
-      setSearchResults(Array.isArray(data) ? data : []);
-console.log('search raw data:', data);          // what the backend returned
-console.log('current contacts:', contacts);     // what contacts look like
-        
+        setSearchResults(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Search error:', err);
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [searchTerm, userId, contacts]);
+  }, [searchTerm, userId]);
 
   // ── Add friend ────────────────────────────────────────────────────────────
   const handleAddFriend = async (friendUser, setActiveContact) => {

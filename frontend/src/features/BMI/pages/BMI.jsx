@@ -80,7 +80,7 @@ const BMI = () => {
   const badgeColor = categoryColor[category] || 'var(--accent)';
 
   const inputCls =
-    'w-full bg-(--input-bg) border border-(--border-medium) rounded-[var(--card-radius-md)] p-4 text-sm outline-none ' +
+    'w-full bg-(--input-bg) border border-(--border-medium) rounded-2xl p-4 text-sm outline-none ' +
     'focus:border-(--accent) transition-all text-(--text-primary) placeholder:text-(--text-secondary)';
 
   const optionStyle = { backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' };
@@ -112,7 +112,7 @@ const BMI = () => {
 
             {/* ── Input Form ── */}
             <div className="lg:col-span-4 space-y-4">
-              <div className="bg-(--bg-tertiary) border border-(--border-medium) rounded-[var(--card-radius-lg)] p-6">
+              <div className="bg-(--bg-tertiary) border border-(--border-medium) rounded-4xl p-6">
                 <h2 className="text-(--accent) font-black uppercase text-[10px] tracking-[0.25em] mb-6">
                   Metrics Input
                 </h2>
@@ -165,7 +165,7 @@ const BMI = () => {
                     <select
                       value={gender}
                       onChange={(e) => setGender(e.target.value)}
-                      className="w-full bg-(--input-bg) border border-(--border-medium) rounded-[var(--card-radius-md)] p-4 text-sm outline-none focus:border-(--accent) text-(--text-primary) appearance-none cursor-pointer transition-all"
+                      className="w-full bg-(--input-bg) border border-(--border-medium) rounded-2xl p-4 text-sm outline-none focus:border-(--accent) text-(--text-primary) appearance-none cursor-pointer transition-all"
                     >
                       <option value="male"   style={optionStyle}>Male</option>
                       <option value="female" style={optionStyle}>Female</option>
@@ -180,7 +180,7 @@ const BMI = () => {
                   <button
                     onClick={calculateBMI}
                     disabled={isAnalyzing}
-                    className="w-full py-4 bg-(--accent) text-(--text-inverse) font-black uppercase text-[11px] tracking-widest rounded-[var(--card-radius-md)] hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-full py-4 bg-(--accent) text-(--text-inverse) font-black uppercase text-[11px] tracking-widest rounded-2xl hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     {isAnalyzing ? 'Analyzing...' : 'Process Biometrics'}
                   </button>
@@ -188,7 +188,7 @@ const BMI = () => {
               </div>
 
               {/* BMI Scale */}
-              <div className="bg-(--bg-tertiary) border border-(--border-medium) rounded-[var(--card-radius-lg)] p-5">
+              <div className="bg-(--bg-tertiary) border border-(--border-medium) rounded-4xl p-5">
                 <h3 className="text-(--accent) font-black uppercase text-[10px] tracking-[0.25em] mb-4">
                   BMI Scale
                 </h3>
@@ -215,7 +215,7 @@ const BMI = () => {
             <div className="lg:col-span-8 flex flex-col gap-6">
 
               {/* BMI Big Card */}
-              <div className="bg-(--bg-tertiary) border border-(--border-medium) rounded-[var(--card-radius-lg)] p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
+              <div className="bg-(--bg-tertiary) border border-(--border-medium) rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
                 <div
                   className="absolute inset-0 pointer-events-none"
                   style={{
@@ -293,7 +293,7 @@ const BMI = () => {
           }}
         >
           <div
-            className="w-full max-w-md bg-(--bg-tertiary) border border-(--accent-border) rounded-[var(--card-radius-lg)] p-8 relative shadow-2xl"
+            className="w-full max-w-md bg-(--bg-tertiary) border border-(--accent-border) rounded-4xl p-8 relative shadow-2xl"
             style={{ animation: 'bmiModalIn 0.25s ease' }}
             onMouseDown={(e) => e.stopPropagation()}
           >
@@ -325,7 +325,7 @@ const BMI = () => {
             </div>
 
             {bmi && (
-              <div className="flex items-center gap-3 mb-5 bg-(--bg-hover) rounded-[var(--card-radius-md)] p-4">
+              <div className="flex items-center gap-3 mb-5 bg-(--bg-hover) rounded-2xl p-4">
                 <span className="text-3xl font-black italic" style={{ color: badgeColor }}>
                   {bmi}
                 </span>
@@ -355,7 +355,7 @@ const BMI = () => {
             {!isAnalyzing && (
               <button
                 onClick={() => setShowAIModal(false)}
-                className="w-full mt-7 py-3.5 bg-(--accent) text-(--text-inverse) font-black uppercase text-[11px] tracking-widest rounded-[var(--card-radius-md)] hover:brightness-110 active:scale-95 transition-all"
+                className="w-full mt-7 py-3.5 bg-(--accent) text-(--text-inverse) font-black uppercase text-[11px] tracking-widest rounded-2xl hover:brightness-110 active:scale-95 transition-all"
               >
                 Got it
               </button>

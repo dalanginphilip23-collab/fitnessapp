@@ -198,49 +198,6 @@ body {
   }
 }
 
-/* ── Dashboard redesign tokens (visual only, additive) ──────────────
-   Rounded "raised card" language used across the Dashboard to match
-   the nutrition-app reference: larger radii, soft gradient sheen,
-   consistent per-metric ring colors. Nothing here overrides an
-   existing rule — components opt in via these classes. */
-:root, .dark-theme, .light-theme {
-  --card-radius-lg: 28px;
-  --card-radius-md: 20px;
-  --card-radius-sm: 14px;
-
-  --metric-calories: #7dd625e1;
-  --metric-steps: #5ba8ff;
-  --metric-load: #ffb648;
-  --metric-water: #4fc3f7;
-  --metric-sleep: #b98af2;
-}
-
-.dark-theme {
-  --card-gradient: linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0) 100%);
-  --hero-glow: radial-gradient(circle at 30% 20%, rgba(125, 214, 37, 0.14) 0%, transparent 60%);
-}
-
-.light-theme {
-  --card-gradient: linear-gradient(180deg, rgba(0,0,0,0.015) 0%, rgba(0,0,0,0) 100%);
-  --hero-glow: radial-gradient(circle at 30% 20%, rgba(94, 158, 74, 0.08) 0%, transparent 60%);
-}
-
-.fx-card {
-  background: var(--bg-tertiary);
-  background-image: var(--card-gradient);
-  border: 1px solid var(--border-light);
-  border-radius: var(--card-radius-md);
-  box-shadow: var(--shadow-sm);
-}
-
-.fx-card-hero {
-  background: var(--bg-tertiary);
-  background-image: var(--hero-glow), var(--card-gradient);
-  border: 1px solid var(--border-light);
-  border-radius: var(--card-radius-lg);
-  box-shadow: var(--shadow-md);
-}
-
 /* Utility classes using CSS variables */
 .bg-primary { background-color: var(--bg-primary); }
 .bg-secondary { background-color: var(--bg-secondary); }

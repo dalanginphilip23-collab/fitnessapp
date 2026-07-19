@@ -102,7 +102,7 @@ const Dashboard = () => {
         className={`
           w-full min-h-screen
           pt-[64px] sm:pt-[72px] md:pt-[80px]
-          pb-24 md:pb-10
+          pb-40 md:pb-10
           px-3 sm:px-4 md:px-6 lg:px-8
           transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]
           ${sidebarExpanded ? 'md:ml-[240px]' : 'md:ml-[72px] ml-0'}
@@ -124,10 +124,10 @@ const Dashboard = () => {
                                      looked cramped on iPad-portrait/landscape
             - xl (laptops+ 1280px): 4 columns, 3/1 split
           */}
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-5 sm:gap-6 lg:gap-7 items-start">
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 items-start">
 
             {/* Left Column */}
-            <div className="xl:col-span-3 flex flex-col gap-5 sm:gap-6 lg:gap-7 min-w-0">
+            <div className="xl:col-span-3 flex flex-col gap-4 sm:gap-5 lg:gap-6 min-w-0">
 
               <ProgramSummaryCard
                 goalLabel={

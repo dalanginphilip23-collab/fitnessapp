@@ -225,7 +225,7 @@ function DateNavigator({ currentDate, onDateChange }) {
         </button>
 
         {isCalendarOpen && (
-          <div className="absolute top-full mt-2 right-0 z-50 bg-(--bg-secondary) border border-(--border-medium) rounded-[var(--card-radius-md)] shadow-(--shadow-lg) p-4 w-70 sm:w-75">
+          <div className="absolute top-full mt-2 right-0 z-50 bg-(--bg-secondary) border border-(--border-medium) rounded-2xl shadow-(--shadow-lg) p-4 w-70 sm:w-75">
             <div className="flex items-center justify-between mb-3">
               <button onClick={() => shiftMonth(-1)} className="p-1.5 rounded-xl hover:bg-(--bg-hover) transition-colors" aria-label="Previous month">
                 <Icon name="chevron_left" className="text-(--text-muted) text-sm" />
@@ -366,7 +366,7 @@ function AISuggestion({ meal, onClose, userId }) {
 
   if (loading) {
     inner = (
-      <div className="bg-linear-to-br from-(--bg-tertiary) to-(--bg-card) rounded-[var(--card-radius-md)] p-4 sm:p-5 border border-(--accent-border)">
+      <div className="bg-linear-to-br from-(--bg-tertiary) to-(--bg-card) rounded-2xl p-4 sm:p-5 border border-(--accent-border)">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-(--accent-bg) flex items-center justify-center">
@@ -386,7 +386,7 @@ function AISuggestion({ meal, onClose, userId }) {
     );
   } else if (error) {
     inner = (
-      <div className="bg-(--bg-tertiary) rounded-[var(--card-radius-md)] p-4 sm:p-5 border border-(--border-light) relative">
+      <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light) relative">
         <button onClick={onClose} className="absolute top-3 right-3 p-1 rounded-lg hover:bg-(--bg-hover) transition-colors">
           <Icon name="close" className="text-(--text-muted) text-sm" />
         </button>
@@ -398,7 +398,7 @@ function AISuggestion({ meal, onClose, userId }) {
     inner = null;
   } else {
     inner = (
-      <div className="bg-linear-to-br from-(--bg-tertiary) to-(--bg-card) rounded-[var(--card-radius-md)] p-4 sm:p-5 border border-(--accent-border) relative">
+      <div className="bg-linear-to-br from-(--bg-tertiary) to-(--bg-card) rounded-2xl p-4 sm:p-5 border border-(--accent-border) relative">
         <button onClick={onClose} className="absolute top-3 right-3 p-1 rounded-lg hover:bg-(--bg-hover) transition-colors">
           <Icon name="close" className="text-(--text-muted) text-sm" />
         </button>
@@ -784,7 +784,7 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
   const busy = isAnalyzing || compressing;
 
   return (
-    <div className="bg-(--bg-tertiary) rounded-[var(--card-radius-md)] p-4 sm:p-5 border border-(--border-light)">
+    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light)">
       <SectionLabel text="Meal Photo" />
 
       <div className="flex gap-1.5 mb-3 bg-(--bg-hover) rounded-xl p-1">
@@ -822,7 +822,7 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
             </>
           ) : (
             <div className="flex flex-col items-center justify-center py-10 sm:py-12 px-4 text-center">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-[var(--card-radius-md)] bg-(--bg-hover) flex items-center justify-center mb-3 text-2xl">📁</div>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-(--bg-hover) flex items-center justify-center mb-3 text-2xl">📁</div>
               <p className="text-(--text-primary) text-xs sm:text-sm font-medium mb-1">Drop a photo here</p>
               <p className="text-(--text-muted) text-xs">or tap to browse</p>
             </div>
@@ -846,7 +846,7 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
             </>
           ) : (
             <div className="flex flex-col items-center justify-center py-10 sm:py-12 px-4 text-center">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-[var(--card-radius-md)] bg-white/10 flex items-center justify-center mb-3 text-2xl">📷</div>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-3 text-2xl">📷</div>
               <p className="text-white text-xs sm:text-sm font-medium mb-1">Tap to open camera</p>
               <p className="text-white/50 text-xs">Fullscreen capture</p>
             </div>
@@ -1047,7 +1047,7 @@ function ResultCard({ result, onLog, isLogging }) {
   if (!result) return null;
 
   return (
-    <div className="bg-(--bg-tertiary) rounded-[var(--card-radius-md)] p-4 sm:p-5 border border-(--border-light)">
+    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light)">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <SectionLabel text="Analysis Result" />
         <span className="text-[10px] bg-(--accent-bg) text-(--accent) px-2 py-0.5 rounded-full font-semibold">AI Estimated</span>
@@ -1149,7 +1149,7 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
     : `Summary · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 
   return (
-    <div className="bg-(--bg-tertiary) border border-(--border-light) rounded-[var(--card-radius-md)] p-[22px] flex flex-col gap-6">
+    <div className="bg-(--bg-tertiary) border border-(--border-light) rounded-2xl p-[22px] flex flex-col gap-6">
       {/* Header row */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
@@ -1214,7 +1214,7 @@ function MealHistory({ meals, loading, onDeleteMeal, selectedDate }) {
     : `Meals · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 
   return (
-    <div className="bg-(--bg-tertiary) rounded-[var(--card-radius-md)] p-4 sm:p-5 border border-(--border-light)">
+    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light)">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <SectionLabel text={dateLabel} />
         {loading && <Spinner />}

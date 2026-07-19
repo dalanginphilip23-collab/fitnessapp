@@ -118,7 +118,7 @@ export default function WebcamFeed({
         'border border-(--border-light) shadow-(--shadow-lg)',
         isFullscreen
           ? 'rounded-none w-screen h-screen'
-          : 'rounded-[var(--card-radius-md)] sm:rounded-[var(--card-radius-lg)] md:rounded-[3rem] aspect-3/4 sm:aspect-4/5 md:aspect-video w-full',
+          : 'rounded-2xl sm:rounded-4xl md:rounded-[3rem] aspect-3/4 sm:aspect-4/5 md:aspect-video w-full',
       ].join(' ')}
     >
       <ScanLineOverlay isRecording={isRecording} cameraOn={cameraOn} />

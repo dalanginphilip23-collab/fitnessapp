@@ -28,6 +28,8 @@ export default function AnalyticsMobileNav({ navigate }) {
             <button
               key={item.name}
               onClick={() => handleNav(item.path)}
+              aria-label={item.name}
+              aria-current={isActive ? 'page' : undefined}
               className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-[300ms] outline-none h-full flex-1 min-w-11 ${
                 isActive ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'
               }`}
