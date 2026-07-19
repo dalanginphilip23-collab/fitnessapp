@@ -60,7 +60,7 @@ const ClinicalAssistant = ({
   const [historyLoad,  setHistoryLoad]  = useState(false);
   const [historyError, setHistoryError] = useState(false);
 
-  const goal = 3000;
+  const goal = 5000;
 
   useEffect(() => {
     if (isAnalyzing && showHistory) setShowHistory(false);
