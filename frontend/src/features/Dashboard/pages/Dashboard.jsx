@@ -48,7 +48,6 @@ const Dashboard = () => {
     setBiometrics,
     setAuthOverride,
     mergeData,
-    clearInsights,
   } = useDashboardData(USER_ID);
 
   useEffect(() => {
@@ -118,6 +117,13 @@ const Dashboard = () => {
             activeProgramCount={activeProgramCount}
           />
 
+          {/*
+            Grid breakpoints:
+            - base (phones):        1 column, everything stacks
+            - md (tablets ~768px):  1 column still — 4-col squeeze at md
+                                     looked cramped on iPad-portrait/landscape
+            - xl (laptops+ 1280px): 4 columns, 3/1 split
+          */}
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 items-start">
 
             {/* Left Column */}
@@ -159,7 +165,6 @@ const Dashboard = () => {
                 quality={data.stats?.sleep_quality || 0}
                 isAnalyzing={isAnalyzing}
                 userId={USER_ID}
-                onResetInsights={clearInsights}
               />
             </div>
           </div>

@@ -47,20 +47,14 @@ const InsightCard = ({ item }) => {
   );
 };
 
-const ClinicalAssistant = ({
-  insights = [],
-  water = 0,
-  isAnalyzing = false,
-  userId = null,
-  onResetInsights,
-}) => {
+const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, userId = null }) => {
   const [barWidth,     setBarWidth]     = useState(0);
   const [showHistory,  setShowHistory]  = useState(false);
   const [history,      setHistory]      = useState([]);
   const [historyLoad,  setHistoryLoad]  = useState(false);
   const [historyError, setHistoryError] = useState(false);
 
-  const goal = 5000;
+  const goal = 3000;
 
   useEffect(() => {
     if (isAnalyzing && showHistory) setShowHistory(false);
@@ -124,23 +118,12 @@ const ClinicalAssistant = ({
           <span className="font-bold text-[13px] text-[var(--text-primary)]">Clinical Assistant</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          {isAnalyzing && (
-            <div className="flex items-center gap-1.5 bg-[var(--accent-bg)] px-2.5 py-1 rounded-full border border-[var(--accent-border)]">
-              <div className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full animate-ping" />
-              <span className="text-[8px] font-black text-[var(--accent)] uppercase tracking-widest">Scanning</span>
-            </div>
-          )}
-          {onResetInsights && !isAnalyzing && !showHistory && (
-            <button
-              onClick={onResetInsights}
-              title="Clear insights"
-              className="w-6 h-6 flex items-center justify-center rounded-full text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] transition-colors cursor-pointer"
-            >
-              <Icon name="refresh" className="text-[13px]" />
-            </button>
-          )}
-        </div>
+        {isAnalyzing && (
+          <div className="flex items-center gap-1.5 bg-[var(--accent-bg)] px-2.5 py-1 rounded-full border border-[var(--accent-border)]">
+            <div className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full animate-ping" />
+            <span className="text-[8px] font-black text-[var(--accent)] uppercase tracking-widest">Scanning</span>
+          </div>
+        )}
       </div>
 
       {/* Hydration */}
