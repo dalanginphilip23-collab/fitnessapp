@@ -46,9 +46,21 @@ export const useDashboardData = (USER_ID) => {
     if (mode === 'replace') {
       setInsights(Array.isArray(incoming) ? incoming : []);
     } else {
-      // 'prepend' — used by the socket handler
-      setInsights(prev => [incoming, ...prev].slice(0, 5));
+      // 'prepend' — used by the socket handler.
+      // Drop any existing card of the same category first, so a fresh
+      // Rest Advisory / Performance Tip replaces the old one instead of
+      // stacking beside it in the feed.
+      setInsights(prev => {
+        const deduped = prev.filter(item => item.category !== incoming.category);
+        return [incoming, ...deduped].slice(0, 5);
+      });
     }
+  };
+
+  // Manual reset — clears the live feed immediately, independent of the
+  // midnight day-rollover check below. Does NOT touch DB history.
+  const clearInsights = () => {
+    setInsights([]);
   };
 
   useEffect(() => {
@@ -133,5 +145,6 @@ export const useDashboardData = (USER_ID) => {
     setBiometrics,
     setAuthOverride,
     mergeData,
+    clearInsights,
   };
 };
