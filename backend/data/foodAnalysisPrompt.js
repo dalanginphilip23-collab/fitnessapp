@@ -1,4 +1,3 @@
-
 // FOOD ANALYSIS PROMPT — used by config/gemini.js for image-based food analysis
 // To adjust a calorie/macro number, edit it here — no need to touch gemini.js.
 
@@ -14,21 +13,82 @@ Carefully examine this food photo, then output a single JSON object with these f
   fat        – integer: grams of fat
   suggestion – string: one practical health tip about this food (≤ 15 words)
 
-PORTION ESTIMATION RULES
+STEP 1 — IDENTIFY BEFORE ESTIMATING
+Before estimating anything, check: is this a recognizable menu item from a known restaurant
+or fast-food chain (packaging, branding, wrapper, tray liner, cup, or a very distinctive
+signature item you recognize)?
+  - If YES: base your numbers on that chain's actual published nutrition facts for that item
+    (or your best knowledge of them) rather than estimating from visual volume alone. Chain
+    items are manufactured to consistent weights — use that fact instead of guessing.
+  - If NO (home-cooked, restaurant-plated, or generic food): fall back to the portion
+    estimation rules below.
+This single step matters more than any other rule here — visual-volume guessing is the
+single biggest source of error, especially for stacked items (burgers), items partly hidden
+by packaging or other food (fries in front of a burger), and breaded/fried items where
+breading obscures true meat volume.
+
+PORTION ESTIMATION RULES (for non-chain / home-style food)
 1. Estimate ONLY what is VISIBLE in the image. Do not assume extras off-screen.
 2. Count pieces when applicable and include the count in food_name.
 3. Compare food size to standard references: plate (~25cm), bowl (~16cm), utensils, or packaging.
 4. A standard Filipino plate of rice = 1 cup (~180g cooked rice).
+5. For stacked or layered items (double burgers, sandwiches), estimate each visible layer
+   separately (bun + patty + cheese + patty + bun, etc.) rather than the item as one blob —
+   this prevents both over- and under-counting meat/cheese volume.
+6. If the photo shows MULTIPLE distinct food items (e.g. 2 burgers + fries, or a bucket of
+   several chicken pieces), estimate each item/piece individually using its own reference
+   weight, then SUM them. Do not treat a multi-item order as a single "dish."
 
 MACRO RULES (non-negotiable)
-5. NEVER output 0g carbs for: fried/breaded foods, rice, bread, pasta, noodles, sauced dishes, desserts, fruits, or drinks with sugar.
-6. NEVER output 0g fat for: fried foods, meat dishes, coconut-based dishes, fast food, dairy, or anything cooked in oil.
-7. Macro energy MUST match calories within 5%:
+7. NEVER output 0g carbs for: fried/breaded foods, rice, bread, pasta, noodles, sauced dishes, desserts, fruits, or drinks with sugar.
+8. NEVER output 0g fat for: fried foods, meat dishes, coconut-based dishes, fast food, dairy, or anything cooked in oil.
+9. Macro energy MUST match calories within 5%:
    (protein × 4) + (carbs × 4) + (fat × 9) = calories ± 5%
    Verify this math BEFORE outputting. Adjust until it holds.
-8. All values must be POSITIVE INTEGERS. No decimals. No negatives.
+10. All values must be POSITIVE INTEGERS. No decimals. No negatives.
+11. A single, individual serving (one plate, one sandwich, one bowl) rarely exceeds 2500 kcal —
+    treat that as a red flag to double-check your estimate, not as a hard ceiling. Multi-item
+    orders (see rule 6) are the SUM of their parts and can legitimately exceed 2500 kcal —
+    do not compress a genuinely large combined order down to fit under that number.
 
-─── CALIBRATION ANCHORS (Filipino dishes only) ─────────────────────────────
+─── CALIBRATION ANCHORS: GLOBAL FAST FOOD & COMMON CHAIN ITEMS ────────────────
+Use these as reference points for recognizable chain/fast-food items (Step 1). These are
+per-unit values — for multi-item orders, sum the relevant items together.
+
+BURGERS (1 unit, standard build with cheese unless noted):
+  Basic single beef patty burger w/ cheese (~150g):     530 kcal | P: 27g | C: 40g | F: 27g
+  Double-patty beef burger w/ cheese (~250g):            650 kcal | P: 37g | C: 41g | F: 41g
+  Fast-food cheeseburger, small/value size (~115g):      300 kcal | P: 15g | C: 32g | F: 13g
+  Chicken sandwich, breaded, fast-food (~220g):           550 kcal | P: 28g | C: 45g | F: 30g
+  Chicken sandwich, grilled, fast-food (~200g):           380 kcal | P: 37g | C: 30g | F: 12g
+
+FRIES & SIDES (per standard chain serving size):
+  Fries, small (~70g):                                   230 kcal | P: 2g  | C: 29g | F: 11g
+  Fries, medium/regular (~115g):                          365 kcal | P: 4g  | C: 47g | F: 17g
+  Fries, large (~150g):                                   480 kcal | P: 6g  | C: 61g | F: 23g
+  Onion rings, regular serving (~100g):                   410 kcal | P: 5g  | C: 45g | F: 24g
+
+FRIED CHICKEN (per single piece, breaded, bone-in — average across cuts):
+  Breast piece, breaded fried (~150g):                    370 kcal | P: 30g | C: 12g | F: 22g
+  Thigh piece, breaded fried (~110g):                     300 kcal | P: 20g | C: 8g  | F: 21g
+  Drumstick, breaded fried (~85g):                        220 kcal | P: 18g | C: 6g  | F: 15g
+  Wing, breaded fried (~65g):                             160 kcal | P: 11g | C: 5g  | F: 11g
+  If cut is unclear from the photo, use ~280 kcal | P: 20g | C: 8g | F: 18g as a blended
+  per-piece average and multiply by visible piece count.
+
+PIZZA (per standard slice, 1/8 of a 14-inch pizza):
+  Cheese slice:                                           240 kcal | P: 11g | C: 27g | F: 10g
+  Pepperoni/meat-topped slice:                            300 kcal | P: 13g | C: 27g | F: 15g
+
+OTHER COMMON ITEMS:
+  Hot dog w/ bun, plain (~100g):                          290 kcal | P: 11g | C: 24g | F: 17g
+  Taco, seasoned beef, hard shell (~85g):                 170 kcal | P: 8g  | C: 13g | F: 10g
+  Burrito, meat + rice + beans, regular (~300g):           550 kcal | P: 25g | C: 65g | F: 20g
+  Sushi roll, 8 pcs, standard (California/similar):        290 kcal | P: 9g  | C: 40g | F: 10g
+  Pancakes, 1 piece plain (~80g):                          170 kcal | P: 4g  | C: 22g | F: 7g
+  Milkshake/thick shake, regular (~400ml):                 530 kcal | P: 10g | C: 80g | F: 18g
+
+─── CALIBRATION ANCHORS: FILIPINO DISHES ──────────────────────────────────────
 Use these as reference points. For any other food, estimate normally using the
 rules above and the closest comparable dish you know.
 
@@ -73,9 +133,12 @@ FILIPINO DESSERTS:
 ─── END OF CALIBRATION ANCHORS ────────────────────────────────────────────────
 
 CRITICAL MISTAKES TO AVOID
+- Never guess a chain/branded item from visual volume when you can recognize what it is —
+  use its known standard nutrition facts instead (Step 1).
 - Never output 0g carbs for fried, breaded, sauced, sweet, or starchy foods
 - Never output 0g fat for fried, oily, meaty, dairy, or fast food items
-- Never assign 2000+ kcal to a single non-shared portion
+- Never treat a multi-item order (multiple burgers, a bucket of chicken pieces) as one
+  single-serving dish — sum each item's own reference values instead
 - Always verify: (protein × 4) + (carbs × 4) + (fat × 9) ≈ your calorie number ± 5%
 - If the food is not in the anchors, estimate using the closest similar food as your base
 
