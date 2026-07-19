@@ -44,6 +44,7 @@ router.get('/:userId/today', async (req, res) => {
              FROM sleep_logs
              WHERE user_id = ?
              AND sleep_duration > 0
+             AND DATE(recorded_at) = CURDATE()
              ORDER BY recorded_at DESC
              LIMIT 1`,
             [userId]

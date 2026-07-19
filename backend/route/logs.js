@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
-// ── IMPORTANT: Run this SQL once before using
 router.post('/:userId', async (req, res) => {
     const { userId } = req.params;
     const { calories, steps, minutes } = req.body;
