@@ -70,12 +70,7 @@ router.post('/ai/clinical-analysis', async (req, res) => {
             [userId]
         );
 
-        console.log(`[VITALIS AI] ── SLEEP DB QUERY RESULT for user ${userId} ──`);
-        console.log(`  Rows returned: ${sleepRows.length}`);
-        console.log(`  Latest row   :`, sleepRows[0] || '⚠️ NO ROW FOUND IN DB');
-
         const dbSleep = sleepRows[0] || {};
-        console.log(`[VITALIS AI] Stats from frontend:`, stats);
 
         const sleep = {
             sleep_duration:  (stats?.sleep_duration  > 0) ? stats.sleep_duration  : (dbSleep.sleep_duration  || 0),
@@ -101,19 +96,8 @@ router.post('/ai/clinical-analysis', async (req, res) => {
             }
         }
 
-        console.log(`[VITALIS AI] ── FINAL SLEEP OBJECT ──`);
-        console.log(`  sleep_duration : ${sleep.sleep_duration}  ${sleep.sleep_duration === 0 ? '⚠️ ZERO' : '✅'}`);
-        console.log(`  sleep_quality  : ${sleep.sleep_quality}   ${sleep.sleep_quality  === 0 ? '⚠️ ZERO' : '✅'}`);
-        console.log(`  water_intake_ml: ${sleep.water_intake_ml} ${sleep.water_intake_ml === 0 ? '⚠️ ZERO' : '✅'}`);
-
-        console.log(`[VITALIS AI] ── FINAL ACTIVITY OBJECT ──`);
-        console.log(`  calories_burned      : ${activity.calories_burned}       ${activity.calories_burned       === 0 ? '⚠️ ZERO' : '✅'}`);
-        console.log(`  steps                : ${activity.steps}                 ${activity.steps                 === 0 ? '⚠️ ZERO' : '✅'}`);
-        console.log(`  workout_duration_mins: ${activity.workout_duration_mins} ${activity.workout_duration_mins === 0 ? '⚠️ ZERO' : '✅'}`);
-
-        // 5. Guard: If sleep data is still all zeros after DB fallback, return early
+        // Guard: If sleep data is still all zeros after DB fallback, return early
         if (sleep.sleep_duration === 0 && sleep.sleep_quality === 0 && sleep.water_intake_ml === 0) {
-            console.log(`[VITALIS AI] ⚠️ All sleep values are zero — returning early for user ${userId}`);
             return res.status(200).json({
                 insights: [
                     {
@@ -128,18 +112,25 @@ router.post('/ai/clinical-analysis', async (req, res) => {
             });
         }
 
-        const today = new Date().toISOString().slice(0, 10); // e.g. "2025-05-02"
+        const today = new Date().toISOString().slice(0, 10); // e.g. "2026-07-19"
+        // Signature still tracks the exact stat combo — used only to decide
+        // whether to skip calling Gemini again (see cache lookup below).
+        // It is NOT the row-uniqueness key anymore; insight_date is.
         const signature = `s${sleep.sleep_duration}-q${sleep.sleep_quality}-w${sleep.water_intake_ml}-c${activity.calories_burned}-st${activity.steps}-m${activity.workout_duration_mins}-u${userId}-d${today}`;
 
-        console.log(`[VITALIS AI] Cache signature: ${signature}`);
-
+        // Cache HIT only if today's row exists AND the stats haven't changed
+        // since it was generated. If the user logged something new today,
+        // the signature differs and we fall through to regenerate —
+        // but the row still gets UPDATED in place, never duplicated.
         const [cached] = await db.execute(
-            'SELECT sleep_suggestion, activity_suggestion FROM ai_insight_cache WHERE user_id = ? AND data_signature = ? LIMIT 1',
+            `SELECT sleep_suggestion, activity_suggestion 
+             FROM ai_insight_cache 
+             WHERE user_id = ? AND insight_date = CURDATE() AND data_signature = ? 
+             LIMIT 1`,
             [userId, signature]
         );
 
         if (cached.length > 0) {
-            console.log(`[VITALIS AI] ✅ Cache HIT for user ${userId}`);
             return res.json({
                 insights: [
                     { id: `sleep-${Date.now()}`,    ...JSON.parse(cached[0].sleep_suggestion) },
@@ -149,9 +140,7 @@ router.post('/ai/clinical-analysis', async (req, res) => {
             });
         }
 
-        console.log(`[VITALIS AI] Cache MISS for user ${userId} — calling Gemini`);
-
-        // 8. Contextual flags
+        // Contextual flags
         const waterGlass      = Math.round(sleep.water_intake_ml / 250);
         const sleepStatus     = sleep.sleep_duration >= 7 ? 'adequate' : sleep.sleep_duration >= 5 ? 'below optimal' : 'critically low';
         const qualityStatus   = sleep.sleep_quality  >= 7 ? 'excellent' : sleep.sleep_quality  >= 5 ? 'fair' : 'poor';
@@ -161,7 +150,6 @@ router.post('/ai/clinical-analysis', async (req, res) => {
         const hydrationStatus = sleep.water_intake_ml >= 2500 ? 'well-hydrated' : sleep.water_intake_ml >= 1500 ? 'approaching goal' : 'under-hydrated';
         const todayDate       = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
-        // Prompt
         const prompt = `
                 You are Vitalis AI, a professional health intelligence assistant embedded in a fitness dashboard.
                 Your job is to give ${firstName} a personalized, specific, and motivating clinical insight — not generic advice.
@@ -215,12 +203,14 @@ router.post('/ai/clinical-analysis', async (req, res) => {
         const cleaned  = raw.replace(/```json|```/gi, '').trim();
         const aiResult = JSON.parse(cleaned);
 
-        // UPDATE CACHE
+        // UPSERT — one row per user per day. Any new analysis today
+        // overwrites today's row instead of adding another one.
         if (aiResult?.sleep_suggestion && aiResult?.activity_suggestion) {
             await db.execute(
-                `INSERT INTO ai_insight_cache (user_id, data_signature, sleep_suggestion, activity_suggestion)
-                 VALUES (?, ?, ?, ?)
+                `INSERT INTO ai_insight_cache (user_id, data_signature, sleep_suggestion, activity_suggestion, insight_date)
+                 VALUES (?, ?, ?, ?, CURDATE())
                  ON DUPLICATE KEY UPDATE
+                   data_signature      = VALUES(data_signature),
                    sleep_suggestion    = VALUES(sleep_suggestion),
                    activity_suggestion = VALUES(activity_suggestion),
                    created_at          = NOW()`,
@@ -242,75 +232,71 @@ router.post('/ai/clinical-analysis', async (req, res) => {
         }
 });
 
-    // AI REAL-TIME COACHING
-    router.post('/ai/coach', async (req, res) => {
-        const { landmarks, workoutType } = req.body;
-        try {
-            const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite-preview" });
-            const prompt = `
-                You are a real-time gym coach. Analyze these landmarks for a ${workoutType.toUpperCase()} set.
-                Landmarks: ${JSON.stringify(landmarks)}
-                Give ONE technical tip (max 10 words). 
-                - If PUSHUP: focus on "flat back" or "elbow angle".
-                - If SQUAT: focus on "depth" or "weight on heels".
-                - If PLANK: focus on "hips height".
-                Strict Rule: Only reply with the coaching tip text. No conversational filler.
-                `;
-            const result = await model.generateContent(prompt);
-            const tip = result.response.text().trim();
-            res.json({ tip });
-        } catch (error) {
-            console.error("Coach Error:", error);
-            res.status(500).json({ tip: "Keep your form tight and stay focused." });      
+// AI REAL-TIME COACHING
+router.post('/ai/coach', async (req, res) => {
+    const { landmarks, workoutType } = req.body;
+    try {
+        const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite-preview" });
+        const prompt = `
+            You are a real-time gym coach. Analyze these landmarks for a ${workoutType.toUpperCase()} set.
+            Landmarks: ${JSON.stringify(landmarks)}
+            Give ONE technical tip (max 10 words). 
+            - If PUSHUP: focus on "flat back" or "elbow angle".
+            - If SQUAT: focus on "depth" or "weight on heels".
+            - If PLANK: focus on "hips height".
+            Strict Rule: Only reply with the coaching tip text. No conversational filler.
+            `;
+        const result = await model.generateContent(prompt);
+        const tip = result.response.text().trim();
+        res.json({ tip });
+    } catch (error) {
+        console.error("Coach Error:", error);
+        res.status(500).json({ tip: "Keep your form tight and stay focused." });      
     }
 });
 
-        // AI RUN ANALYSIS
-        router.get('/ai/history/:userId', async (req, res) => {
-            const { userId } = req.params;
-            try {
-                const [rows] = await db.execute(
-                    `SELECT sleep_suggestion, activity_suggestion, created_at 
-                     FROM ai_insight_cache 
-                     WHERE user_id = ? 
-                     ORDER BY created_at DESC 
-                     LIMIT 20`,
-                    [userId]
-                );
-             const history = rows.map(row => ([
-                    { ...JSON.parse(row.sleep_suggestion),    id: `sleep-${row.created_at}`,    timestamp: new Date(row.created_at).        toLocaleString() },
-                    { ...JSON.parse(row.activity_suggestion), id: `activity-${row.created_at}`, timestamp: new Date(row.created_at).        toLocaleString() },
-             ])).flat();
-                res.json(history);
-            } catch (err) {
-                res.status(500).json({ error: err.message });
-         }
+// AI HISTORY — now naturally returns at most 1 sleep + 1 activity card
+// per calendar day, since ai_insight_cache enforces one row per day.
+router.get('/ai/history/:userId', async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const [rows] = await db.execute(
+            `SELECT sleep_suggestion, activity_suggestion, created_at 
+             FROM ai_insight_cache 
+             WHERE user_id = ? 
+             ORDER BY created_at DESC 
+             LIMIT 20`,
+            [userId]
+        );
+        const history = rows.map(row => ([
+            { ...JSON.parse(row.sleep_suggestion),    id: `sleep-${row.created_at}`,    timestamp: new Date(row.created_at).toLocaleString() },
+            { ...JSON.parse(row.activity_suggestion), id: `activity-${row.created_at}`, timestamp: new Date(row.created_at).toLocaleString() },
+        ])).flat();
+        res.json(history);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-           // GET LATEST ACTIVITY LOG (FOR DASHBOARD SUMMARY)
-            router.get('/logs/latest/:userId', async (req, res) => {
-                const { userId } = req.params;
-                try {
-                    const [latestLog] = await db.execute(
-                        `SELECT calories_burned, steps, workout_duration_mins               
-                         FROM daily_stats 
-                         WHERE user_id = ? 
-                         ORDER BY stat_date DESC LIMIT 1`,
-                        [userId]
-                    );
+// GET LATEST ACTIVITY LOG (FOR DASHBOARD SUMMARY)
+router.get('/logs/latest/:userId', async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const [latestLog] = await db.execute(
+            `SELECT calories_burned, steps, workout_duration_mins               
+             FROM daily_stats 
+             WHERE user_id = ? 
+             ORDER BY stat_date DESC LIMIT 1`,
+            [userId]
+        );
 
-                 const [latestSleep] = await db.execute(
-                        `SELECT * FROM sleep_logs 
-                         WHERE user_id = ? 
-                           AND (sleep_duration > 0 OR sleep_quality > 0 OR water_intake_ml > 0)
-                         ORDER BY recorded_at DESC LIMIT 1`,
-                        [userId]
-                 );
-
-        // DEBUG LOGS 
-        console.log(`[LATEST LOGS] ── DB RESULTS for user ${userId} ──`);
-        console.log(`  latestLog  :`, latestLog[0]  || '⚠️ NO ROW RETURNED');
-        console.log(`  latestSleep:`, latestSleep[0] || '⚠️ NO ROW RETURNED');
+        const [latestSleep] = await db.execute(
+            `SELECT * FROM sleep_logs 
+             WHERE user_id = ? 
+               AND (sleep_duration > 0 OR sleep_quality > 0 OR water_intake_ml > 0)
+             ORDER BY recorded_at DESC LIMIT 1`,
+            [userId]
+        );
 
         if (!latestLog.length && !latestSleep.length) {
             return res.status(404).json({ message: "No historical data found for this user." });
@@ -333,23 +319,19 @@ router.post('/ai/clinical-analysis', async (req, res) => {
     }
 });
 
+// AI RUN ANALYSIS
+router.post('/ai/run-analysis', async (req, res) => {
+    const { userId, run } = req.body;
 
-
-    // AI RUN ANALYSIS
-    router.post('/ai/run-analysis', async (req, res) => {
-            const { userId, run } = req.body;
-
-        try {
-        // Fetch user profile
-            const [userRows] = await db.execute(
-                'SELECT name, fitness_goal FROM users WHERE id = ? LIMIT 1',
-             [userId]
+    try {
+        const [userRows] = await db.execute(
+            'SELECT name, fitness_goal FROM users WHERE id = ? LIMIT 1',
+            [userId]
         );
-            const user = userRows[0] || { name: 'Athlete', fitness_goal: 'general fitness' };
-            const firstName = user.name ? user.name.split(' ')[0] : 'Athlete';
+        const user = userRows[0] || { name: 'Athlete', fitness_goal: 'general fitness' };
+        const firstName = user.name ? user.name.split(' ')[0] : 'Athlete';
 
-            // Fetch last 7 runs for trend/predictive analysis
-            const [runHistory] = await db.execute(
+        const [runHistory] = await db.execute(
             `SELECT distance, duration, pace, calories, created_at
              FROM activity_logs
              WHERE user_id = ?
@@ -366,7 +348,7 @@ router.post('/ai/clinical-analysis', async (req, res) => {
 
         const prompt = `
                 You are Vitalis AI, a warm, friendly, and encouraging running coach embedded in a fitness app.
-                Your job is to give ${firstName} a personalized post-run analysis with a friendly tone — like a supportive coach who's genuinely proud              of them.
+                Your job is to give ${firstName} a personalized post-run analysis with a friendly tone — like a supportive coach who's genuinely proud of them.
 
                 RUNNER PROFILE:
                 - Name: ${firstName}
@@ -388,7 +370,7 @@ router.post('/ai/clinical-analysis', async (req, res) => {
                 INSTRUCTIONS:
                 1. Start with a warm, genuine reaction to this specific run — reference their exact numbers.
                 2. For summary: 2-3 sentences covering what they did well and one thing to watch.
-                3. For prediction: based on their history and consistency, predict what they could realistically achieve in 30 days if they keep it up.                 Be specific (e.g., "you could hit 5km runs" or "shave 30 seconds off your pace"). Make it exciting but realistic.
+                3. For prediction: based on their history and consistency, predict what they could realistically achieve in 30 days if they keep it up. Be specific (e.g., "you could hit 5km runs" or "shave 30 seconds off your pace"). Make it exciting but realistic.
                 4. For tip: one specific, actionable tip for their next run based on their pace and splits.
                 5. Tone: warm, friendly, like a coach who genuinely cares — not robotic. Use their name naturally.
                 6. NEVER say "great job" or "keep it up" as opening words.
@@ -410,7 +392,6 @@ router.post('/ai/clinical-analysis', async (req, res) => {
         const cleaned  = raw.replace(/```json|```/gi, '').trim();
         const aiResult = JSON.parse(cleaned);
 
-        // Send notification
         try {
             await db.execute(
                 'INSERT INTO notifications (user_id, message, type) VALUES (?, ?, ?)',
