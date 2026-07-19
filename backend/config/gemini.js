@@ -19,7 +19,17 @@ async function callGeminiWithFallback(prompt) {
   for (const modelName of models) {
     try {
       console.log(`[VITALIS AI] Trying ${modelName}...`);
-      const model  = genAI.getGenerativeModel({ model: modelName });
+      const model  = genAI.getGenerativeModel({
+        model: modelName,
+        generationConfig: {
+          maxOutputTokens: 1000,
+          // gemini-2.5-flash-preview has "thinking" on by default and those
+          // hidden reasoning tokens count against maxOutputTokens, which can
+          // silently truncate the visible response. Turn it off — we don't
+          // need chain-of-thought for these prompts, just the final text.
+          thinkingConfig: { thinkingBudget: 0 },
+        },
+      });
       const result = await model.generateContent(prompt);
       const text   = result.response.text();
       if (text) {
@@ -202,9 +212,12 @@ function parseNutritionJSON(raw) {
 // ─── VISION PROVIDERS ─────────────────────────────────────────────────────────
 
 async function analyzeWithGroqVision(base64Data, mimeType) {
-  console.log("[VITALIS IMAGE] Trying Groq LLaMA-4 Scout vision...");
+  console.log("[VITALIS IMAGE] Trying Groq Qwen3.6 vision...");
+  // NOTE: meta-llama/llama-4-scout-17b-16e-instruct was deprecated by Groq
+  // on June 17, 2026 (404 model_not_found). qwen/qwen3.6-27b is the current
+  // vision-capable model on Groq's free/dev tier as of mid-2026.
   const resp = await groq.chat.completions.create({
-    model:       "meta-llama/llama-4-scout-17b-16e-instruct",
+    model:       "qwen/qwen3.6-27b",
     max_tokens:  300,
     temperature: 0,
     messages: [
@@ -224,14 +237,16 @@ async function analyzeWithGroqVision(base64Data, mimeType) {
   return text;
 }
 
-// NOTE: "gemini-1.5-flash" was removed from the v1beta API — using it threw
-// a 404 ("model not found"). We now try a short list of currently-supported
-// vision models, same pattern as callGeminiWithFallback() above, so a single
-// deprecated model name can never take down this whole provider again.
+// NOTE on model order: gemini-2.0-flash's free-tier quota is currently
+// exhausted on this project (limit: 0 requests), so it's tried LAST here —
+// no point burning a retry + 1s backoff on a model that's guaranteed to 429.
+// gemini-2.5-flash is tried first since it's the strongest vision model,
+// with thinking disabled (see analyzeWithGeminiVision) so its answer isn't
+// silently truncated by internal reasoning tokens.
 const GEMINI_VISION_MODELS = [
-  "gemini-2.0-flash",
   "gemini-2.5-flash",
   "gemini-2.0-flash-lite",
+  "gemini-2.0-flash",
 ];
 
 async function analyzeWithGeminiVision(base64Data, mimeType) {
@@ -240,8 +255,18 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
     try {
       console.log(`[VITALIS IMAGE] Trying Gemini vision (${modelName})...`);
       const model = genAI.getGenerativeModel({
-        model:            modelName,
-        generationConfig: { temperature: 0, maxOutputTokens: 300 },
+        model: modelName,
+        generationConfig: {
+          temperature: 0,
+          maxOutputTokens: 500,
+          // Gemini 2.5 (and newer) models have "thinking" on by default.
+          // Those hidden reasoning tokens count against maxOutputTokens,
+          // which was silently truncating our JSON before it could close
+          // (e.g. cutting off after just "food_name"). Disabling thinking
+          // fixes it — we don't need chain-of-thought for a JSON extraction
+          // task like this.
+          thinkingConfig: { thinkingBudget: 0 },
+        },
       });
 
       const result = await model.generateContent([
@@ -252,6 +277,17 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
       const text = result.response.text();
       if (!text) throw new Error("Gemini returned empty response");
       console.log(`[VITALIS IMAGE] Gemini (${modelName}) raw:`, text.slice(0, 200));
+
+      // Handy for future debugging: if a response ever looks truncated again,
+      // check thoughtsTokenCount here to confirm whether thinking ate the budget.
+      const usage = result.response.usageMetadata;
+      if (usage) {
+        console.log(
+          `[VITALIS IMAGE] (${modelName}) tokens — thoughts: ${usage.thoughtsTokenCount || 0}, ` +
+          `output: ${usage.candidatesTokenCount || 0}, total: ${usage.totalTokenCount || 0}`
+        );
+      }
+
       return text;
     } catch (err) {
       console.error(`[VITALIS IMAGE] ❌ Gemini (${modelName}) failed:`, err.message);
