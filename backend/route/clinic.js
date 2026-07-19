@@ -3,22 +3,22 @@ const router = express.Router();
 const db = require('../config/db');
 const { callGeminiWithFallback } = require('../config/gemini');
 
-//  CREATE / GET SESSION
+//  CREATE / GET SESSION (auto-resets daily, race-proof)
 router.post('/session', async (req, res) => {
     const { userId, doctorName } = req.body;
 
+    if (!userId || !doctorName) {
+        return res.status(400).json({ error: "userId and doctorName are required" });
+    }
+
     try {
-        const [existing] = await db.execute(
-            'SELECT id FROM chat_sessions WHERE user_id = ? AND doctor_name = ? ORDER BY id DESC LIMIT 1',
-            [userId, doctorName]
-        );
-
-        if (existing.length > 0) {
-            return res.json({ sessionId: existing[0].id });
-        }
-
+        // Atomically create-or-reuse today's session for this user+doctor.
+        // Requires: UNIQUE KEY uniq_session_per_day (user_id, doctor_name, session_date)
+        // If two requests race, MySQL serializes them and both resolve to the same row.
         const [result] = await db.execute(
-            'INSERT INTO chat_sessions (user_id, doctor_name) VALUES (?, ?)',
+            `INSERT INTO chat_sessions (user_id, doctor_name, session_date)
+             VALUES (?, ?, CURDATE())
+             ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)`,
             [userId, doctorName]
         );
 
@@ -31,13 +31,12 @@ router.post('/session', async (req, res) => {
 });
 
 
-
 // SEND MESSAGE
 router.post('/message', async (req, res) => {
     const { sessionId, message, doctorName, doctorSpecialty } = req.body;
 
-    if (!message) {
-        return res.status(400).json({ error: "Message is required" });
+    if (!sessionId || !message) {
+        return res.status(400).json({ error: "sessionId and message are required" });
     }
 
     try {
@@ -94,7 +93,6 @@ router.post('/message', async (req, res) => {
 });
 
 
-
 //  GET MESSAGES (CHAT HISTORY)
 router.get('/messages/:sessionId', async (req, res) => {
     const { sessionId } = req.params;
@@ -117,9 +115,7 @@ router.get('/messages/:sessionId', async (req, res) => {
 });
 
 
-
-// RESET CHAT (DELETE MESSAGES)
-
+// RESET CHAT (DELETE MESSAGES) — for manual "New Consultation" while working
 router.delete('/messages/:sessionId', async (req, res) => {
     const { sessionId } = req.params;
 
@@ -137,8 +133,8 @@ router.delete('/messages/:sessionId', async (req, res) => {
     }
 });
 
-// GET DOCTORS BY CATEGORY
 
+// GET DOCTORS BY CATEGORY
 router.get('/doctors/:category', async (req, res) => {
     const { category } = req.params;
 
