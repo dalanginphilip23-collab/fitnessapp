@@ -162,11 +162,18 @@ function validateAndCorrectMacros(parsed) {
     }
   }
 
-  // Sanity cap: single dishes rarely exceed 2500 kcal
-  if (calories > 2500) {
-    console.warn(`[VITALIS IMAGE] Calorie cap: ${calories} → 2500`);
-    const scale = 2500 / calories;
-    calories = 2500;
+  // Sanity cap: single dishes rarely exceed 2500 kcal — but that assumption
+  // breaks for countable multi-piece orders (e.g. "Fried Chicken (12 pieces)"),
+  // which legitimately run well past 2500 kcal. Scale the cap by piece count
+  // when one is detected in food_name, otherwise fall back to the original
+  // flat 2500 kcal single-dish cap.
+  const pieceCountForCap = extractPieceCount(food_name);
+  const calorieCap = pieceCountForCap ? Math.min(pieceCountForCap * 350, 6000) : 2500;
+
+  if (calories > calorieCap) {
+    console.warn(`[VITALIS IMAGE] Calorie cap: ${calories} → ${calorieCap}`);
+    const scale = calorieCap / calories;
+    calories = calorieCap;
     protein  = Math.round(protein * scale);
     carbs    = Math.round(carbs   * scale);
     fat      = Math.round(fat     * scale);
