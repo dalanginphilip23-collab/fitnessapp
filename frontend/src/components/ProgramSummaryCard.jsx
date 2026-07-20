@@ -9,9 +9,9 @@ const formatSessionLoad = (mins = 0) => {
 };
 
 const RingLabel = ({ icon, color, children }) => (
-  <div className="flex items-center gap-1">
+  <div className="flex flex-col sm:flex-row items-center gap-0.5 sm:gap-1 text-center">
     <Icon name={icon} className="text-[11px]" style={{ color }} />
-    <span className="text-[9px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)]">
+    <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.1em] sm:tracking-[0.18em] text-[var(--text-muted)] leading-tight whitespace-nowrap">
       {children}
     </span>
   </div>
@@ -27,7 +27,7 @@ const ProgramSummaryCard = ({
   onSeeMore,
 }) => {
   return (
-    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[16px] p-[22px] flex flex-col gap-6">
+    <div className="fx-card shadow-[var(--shadow-sm)] p-[22px] sm:p-[26px] flex flex-col gap-6">
       {/* Header row */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
@@ -43,9 +43,9 @@ const ProgramSummaryCard = ({
         </button>
       </div>
 
-      {/* Rings row */}
-      <div className="flex items-start justify-around">
-        <div className="flex flex-col items-center gap-2.5">
+      {/* Rings row — each metric gets its own soft chip, mockup-style */}
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-4">
+        <div className="flex flex-col items-center gap-2.5 rounded-[20px] py-4 sm:py-5 px-2" style={{ background: 'color-mix(in srgb, var(--accent) 7%, transparent)' }}>
           <RadialProgress
             value={calories.value}
             goal={calories.goal}
@@ -55,7 +55,7 @@ const ProgramSummaryCard = ({
           <RingLabel icon="local_fire_department" color="var(--accent)">Calories</RingLabel>
         </div>
 
-        <div className="flex flex-col items-center gap-2.5">
+        <div className="flex flex-col items-center gap-2.5 rounded-[20px] py-4 sm:py-5 px-2" style={{ background: 'color-mix(in srgb, #60a5fa 7%, transparent)' }}>
           <RadialProgress
             value={steps.value}
             goal={steps.goal}
@@ -65,7 +65,7 @@ const ProgramSummaryCard = ({
           <RingLabel icon="footprint" color="#60a5fa">Steps</RingLabel>
         </div>
 
-        <div className="flex flex-col items-center gap-2.5">
+        <div className="flex flex-col items-center gap-2.5 rounded-[20px] py-4 sm:py-5 px-2" style={{ background: 'color-mix(in srgb, #f2c448 7%, transparent)' }}>
           <RadialProgress
             value={sessionLoadMins.value}
             goal={sessionLoadMins.goal}

@@ -200,8 +200,34 @@ router.post('/ai/clinical-analysis', async (req, res) => {
             throw new Error("Invalid or empty response from AI Fallback Engine");
         }
 
-        const cleaned  = raw.replace(/```json|```/gi, '').trim();
-        const aiResult = JSON.parse(cleaned);
+        const cleaned = raw.replace(/```json|```/gi, '').trim();
+
+        // ── FIX: callGeminiWithFallback() can legitimately return a plain
+        // English sentence (its own static fallback string) instead of
+        // throwing when every AI provider fails. That string is NOT valid
+        // JSON, so JSON.parse below would throw and the whole request would
+        // 500 even though nothing is technically "broken" — the AI is just
+        // temporarily unavailable. We catch that specific failure here and
+        // degrade gracefully instead of erroring out. Everything else in
+        // this route (DB upsert, response shape) is unchanged.
+        let aiResult;
+        try {
+            aiResult = JSON.parse(cleaned);
+        } catch (parseErr) {
+            console.error("AI returned non-JSON (likely all providers failed):", raw);
+            return res.status(200).json({
+                insights: [
+                    {
+                        id: `fallback-${Date.now()}`,
+                        message: `${firstName}, our AI analysis engine is temporarily unavailable. Your data is still being tracked — please check back shortly.`,
+                        category: 'Rest Advisory',
+                        trend: 'stable'
+                    }
+                ],
+                fromCache: false,
+                warning: 'AI provider chain failed — served fallback message.'
+            });
+        }
 
         // UPSERT — one row per user per day. Any new analysis today
         // overwrites today's row instead of adding another one.

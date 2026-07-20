@@ -150,7 +150,7 @@ export const SleepHoursGraph = ({ userId = null }) => {
   })();
 
   return (
-    <div className="bg-[var(--bg-tertiary)] border min-h-[410px] border-[var(--border-light)] rounded-[16px] p-6 pb-4 transition-all duration-300">
+    <div className="fx-card shadow-[var(--shadow-sm)] min-h-[410px] p-6 pb-4 transition-all duration-300">
 
       <div className="flex flex-wrap justify-between items-start gap-3 mb-5">
         <div>
