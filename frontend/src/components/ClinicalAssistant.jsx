@@ -8,6 +8,20 @@ const trendIcon = (trend) => {
   return                       { icon: 'trending_flat', color: '#facc15' };
 };
 
+// Used to keep the default "Recent Insights" view scoped to today only.
+// "Show All History" intentionally bypasses this and shows everything.
+const isToday = (timestamp) => {
+  if (!timestamp) return false;
+  const d = new Date(timestamp);
+  if (Number.isNaN(d.getTime())) return false;
+  const now = new Date();
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
+};
+
 const categoryColor = (category) => {
   switch (category) {
     case 'Recovery Alert':    return '#f87171';
@@ -54,7 +68,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
   const [historyLoad,  setHistoryLoad]  = useState(false);
   const [historyError, setHistoryError] = useState(false);
 
-  const goal = 3000;
+  const goal = 5000;
 
   useEffect(() => {
     if (isAnalyzing && showHistory) setShowHistory(false);
@@ -105,7 +119,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
 
   const activeInsights = showHistory
     ? history
-    : (insights.length > 0 ? insights : history.slice(0, 5));
+    : (insights.length > 0 ? insights : history.filter(item => isToday(item.timestamp)).slice(0, 5));
 
   return (
     <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[14px] p-[22px] flex flex-col overflow-hidden">
