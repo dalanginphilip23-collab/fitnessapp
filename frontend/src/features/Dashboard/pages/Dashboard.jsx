@@ -124,10 +124,10 @@ const Dashboard = () => {
                                      looked cramped on iPad-portrait/landscape
             - xl (laptops+ 1280px): 4 columns, 3/1 split
           */}
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-5 sm:gap-6 lg:gap-7 items-start">
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 items-start">
 
             {/* Left Column */}
-            <div className="xl:col-span-3 flex flex-col gap-5 sm:gap-6 lg:gap-7 min-w-0">
+            <div className="xl:col-span-3 flex flex-col gap-4 sm:gap-5 lg:gap-6 min-w-0">
 
               <ProgramSummaryCard
                 goalLabel={

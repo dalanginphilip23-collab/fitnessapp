@@ -113,9 +113,9 @@ function PageHeader({ timeframe, setTimeframe }) {
   return (
     <section className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 md:mb-10 lg:mb-12 gap-4 sm:gap-6">
       <div className="space-y-1 min-w-0">
-        <p className="text-(--accent) font-bold tracking-[0.25em] text-[10px] uppercase">Recovery Tracking</p>
+        <p className="text-(--accent) font-bold tracking-[0.25em] text-[10px] uppercase">Endurance Tracking</p>
         <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter font-['Manrope'] text-(--text-primary) leading-none">
-          Sleep &amp; Rest
+          Aerobic Engine
         </h2>
       </div>
       <TimeframeToggle timeframe={timeframe} setTimeframe={setTimeframe} />
@@ -264,11 +264,9 @@ function SleepSyncCard({ sleepHours, setSleepHours, sleepQuality, setSleepQualit
         </div>
 
         <h4 className="text-lg sm:text-xl font-black font-['Manrope'] mb-1 text-(--text-primary)">
-          Log Today's Sleep
+          Rest: <span className={sleepStatus.color}>{sleepHours}h</span>
         </h4>
-        <p className="text-white/30 text-[11px] leading-relaxed mb-5 sm:mb-8 font-medium">
-          Currently set to <span className={sleepStatus.color}>{sleepHours}h</span> · {sleepStatus.label}
-        </p>
+        <p className="text-white/30 text-[11px] leading-relaxed mb-5 sm:mb-8 font-medium">{sleepStatus.label}</p>
 
         <div className="space-y-4 sm:space-y-6">
           <SleepSlider label="Duration"  valueLabel={`${sleepHours} Hours`} labelColor="text-(--accent)"  min={0} max={12}   step={0.5} value={sleepHours}   onChange={(e) => setSleepHours(parseFloat(e.target.value))}  accent="accent-(--accent)"  />

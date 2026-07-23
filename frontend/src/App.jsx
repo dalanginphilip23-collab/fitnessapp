@@ -6,7 +6,6 @@ import { NotificationProvider } from "./context/NotificationSystem";
 import { ThemeProvider } from "./context/ThemeContext";
 import Landing from "./pages/Landing/Landing";
 import IOSInstallBanner from "./components/IOSInstallBanner";
-import SplashScreen from "./components/SplashScreen";
 
 const Dashboard = lazy(() => import("./features/Dashboard/pages/Dashboard"));
 const Plans = lazy(() => import("./features/Plan/pages/Plans"));
@@ -27,13 +26,11 @@ const ForgotPassword = lazy(() => import("./features/Auth/Forgot-password/pages/
 
 const RouteFallback = () => (
   <div
-    className="animate-fade-in"
     style={{
       minHeight: "100vh",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "var(--bg-primary)",
     }}
   >
     <div
@@ -41,8 +38,8 @@ const RouteFallback = () => (
         width: 28,
         height: 28,
         borderRadius: "50%",
-        border: "3px solid var(--accent-border)",
-        borderTopColor: "var(--accent)",
+        border: "3px solid rgba(143,191,99,0.25)",
+        borderTopColor: "#8FBF63",
         animation: "spin 0.7s linear infinite",
       }}
     />
@@ -68,7 +65,7 @@ export default function App() {
 function RoutesHandler() {
   const { user, loading } = useAuth();
 
-  if (loading) return <SplashScreen />;
+  if (loading) return null;
 
   return (
     <Suspense fallback={<RouteFallback />}>

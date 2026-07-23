@@ -4,7 +4,7 @@ import Icon from './Icon';
 import { API_BASE_URL } from '../config/port';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../context/NotificationSystem';
-import { getSettingsItems } from '../constant/nav';
+import { getSettingsItems } from '../constants/nav';
 import { createPortal } from 'react-dom';
 import ThemeToggle from './ThemeToggle';
 import FeedbackModal from './FeedbackModal';
@@ -161,13 +161,11 @@ const Topbar = ({ sidebarExpanded, userId }) => {
   const { addToast } = useNotification();
   const { logout, user } = useAuth();
 
-  const SETTINGS_ITEMS = getSettingsItems(navigate, (msg) => addToast(msg, 'info'));
+  const SETTINGS_ITEMS = getSettingsItems(navigate);
 
-  // Always derive the active nav item from the real current route.
-  // (Previously this was seeded once from localStorage and never
-  // re-synced, so the drawer could show the wrong item highlighted
-  // after navigating elsewhere, via back/forward, or on refresh.)
-  const activePath = location.pathname;
+  const [activePath, setActivePath] = useState(
+    localStorage.getItem('activeNavPath') || window.location.pathname
+  );
   const [userData, setUserData] = useState({
     name:       user?.name   || 'Guest',
     avatar_url: user?.avatar || '',
@@ -203,6 +201,8 @@ const Topbar = ({ sidebarExpanded, userId }) => {
   }, [user?.name, user?.avatar]);
 
   const handleNavClick = (path) => {
+    setActivePath(path);
+    localStorage.setItem('activeNavPath', path);
     setMobileMenuOpen(false);
     navigate(path);
   };
@@ -350,10 +350,10 @@ const Topbar = ({ sidebarExpanded, userId }) => {
 
   const avatarSrc = userData.avatar_url
     || user?.avatar
-    || `https://api.dicebear.com/7.x/initials/svg?seed=${userData.name}&backgroundColor=7dd625&textColor=161f00`;
+    || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.name}`;
 
   const handleAvatarError = (e) => {
-    e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${userData.name}&backgroundColor=7dd625&textColor=161f00`;
+    e.target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.name}`;
   };
 
   const handleAvatarClick = (e) => {
@@ -388,7 +388,6 @@ const Topbar = ({ sidebarExpanded, userId }) => {
         <div className="flex items-center gap-2 md:gap-9">
           <button
             className="md:hidden p-1 text-(--text-primary) bg-transparent border-none cursor-pointer"
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
             onClick={() => {
               setMobileMenuOpen(!mobileMenuOpen);
               // Close dropdowns when opening mobile menu
@@ -437,7 +436,6 @@ const Topbar = ({ sidebarExpanded, userId }) => {
           <div className="relative flex items-center justify-center" ref={notifRef}>
             <button
               className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl cursor-pointer group bg-transparent border-none transition-all duration-200 hover:bg-(--bg-hover)"
-              aria-label="Notifications"
               onClick={() => {
                 // Close mobile menu when opening notification
                 if (mobileMenuOpen) setMobileMenuOpen(false);
@@ -474,7 +472,6 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                 if (mobileMenuOpen) setMobileMenuOpen(false);
                 setSettingsOpen(prev => !prev);
               }}
-              aria-label="Settings"
               className={
                 'w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer border-none ' +
                 (settingsOpen ? 'bg-(--accent) text-[#131313]' : 'text-(--text-muted) hover:text-(--accent) hover:bg-(--bg-hover) bg-transparent')
@@ -519,10 +516,8 @@ const Topbar = ({ sidebarExpanded, userId }) => {
           </div>
 
           {/* Avatar */}
-          <button
-            type="button"
-            className="flex items-center gap-2 sm:gap-2.5 ml-1 pl-2.5 border-l border-(--border-light) border-t-0 border-b-0 border-r-0 bg-transparent cursor-pointer hover:opacity-75 transition-opacity relative z-999"
-            aria-label="Open profile menu"
+          <div
+            className="flex items-center gap-2 sm:gap-2.5 ml-1 pl-2.5 border-l border-(--border-light) cursor-pointer hover:opacity-75 transition-opacity relative z-999"
             onClick={handleAvatarClick}
           >
             <div className="hidden lg:flex flex-col items-end">
@@ -532,7 +527,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden border border-(--accent)/20 bg-(--bg-tertiary) shrink-0 ring-1 ring-white/5">
               <img src={avatarSrc} alt="User" className="w-full h-full object-cover" onError={handleAvatarError} />
             </div>
-          </button>
+          </div>
         </div>
       </header>
 

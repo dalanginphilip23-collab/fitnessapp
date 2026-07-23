@@ -1,9 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
 import L from 'leaflet';
-import { Topbar, AnalyticsMobileNav } from '../../../components';
-import SidebarAnalytics from '../../../components/sidebarAnalytics';
+import { Topbar } from '../../../components';
+import SidebarAnalytics from '../../../components/SidebarAnalytics';
 import { useAuth } from '../../../hooks/useAuth';
 import 'leaflet/dist/leaflet.css';
 import {
@@ -66,7 +65,6 @@ const formatTime = (seconds) => {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const ActivityMap = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const USER_ID  = user?.id ?? null;
 
@@ -391,7 +389,6 @@ const ActivityMap = () => {
 
       <Toast message={toast.message} type={toast.type} visible={toast.visible} />
       <RunAnalysisOverlay analysis={runAnalysis} onClose={() => setRunAnalysis(null)} />
-      <AnalyticsMobileNav navigate={navigate} />
     </div>
   );
 };

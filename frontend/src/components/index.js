@@ -1,8 +1,7 @@
 export { default as Icon } from './Icon';
-export { default as SplashScreen } from './SplashScreen';
 
 export { default as Sidebar } from './Sidebar';
-export { default as SidebarAnalytics } from './sidebarAnalytics'
+export { default as SidebarAnalytics } from './SidebarAnalytics'
 export { default as Topbar } from './Topbar';
 export { default as Hero } from './Hero';
 export { StatCard, CaloriesCard, LoadCard, ActivityCard } from './StatCards';

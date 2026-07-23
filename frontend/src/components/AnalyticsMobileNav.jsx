@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import { navList } from "../constant/nav";
+import { navList } from "../constants/nav";
 import Icon from "./Icon";
 
 export default function AnalyticsMobileNav({ navigate }) {
@@ -28,8 +28,6 @@ export default function AnalyticsMobileNav({ navigate }) {
             <button
               key={item.name}
               onClick={() => handleNav(item.path)}
-              aria-label={item.name}
-              aria-current={isActive ? 'page' : undefined}
               className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-[300ms] outline-none h-full flex-1 min-w-11 ${
                 isActive ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'
               }`}

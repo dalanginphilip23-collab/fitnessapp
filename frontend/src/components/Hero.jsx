@@ -19,12 +19,12 @@ const Hero = ({ name = 'Athlete', goal = 'Unspecified', avatar, activeProgramCou
   const goalLabel = GOAL_LABELS[goal] || goal;
 
   return (
-    <div className="fx-card-hero shadow-[var(--shadow-sm)] p-[24px] sm:p-[28px] mb-5 sm:mb-6 flex items-center justify-between gap-4">
+    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[16px] p-[22px] mb-6 flex items-center justify-between gap-4">
       <div className="min-w-0">
         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[var(--accent)] mb-1.5">
           {getGreeting()}
         </p>
-        <h1 className="font-['Manrope'] text-[24px] sm:text-[28px] font-bold text-[var(--text-primary)] leading-tight truncate">
+        <h1 className="font-['Manrope'] text-[22px] sm:text-[26px] font-bold text-[var(--text-primary)] leading-tight truncate">
           {name}
         </h1>
         <div className="flex items-center gap-1.5 mt-1.5">
@@ -53,10 +53,10 @@ const Hero = ({ name = 'Athlete', goal = 'Unspecified', avatar, activeProgramCou
           <img
             src={avatar}
             alt={name}
-            className="w-[52px] h-[52px] sm:w-16 sm:h-16 rounded-full object-cover border-2 border-[var(--accent-border)]"
+            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-[var(--accent-border)]"
           />
         ) : (
-          <div className="w-[52px] h-[52px] sm:w-16 sm:h-16 rounded-full bg-[var(--accent-bg)] border-2 border-[var(--accent-border)] flex items-center justify-center text-base font-black text-[var(--accent)]">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[var(--accent-bg)] border-2 border-[var(--accent-border)] flex items-center justify-center text-base font-black text-[var(--accent)]">
             {name?.charAt(0)?.toUpperCase() || 'A'}
           </div>
         )}

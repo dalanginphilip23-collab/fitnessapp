@@ -108,7 +108,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
     : (insights.length > 0 ? insights : history.slice(0, 5));
 
   return (
-    <div className="fx-card shadow-[var(--shadow-sm)] h-full min-h-[600px] lg:h-[calc(100vh-120px)] p-[22px] sm:p-[26px] flex flex-col overflow-hidden">
+    <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[14px] p-[22px] flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-5 flex-shrink-0">
         <div className="flex items-center gap-2.5">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import SidebarAnalytics from "../../../components/sidebarAnalytics";
+import SidebarAnalytics from "../../../components/SidebarAnalytics";
 import Icon from "../../../components/Icon";
 import { API_BASE_URL } from "../../../config/port";
 import { AnalyticsMobileNav } from "../../../components";

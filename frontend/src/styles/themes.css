@@ -1,0 +1,75 @@
+:root,
+.dark-theme {
+
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #111111;
+  --bg-card: #0d0d0d;
+  --bg-hover: rgba(255, 255, 255, 0.04);
+  --bg-active: rgba(143, 191, 99, 0.08);
+
+  --surface: #0a0a0a;
+  --surface-hover: #131313;
+  --surface-active: #161616;
+
+  --text-primary: #f2f2f0;
+  --text-secondary: #8a8a8a;
+  --text-muted: #4a4a4a;
+  --text-disabled: #2a2a2a;
+
+  --border-light: rgba(255, 255, 255, 0.07);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-heavy: rgba(255, 255, 255, 0.18);
+
+  /* ── NEW: fitness-app design tokens ─────────────────────────── */
+  /* Card surfaces get a faint upward gradient instead of a flat fill,
+     so cards read as "raised" rather than as flat clinical panels. */
+  --card-gradient: linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0) 100%);
+  --card-radius-lg: 28px;   /* hero / feature cards */
+  --card-radius-md: 20px;   /* standard cards */
+  --card-radius-sm: 14px;   /* pills, chips, inputs */
+
+  /* Secondary ring/metric colors — used consistently across every
+     ring, chart line, and badge so "steps" is always blue, etc. */
+  --metric-calories: #7dd625e1;
+  --metric-steps: #5ba8ff;
+  --metric-load: #ffb648;
+  --metric-water: #4fc3f7;
+  --metric-sleep: #b98af2;
+
+  --hero-glow: radial-gradient(circle at 30% 20%, rgba(125, 214, 37, 0.14) 0%, transparent 60%);
+}
+
+
+@import url('https://fonts.googleapis.com/css2?family=DSEG7+Classic:wght@400&family=JetBrains+Mono:wght@500;700&display=swap');
+
+.stat-digital {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+.stat-digital--dotted {
+  font-family: 'DSEG7 Classic', 'JetBrains Mono', monospace;
+  letter-spacing: 0.03em;
+}
+
+/* ── NEW: shared fitness-app surface classes ──────────────────────
+   Opt-in utility classes so components can pick these up without
+   every Tailwind class needing to change. Purely additive — nothing
+   here overrides existing styles unless a component adds the class. */
+.fx-card {
+  background: var(--bg-tertiary);
+  background-image: var(--card-gradient);
+  border: 1px solid var(--border-light);
+  border-radius: var(--card-radius-md);
+}
+
+.fx-card-hero {
+  background: var(--bg-tertiary);
+  background-image: var(--hero-glow), var(--card-gradient);
+  border: 1px solid var(--border-light);
+  border-radius: var(--card-radius-lg);
+}

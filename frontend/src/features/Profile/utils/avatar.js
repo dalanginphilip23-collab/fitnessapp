@@ -7,4 +7,4 @@ export const DEFAULT_AVATARS = [
 ];
 
 export const getAvatarUrl = (seed) =>
-  `https://api.dicebear.com/7.x/initials/svg?seed=${seed}&backgroundColor=7dd625&textColor=161f00`;
+  `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`;

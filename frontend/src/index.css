@@ -538,24 +538,3 @@ input::placeholder {
     display: none;
   }
 }
-
-/* ── Dashboard card system (layout only — reuses existing color vars) ── */
-:root {
-  --card-radius-lg: 28px;
-  --card-radius-md: 20px;
-  --card-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.025) 0%, rgba(255, 255, 255, 0) 100%);
-}
-
-.fx-card {
-  background: var(--bg-tertiary);
-  background-image: var(--card-gradient);
-  border: 1px solid var(--border-light);
-  border-radius: var(--card-radius-md);
-}
-
-.fx-card-hero {
-  background: var(--bg-tertiary);
-  background-image: var(--card-gradient);
-  border: 1px solid var(--border-light);
-  border-radius: var(--card-radius-lg);
-}

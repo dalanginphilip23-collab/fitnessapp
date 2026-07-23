@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Icon from './Icon';
-import { NAV_ITEMS } from '../constant/nav';
+import { NAV_ITEMS } from '../constants/nav';
 
 const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
   const navigate = useNavigate();
@@ -35,8 +35,6 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
             <button
               key={key}
               onClick={() => handleNavClick(item.path)}
-              aria-label={key}
-              aria-current={isActive ? 'page' : undefined}
               className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full flex-1 min-w-11 ${
                 isActive ? 'text-(--accent)' : 'text-(--text-muted)'
               }`}
@@ -66,7 +64,6 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
         {onFeedback && (
           <button
             onClick={onFeedback}
-            aria-label="Feedback"
             className="relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full flex-1 min-w-11 text-(--text-muted) hover:text-(--accent)"
           >
             <div className="relative flex items-center justify-center transition-transform duration-300 scale-100">
