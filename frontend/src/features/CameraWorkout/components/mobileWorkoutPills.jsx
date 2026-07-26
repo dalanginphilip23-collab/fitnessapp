@@ -16,9 +16,12 @@ export default function MobileWorkoutPills({ workoutType, onSelect }) {
       {/* ── Trigger bar ── */}
       <div className="sm:hidden bg-[var(--bg-secondary)] border-b border-[var(--border-light)] px-3 py-2.5 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Icon name={current?.icon ?? 'fitness_center'} className="text-[var(--accent)] text-base" />
+          <Icon
+            name={current?.icon ?? "fitness_center"}
+            className="text-[var(--accent)] text-base"
+          />
           <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-primary)]">
-            {current?.label ?? 'Select Exercise'}
+            {current?.label ?? "Select Exercise"}
           </span>
         </div>
         <button
@@ -30,25 +33,25 @@ export default function MobileWorkoutPills({ workoutType, onSelect }) {
         </button>
       </div>
 
-      {/* ── Modal backdrop ── */}
       {open && (
         <div
-          className="sm:hidden fixed inset-0 z-50 bg-[var(--bg-overlay)] backdrop-blur-sm flex items-end"
+          className="sm:hidden fixed inset-0 z-[100] bg-[var(--bg-overlay)] backdrop-blur-sm flex items-end"
           onClick={() => setOpen(false)}
         >
           {/* ── Bottom sheet ── */}
           <div
-            className="w-full max-h-[80dvh] bg-[var(--bg-secondary)] border-t border-[var(--border-medium)] rounded-t-3xl p-5 pb-10 flex flex-col"
-            onClick={e => e.stopPropagation()}
+            className="w-full max-h-[85dvh] bg-[var(--bg-secondary)] border-t border-[var(--border-medium)] rounded-t-3xl p-5 flex flex-col"
+            style={{
+              paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom, 0px))",
+            }}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Drag handle */}
             <div className="w-10 h-1 rounded-full bg-[var(--border-heavy)] mx-auto mb-5 shrink-0" />
-
             <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-4 shrink-0">
               Select Exercise
             </p>
-
-            <div className="grid grid-cols-3 gap-3 overflow-y-auto no-scrollbar min-h-0">
+            <div className="grid grid-cols-3 gap-3 overflow-y-auto overscroll-contain no-scrollbar min-h-0 pb-4">
               {WORKOUT_OPTIONS.map((opt) => {
                 const active = workoutType === opt.id;
                 return (
@@ -57,13 +60,13 @@ export default function MobileWorkoutPills({ workoutType, onSelect }) {
                     onClick={() => handleSelect(opt)}
                     className={`flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all touch-manipulation ${
                       active
-                        ? 'bg-[var(--accent)] border-[var(--accent)] text-[var(--text-inverse)]'
-                        : 'bg-[var(--bg-hover)] border-[var(--border-light)] text-[var(--text-secondary)] active:bg-[var(--surface-hover)]'
+                        ? "bg-[var(--accent)] border-[var(--accent)] text-[var(--text-inverse)]"
+                        : "bg-[var(--bg-hover)] border-[var(--border-light)] text-[var(--text-secondary)] active:bg-[var(--surface-hover)]"
                     }`}
                   >
                     <Icon
                       name={opt.icon}
-                      className={`text-2xl ${active ? 'text-[var(--text-inverse)]' : 'text-[var(--accent)]'}`}
+                      className={`text-2xl ${active ? "text-[var(--text-inverse)]" : "text-[var(--accent)]"}`}
                     />
                     <span className="text-[9px] font-black uppercase tracking-widest leading-tight text-center">
                       {opt.label}
