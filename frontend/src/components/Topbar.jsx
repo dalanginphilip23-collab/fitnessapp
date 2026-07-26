@@ -374,9 +374,14 @@ const Topbar = ({ sidebarExpanded, userId }) => {
       )}
 
       {/* ── Topbar ── */}
+      {/* z-[2001]: must always render above the mobile drawer backdrop/panel
+          (z-[1500]/z-[1501] below) so the header stays crisp and undimmed
+          while the drawer is open — previously both were in the same
+          z-1000-ish range as ActivityMap's floating badges/buttons, causing
+          those map elements to visually poke through the drawer overlay. */}
       <header
         className={
-          'fixed top-0 right-0 h-14 sm:h-15 z-1001 ' +
+          'fixed top-0 right-0 h-14 sm:h-15 z-[2001] ' +
           'bg-(--bg-secondary)/90 backdrop-blur-xl ' +
           'border-b border-(--border-light) ' +
           'flex items-center justify-between px-3 sm:px-4 md:px-6 ' +
@@ -534,18 +539,23 @@ const Topbar = ({ sidebarExpanded, userId }) => {
       {/* ── Mobile Navigation Drawer ── */}
       {mobileMenuOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop — z-[1500]: raised above ActivityMap's floating map
+              elements (GpsBadge, "Location denied" box, RunControls, all at
+              z-1000/z-[1000]) so they get dimmed underneath the scrim
+              instead of visually poking through it. Stays below the header
+              (z-[2001]) so the header remains undimmed while the drawer is
+              open. */}
           <div
-            className="fixed inset-0 z-999 bg-black/40 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-[1500] bg-black/40 backdrop-blur-sm md:hidden"
             onClick={() => {
               setMobileMenuOpen(false);
               setNotifOpen(false);
               setSettingsOpen(false);
             }}
           />
-          {/* Drawer panel */}
+          {/* Drawer panel — z-[1501]: one level above the backdrop, still below header */}
           <div 
-            className="fixed top-14 sm:top-15 left-0 w-60 sm:w-64 h-[calc(100vh-56px)] sm:h-[calc(100vh-60px)] bg-(--bg-secondary) border-r border-(--border-light) z-1000 md:hidden overflow-y-auto"
+            className="fixed top-14 sm:top-15 left-0 w-60 sm:w-64 h-[calc(100vh-56px)] sm:h-[calc(100vh-60px)] bg-(--bg-secondary) border-r border-(--border-light) z-[1501] md:hidden overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <nav className="flex flex-col p-3 sm:p-4 gap-1 sm:gap-1.5">
