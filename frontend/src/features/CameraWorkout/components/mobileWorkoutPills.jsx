@@ -38,17 +38,17 @@ export default function MobileWorkoutPills({ workoutType, onSelect }) {
         >
           {/* ── Bottom sheet ── */}
           <div
-            className="w-full bg-[var(--bg-secondary)] border-t border-[var(--border-medium)] rounded-t-3xl p-5 pb-10"
+            className="w-full max-h-[80dvh] bg-[var(--bg-secondary)] border-t border-[var(--border-medium)] rounded-t-3xl p-5 pb-10 flex flex-col"
             onClick={e => e.stopPropagation()}
           >
             {/* Drag handle */}
-            <div className="w-10 h-1 rounded-full bg-[var(--border-heavy)] mx-auto mb-5" />
+            <div className="w-10 h-1 rounded-full bg-[var(--border-heavy)] mx-auto mb-5 shrink-0" />
 
-            <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-4">
+            <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-4 shrink-0">
               Select Exercise
             </p>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-3 overflow-y-auto no-scrollbar">
               {WORKOUT_OPTIONS.map((opt) => {
                 const active = workoutType === opt.id;
                 return (
