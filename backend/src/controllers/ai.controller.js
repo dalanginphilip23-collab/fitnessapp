@@ -1,0 +1,350 @@
+const aiService = require('../services/ai.service');
+
+// POST /api/analyze-pose
+async function analyzePose(req, res) {
+  try {
+    const { image, metadata } = req.body;
+    const suggestion = await aiService.analyzePoseImage(image, metadata);
+    res.json({ suggestion });
+  } catch (error) {
+    console.error("Gemini Error:", error);
+    res.status(500).json({ error: "AI Pipeline Offline" });
+  }
+}
+
+// POST /api/ai-chat
+async function chat(req, res) {
+  const { message, userId } = req.body;
+  if (!message?.trim()) {
+    return res.status(400).json({ reply: "Message cannot be empty." });
+  }
+  try {
+    const reply = await aiService.getChatReply(message);
+    res.json({ reply });
+  } catch (err) {
+    console.error("[/api/ai-chat] Fatal:", err.message);
+    res.status(500).json({ reply: "All clinical modules are offline. Please check your internet or API quota." });
+  }
+}
+
+// POST /api/ai/clinical-analysis
+async function clinicalAnalysis(req, res) {
+  const { userId, stats } = req.body;
+
+  try {
+    const user = await aiService.getUserBasic(userId);
+    const firstName = user.name ? user.name.split(' ')[0] : 'Athlete';
+    const dbSleep = await aiService.getLatestSleepRow(userId);
+
+    const sleep = {
+      sleep_duration: (stats?.sleep_duration > 0) ? stats.sleep_duration : (dbSleep.sleep_duration || 0),
+      sleep_quality: (stats?.sleep_quality > 0) ? stats.sleep_quality : (dbSleep.sleep_quality || 0),
+      water_intake_ml: (stats?.water_intake_ml > 0) ? stats.water_intake_ml : (dbSleep.water_intake_ml || 0),
+    };
+
+    const activity = {
+      calories_burned: stats?.calories_burned ?? 0,
+      steps: stats?.steps ?? 0,
+      workout_duration_mins: stats?.workout_duration_mins ?? 0,
+    };
+
+    if (!stats || Object.keys(stats).length === 0) {
+      const activityRow = await aiService.getLatestActivityRow(userId);
+      if (activityRow) {
+        activity.calories_burned = activityRow.calories_burned;
+        activity.steps = activityRow.steps;
+        activity.workout_duration_mins = activityRow.workout_duration_mins;
+      }
+    }
+
+    // Guard: If sleep data is still all zeros after DB fallback, return early
+    if (sleep.sleep_duration === 0 && sleep.sleep_quality === 0 && sleep.water_intake_ml === 0) {
+      return res.status(200).json({
+        insights: [
+          {
+            id: `sleep-${Date.now()}`,
+            message: `${firstName}, we don't have enough sleep data to generate an accurate analysis yet. Please log your sleep and water intake to unlock personalized insights.`,
+            category: 'Rest Advisory',
+            trend: 'stable'
+          }
+        ],
+        fromCache: false,
+        warning: 'No valid sleep data found for this user.'
+      });
+    }
+
+    const today = new Date().toISOString().slice(0, 10); // e.g. "2026-07-19"
+    // Signature still tracks the exact stat combo — used only to decide
+    // whether to skip calling Gemini again (see cache lookup below).
+    // It is NOT the row-uniqueness key anymore; insight_date is.
+    const signature = `s${sleep.sleep_duration}-q${sleep.sleep_quality}-w${sleep.water_intake_ml}-c${activity.calories_burned}-st${activity.steps}-m${activity.workout_duration_mins}-u${userId}-d${today}`;
+
+    // Cache HIT only if today's row exists AND the stats haven't changed
+    // since it was generated. If the user logged something new today,
+    // the signature differs and we fall through to regenerate —
+    // but the row still gets UPDATED in place, never duplicated.
+    const cached = await aiService.getCachedInsight(userId, signature);
+
+    if (cached.length > 0) {
+      return res.json({
+        insights: [
+          { id: `sleep-${Date.now()}`, ...JSON.parse(cached[0].sleep_suggestion) },
+          { id: `activity-${Date.now()}`, ...JSON.parse(cached[0].activity_suggestion) }
+        ],
+        fromCache: true
+      });
+    }
+
+    // Contextual flags
+    const waterGlass = Math.round(sleep.water_intake_ml / 250);
+    const sleepStatus = sleep.sleep_duration >= 7 ? 'adequate' : sleep.sleep_duration >= 5 ? 'below optimal' : 'critically low';
+    const qualityStatus = sleep.sleep_quality >= 7 ? 'excellent' : sleep.sleep_quality >= 5 ? 'fair' : 'poor';
+    const stepGoalPercent = Math.round((activity.steps / 10000) * 100);
+    const calorieStatus = activity.calories_burned >= 500 ? 'strong' : activity.calories_burned >= 200 ? 'moderate' : 'low';
+    const workoutStatus = activity.workout_duration_mins >= 45 ? 'solid session' : activity.workout_duration_mins >= 20 ? 'light session' : 'minimal activity';
+    const hydrationStatus = sleep.water_intake_ml >= 2500 ? 'well-hydrated' : sleep.water_intake_ml >= 1500 ? 'approaching goal' : 'under-hydrated';
+    const todayDate = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+    const prompt = `
+                You are Vitalis AI, a professional health intelligence assistant embedded in a fitness dashboard.
+                Your job is to give ${firstName} a personalized, specific, and motivating clinical insight — not generic advice.
+
+                PATIENT PROFILE:
+                - Name: ${firstName}
+                - Fitness Goal: ${user.fitness_goal || 'general fitness'}
+                - Date: ${todayDate}
+
+                BIOMETRIC DATA:
+                Sleep & Recovery:
+                - Sleep Duration:  ${sleep.sleep_duration} hours (${sleepStatus})
+                - Sleep Quality:   ${sleep.sleep_quality}/10 (${qualityStatus})
+                - Water Intake:    ${sleep.water_intake_ml} ml (~${waterGlass} glasses, ${hydrationStatus})
+
+                Daily Activity:
+                - Calories Burned: ${activity.calories_burned} kcal (${calorieStatus} output)
+                - Steps:           ${activity.steps} steps (${stepGoalPercent}% of 10,000 goal)
+                - Workout:         ${activity.workout_duration_mins} mins (${workoutStatus})
+
+                INSTRUCTIONS:
+                1. Address ${firstName} by name naturally in each message — not robotically.
+                2. Reference their EXACT numbers in the advice (e.g., "your ${sleep.sleep_duration} hours", "those ${activity.steps} steps").
+                3. Each message must be 2–3 sentences. Be specific, clinical, and actionable — never vague.
+                4. Choose the trend ("up", "down", "stable") based on whether the metric is improving, declining, or neutral.
+                5. For sleep_suggestion: focus on sleep quality, recovery, and hydration relative to their numbers.
+                6. For activity_suggestion: focus on workout output, step count, and calorie burn relative to their goal.
+                7. Tone: professional health coach — warm but data-driven. Like a doctor who actually cares.
+                8. NEVER say "great job" or "keep it up" as opening words. Start with ${firstName}'s name or an observation.
+
+                RESPONSE FORMAT (strict JSON only, no markdown, no extra text):
+                {
+                "sleep_suggestion": {
+                    "message": "...",
+                    "category": "Rest Advisory",
+                    "trend": "up|down|stable"
+                },
+                "activity_suggestion": {
+                    "message": "...",
+                    "category": "Performance Tip",
+                    "trend": "up|down|stable"
+                }
+                }`.trim();
+
+    const raw = await aiService.callGemini(prompt);
+
+    if (!raw || typeof raw !== 'string') {
+      throw new Error("Invalid or empty response from AI Fallback Engine");
+    }
+
+    const cleaned = raw.replace(/```json|```/gi, '').trim();
+
+    // ── FIX: callGeminiWithFallback() can legitimately return a plain
+    // English sentence (its own static fallback string) instead of
+    // throwing when every AI provider fails. That string is NOT valid
+    // JSON, so JSON.parse below would throw and the whole request would
+    // 500 even though nothing is technically "broken" — the AI is just
+    // temporarily unavailable. We catch that specific failure here and
+    // degrade gracefully instead of erroring out. Everything else in
+    // this route (DB upsert, response shape) is unchanged.
+    let aiResult;
+    try {
+      aiResult = JSON.parse(cleaned);
+    } catch (parseErr) {
+      console.error("AI returned non-JSON (likely all providers failed):", raw);
+      return res.status(200).json({
+        insights: [
+          {
+            id: `fallback-${Date.now()}`,
+            message: `${firstName}, our AI analysis engine is temporarily unavailable. Your data is still being tracked — please check back shortly.`,
+            category: 'Rest Advisory',
+            trend: 'stable'
+          }
+        ],
+        fromCache: false,
+        warning: 'AI provider chain failed — served fallback message.'
+      });
+    }
+
+    // UPSERT — one row per user per day. Any new analysis today
+    // overwrites today's row instead of adding another one.
+    if (aiResult?.sleep_suggestion && aiResult?.activity_suggestion) {
+      await aiService.upsertInsight(userId, signature, aiResult.sleep_suggestion, aiResult.activity_suggestion);
+    }
+
+    res.json({
+      insights: [
+        { id: `sleep-${Date.now()}`, ...aiResult.sleep_suggestion },
+        { id: `activity-${Date.now()}`, ...aiResult.activity_suggestion }
+      ],
+      fromCache: false
+    });
+
+  } catch (err) {
+    console.error("AI Logic Error:", err);
+    res.status(500).json({ error: "AI calculation failed" });
+  }
+}
+
+// POST /api/ai/coach
+async function coach(req, res) {
+  const { landmarks, workoutType } = req.body;
+  try {
+    const tip = await aiService.getCoachTip(landmarks, workoutType);
+    res.json({ tip });
+  } catch (error) {
+    console.error("Coach Error:", error);
+    res.status(500).json({ tip: "Keep your form tight and stay focused." });
+  }
+}
+
+// GET /api/ai/history/:userId
+async function history(req, res) {
+  const { userId } = req.params;
+  try {
+    const rows = await aiService.getInsightHistory(userId);
+    const history = rows.map(row => ([
+      { ...JSON.parse(row.sleep_suggestion), id: `sleep-${row.created_at}`, timestamp: new Date(row.created_at).toLocaleString() },
+      { ...JSON.parse(row.activity_suggestion), id: `activity-${row.created_at}`, timestamp: new Date(row.created_at).toLocaleString() },
+    ])).flat();
+    res.json(history);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+// GET /api/logs/latest/:userId
+async function latestLogs(req, res) {
+  const { userId } = req.params;
+  try {
+    const latestLog = await aiService.getLatestDailyStats(userId);
+    const latestSleep = await aiService.getLatestSleepForLogs(userId);
+
+    if (!latestLog.length && !latestSleep.length) {
+      return res.status(404).json({ message: "No historical data found for this user." });
+    }
+
+    res.json({
+      stats: {
+        calories_burned: latestLog[0]?.calories_burned || 0,
+        steps: latestLog[0]?.steps || 0,
+        workout_duration_mins: latestLog[0]?.workout_duration_mins || 0,
+        water_intake_ml: latestSleep[0]?.water_intake_ml || 0,
+        sleep_duration: latestSleep[0]?.sleep_duration || 0,
+        sleep_quality: latestSleep[0]?.sleep_quality || 0,
+      },
+      last_updated: latestLog[0]?.stat_date || latestSleep[0]?.recorded_at
+    });
+  } catch (error) {
+    console.error("Error fetching latest logs:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+// POST /api/ai/run-analysis
+async function runAnalysis(req, res) {
+  const { userId, run } = req.body;
+
+  try {
+    const user = await aiService.getUserBasic(userId);
+    const firstName = user.name ? user.name.split(' ')[0] : 'Athlete';
+
+    const runHistory = await aiService.getRunHistory(userId);
+
+    const totalRuns = runHistory.length;
+    const avgDistance = totalRuns > 0 ? (runHistory.reduce((s, r) => s + parseFloat(r.distance || 0), 0) / totalRuns).toFixed(2) : 0;
+    const avgCalories = totalRuns > 0 ? Math.round(runHistory.reduce((s, r) => s + (r.calories || 0), 0) / totalRuns) : 0;
+    const isImproving = totalRuns >= 2 && parseFloat(runHistory[0]?.distance || 0) > parseFloat(runHistory[1]?.distance || 0);
+    const consistency = totalRuns >= 5 ? 'very consistent' : totalRuns >= 3 ? 'building consistency' : 'just getting started';
+
+    const prompt = `
+                You are Vitalis AI, a warm, friendly, and encouraging running coach embedded in a fitness app.
+                Your job is to give ${firstName} a personalized post-run analysis with a friendly tone — like a supportive coach who's genuinely proud of them.
+
+                RUNNER PROFILE:
+                - Name: ${firstName}
+                - Fitness Goal: ${user.fitness_goal || 'general fitness'}
+                - Consistency Level: ${consistency} (${totalRuns} runs logged)
+
+                THIS RUN:
+                - Distance:  ${run.distance} km
+                - Duration:  ${run.duration} (hh:mm:ss)
+                - Pace:      ${run.pace} /km
+                - Calories:  ${run.calories} kcal
+                - Splits:    ${run.splits?.length > 0 ? run.splits.map(s => `KM ${s.km}: ${s.pace}`).join(', ') : 'No splits recorded'}
+
+                HISTORICAL AVERAGES (last ${totalRuns} runs):
+                - Avg Distance: ${avgDistance} km
+                - Avg Calories: ${avgCalories} kcal
+                - Trend: ${isImproving ? 'distance is increasing 📈' : 'distance is steady or declining'}
+
+                INSTRUCTIONS:
+                1. Start with a warm, genuine reaction to this specific run — reference their exact numbers.
+                2. For summary: 2-3 sentences covering what they did well and one thing to watch.
+                3. For prediction: based on their history and consistency, predict what they could realistically achieve in 30 days if they keep it up. Be specific (e.g., "you could hit 5km runs" or "shave 30 seconds off your pace"). Make it exciting but realistic.
+                4. For tip: one specific, actionable tip for their next run based on their pace and splits.
+                5. Tone: warm, friendly, like a coach who genuinely cares — not robotic. Use their name naturally.
+                6. NEVER say "great job" or "keep it up" as opening words.
+
+                RESPONSE FORMAT (strict JSON only, no markdown, no extra text):
+                {
+                "summary": "...",
+                "prediction": "...",
+                "tip": "...",
+                "emoji_verdict": "🔥|💪|⚡|🏃|✨"
+                }`.trim();
+
+    const raw = await aiService.callGemini(prompt);
+
+    if (!raw || typeof raw !== 'string') {
+      throw new Error("Invalid response from AI");
+    }
+
+    const cleaned = raw.replace(/```json|```/gi, '').trim();
+    const aiResult = JSON.parse(cleaned);
+
+    try {
+      await aiService.insertRunNotification(userId, `${aiResult.emoji_verdict} Run Analysis: ${aiResult.summary}`);
+    } catch (notifErr) {
+      console.error('Notification insert failed:', notifErr.message);
+    }
+
+    res.json({
+      firstName,
+      summary: aiResult.summary,
+      prediction: aiResult.prediction,
+      tip: aiResult.tip,
+      emoji_verdict: aiResult.emoji_verdict,
+      stats: {
+        distance: run.distance,
+        duration: run.duration,
+        pace: run.pace,
+        calories: run.calories,
+      }
+    });
+
+  } catch (err) {
+    console.error('Run Analysis Error:', err);
+    res.status(500).json({ error: 'Run analysis failed' });
+  }
+}
+
+module.exports = { analyzePose, chat, clinicalAnalysis, coach, history, latestLogs, runAnalysis };

@@ -16,10 +16,6 @@ export const NAV_ITEMS = [
   { icon: 'chat',          label: 'Community',  path: '/dashboard/messenger' },
 ];
 
-// `notify` is an optional toast callback, e.g. (message) => addToast(message, 'info').
-// Preferences/Notifications don't have real pages yet, so instead of navigating to a
-// route that doesn't exist (which silently bounces the user to "/"), we surface a
-// "coming soon" toast. Once those pages ship, swap the action back to navigate(...).
 export const getSettingsItems = (navigate, notify) => [
   { icon: 'person',        label: 'Profile',        accent: true, action: () => navigate('/dashboard/profile') },
   { icon: 'tune',          label: 'Preferences',                  action: () => notify?.('Preferences are coming soon') },
