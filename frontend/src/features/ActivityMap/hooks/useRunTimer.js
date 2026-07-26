@@ -21,10 +21,13 @@ export const useRunTimer = (isRecording, locationStatus, setPath, path) => {
   });
   const [splits, setSplits] = useState([]);
 
-  const timerRef      = useRef(null);
-  const splitsRef     = useRef([]);
-  const lastSplitRef  = useRef(0);
-  const prevPathRef   = useRef(path);
+  const timerRef          = useRef(null);
+  const splitsRef         = useRef([]);
+  const lastSplitRef       = useRef(0);
+  const prevPathRef        = useRef(path);
+  // Tracks how many path points we've already counted toward distance,
+  // so a slow/stale GPS fix doesn't get re-added on every 1s tick.
+  const lastCountedLenRef  = useRef(path.length);
 
   // Keep prevPathRef in sync with latest path
   useEffect(() => {
@@ -33,6 +36,9 @@ export const useRunTimer = (isRecording, locationStatus, setPath, path) => {
 
   useEffect(() => {
     if (isRecording) {
+      // Reset the "already counted" baseline whenever a run (re)starts
+      lastCountedLenRef.current = prevPathRef.current.length;
+
       timerRef.current = setInterval(() => {
         setMetrics((prev) => {
           const t = prev.time + 1;
@@ -40,8 +46,15 @@ export const useRunTimer = (isRecording, locationStatus, setPath, path) => {
           // ── Real GPS distance ──────────────────────────────────────────────
           let d = prev.distance;
           const currentPath = prevPathRef.current;
+
+          // Only count a delta if a NEW GPS point has actually arrived since
+          // the last tick — prevents re-adding the same segment repeatedly
+          // when watchPosition fires less often than this 1s interval.
+          const hasNewPoint = currentPath.length > lastCountedLenRef.current;
+
           if (
             locationStatus === 'granted' &&
+            hasNewPoint &&
             currentPath.length >= 2
           ) {
             const last  = currentPath[currentPath.length - 1];
@@ -51,6 +64,7 @@ export const useRunTimer = (isRecording, locationStatus, setPath, path) => {
             if (deltaM > 1 && deltaM < 50) {
               d = prev.distance + deltaM / 1000; // convert to km
             }
+            lastCountedLenRef.current = currentPath.length;
           } else if (locationStatus !== 'granted') {
             // Mock movement when GPS unavailable
             d = prev.distance + 0.002;
@@ -101,8 +115,9 @@ export const useRunTimer = (isRecording, locationStatus, setPath, path) => {
   const resetMetrics = () => {
     setMetrics({ time: 0, distance: 0, pace: "0'00\"", calories: 0 });
     setSplits([]);
-    splitsRef.current    = [];
-    lastSplitRef.current = 0;
+    splitsRef.current       = [];
+    lastSplitRef.current    = 0;
+    lastCountedLenRef.current = 0;
   };
 
   return {

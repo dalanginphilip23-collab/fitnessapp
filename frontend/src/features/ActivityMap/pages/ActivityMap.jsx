@@ -4,6 +4,7 @@ import L from 'leaflet';
 import { Topbar } from '../../../components';
 import SidebarAnalytics from '../../../components/SidebarAnalytics';
 import { useAuth } from '../../../hooks/useAuth';
+import { API_BASE_URL } from '../../../config/port';
 import 'leaflet/dist/leaflet.css';
 import {
   RecenterMap, FitRoute, GpsBadge, HistoryTab, RouteReplay,
@@ -53,6 +54,11 @@ const createUserIcon = () =>
       <style>@keyframes ping{0%{transform:scale(1);opacity:1}75%{transform:scale(2);opacity:0}100%{transform:scale(2.5);opacity:0}}</style>
     `,
   });
+
+// Built once at module load instead of on every render — this icon's
+// appearance never changes, so there's no reason to rebuild the divIcon
+// (including its inner HTML/CSS string) every time metrics/path update.
+const USER_ICON = createUserIcon();
 
 const formatTime = (seconds) => {
   const s  = parseInt(seconds) || 0;
@@ -141,15 +147,15 @@ const ActivityMap = () => {
 
     for (const item of queue) {
       try {
-        const res = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL ?? ''}/api/activity/save`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify(item.payload),
-          },
-        );
+        // Uses the same shared API_BASE_URL as the rest of the app
+        // (previously read a nonexistent VITE_API_BASE_URL env var here,
+        // which silently fell back to '' and hit the wrong URL).
+        const res = await fetch(`${API_BASE_URL}/api/activity/save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(item.payload),
+        });
         // Only treat a successful HTTP response as flushed
         if (!res.ok) remaining.push(item);
       } catch {
@@ -315,7 +321,7 @@ const ActivityMap = () => {
                       pathOptions={{ color: 'var(--accent)', weight: 5, opacity: 0.85 }}
                     />
                   )}
-                  {userLocation && <Marker position={userLocation} icon={createUserIcon()} />}
+                  {userLocation && <Marker position={userLocation} icon={USER_ICON} />}
                   <RecenterMap
                     coords={path}
                     isRecording={rc_isRecording}
