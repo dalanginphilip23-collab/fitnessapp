@@ -1,8 +1,4 @@
 const jwt = require('jsonwebtoken');
-
-// NOTE: This was previously duplicated verbatim in route/session.js and
-// route/workoutLogs.js (both defined an identical local requireAuth()).
-// Extracted here as a single shared middleware — behavior is unchanged.
 const COOKIE_NAME = 'vitalis_session';
 
 function requireAuth(req, res, next) {
