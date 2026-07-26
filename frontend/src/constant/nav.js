@@ -18,7 +18,7 @@ export const NAV_ITEMS = [
 
 export const getSettingsItems = (navigate, notify) => [
   { icon: 'person',        label: 'Profile',        accent: true, action: () => navigate('/dashboard/profile') },
-  { icon: 'tune',          label: 'Preferences',                  action: () => notify?.('Preferences are coming soon') },
-  { icon: 'notifications', label: 'Notifications',               action: () => notify?.('Notification settings are coming soon') },
+  { icon: 'tune',          label: 'Preferences',                  action: () => notify?.('Preferences are coming soon', 'info') },
+  { icon: 'notifications', label: 'Notifications',               action: () => notify?.('Notification settings are coming soon', 'info') },
   { icon: 'help_outline',  label: 'Help & Support',              action: () => window.open('https://support.vitalis.app', '_blank') },
 ];

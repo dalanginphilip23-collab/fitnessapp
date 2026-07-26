@@ -161,7 +161,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
   const { addToast } = useNotification();
   const { logout, user } = useAuth();
 
-  const SETTINGS_ITEMS = getSettingsItems(navigate);
+ const SETTINGS_ITEMS = getSettingsItems(navigate, addToast);
 
   const [activePath, setActivePath] = useState(
     localStorage.getItem('activeNavPath') || window.location.pathname
