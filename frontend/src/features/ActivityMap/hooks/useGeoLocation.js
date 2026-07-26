@@ -1,20 +1,20 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 
-const FALLBACK_COORDS = [14.6760, 121.0437];
+const FALLBACK_COORDS = [14.676, 121.0437];
 
 export const useGeolocation = (isRecording) => {
-  const [userLocation, setUserLocation]     = useState(null);
-  const [startCoords, setStartCoords]       = useState(FALLBACK_COORDS);
-  const [locationStatus, setLocationStatus] = useState('pending');
-  const [mapCenter, setMapCenter]           = useState(FALLBACK_COORDS);
-  const [path, setPath]                     = useState([FALLBACK_COORDS]);
+  const [userLocation, setUserLocation] = useState(null);
+  const [startCoords, setStartCoords] = useState(FALLBACK_COORDS);
+  const [locationStatus, setLocationStatus] = useState("pending");
+  const [mapCenter, setMapCenter] = useState(FALLBACK_COORDS);
+  const [path, setPath] = useState([FALLBACK_COORDS]);
 
   const watchIdRef = useRef(null);
 
   // Get initial position on mount
   useEffect(() => {
     if (!navigator.geolocation) {
-      setLocationStatus('denied');
+      setLocationStatus("denied");
       return;
     }
 
@@ -25,10 +25,10 @@ export const useGeolocation = (isRecording) => {
         setStartCoords(c);
         setMapCenter(c);
         setPath([c]);
-        setLocationStatus('granted');
+        setLocationStatus("granted");
       },
-      () => setLocationStatus('denied'),
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      () => setLocationStatus("denied"),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
     );
   }, []);
 
@@ -38,11 +38,15 @@ export const useGeolocation = (isRecording) => {
       watchIdRef.current = navigator.geolocation.watchPosition(
         (pos) => {
           const c = [pos.coords.latitude, pos.coords.longitude];
-          setPath(prev => [...prev, c]);
+          setPath((prev) => [...prev, c]);
           setUserLocation(c);
+          setLocationStatus("granted");
         },
-        null,
-        { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
+        (err) => {
+          console.warn("GPS watch error:", err);
+          setLocationStatus("denied");
+        },
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 },
       );
     } else {
       if (watchIdRef.current !== null) {
