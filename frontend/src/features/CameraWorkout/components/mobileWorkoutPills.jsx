@@ -48,7 +48,7 @@ export default function MobileWorkoutPills({ workoutType, onSelect }) {
               Select Exercise
             </p>
 
-            <div className="grid grid-cols-3 gap-3 overflow-y-auto no-scrollbar">
+            <div className="grid grid-cols-3 gap-3 overflow-y-auto no-scrollbar min-h-0">
               {WORKOUT_OPTIONS.map((opt) => {
                 const active = workoutType === opt.id;
                 return (
