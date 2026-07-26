@@ -1,4 +1,4 @@
-import { handleLogout } from './../utils/logout';
+import { handleLogout } from '../utils/logout';
 
 export const navList = [
   { name: "Dashboard",   icon: "speed",          path: "/dashboard" },
