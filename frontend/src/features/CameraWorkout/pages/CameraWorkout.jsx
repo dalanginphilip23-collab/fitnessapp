@@ -9,7 +9,6 @@ import { usePoseEngine }        from '../hooks/usePoseEngine';
 import { useWorkoutSession }    from '../hooks/useWorkoutSession';
 import { API_BASE_URL }         from '../../../config/port';
 import { useNavigate, useLocation } from 'react-router-dom';
-
 import {
   WebcamFeed, SessionHeader, BiometricBar, BiometricsCard, CameraOffPlaceholder,
   CameraToggleButton, CoachFeedbackOverlay, DesktopWorkoutSelector, MobileWorkoutPills,
@@ -17,14 +16,13 @@ import {
   SessionLog, SessionLogRow, StartStopButton, VoiceToggleButton,
 } from '../components';
 
-// ── Minimum reps required to count a session as complete ─────────────────────
+// Minimum reps required to count a session as complete
 const MIN_REPS_DEFAULT = 5;
 
-// ── Activity types that should NOT launch the camera (use manual complete) ───
+//Activity types that should NOT launch the camera (use manual complete)
 const REST_ACTIVITY_TYPES = new Set(['Recovery', 'Mobility', 'Flexibility']);
 
-// ── Early-exit confirmation dialog ───────────────────────────────────────────
-// Receives plain `reps` value (not a ref) so it never reads .current in JSX.
+// Early-exit confirmation dialog 
 function EarlyExitDialog({ reps, minReps, elapsedMins, requiredMins, onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 z-200 flex items-center justify-center"
@@ -70,9 +68,8 @@ function EarlyExitDialog({ reps, minReps, elapsedMins, requiredMins, onConfirm, 
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
+
 // Main component
-// ══════════════════════════════════════════════════════════════════════════════
 const CameraWorkout = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -100,24 +97,18 @@ const CameraWorkout = () => {
   const [logs,            setLogs]            = useState([]);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [biometrics,      setBiometrics]      = useState({ alignment: 0, velocity: 0, symmetry: 0 });
-
-  // Session timer
   const [elapsedSecs, setElapsedSecs] = useState(0);
   const sessionStartRef               = useRef(null);
   const timerRef                      = useRef(null);
-
-  // FIX: snapshot of repCount at the moment the early-exit dialog is opened,
-  // so JSX receives a plain number instead of reading repCountRef.current during render.
   const [earlyExitReps,    setEarlyExitReps]    = useState(0);
   const [showEarlyExit,    setShowEarlyExit]    = useState(false);
-
   const webcamRef = useRef(null);
-
+  const canvasRef = useRef(null); // NEW — skeleton overlay canvas, drawn by usePoseEngine
   const { repCount, repCountRef, countRep, resetReps }           = useRepCounter({ workoutType, voiceEnabled });
   const { aiFeedback, isAnalyzing, setAiFeedback, maybeAnalyze } = useAICoach({ workoutType, voiceEnabled });
   const { startSession, endSession }                             = useWorkoutSession();
 
-  // ── Timer: tick every second while recording ───────────────────
+  // Timer: tick every second while recording 
   useEffect(() => {
     if (isRecording) {
       // Preserve elapsed time across pause/resume cycles
@@ -252,6 +243,7 @@ const CameraWorkout = () => {
     isRecording,
     cameraOn,
     webcamRef,
+    canvasRef, // NEW — passed through so usePoseEngine can draw the skeleton
     workoutType,
     onPoseResult: (landmarks, type, noDetectCount) => {
       if (!landmarks) {
@@ -388,6 +380,7 @@ const CameraWorkout = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
             <WebcamFeed
               webcamRef={webcamRef}
+              canvasRef={canvasRef}
               cameraOn={cameraOn}
               isRecording={isRecording}
               poseReady={poseReady}

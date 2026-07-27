@@ -26,6 +26,7 @@ function useIsMobile() {
 
 export default function WebcamFeed({
   webcamRef,
+  canvasRef,
   cameraOn,
   isRecording,
   poseReady,
@@ -131,6 +132,14 @@ export default function WebcamFeed({
           screenshotFormat="image/jpeg"
           videoConstraints={videoConstraints}
           className="absolute inset-0 w-full h-full object-cover grayscale-[0.2]"
+        />
+      )}
+
+
+      {cameraOn && (
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none z-15"
         />
       )}
 
