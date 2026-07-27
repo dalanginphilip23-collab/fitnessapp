@@ -1,20 +1,24 @@
-import { BMI_SCALE_LEGEND } from '../constants/bmiConstants';
+import { BMI_SCALE_LEGEND, ACTIVITY_LEVELS } from "../constants/bmiConstants";
 
 const inputCls =
-  'w-full bg-(--input-bg) border border-(--border-medium) rounded-2xl p-4 text-sm outline-none ' +
-  'focus:border-(--accent) transition-all text-(--text-primary) placeholder:text-(--text-secondary)';
+  "w-full bg-(--input-bg) border border-(--border-medium) rounded-2xl p-4 text-sm outline-none " +
+  "focus:border-(--accent) transition-all text-(--text-primary) placeholder:text-(--text-secondary)";
 
-const optionStyle = { backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)' };
-
-/**
- * Metrics input form + BMI scale reference card.
- * Extracted verbatim (same markup/behavior) from BMI.jsx.
- */
+const optionStyle = {
+  backgroundColor: "var(--bg-secondary)",
+  color: "var(--text-primary)",
+};
 export default function BMIForm({
-  weight, setWeight,
-  height, setHeight,
-  age, setAge,
-  gender, setGender,
+  weight,
+  setWeight,
+  height,
+  setHeight,
+  age,
+  setAge,
+  gender,
+  setGender,
+  activityLevel,
+  setActivityLevel,
   error,
   isAnalyzing,
   onCalculate,
@@ -56,7 +60,10 @@ export default function BMIForm({
 
           <div>
             <label className="text-[9px] uppercase tracking-widest text-(--text-primary) font-bold mb-2 block">
-              Age (Optional)
+              Age{" "}
+              <span className="text-(--text-disabled) normal-case font-medium">
+                (needed for calorie estimate)
+              </span>
             </label>
             <input
               type="number"
@@ -76,9 +83,36 @@ export default function BMIForm({
               onChange={(e) => setGender(e.target.value)}
               className="w-full bg-(--input-bg) border border-(--border-medium) rounded-2xl p-4 text-sm outline-none focus:border-(--accent) text-(--text-primary) appearance-none cursor-pointer transition-all"
             >
-              <option value="male" style={optionStyle}>Male</option>
-              <option value="female" style={optionStyle}>Female</option>
-              <option value="other" style={optionStyle}>Other / Prefer not to say</option>
+              <option value="male" style={optionStyle}>
+                Male
+              </option>
+              <option value="female" style={optionStyle}>
+                Female
+              </option>
+              <option value="other" style={optionStyle}>
+                Other / Prefer not to say
+              </option>
+            </select>
+          </div>
+
+          {/* NEW — drives the TDEE (calorie) calculation */}
+          <div>
+            <label className="text-[9px] uppercase tracking-widest text-(--text-primary) font-bold mb-2 block">
+              Activity Level{" "}
+              <span className="text-(--text-disabled) normal-case font-medium">
+                (needed for calorie estimate)
+              </span>
+            </label>
+            <select
+              value={activityLevel}
+              onChange={(e) => setActivityLevel(e.target.value)}
+              className="w-full bg-(--input-bg) border border-(--border-medium) rounded-2xl p-4 text-sm outline-none focus:border-(--accent) text-(--text-primary) appearance-none cursor-pointer transition-all"
+            >
+              {ACTIVITY_LEVELS.map((lvl) => (
+                <option key={lvl.id} value={lvl.id} style={optionStyle}>
+                  {lvl.label} — {lvl.desc}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -91,7 +125,7 @@ export default function BMIForm({
             disabled={isAnalyzing}
             className="w-full py-4 bg-(--accent) text-(--text-inverse) font-black uppercase text-[11px] tracking-widest rounded-2xl hover:brightness-110 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {isAnalyzing ? 'Analyzing...' : 'Process Biometrics'}
+            {isAnalyzing ? "Analyzing..." : "Process Biometrics"}
           </button>
         </div>
       </div>
@@ -105,10 +139,17 @@ export default function BMIForm({
           {BMI_SCALE_LEGEND.map((item) => (
             <div key={item.label} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: item.color }} />
-                <span className="text-xs text-(--text-muted)">{item.label}</span>
+                <div
+                  className="w-2.5 h-2.5 rounded-full"
+                  style={{ background: item.color }}
+                />
+                <span className="text-xs text-(--text-muted)">
+                  {item.label}
+                </span>
               </div>
-              <span className="text-xs text-(--text-disabled) font-mono">{item.range}</span>
+              <span className="text-xs text-(--text-disabled) font-mono">
+                {item.range}
+              </span>
             </div>
           ))}
         </div>

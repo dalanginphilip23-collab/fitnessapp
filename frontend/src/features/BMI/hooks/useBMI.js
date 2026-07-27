@@ -1,47 +1,65 @@
-import { useState } from 'react';
-import { classifyBMI } from '../constants/bmiConstants';
-import { saveBmiMeasurement } from '../services/bmiService';
+import { useState } from "react";
+import { classifyBMI } from "../constants/bmiConstants";
+import { saveBmiMeasurement } from "../services/bmiService";
 
 const FALLBACK_AI_SUGGESTION =
-  'Focus on high-density nutrition and maintaining a consistent activity log to optimize your body composition.';
+  "Focus on high-density nutrition and maintaining a consistent activity log to optimize your body composition.";
 
-/**
- * Encapsulates all BMI page state and the calculate/save flow.
- * Extracted verbatim (same behavior) from the original BMI.jsx page component.
- */
 export function useBMI(userId) {
-  const [weight, setWeight] = useState('');
-  const [height, setHeight] = useState('');
-  const [age, setAge] = useState('');
-  const [gender, setGender] = useState('other');
+  const [weight, setWeight] = useState("");
+  const [height, setHeight] = useState("");
+  const [age, setAge] = useState("");
+  const [gender, setGender] = useState("other");
+  const [activityLevel, setActivityLevel] = useState("light"); // NEW
   const [bmi, setBmi] = useState(null);
-  const [category, setCategory] = useState('');
-  const [aiSuggestion, setAiSuggestion] = useState('');
+  const [category, setCategory] = useState("");
+  const [aiSuggestion, setAiSuggestion] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showAIModal, setShowAIModal] = useState(false);
+
+  // NEW — null until the backend returns a TDEE result (requires age)
+  const [tdeeData, setTdeeData] = useState(null);
 
   const calculateBMI = async () => {
     if (!weight || !height) {
-      setError('Please enter both weight and height.');
+      setError("Please enter both weight and height.");
       return;
     }
-    setError('');
+    setError("");
     setIsAnalyzing(true);
-    setAiSuggestion('');
+    setAiSuggestion("");
     setShowAIModal(true);
 
     const heightM = parseFloat(height) / 100;
-    const bmiValue = parseFloat((parseFloat(weight) / (heightM * heightM)).toFixed(1));
+    const bmiValue = parseFloat(
+      (parseFloat(weight) / (heightM * heightM)).toFixed(1),
+    );
     const cat = classifyBMI(bmiValue);
     setBmi(bmiValue);
     setCategory(cat);
 
     try {
-      const data = await saveBmiMeasurement(userId, { weight, height, age, gender });
+      const data = await saveBmiMeasurement(userId, {
+        weight,
+        height,
+        age,
+        gender,
+        activityLevel,
+      });
       if (data.aiSuggestion) setAiSuggestion(data.aiSuggestion);
+      if (data.tdee) {
+        setTdeeData({
+          bmr: data.bmr,
+          tdee: data.tdee,
+          tdeeWeekly: data.tdeeWeekly,
+          goals: data.goals,
+        });
+      } else {
+        setTdeeData(null);
+      }
     } catch (err) {
-      console.error('[BMI] Error:', err.message);
+      console.error("[BMI] Error:", err.message);
       setAiSuggestion(FALLBACK_AI_SUGGESTION);
     } finally {
       setIsAnalyzing(false);
@@ -49,16 +67,24 @@ export function useBMI(userId) {
   };
 
   return {
-    weight, setWeight,
-    height, setHeight,
-    age, setAge,
-    gender, setGender,
+    weight,
+    setWeight,
+    height,
+    setHeight,
+    age,
+    setAge,
+    gender,
+    setGender,
+    activityLevel,
+    setActivityLevel,
     bmi,
     category,
     aiSuggestion,
     isAnalyzing,
     error,
-    showAIModal, setShowAIModal,
+    showAIModal,
+    setShowAIModal,
+    tdeeData,
     calculateBMI,
   };
 }
