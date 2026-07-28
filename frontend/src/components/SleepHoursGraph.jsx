@@ -19,7 +19,7 @@ const DATA_SOURCES = [
     key:     'analysis',
     label:   'Sleep Analysis',
     icon:    'insights',
-    color:   '#a855f7',
+    color:   '#a78bfa',
     metrics: [
       { key: 'sleep_hours',    label: 'Total Hours', unit: 'h',  max: 12,  yTicks: [12, 6, 0]   },
       { key: 'recovery_score', label: 'Recovery',    unit: '%',  max: 100, yTicks: [100, 50, 0] },
@@ -31,12 +31,12 @@ const DATA_SOURCES = [
 const getStatus = (sourceKey, metricKey, avg) => {
   if (metricKey === 'duration' || metricKey === 'sleep_hours') {
     if (avg >= 7) return { label: 'Well Rested', color: 'var(--accent)' };
-    if (avg >= 5) return { label: 'Light Sleep', color: '#f59e0b' };
-    return               { label: 'Rest Needed', color: '#ef4444' };
+    if (avg >= 5) return { label: 'Light Sleep', color: '#f2c448' };
+    return               { label: 'Rest Needed', color: '#f26048' };
   }
   if (avg >= 80) return { label: 'Excellent',  color: 'var(--accent)' };
-  if (avg >= 60) return { label: 'Moderate',   color: '#f59e0b' };
-  return               { label: 'Needs Work',  color: '#ef4444' };
+  if (avg >= 60) return { label: 'Moderate',   color: '#f2c448' };
+  return               { label: 'Needs Work',  color: '#f26048' };
 };
 
 const EmptyState = ({ color }) => (
@@ -47,7 +47,7 @@ const EmptyState = ({ color }) => (
     >
       bedtime
     </span>
-    <p className="text-[11px] font-bold text-(--text-muted) tracking-wider uppercase">No data for this range</p>
+    <p className="text-[11px] font-bold text-[var(--text-muted)] tracking-wider uppercase">No data for this range</p>
   </div>
 );
 
@@ -76,15 +76,26 @@ export const SleepHoursGraph = ({ userId = null }) => {
   };
 
   const fetchData = useCallback(async () => {
-    if (!userId) { setGraphData([]); return; }
+    if (!userId) {
+      setGraphData([]);
+      return;
+    }
+
     setLoading(true);
     setError(null);
+
     try {
-      const endpoint = activeSource === 'analysis'
-        ? `${API_BASE_URL}/api/sleep/${userId}/analysis?range=${activeTab}&metric=${activeMetric}`
-        : `${API_BASE_URL}/api/sleep/${userId}?range=${activeTab}&metric=${activeMetric}`;
+      const endpoint =
+        activeSource === 'analysis'
+          ? `${API_BASE_URL}/api/sleep/${userId}/analysis?range=${activeTab}&metric=${activeMetric}`
+          : `${API_BASE_URL}/api/sleep/${userId}?range=${activeTab}&metric=${activeMetric}`;
+
       const res = await fetch(endpoint);
-      if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+
+      if (!res.ok) {
+        throw new Error(`Server responded with ${res.status}`);
+      }
+
       const json = await res.json();
       setGraphData(Array.isArray(json) ? json : []);
     } catch (err) {
@@ -96,10 +107,13 @@ export const SleepHoursGraph = ({ userId = null }) => {
     }
   }, [userId, activeSource, activeTab, activeMetric]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const points = graphData;
-  const pathData = (() => {
+
+  const getPath = () => {
     if (points.length === 0) return '';
     const W = 1000, H = 200;
     const step = points.length > 1 ? W / (points.length - 1) : W / 2;
@@ -108,46 +122,72 @@ export const SleepHoursGraph = ({ userId = null }) => {
       const y = H - (Math.min(Number(pt.value), metaObj.max) / metaObj.max) * H;
       return path + `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)} `;
     }, '');
-  })();
+  };
+
+  const pathData = getPath();
 
   const avg = points.length
     ? points.reduce((s, p) => s + Number(p.value), 0) / points.length
     : 0;
-  const avgDisplay = metaObj.unit === 'h' ? avg.toFixed(1) : Math.round(avg).toLocaleString();
-  const status = getStatus(activeSource, activeMetric, avg);
+
+  const avgDisplay = metaObj.unit === 'h'
+    ? avg.toFixed(1)
+    : Math.round(avg).toLocaleString();
+
+  const status     = getStatus(activeSource, activeMetric, avg);
   const rangeLabel = activeTab === 'D' ? '24 Hours' : activeTab === 'W' ? '7 Days' : '30 Days';
 
   const xLabelIndices = (() => {
     if (points.length === 0) return [];
     if (points.length <= 5)  return points.map((_, i) => i);
-    return [0, Math.round(points.length * 0.25), Math.round(points.length * 0.5), Math.round(points.length * 0.75), points.length - 1];
+    return [
+      0,
+      Math.round(points.length * 0.25),
+      Math.round(points.length * 0.5),
+      Math.round(points.length * 0.75),
+      points.length - 1,
+    ];
   })();
 
   return (
-    <div className="bg-(--bg-tertiary) border min-h-[420px] border-(--border-light) rounded-[20px] p-6 pb-4 transition-all duration-300">
+    <div className="bg-[var(--bg-tertiary)] border min-h-[410px] border-[var(--border-light)] rounded-[16px] p-6 pb-4 transition-all duration-300">
 
       <div className="flex flex-wrap justify-between items-start gap-3 mb-5">
         <div>
           <div className="flex items-center gap-2 mb-0.5">
-            <h4 className="font-['Manrope'] text-[15px] font-extrabold text-(--text-primary) tracking-tight">
+            <h4 className="font-['Manrope'] text-[15px] font-extrabold text-[var(--text-primary)] tracking-tight">
               {sourceDef.label}
             </h4>
             {!loading && !error && points.length > 0 && (
-              <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest" style={{ color: accentColor }}>
-                <span className="w-1.5 h-1.5 rounded-full animate-ping inline-block" style={{ background: accentColor }} />
+              <span
+                className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest"
+                style={{ color: accentColor }}
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full animate-ping inline-block"
+                  style={{ background: accentColor }}
+                />
                 Live
               </span>
             )}
-            {loading && <span className="text-[9px] font-black text-(--text-muted) uppercase tracking-widest">Loading...</span>}
-            {error && !loading && <span className="text-[9px] font-black text-(--error) uppercase tracking-widest">Error</span>}
+            {loading && (
+              <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest">
+                Loading…
+              </span>
+            )}
+            {error && !loading && (
+              <span className="text-[9px] font-black text-[#f26048] uppercase tracking-widest">
+                Error
+              </span>
+            )}
           </div>
-          <p className="text-[11px] text-(--text-muted)">
+          <p className="text-[11px] text-[var(--text-muted)]">
             {metaObj.label}{metaObj.unit ? ` (${metaObj.unit})` : ''} · Last {rangeLabel}
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex bg-(--bg-hover) border border-(--border-light) rounded-xl p-1 gap-1">
+          <div className="flex bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-xl p-1 gap-1">
             {DATA_SOURCES.map(src => {
               const active = src.key === activeSource;
               return (
@@ -155,11 +195,16 @@ export const SleepHoursGraph = ({ userId = null }) => {
                   key={src.key}
                   onClick={() => handleSourceSwitch(src.key)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-200 cursor-pointer border-none ${
-                    active ? 'text-black shadow-md' : 'bg-transparent text-(--text-muted) hover:text-(--text-secondary)'
+                    active ? 'text-black shadow-md' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
                   }`}
                   style={active ? { background: src.color, boxShadow: `0 2px 12px ${src.color}40` } : {}}
                 >
-                  <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>{src.icon}</span>
+                  <span
+                    className="material-symbols-outlined text-[14px]"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    {src.icon}
+                  </span>
                   <span className="hidden sm:inline">{src.label}</span>
                 </button>
               );
@@ -167,20 +212,29 @@ export const SleepHoursGraph = ({ userId = null }) => {
           </div>
 
           {points.length > 0 && (
-            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap" style={{ color: status.color, background: `${status.color}18` }}>
+            <span
+              className="text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap"
+              style={{ color: status.color, background: `${status.color}18` }}
+            >
               {status.label}
             </span>
           )}
 
-          <div className="flex bg-(--bg-hover) border border-(--border-light) rounded-lg p-0.5">
+          <div className="flex bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-lg p-0.5">
             {TABS.map(t => (
               <button
                 key={t}
                 onClick={() => setActiveTab(t)}
                 className={`px-3 py-1.5 text-[10px] font-bold rounded-md border-none cursor-pointer transition-all ${
-                  activeTab === t ? 'text-black shadow-lg' : 'bg-transparent text-(--text-muted) hover:text-(--text-secondary)'
+                  activeTab === t
+                    ? 'text-black shadow-lg'
+                    : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
                 }`}
-                style={activeTab === t ? { background: accentColor, boxShadow: `0 2px 8px ${accentColor}30` } : {}}
+                style={
+                  activeTab === t
+                    ? { background: accentColor, boxShadow: `0 2px 8px ${accentColor}30` }
+                    : {}
+                }
               >
                 {t}
               </button>
@@ -197,17 +251,21 @@ export const SleepHoursGraph = ({ userId = null }) => {
             className={`px-3 py-1 text-[10px] font-bold rounded-full border transition-all cursor-pointer ${
               activeMetric === m.key
                 ? 'text-black border-transparent'
-                : 'border-(--border-light) text-(--text-muted) bg-transparent hover:text-(--text-secondary)'
+                : 'border-[var(--border-light)] text-[var(--text-muted)] bg-transparent hover:text-[var(--text-secondary)]'
             }`}
-            style={activeMetric === m.key ? { background: accentColor, borderColor: accentColor, boxShadow: `0 2px 10px ${accentColor}40` } : {}}
+            style={
+              activeMetric === m.key
+                ? { background: accentColor, borderColor: accentColor, boxShadow: `0 2px 10px ${accentColor}40` }
+                : {}
+            }
           >
             {m.label}
           </button>
         ))}
 
         {points.length > 0 && (
-          <div className="ml-auto flex items-center gap-1.5 px-3 py-1 rounded-full bg-(--bg-hover) border border-(--border-light)">
-            <span className="text-[9px] uppercase tracking-widest text-(--text-muted) font-bold">Avg</span>
+          <div className="ml-auto flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--bg-hover)] border border-[var(--border-light)]">
+            <span className="text-[9px] uppercase tracking-widest text-[var(--text-muted)] font-bold">Avg</span>
             <span className="text-[11px] font-extrabold" style={{ color: accentColor }}>
               {avgDisplay}{metaObj.unit}
             </span>
@@ -215,7 +273,11 @@ export const SleepHoursGraph = ({ userId = null }) => {
         )}
       </div>
 
-      <div className={`relative h-36 transition-all duration-300 ${loading || animating ? 'opacity-30 scale-[0.99]' : 'opacity-100 scale-100'}`}>
+      <div
+        className={`relative h-36 transition-all duration-300 ${
+          loading || animating ? 'opacity-30 scale-[0.99]' : 'opacity-100 scale-100'
+        }`}
+      >
         {points.length === 0 && !loading ? (
           <EmptyState color={accentColor} />
         ) : (
@@ -227,24 +289,54 @@ export const SleepHoursGraph = ({ userId = null }) => {
                   <stop offset="100%" stopColor={accentColor} stopOpacity="0" />
                 </linearGradient>
               </defs>
-              {pathData && <path d={`${pathData} V200 H0 Z`} fill={`url(#${gradId})`} className="transition-all duration-700" />}
-              <path d={pathData} fill="none" stroke={accentColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="transition-all duration-700" />
-              {points.length <= 10 && points.map((pt, i) => {
-                const W = 1000;
-                const step = points.length > 1 ? W / (points.length - 1) : W / 2;
-                const x = points.length === 1 ? W / 2 : i * step;
-                const y = 200 - (Math.min(Number(pt.value), metaObj.max) / metaObj.max) * 200;
-                return <circle key={i} cx={x} cy={y} r="5" fill={accentColor} fillOpacity="0.9" stroke="var(--bg-tertiary)" strokeWidth="2" />;
-              })}
+
+              {pathData && (
+                <path
+                  d={`${pathData} V200 H0 Z`}
+                  fill={`url(#${gradId})`}
+                  className="transition-all duration-700"
+                />
+              )}
+
+              <path
+                d={pathData}
+                fill="none"
+                stroke={accentColor}
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transition-all duration-700"
+              />
+              {points.length <= 10 &&
+                points.map((pt, i) => {
+                  const W = 1000;
+                  const step = points.length > 1 ? W / (points.length - 1) : W / 2;
+                  const x = points.length === 1 ? W / 2 : i * step;
+                  const y = 200 - (Math.min(Number(pt.value), metaObj.max) / metaObj.max) * 200;
+                  return (
+                    <circle
+                      key={i}
+                      cx={x}
+                      cy={y}
+                      r="5"
+                      fill={accentColor}
+                      fillOpacity="0.9"
+                      stroke="var(--bg-tertiary)"
+                      strokeWidth="2"
+                    />
+                  );
+                })}
             </svg>
 
             <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
-              {[0, 1, 2].map(i => <div key={i} className="border-t border-(--border-light)" />)}
+              {[0, 1, 2].map(i => <div key={i} className="border-t border-[var(--border-light)]" />)}
             </div>
 
             <div className="absolute right-0 inset-y-0 flex flex-col justify-between pointer-events-none pr-1">
               {metaObj.yTicks.map(v => (
-                <span key={v} className="text-[8px] font-bold text-(--text-disabled)">{v.toLocaleString()}{metaObj.unit}</span>
+                <span key={v} className="text-[8px] font-bold text-[var(--text-disabled)]">
+                  {v.toLocaleString()}{metaObj.unit}
+                </span>
               ))}
             </div>
           </>
@@ -254,7 +346,7 @@ export const SleepHoursGraph = ({ userId = null }) => {
       {points.length > 0 && (
         <div className="flex justify-between mt-2">
           {xLabelIndices.map(i => (
-            <span key={i} className="text-[9px] font-bold text-(--text-disabled) uppercase tracking-[0.15em]">
+            <span key={i} className="text-[9px] font-bold text-[var(--text-disabled)] uppercase tracking-[0.15em]">
               {points[i]?.label || '--'}
             </span>
           ))}

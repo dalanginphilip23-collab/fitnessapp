@@ -11,8 +11,11 @@ export default function AnalyticsMobileNav({ navigate }) {
   };
 
   return (
+    // Docked bottom bar: flush to left/right/bottom edges, no floating
+    // inset, safe-area padding folded into the bar's own height so the
+    // background still reaches the very bottom of the screen on iOS.
     <nav
-      className="md:hidden fixed left-0 right-0 bottom-0 z-[70] border-t border-(--border-light) flex items-center"
+      className="md:hidden fixed left-0 right-0 bottom-0 z-[70] border-t border-[var(--border-light)] flex items-center"
       style={{
         backgroundColor: 'var(--bg-secondary)',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
@@ -25,11 +28,11 @@ export default function AnalyticsMobileNav({ navigate }) {
             <button
               key={item.name}
               onClick={() => handleNav(item.path)}
-              className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-200 outline-none h-full flex-1 min-w-11 ${
-                isActive ? 'text-(--accent)' : 'text-(--text-muted)'
+              className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-[300ms] outline-none h-full flex-1 min-w-11 ${
+                isActive ? 'text-[var(--accent)]' : 'text-[var(--text-muted)]'
               }`}
             >
-              <div className={`relative flex items-center justify-center transition-transform duration-200 ${
+              <div className={`relative flex items-center justify-center transition-transform duration-300 ${
                 isActive ? 'scale-110' : 'scale-100'
               }`}>
                 {isActive && (
@@ -44,9 +47,6 @@ export default function AnalyticsMobileNav({ navigate }) {
                   fill={isActive ? 1 : 0}
                 />
               </div>
-              {isActive && (
-                <span className="absolute -top-0.5 w-4 h-0.5 bg-(--accent) rounded-full" />
-              )}
             </button>
           );
         })}

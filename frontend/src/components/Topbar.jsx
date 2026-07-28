@@ -15,6 +15,9 @@ const NAV_LINKS = [
   { name: 'Virtual Clinic', path: '/dashboard/virtual-clinic', icon: 'medical_services' },
 ];
 
+/* ══════════════════════════════════════════════════════════════
+   NOTIFICATION OVERLAY
+══════════════════════════════════════════════════════════════ */
 function NotificationOverlay({ notifications, onMarkRead, onMarkAllRead, onClose }) {
   const [filter, setFilter] = useState('recent');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -39,18 +42,16 @@ function NotificationOverlay({ notifications, onMarkRead, onMarkAllRead, onClose
     <>
       <div className="flex items-center justify-between px-4 py-3 border-b border-(--border-light) bg-(--surface)">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-(--accent-bg) flex items-center justify-center">
-            <Icon name="notifications" className="text-(--accent) text-[14px]" />
-          </div>
-          <span className="text-[13px] font-bold text-(--text-primary)">Notifications</span>
+          <Icon name="notifications" className="text-(--accent) text-[16px]" />
+          <span className="text-[13px] font-bold text-(--text-primary) tracking-tight">Notifications</span>
           {unreadCount > 0 && (
-            <span className="text-[10px] font-black bg-(--accent) text-[#0a0a0a] px-1.5 py-0.5 rounded-full leading-none">
+            <span className="text-[10px] font-black bg-(--accent) text-[#131313] px-1.5 py-0.5 rounded-full leading-none">
               {unreadCount}
             </span>
           )}
         </div>
         <div className="flex items-center gap-1.5">
-          <button onClick={onMarkAllRead} className="text-[11px] text-(--accent)/80 hover:text-(--accent) transition-colors bg-transparent border-none cursor-pointer font-medium px-1">
+          <button onClick={onMarkAllRead} className="text-[11px] text-(--accent)/80 hover:text-(--accent) transition-colors bg-transparent border-none cursor-pointer font-medium whitespace-nowrap px-1">
             Mark all read
           </button>
           <button onClick={onClose} className="w-6 h-6 flex items-center justify-center rounded-lg bg-(--bg-hover) hover:bg-(--bg-active) transition-colors border-none cursor-pointer">
@@ -73,7 +74,7 @@ function NotificationOverlay({ notifications, onMarkRead, onMarkAllRead, onClose
       </div>
 
       <div
-        className="overflow-y-auto"
+        className="overflow-y-auto [&::-webkit-scrollbar]:hidden"
         style={{
           maxHeight: isMobile ? '55dvh' : '340px',
           scrollbarWidth: 'none',
@@ -82,8 +83,8 @@ function NotificationOverlay({ notifications, onMarkRead, onMarkAllRead, onClose
       >
         {displayed.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 gap-3">
-            <span className="material-symbols-outlined text-[40px] text-(--text-disabled)">notifications_none</span>
-            <p className="text-[12px] text-(--text-muted) font-medium">No notifications yet</p>
+            <span className="material-icons text-[40px] text-(--text-disabled)">notifications_none</span>
+            <p className="text-[12px] text-(--text-muted) m-0 font-medium">No notifications yet</p>
           </div>
         ) : (
           displayed.map((notif) => (
@@ -91,23 +92,24 @@ function NotificationOverlay({ notifications, onMarkRead, onMarkAllRead, onClose
               key={notif.id}
               onClick={(e) => { e.stopPropagation(); if (!notif.is_read) onMarkRead(notif.id); }}
               className={`flex items-start gap-3 px-4 py-3.5 border-b border-(--border-light) transition-all duration-150
-                ${notif.is_read ? 'bg-(--bg-card) cursor-default' : 'bg-(--accent-bg) hover:bg-(--accent-bg) cursor-pointer'}`}
+                ${notif.is_read ? 'bg-(--bg-card) cursor-default' : 'bg-(--accent-bg) active:bg-(--accent-border) hover:bg-(--accent-bg) cursor-pointer'}`}
             >
               <div className="mt-1.5 shrink-0">
                 {notif.is_read
-                  ? <div className="w-1.5 h-1.5 rounded-full bg-(--text-muted)" />
+                  ? <div className="w-1.5 h-1.5 rounded-full bg-(--text-muted) border border-(--border-medium)" />
                   : <div className="w-2 h-2 rounded-full bg-(--accent) shadow-[0_0_6px_var(--accent)] animate-pulse" />
                 }
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-[12px] leading-relaxed m-0 font-medium ${notif.is_read ? 'text-(--text-muted)' : 'text-(--text-secondary)'}`}>{notif.message}</p>
+                <p className={`text-[12px] leading-relaxed m-0 wrap-break-word font-medium ${notif.is_read ? 'text-(--text-muted)' : 'text-(--text-secondary)'}`}>{notif.message}</p>
                 <p className={`text-[10px] mt-1 m-0 font-medium ${notif.is_read ? 'text-(--text-disabled)' : 'text-(--text-muted)'}`}>
                   {new Date(notif.created_at).toLocaleString()}
                 </p>
               </div>
-              {!notif.is_read && (
-                <span className="shrink-0 mt-1 text-[9px] font-black bg-(--accent)/20 text-(--accent) px-1.5 py-0.5 rounded-full whitespace-nowrap border border-(--accent-border)">NEW</span>
-              )}
+              {!notif.is_read
+                ? <span className="shrink-0 mt-1 text-[9px] font-black bg-(--accent)/20 text-(--accent) px-1.5 py-0.5 rounded-full whitespace-nowrap border border-(--accent-border)">NEW</span>
+                : <span className="shrink-0 mt-1 text-[9px] font-medium text-(--text-disabled) whitespace-nowrap">read</span>
+              }
             </div>
           ))
         )}
@@ -117,7 +119,7 @@ function NotificationOverlay({ notifications, onMarkRead, onMarkAllRead, onClose
         <span className="text-[11px] font-medium">
           {unreadCount > 0
             ? <span className="text-(--accent)/70">{unreadCount} unread</span>
-            : <span className="text-(--text-disabled)">All caught up</span>
+            : <span className="text-(--text-disabled)">All caught up ✓</span>
           }
         </span>
         <span className="text-[10px] text-(--text-disabled)">{notifications.length} total</span>
@@ -128,12 +130,12 @@ function NotificationOverlay({ notifications, onMarkRead, onMarkAllRead, onClose
   if (isMobile) {
     return createPortal(
       <div
-        className="fixed inset-0 z-[9999] flex items-center justify-center px-4"
-        style={{ background: 'rgba(0,0,0,0.75)' }}
+        id="notif-portal"
+        style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}
         onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
       >
         <div
-          className="w-full max-w-[400px] max-h-[80dvh] bg-(--bg-secondary) rounded-2xl border border-(--border-light) overflow-hidden shadow-(--shadow-lg)"
+          style={{ width: '100%', maxWidth: '400px', maxHeight: '80dvh', background: 'var(--bg-secondary)', borderRadius: '16px', border: '1px solid var(--border-light)', overflow: 'hidden', boxShadow: 'var(--shadow-lg)' }}
           onMouseDown={(e) => e.stopPropagation()}
         >
           {innerContent}
@@ -144,19 +146,22 @@ function NotificationOverlay({ notifications, onMarkRead, onMarkAllRead, onClose
   }
 
   return (
-    <div className="absolute right-0 top-[calc(100%+10px)] w-95 bg-(--bg-secondary) border border-(--border-medium) rounded-2xl shadow-(--shadow-lg) overflow-hidden z-9999 animate-scale-in">
+    <div className="absolute right-0 top-[calc(100%+10px)] w-95 bg-(--bg-secondary) border border-(--border-medium) rounded-2xl shadow-(--shadow-lg) overflow-hidden z-9999">
       {innerContent}
     </div>
   );
 }
 
+/* ══════════════════════════════════════════════════════════════
+   TOPBAR
+══════════════════════════════════════════════════════════════ */
 const Topbar = ({ sidebarExpanded, userId }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { addToast } = useNotification();
   const { logout, user } = useAuth();
 
-  const SETTINGS_ITEMS = getSettingsItems(navigate, addToast);
+ const SETTINGS_ITEMS = getSettingsItems(navigate, addToast);
 
   const [activePath, setActivePath] = useState(
     localStorage.getItem('activeNavPath') || window.location.pathname
@@ -165,6 +170,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
     name:       user?.name   || 'Guest',
     avatar_url: user?.avatar || '',
   });
+
   const [notifCount,     setNotifCount]     = useState(0);
   const [notifications,  setNotifications]  = useState([]);
   const [notifOpen,      setNotifOpen]      = useState(false);
@@ -177,8 +183,13 @@ const Topbar = ({ sidebarExpanded, userId }) => {
   const settingsRef = useRef(null);
   const notifRef    = useRef(null);
 
-  useEffect(() => { setMobileMenuOpen(false); }, [location.pathname]);
-  useEffect(() => { setMobileMenuOpen(false); }, []);
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, []);
 
   useEffect(() => {
     if (user?.name || user?.avatar) {
@@ -241,6 +252,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
 
   useEffect(() => {
     if (!userId) return;
+
     let es = null;
     let retryTimer = null;
     let retryDelay = 3000;
@@ -248,19 +260,27 @@ const Topbar = ({ sidebarExpanded, userId }) => {
 
     const connect = () => {
       if (destroyed) return;
+
       es = new EventSource(
         `${API_BASE_URL}/api/notifications/stream/${userId}`,
         { withCredentials: true }
       );
-      es.onopen = () => { retryDelay = 3000; };
+
+      es.onopen = () => {
+        retryDelay = 3000;
+      };
+
       es.onmessage = (e) => {
         try {
           const notif = JSON.parse(e.data);
           setNotifCount(prev => prev + 1);
           addToast(notif.message, notif.type);
           fetchNotifications();
-        } catch {}
+        } catch {
+          // Ignore malformed SSE payloads
+        }
       };
+
       es.onerror = () => {
         es.close();
         if (!destroyed) {
@@ -271,12 +291,18 @@ const Topbar = ({ sidebarExpanded, userId }) => {
         }
       };
     };
+
     connect();
+
     return () => {
       destroyed = true;
       clearTimeout(retryTimer);
       es?.close();
     };
+    // addToast and fetchNotifications are intentionally omitted: this effect
+    // manages the SSE connection lifecycle and should only reconnect when the
+    // userId changes, not on every re-render of these callbacks.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   useEffect(() => {
@@ -330,7 +356,9 @@ const Topbar = ({ sidebarExpanded, userId }) => {
     e.target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.name}`;
   };
 
-  const handleAvatarClick = () => {
+  const handleAvatarClick = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
     setSettingsOpen(false);
     setNotifOpen(false);
     setMobileMenuOpen(false);
@@ -340,49 +368,66 @@ const Topbar = ({ sidebarExpanded, userId }) => {
 
   return (
     <>
-      {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
+      {/* Feedback Modal */}
+      {showFeedback && (
+        <FeedbackModal onClose={() => setShowFeedback(false)} />
+      )}
 
+      {/* ── Topbar ── */}
+      {/* z-[2001]: must always render above the mobile drawer backdrop/panel
+          (z-[1500]/z-[1501] below) so the header stays crisp and undimmed
+          while the drawer is open — previously both were in the same
+          z-1000-ish range as ActivityMap's floating badges/buttons, causing
+          those map elements to visually poke through the drawer overlay. */}
       <header
         className={
           'fixed top-0 right-0 h-14 sm:h-15 z-[2001] ' +
           'bg-(--bg-secondary)/90 backdrop-blur-xl ' +
           'border-b border-(--border-light) ' +
           'flex items-center justify-between px-3 sm:px-4 md:px-6 ' +
-          'transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ' +
+          'transition-all duration-400 ease-in-out ' +
           'left-0 ' + (sidebarExpanded ? 'md:left-64' : 'md:left-18')
         }
       >
+        {/* ── Left ── */}
         <div className="flex items-center gap-2 md:gap-9">
           <button
-            onClick={() => window.__openMobileSidebar?.()}
             className="md:hidden p-1 text-(--text-primary) bg-transparent border-none cursor-pointer"
+            onClick={() => {
+              setMobileMenuOpen(!mobileMenuOpen);
+              // Close dropdowns when opening mobile menu
+              setNotifOpen(false);
+              setSettingsOpen(false);
+            }}
           >
-            <Icon name="menu" className="text-[24px]" />
+            <Icon name={mobileMenuOpen ? 'close' : 'menu'} className="text-[22px] sm:text-[24px]" />
           </button>
 
-          <nav className="hidden md:flex gap-6 items-center ml-2">
+          <span className="font-[Manrope] text-[15px] sm:text-[18px] md:pl-6 font-extrabold tracking-tight text-(--text-primary)">
+            Vitalis
+          </span>
+
+          {/* ── Desktop Nav ── */}
+          <nav className="hidden md:flex gap-7 items-center">
             {NAV_LINKS.map((item, i) => (
               <button
                 key={i}
                 onClick={() => handleNavClick(item.path)}
                 className={
-                  'font-[Manrope] text-[13px] transition-all duration-200 border-none bg-transparent cursor-pointer relative py-1 ' +
-                  (activePath === item.path
-                    ? 'text-(--accent) font-bold'
-                    : 'text-(--text-muted) hover:text-(--text-secondary)')
+                  'font-[Manrope] text-[13px] transition-colors duration-200 border-none bg-transparent cursor-pointer ' +
+                  (activePath === item.path ? 'text-(--accent) font-bold' : 'text-(--text-muted) hover:text-(--accent)')
                 }
               >
                 {item.name}
-                {activePath === item.path && (
-                  <span className="absolute -bottom-px left-0 right-0 h-0.5 bg-(--accent) rounded-full" />
-                )}
               </button>
             ))}
           </nav>
         </div>
 
+        {/* ── Right ── */}
         <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
-          <div className="relative hidden sm:flex items-center gap-2 bg-(--bg-hover) border border-(--border-light) rounded-full px-3 sm:px-3.5 py-1.5 focus-within:border-(--accent)/40 focus-within:bg-(--accent-bg) transition-all">
+          {/* Search */}
+          <div className="relative hidden sm:flex items-center gap-2 bg-(--bg-hover) border border-(--border-light) rounded-full px-3 sm:px-3.5 py-1.5 focus-within:border-(--accent)/40 focus-within:bg-(--bg-active) transition-all">
             <Icon name="search" className="text-(--text-disabled) text-[14px] sm:text-[15px]" />
             <input
               placeholder="Search stats..."
@@ -392,10 +437,12 @@ const Topbar = ({ sidebarExpanded, userId }) => {
             />
           </div>
 
+          {/* Notification Bell */}
           <div className="relative flex items-center justify-center" ref={notifRef}>
             <button
               className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl cursor-pointer group bg-transparent border-none transition-all duration-200 hover:bg-(--bg-hover)"
               onClick={() => {
+                // Close mobile menu when opening notification
                 if (mobileMenuOpen) setMobileMenuOpen(false);
                 setNotifOpen(prev => !prev);
                 fetchNotifications();
@@ -416,29 +463,32 @@ const Topbar = ({ sidebarExpanded, userId }) => {
             )}
           </div>
 
+          {/* Theme Toggle */}
           <div className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10">
             <ThemeToggle />
           </div>
 
+          {/* Settings */}
           <div className="relative hidden md:flex items-center justify-center" ref={settingsRef}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
+                // Close mobile menu when opening settings
                 if (mobileMenuOpen) setMobileMenuOpen(false);
                 setSettingsOpen(prev => !prev);
               }}
               className={
                 'w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer border-none ' +
-                (settingsOpen ? 'bg-(--accent) text-[#0a0a0a]' : 'text-(--text-muted) hover:text-(--accent) hover:bg-(--bg-hover) bg-transparent')
+                (settingsOpen ? 'bg-(--accent) text-[#131313]' : 'text-(--text-muted) hover:text-(--accent) hover:bg-(--bg-hover) bg-transparent')
               }
             >
               <Icon name="settings" className="text-[20px] sm:text-[21px]" />
             </button>
 
             {settingsOpen && !mobileMenuOpen && (
-              <div className="absolute right-0 top-[calc(100%+10px)] w-52.5 sm:w-55 bg-(--bg-secondary) border border-(--border-medium) rounded-2xl shadow-(--shadow-lg) overflow-hidden z-9999 animate-scale-in">
+              <div className="absolute right-0 top-[calc(100%+10px)] w-52.5 sm:w-55 bg-(--bg-secondary) border border-(--border-medium) rounded-2xl shadow-(--shadow-lg) overflow-hidden z-9999">
                 <div className="flex items-center gap-3 px-4 py-3.5 border-b border-(--border-light) bg-(--surface)">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border-2 border-(--accent)/20 bg-(--bg-tertiary) shrink-0">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-(--accent)/20 bg-(--bg-tertiary) shrink-0">
                     <img src={avatarSrc} alt="User" className="w-full h-full object-cover" onError={handleAvatarError} />
                   </div>
                   <div>
@@ -451,7 +501,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                     <button
                       key={label}
                       onClick={() => { action(); setSettingsOpen(false); }}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] sm:text-[12px] transition-colors duration-150 text-left cursor-pointer border-none bg-transparent ${accent ? 'text-(--accent) hover:bg-(--accent-bg)' : 'text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-hover)'}`}
+                      className={'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] sm:text-[12px] transition-colors duration-150 text-left cursor-pointer border-none bg-transparent ' + (accent ? 'text-(--accent) hover:bg-(--accent-bg)' : 'text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-hover)')}
                     >
                       <Icon name={icon} className="text-[14px] sm:text-[15px]" />
                       {label}
@@ -460,7 +510,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                   <div className="border-t border-(--border-light) mt-1 pt-1">
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] sm:text-[12px] text-[#ef4444] hover:bg-[#ef4444]/10 transition-colors duration-150 cursor-pointer border-none bg-transparent"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] sm:text-[12px] text-[#e05050] hover:bg-[#e05050]/10 transition-colors duration-150 cursor-pointer border-none bg-transparent"
                     >
                       <Icon name="logout" className="text-[14px] sm:text-[15px]" /> Log out
                     </button>
@@ -470,36 +520,47 @@ const Topbar = ({ sidebarExpanded, userId }) => {
             )}
           </div>
 
+          {/* Avatar */}
           <div
-            className="flex items-center gap-2 sm:gap-2.5 ml-1 pl-2.5 border-l border-(--border-light) cursor-pointer hover:opacity-80 transition-opacity relative z-999"
+            className="flex items-center gap-2 sm:gap-2.5 ml-1 pl-2.5 border-l border-(--border-light) cursor-pointer hover:opacity-75 transition-opacity relative z-999"
             onClick={handleAvatarClick}
           >
             <div className="hidden lg:flex flex-col items-end">
               <span className="text-[11px] sm:text-[12px] font-semibold text-(--text-secondary)">{userData.name}</span>
-              <span className="text-[9px] sm:text-[10px] text-(--accent)/50 font-medium">Pro Member</span>
+              <span className="text-[9px] sm:text-[10px] text-(--accent)/40 font-medium">Pro Member</span>
             </div>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden border-2 border-(--accent)/20 bg-(--bg-tertiary) shrink-0 ring-2 ring-(--accent)/10">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden border border-(--accent)/20 bg-(--bg-tertiary) shrink-0 ring-1 ring-white/5">
               <img src={avatarSrc} alt="User" className="w-full h-full object-cover" onError={handleAvatarError} />
             </div>
           </div>
         </div>
       </header>
 
+      {/* ── Mobile Navigation Drawer ── */}
       {mobileMenuOpen && (
         <>
+          {/* Backdrop — z-[1500]: raised above ActivityMap's floating map
+              elements (GpsBadge, "Location denied" box, RunControls, all at
+              z-1000/z-[1000]) so they get dimmed underneath the scrim
+              instead of visually poking through it. Stays below the header
+              (z-[2001]) so the header remains undimmed while the drawer is
+              open. */}
           <div
-            className="fixed inset-0 z-[1500] bg-black/50 backdrop-blur-sm md:hidden animate-fade-in"
+            className="fixed inset-0 z-[1500] bg-black/40 backdrop-blur-sm md:hidden"
             onClick={() => {
               setMobileMenuOpen(false);
               setNotifOpen(false);
               setSettingsOpen(false);
             }}
           />
-          <div
-            className="fixed top-14 sm:top-15 left-0 w-64 h-[calc(100vh-56px)] sm:h-[calc(100vh-60px)] bg-(--bg-secondary) border-r border-(--border-light) z-[1501] md:hidden overflow-y-auto animate-slide-in-right"
+          {/* Drawer panel — z-[1501]: one level above the backdrop, still below header */}
+          <div 
+            className="fixed top-14 sm:top-15 left-0 w-60 sm:w-64 h-[calc(100vh-56px)] sm:h-[calc(100vh-60px)] bg-(--bg-secondary) border-r border-(--border-light) z-[1501] md:hidden overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <nav className="flex flex-col p-3 sm:p-4 gap-1">
+            <nav className="flex flex-col p-3 sm:p-4 gap-1 sm:gap-1.5">
+
+              {/* Section: Menu */}
               <p className="px-3 sm:px-4 pt-1 pb-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-(--text-disabled)">
                 Menu
               </p>
@@ -507,7 +568,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                 <button
                   key={i}
                   onClick={() => handleNavClick(item.path)}
-                  className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-[13px] sm:text-[14px] font-medium transition-all border-none bg-transparent text-left cursor-pointer ${activePath === item.path ? 'bg-(--accent-bg) text-(--accent)' : 'text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-hover)'}`}
+                  className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-[13px] sm:text-[14px] font-medium transition-colors border-none bg-transparent text-left cursor-pointer ${activePath === item.path ? 'bg-(--accent-bg) text-(--accent)' : 'text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-hover)'}`}
                 >
                   <Icon
                     name={item.icon}
@@ -520,9 +581,11 @@ const Topbar = ({ sidebarExpanded, userId }) => {
 
               <div className="h-px bg-(--border-light) my-3 mx-1" />
 
+              {/* Section: Account */}
               <p className="px-3 sm:px-4 pt-1 pb-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-(--text-disabled)">
                 Account
               </p>
+              
 
               {SETTINGS_ITEMS.map(({ icon, label, action }) => (
                 <button
@@ -533,7 +596,8 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                   <Icon name={icon} className="text-[16px] sm:text-[17px]" /> {label}
                 </button>
               ))}
-
+              
+              {/* Feedback button */}
               <button
                 onClick={() => { setShowFeedback(true); setMobileMenuOpen(false); }}
                 className="flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-(--text-muted) hover:text-(--accent) text-[13px] sm:text-[14px] border-none bg-transparent cursor-pointer rounded-xl hover:bg-(--accent-bg) transition-colors"
@@ -545,7 +609,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
 
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[#ef4444] text-[13px] sm:text-[14px] border-none bg-transparent cursor-pointer rounded-xl hover:bg-[#ef4444]/10 transition-colors"
+                className="flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[#e05050] text-[13px] sm:text-[14px] border-none bg-transparent cursor-pointer rounded-xl hover:bg-[#e05050]/10 transition-colors"
               >
                 <Icon name="logout" className="text-[16px] sm:text-[17px]" /> Logout
               </button>
