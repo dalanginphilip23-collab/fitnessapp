@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Icon from './Icon';
+import Logo from './Logo';
 import { API_BASE_URL } from '../config/port';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../context/NotificationSystem';
@@ -353,24 +354,9 @@ const Topbar = ({ sidebarExpanded, userId }) => {
         }
       >
         <div className="flex items-center gap-2 md:gap-9">
-          <button
-            className="md:hidden p-1 text-(--text-primary) bg-transparent border-none cursor-pointer"
-            onClick={() => {
-              setMobileMenuOpen(!mobileMenuOpen);
-              setNotifOpen(false);
-              setSettingsOpen(false);
-            }}
-          >
-            <Icon name={mobileMenuOpen ? 'close' : 'menu'} className="text-[22px] sm:text-[24px]" />
-          </button>
-
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-(--accent) flex items-center justify-center shadow-lg shadow-(--accent)/20">
-              <Icon name="fitness_center" fill={1} className="text-[#0a0a0a] text-[16px]" />
-            </div>
-            <span className="font-['Manrope'] text-[16px] sm:text-[18px] md:pl-2 font-extrabold tracking-tight text-(--text-primary)">
-              Vitalis
-            </span>
+            <Logo size="sm" showText={false} />
+            <span className="hidden md:block font-['Manrope'] text-[16px] sm:text-[18px] font-extrabold tracking-tight text-(--text-primary)">Vitalis</span>
           </div>
 
           <nav className="hidden md:flex gap-6 items-center ml-2">

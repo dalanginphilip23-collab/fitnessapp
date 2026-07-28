@@ -3,6 +3,7 @@ import Icon from "./Icon";
 import { useNavigate, useLocation } from "react-router-dom";
 import { navList } from "../constants/nav";
 import MobileNav from "./MobileNav";
+import Logo from "./Logo";
 
 export default function SidebarAnalytics({ onExpandChange }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -28,12 +29,7 @@ export default function SidebarAnalytics({ onExpandChange }) {
         }`}
       >
         <div className="px-6 mb-12 flex items-center gap-4 overflow-hidden">
-          <div className="w-8 h-8 rounded-lg bg-(--accent) flex items-center justify-center flex-shrink-0 shadow-lg shadow-(--accent)/20">
-            <Icon name="fitness_center" className="text-[#0a0a0a] text-lg" fill={1} />
-          </div>
-          <div className={`transition-all duration-300 ${isExpanded ? "opacity-100" : "opacity-0"}`}>
-            <p className="text-(--accent) font-black font-['Manrope'] tracking-tighter uppercase whitespace-nowrap">Vitalis</p>
-          </div>
+          <Logo size="sm" showText={isExpanded} />
         </div>
 
         <nav className="flex-1 flex flex-col gap-1 px-2">

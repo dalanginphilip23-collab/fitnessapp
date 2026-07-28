@@ -2,10 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
 import {
-  Focus, Zap, Camera, Infinity as InfinityIcon, BarChart3, ShieldCheck,
-  Activity, ChevronLeft, ChevronRight, PlayCircle, Rocket, Eye,
-  FlaskConical, Heart, AtSign, Briefcase, Check,
+  PlayCircle,
 } from 'lucide-react';
+import Logo from '../../components/Logo';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const GYM_BG_BASE = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=70';
@@ -663,12 +662,11 @@ const Landing = () => {
         >
           <div className="max-w-360 mx-auto px-4 sm:px-8 h-16 sm:h-20 flex justify-between items-center">
             <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center gap-2.5 sm:gap-3"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex items-center"
             >
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: THEME.accent, boxShadow: `0 0 20px ${THEME.shadow}` }}>
-                <Icon name="pulse_alert" className="text-[#0a1000] text-lg" />
-              </div>
-              <span className="bebas text-xl sm:text-2xl tracking-wider" style={{ color: navInk(1) }}>Vitalis</span>
+              <span style={{ filter: scrolled || menuOpen ? 'none' : 'brightness(5)' }}>
+                <Logo size="sm" showText />
+              </span>
             </motion.button>
 
             <div className="hidden lg:flex items-center gap-10">
@@ -972,12 +970,7 @@ const Landing = () => {
             <div className="py-12 sm:py-14 flex flex-col sm:flex-row sm:items-start justify-between gap-8 sm:gap-10">
 
               <div className="max-w-[260px]">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: THEME.accent, boxShadow: `0 0 16px ${accentAlpha(25)}` }}>
-                    <Icon name="pulse_alert" className="text-[#0a1000] text-base" />
-                  </div>
-                  <span className="bebas text-2xl tracking-wider" style={{ color: THEME.textStrong }}>Vitalis</span>
-                </div>
+                <Logo size="sm" showText />
                 <p className="text-sm leading-relaxed font-medium mb-6" style={{ color: ink(0.2) }}>
                   The world's most advanced human performance platform.
                 </p>

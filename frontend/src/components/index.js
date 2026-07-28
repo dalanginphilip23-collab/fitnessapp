@@ -1,4 +1,5 @@
 export { default as Icon } from './Icon';
+export { default as Logo } from './Logo';
 export { default as Sidebar } from './Sidebar';
 export { default as SidebarAnalytics } from './SidebarAnalytics';
 export { default as Topbar } from './Topbar';
