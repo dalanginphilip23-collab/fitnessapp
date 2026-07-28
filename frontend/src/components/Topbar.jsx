@@ -353,12 +353,12 @@ const Topbar = ({ sidebarExpanded, userId }) => {
         }
       >
         <div className="flex items-center gap-2 md:gap-9">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-(--accent) flex items-center justify-center shadow-lg shadow-(--accent)/20">
-              <Icon name="fitness_center" fill={1} className="text-[#0a0a0a] text-[16px]" />
-            </div>
-            <span className="font-['Manrope'] text-[16px] sm:text-[18px] font-extrabold tracking-tight text-(--text-primary)">Vitalis</span>
-          </div>
+          <button
+            onClick={() => window.__openMobileSidebar?.()}
+            className="md:hidden p-1 text-(--text-primary) bg-transparent border-none cursor-pointer"
+          >
+            <Icon name="menu" className="text-[24px]" />
+          </button>
 
           <nav className="hidden md:flex gap-6 items-center ml-2">
             {NAV_LINKS.map((item, i) => (

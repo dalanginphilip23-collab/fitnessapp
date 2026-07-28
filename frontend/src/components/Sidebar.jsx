@@ -16,6 +16,11 @@ const Sidebar = ({ onClick, expanded, setExpanded, onFeedback }) => {
     setMobileOpen(false);
   }, [location.pathname]);
 
+  useEffect(() => {
+    window.__openMobileSidebar = () => setMobileOpen(true);
+    return () => { delete window.__openMobileSidebar; };
+  }, []);
+
   const handleNavClick = () => {
     setMobileOpen(false);
   };
