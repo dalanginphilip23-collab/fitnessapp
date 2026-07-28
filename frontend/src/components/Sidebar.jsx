@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import Icon from './Icon';
-import Logo from './Logo';
 import { NAV_ITEMS } from '../constants/nav';
 import FeedbackModal from './FeedbackModal';
 import MobileNav from './MobileNav';
@@ -31,8 +30,13 @@ const Sidebar = ({ onClick, expanded, setExpanded, onFeedback }) => {
         className="hidden md:flex fixed left-0 top-0 h-full flex-col bg-(--bg-secondary) border-r border-(--border-light) py-6 z-60 overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
         style={{ width: expanded ? 240 : 72 }}
       >
-        <div className="flex items-center px-4 mb-8 overflow-hidden">
-          <Logo size="sm" showText={expanded} />
+        <div className="flex items-center gap-3.5 px-5 mb-8 overflow-hidden">
+          <div className="min-w-8 h-8 bg-(--accent) flex items-center justify-center rounded-lg shrink-0 shadow-lg shadow-(--accent)/20">
+            <Icon name="fitness_center" fill={1} weight={400} className="text-[#0a0a0a] text-[18px]" />
+          </div>
+          <span className={`font-['Manrope'] font-black tracking-[0.15em] text-[14px] text-(--accent) whitespace-nowrap transition-all duration-300 ${expanded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'}`}>
+            VITALIS
+          </span>
         </div>
 
         <nav className="flex-1 flex flex-col gap-0.5 px-2">
@@ -97,7 +101,12 @@ const Sidebar = ({ onClick, expanded, setExpanded, onFeedback }) => {
           />
           <aside className="absolute left-0 top-0 h-full w-72 bg-(--bg-secondary) border-r border-(--border-light) animate-slide-in-right shadow-2xl flex flex-col py-6">
             <div className="flex items-center justify-between px-4 mb-8">
-              <Logo size="sm" showText />
+              <div className="flex items-center gap-3.5">
+                <div className="min-w-8 h-8 bg-(--accent) flex items-center justify-center rounded-lg shrink-0 shadow-lg shadow-(--accent)/20">
+                  <Icon name="fitness_center" fill={1} weight={400} className="text-[#0a0a0a] text-[18px]" />
+                </div>
+                <span className="font-['Manrope'] font-black tracking-[0.15em] text-[14px] text-(--accent) whitespace-nowrap">VITALIS</span>
+              </div>
               <button
                 onClick={() => setMobileOpen(false)}
                 className="w-8 h-8 rounded-lg bg-(--bg-hover) flex items-center justify-center text-(--text-muted) hover:text-(--text-primary) transition-all border-none cursor-pointer"
@@ -147,18 +156,6 @@ const Sidebar = ({ onClick, expanded, setExpanded, onFeedback }) => {
           </aside>
         </div>
       )}
-
-      {/* Mobile bottom nav + hamburger trigger */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-[2001] h-14 bg-(--bg-secondary)/90 backdrop-blur-xl border-b border-(--border-light) flex items-center justify-between px-3">
-        <button
-          onClick={() => setMobileOpen(true)}
-          className="p-1 text-(--text-primary) bg-transparent border-none cursor-pointer"
-        >
-          <Icon name="menu" className="text-[24px]" />
-        </button>
-        <Logo size="sm" showText={false} />
-        <div className="w-8" />
-      </div>
 
       <MobileNav items={NAV_ITEMS} onFeedback={() => setShowFeedback(true)} />
     </>
