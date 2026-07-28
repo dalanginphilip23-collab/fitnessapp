@@ -1,3 +1,6 @@
+import { useState, useEffect } from 'react';
+import Icon from './Icon';
+
 const RadialProgress = ({
   value = 0,
   goal = 100,
@@ -20,6 +23,12 @@ const RadialProgress = ({
     <div className="flex flex-col items-center gap-2.5">
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
+          <defs>
+            <linearGradient id={`grad_${color.replace(/[^a-zA-Z]/g, '')}`} x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={color} stopOpacity="0.6" />
+              <stop offset="100%" stopColor={color} stopOpacity="1" />
+            </linearGradient>
+          </defs>
           <circle
             cx={size / 2}
             cy={size / 2}
@@ -43,7 +52,7 @@ const RadialProgress = ({
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
           <span
-            className="stat-digital font-extrabold text-[var(--text-primary)] tracking-tight"
+            className="font-extrabold text-(--text-primary) tracking-tight"
             style={{ fontSize: size * 0.19 }}
           >
             {shown}
@@ -52,7 +61,7 @@ const RadialProgress = ({
       </div>
 
       {label && (
-        <span className="text-[9px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)]">
+        <span className="text-[9px] font-black uppercase tracking-[0.18em] text-(--text-muted)">
           {label}
         </span>
       )}

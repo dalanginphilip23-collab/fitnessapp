@@ -4,12 +4,10 @@ import { API_BASE_URL } from '../config/port';
 
 const trendIcon = (trend) => {
   if (trend === 'up')   return { icon: 'trending_up',   color: '#4ade80' };
-  if (trend === 'down') return { icon: 'trending_down', color: '#f87171' };
+  if (trend === 'down') return { icon: 'trending_down', color: '#ef4444' };
   return                       { icon: 'trending_flat', color: '#facc15' };
 };
 
-// Used to keep the default "Recent Insights" view scoped to today only.
-// "Show All History" intentionally bypasses this and shows everything.
 const isToday = (timestamp) => {
   if (!timestamp) return false;
   const d = new Date(timestamp);
@@ -24,10 +22,10 @@ const isToday = (timestamp) => {
 
 const categoryColor = (category) => {
   switch (category) {
-    case 'Recovery Alert':    return '#f87171';
-    case 'Hydration Warning': return '#60a5fa';
+    case 'Recovery Alert':    return '#ef4444';
+    case 'Hydration Warning': return '#3b82f6';
     case 'Performance Tip':   return 'var(--accent)';
-    case 'Rest Advisory':     return '#c084fc';
+    case 'Rest Advisory':     return '#a855f7';
     default:                  return 'var(--accent)';
   }
 };
@@ -37,7 +35,7 @@ const InsightCard = ({ item }) => {
   const { icon, color } = trendIcon(item.trend);
   return (
     <div
-      className="rounded-r-lg p-4 border-l-[3px] bg-[var(--bg-hover)] transition-colors hover:bg-[var(--bg-active)] flex-shrink-0"
+      className="rounded-xl p-4 border-l-[3px] bg-(--bg-hover) transition-all hover:bg-(--bg-active) flex-shrink-0"
       style={{ borderColor: accent }}
     >
       <div className="flex items-center justify-between mb-2">
@@ -46,7 +44,7 @@ const InsightCard = ({ item }) => {
         </span>
         <Icon name={icon} className="text-[14px]" style={{ color }} />
       </div>
-      <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed font-medium">
+      <p className="text-[12px] text-(--text-secondary) leading-relaxed font-medium">
         {item.message}
       </p>
       {item.timestamp && (
@@ -122,97 +120,92 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
     : (insights.length > 0 ? insights : history.filter(item => isToday(item.timestamp)).slice(0, 5));
 
   return (
-    <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[14px] p-[22px] flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5 flex-shrink-0">
+    <div className="h-full lg:h-[calc(100vh-140px)] min-h-[500px] bg-(--bg-tertiary) border border-(--border-light) rounded-[20px] p-5 flex flex-col overflow-hidden">
+      <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-[var(--accent-bg)] flex items-center justify-center">
-            <Icon name="auto_awesome" className="text-[var(--accent)] text-[16px]" />
+          <div className="w-8 h-8 rounded-lg bg-(--accent-bg) flex items-center justify-center">
+            <Icon name="auto_awesome" className="text-(--accent) text-[16px]" />
           </div>
-          <span className="font-bold text-[13px] text-[var(--text-primary)]">Clinical Assistant</span>
+          <div>
+            <span className="font-bold text-[13px] text-(--text-primary)">Clinical Assistant</span>
+            <p className="text-[9px] text-(--text-muted) font-medium uppercase tracking-wider">AI-powered insights</p>
+          </div>
         </div>
 
         {isAnalyzing && (
-          <div className="flex items-center gap-1.5 bg-[var(--accent-bg)] px-2.5 py-1 rounded-full border border-[var(--accent-border)]">
-            <div className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full animate-ping" />
-            <span className="text-[8px] font-black text-[var(--accent)] uppercase tracking-widest">Scanning</span>
+          <div className="flex items-center gap-1.5 bg-(--accent-bg) px-2.5 py-1.5 rounded-full border border-(--accent-border)">
+            <div className="w-1.5 h-1.5 bg-(--accent) rounded-full animate-ping" />
+            <span className="text-[8px] font-black text-(--accent) uppercase tracking-widest">Scanning</span>
           </div>
         )}
       </div>
 
-      {/* Hydration */}
-      <div className="mb-5 flex-shrink-0">
+      <div className="mb-4 flex-shrink-0">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-bold">Hydration</span>
-          <span className={`text-[10px] font-black ${Number(water) < 1000 ? 'text-[#f87171]' : 'text-[#60a5fa]'}`}>
+          <span className="text-[10px] text-(--text-muted) uppercase tracking-wider font-bold">Hydration</span>
+          <span className={`text-[10px] font-black ${Number(water) < 1000 ? 'text-(--error)' : 'text-(--blue)'}`}>
             {water} / {goal} ml
           </span>
         </div>
-        <div className="h-1.5 bg-[var(--bg-hover)] rounded-full w-full relative overflow-hidden">
+        <div className="h-2 bg-(--bg-hover) rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-1000 ease-in-out ${Number(water) < 1000 ? 'bg-[#f87171]' : 'bg-[#60a5fa]'}`}
+            className={`h-full rounded-full transition-all duration-1000 ease-in-out ${Number(water) < 1000 ? 'bg-(--error)' : 'bg-(--blue)'}`}
             style={{ width: `${barWidth}%`, minWidth: barWidth > 0 ? '4px' : '0px' }}
           />
         </div>
       </div>
 
-      {/* History toggle */}
-      <div className="mb-4 flex-shrink-0">
+      <div className="mb-3 flex-shrink-0">
         <button
           onClick={() => setShowHistory(prev => !prev)}
           disabled={!userId || isAnalyzing}
           className={`
-            w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg
+            w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl
             text-[10px] font-black uppercase tracking-widest
             border transition-all duration-200 cursor-pointer
             ${showHistory
-              ? 'bg-[var(--accent-bg)] border-[var(--accent-border)] text-[var(--accent)]'
-              : 'bg-[var(--bg-hover)] border-[var(--border-light)] text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:border-[var(--border-medium)]'
+              ? 'bg-(--accent-bg) border-(--accent-border) text-(--accent)'
+              : 'bg-(--bg-hover) border-(--border-light) text-(--text-muted) hover:text-(--text-secondary) hover:border-(--border-medium)'
             }
             disabled:opacity-30 disabled:cursor-not-allowed
           `}
         >
-          <Icon
-            name={showHistory ? 'history_toggle_off' : 'manage_history'}
-            className="text-[13px]"
-          />
+          <Icon name={showHistory ? 'history_toggle_off' : 'manage_history'} className="text-[13px]" />
           {showHistory ? 'Show Recent' : 'Show All History'}
         </button>
       </div>
 
-      {/* Section label */}
       <div className="flex items-center gap-2 mb-3 flex-shrink-0">
-        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)]">
+        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">
           {showHistory ? 'Full AI History' : 'Recent Insights'}
         </span>
         {showHistory && !historyLoad && history.length > 0 && (
-          <span className="text-[9px] font-black text-[var(--accent)]/50">({history.length})</span>
+          <span className="text-[9px] font-black text-(--accent)/50">({history.length})</span>
         )}
-        <div className="flex-1 h-px bg-[var(--border-light)]" />
+        <div className="flex-1 h-px bg-(--border-light)" />
       </div>
 
-      {/* Insights list */}
-      <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3">
+      <div className="flex-1 overflow-y-auto space-y-3 pr-1">
         {historyLoad && (
           <div className="h-full flex items-center justify-center">
             <div className="flex flex-col items-center gap-3">
-              <div className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full animate-ping" />
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-widest">Loading history...</span>
+              <div className="w-8 h-8 rounded-full border-2 border-(--accent)/20 border-t-(--accent) animate-spin" />
+              <span className="text-[10px] text-(--text-muted) uppercase tracking-widest animate-pulse-soft">Loading...</span>
             </div>
           </div>
         )}
 
         {historyError && !historyLoad && (
-          <div className="h-full flex items-center justify-center border-2 border-dashed border-red-500/10 rounded-xl">
-            <p className="text-[11px] text-red-400/50 italic text-center px-4">
+          <div className="h-full flex items-center justify-center border-2 border-dashed border-(--error)/20 rounded-xl">
+            <p className="text-[11px] text-(--error)/50 italic text-center px-4">
               Failed to load history. Check your connection.
             </p>
           </div>
         )}
 
         {!historyLoad && !historyError && activeInsights.length === 0 && (
-          <div className="h-full flex items-center justify-center border-2 border-dashed border-[var(--border-light)] rounded-xl">
-            <p className="text-[11px] text-[var(--text-muted)] italic text-center px-4">
+          <div className="h-full flex items-center justify-center border-2 border-dashed border-(--border-light) rounded-xl">
+            <p className="text-[11px] text-(--text-muted) italic text-center px-4">
               {showHistory
                 ? 'No history found. Your AI insights will appear here after analysis.'
                 : 'Waiting for biometric data to assess health condition...'}
@@ -224,13 +217,6 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
           <InsightCard key={item.id || idx} item={item} />
         ))}
       </div>
-
-      <style dangerouslySetInnerHTML={{ __html: `
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
-      `}} />
     </div>
   );
 };

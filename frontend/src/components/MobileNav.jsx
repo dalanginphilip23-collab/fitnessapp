@@ -17,9 +17,6 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
   };
 
   return (
-    // Docked bottom bar: flush to left/right/bottom edges, no floating
-    // inset, safe-area padding folded into the bar's own height so the
-    // background still reaches the very bottom of the screen on iOS.
     <nav
       className="md:hidden fixed left-0 right-0 bottom-0 z-70 border-t border-(--border-light) flex items-center"
       style={{
@@ -35,12 +32,12 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
             <button
               key={key}
               onClick={() => handleNavClick(item.path)}
-              className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full flex-1 min-w-11 ${
+              className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-200 outline-none h-full flex-1 min-w-11 ${
                 isActive ? 'text-(--accent)' : 'text-(--text-muted)'
               }`}
             >
               <div
-                className={`relative flex items-center justify-center transition-transform duration-300 ${
+                className={`relative flex items-center justify-center transition-all duration-200 ${
                   isActive ? 'scale-110' : 'scale-100'
                 }`}
               >
@@ -56,22 +53,20 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
                   fill={isActive ? 1 : 0}
                 />
               </div>
+              {isActive && (
+                <span className="absolute -top-0.5 w-4 h-0.5 bg-(--accent) rounded-full" />
+              )}
             </button>
           );
         })}
 
-        {/* Feedback button */}
         {onFeedback && (
           <button
             onClick={onFeedback}
-            className="relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-300 outline-none h-full flex-1 min-w-11 text-(--text-muted) hover:text-(--accent)"
+            className="relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-200 outline-none h-full flex-1 min-w-11 text-(--text-muted) hover:text-(--accent)"
           >
-            <div className="relative flex items-center justify-center transition-transform duration-300 scale-100">
-              <Icon
-                name="feedback"
-                className="text-[20px] min-w-5 shrink-0"
-                fill={0}
-              />
+            <div className="relative flex items-center justify-center transition-transform duration-200 scale-100">
+              <Icon name="feedback" className="text-[20px] min-w-5 shrink-0" />
             </div>
           </button>
         )}
