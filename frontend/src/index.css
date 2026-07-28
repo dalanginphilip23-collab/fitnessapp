@@ -538,3 +538,74 @@ input::placeholder {
     display: none;
   }
 }
+
+/* ── Fitness pulse ring ── */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.4); opacity: 0; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+.animate-pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ── Breathe animation ── */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+.animate-breathe {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+/* ── Card entry stagger ── */
+.card-enter {
+  animation: vitalisCardIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.card-enter:nth-child(1) { animation-delay: 0s; }
+.card-enter:nth-child(2) { animation-delay: 0.08s; }
+.card-enter:nth-child(3) { animation-delay: 0.16s; }
+.card-enter:nth-child(4) { animation-delay: 0.24s; }
+.card-enter:nth-child(5) { animation-delay: 0.32s; }
+
+/* ── Status badge glow ── */
+@keyframes status-glow {
+  0%, 100% { box-shadow: 0 0 4px var(--accent); }
+  50% { box-shadow: 0 0 12px var(--accent); }
+}
+.animate-status-glow {
+  animation: status-glow 2s ease-in-out infinite;
+}
+
+/* ── Fitness stat number ── */
+.stat-digital {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* ── Hide scrollbar utility ── */
+.scroll-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-hidden::-webkit-scrollbar { display: none; }
+
+/* ── Subtle shimmer loading ── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, var(--bg-hover) 25%, var(--bg-active) 50%, var(--bg-hover) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ── Fitness card hover lift ── */
+.fitness-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.fitness-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}

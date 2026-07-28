@@ -394,13 +394,12 @@ const Topbar = ({ sidebarExpanded, userId }) => {
           <button
             className="md:hidden p-1 text-(--text-primary) bg-transparent border-none cursor-pointer"
             onClick={() => {
-              setMobileMenuOpen(!mobileMenuOpen);
-              // Close dropdowns when opening mobile menu
+              window.__openMobileSidebar?.();
               setNotifOpen(false);
               setSettingsOpen(false);
             }}
           >
-            <Icon name={mobileMenuOpen ? 'close' : 'menu'} className="text-[22px] sm:text-[24px]" />
+            <Icon name="menu" className="text-[22px] sm:text-[24px]" />
           </button>
 
           <span className="font-[Manrope] text-[15px] sm:text-[18px] md:pl-6 font-extrabold tracking-tight text-(--text-primary)">
