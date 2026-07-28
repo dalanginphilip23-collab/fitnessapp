@@ -68,7 +68,6 @@ function drawSkeleton(ctx, canvas, video, landmarks) {
 }
 
 export function usePoseEngine({
-  isRecording,
   cameraOn,
   webcamRef,
   canvasRef,
