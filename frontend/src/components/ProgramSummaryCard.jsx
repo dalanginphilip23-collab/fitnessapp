@@ -27,11 +27,11 @@ const ProgramSummaryCard = ({
   onSeeMore,
 }) => {
   return (
-    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[16px] p-[22px] flex flex-col gap-6">
+    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[20px] p-[22px] flex flex-col gap-6 card-glow">
       {/* Header row */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_6px_var(--accent)]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] shadow-[0_0_8px_var(--accent)]" />
           <span className="text-[12px] font-bold text-[var(--text-secondary)]">{goalLabel}</span>
         </div>
         <button
@@ -59,20 +59,20 @@ const ProgramSummaryCard = ({
           <RadialProgress
             value={steps.value}
             goal={steps.goal}
-            color="#60a5fa"
+            color="var(--metric-steps)"
             displayValue={Number(steps.value || 0).toLocaleString()}
           />
-          <RingLabel icon="footprint" color="#60a5fa">Steps</RingLabel>
+          <RingLabel icon="footprint" color="var(--metric-steps)">Steps</RingLabel>
         </div>
 
         <div className="flex flex-col items-center gap-2.5">
           <RadialProgress
             value={sessionLoadMins.value}
             goal={sessionLoadMins.goal}
-            color="#f2c448"
+            color="var(--metric-load)"
             displayValue={formatSessionLoad(sessionLoadMins.value)}
           />
-          <RingLabel icon="timer" color="#f2c448">Session Load</RingLabel>
+          <RingLabel icon="timer" color="var(--metric-load)">Session Load</RingLabel>
         </div>
       </div>
 
@@ -81,14 +81,14 @@ const ProgramSummaryCard = ({
         <button
           type="button"
           onClick={onChangeProgram}
-          className="flex-1 bg-[var(--accent)] text-[#131313] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-xl hover:brightness-95 active:scale-[0.98] transition-all cursor-pointer border-none"
+          className="flex-1 btn-primary relative bg-(--accent) text-(--text-inverse) text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-xl hover:-translate-y-0.5 active:scale-[0.98] transition-all cursor-pointer border-none"
         >
           Change Program
         </button>
         <button
           type="button"
           onClick={onSeeMore}
-          className="flex-1 bg-transparent text-[var(--text-secondary)] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-xl border border-[var(--border-medium)] hover:bg-[var(--bg-hover)] active:scale-[0.98] transition-all cursor-pointer"
+          className="flex-1 bg-transparent text-[var(--text-secondary)] text-[11px] font-black uppercase tracking-[0.14em] py-3.5 rounded-xl border border-[var(--border-medium)] hover:bg-[var(--bg-hover)] hover:border-[var(--accent-border)] active:scale-[0.98] transition-all cursor-pointer"
         >
           See More
         </button>

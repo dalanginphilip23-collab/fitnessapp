@@ -37,7 +37,7 @@ const InsightCard = ({ item }) => {
   const { icon, color } = trendIcon(item.trend);
   return (
     <div
-      className="rounded-r-lg p-4 border-l-[3px] bg-[var(--bg-hover)] transition-colors hover:bg-[var(--bg-active)] flex-shrink-0"
+      className="rounded-xl p-4 border-l-[3px] bg-[var(--bg-hover)] transition-all hover:bg-[var(--bg-active)] hover:shadow-sm flex-shrink-0"
       style={{ borderColor: accent }}
     >
       <div className="flex items-center justify-between mb-2">
@@ -122,14 +122,14 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
     : (insights.length > 0 ? insights : history.filter(item => isToday(item.timestamp)).slice(0, 5));
 
   return (
-    <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[14px] p-[22px] flex flex-col overflow-hidden">
+    <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[20px] p-[22px] flex flex-col overflow-hidden card-glow">
       {/* Header */}
       <div className="flex items-center justify-between mb-5 flex-shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-[var(--accent-bg)] flex items-center justify-center">
             <Icon name="auto_awesome" className="text-[var(--accent)] text-[16px]" />
           </div>
-          <span className="font-bold text-[13px] text-[var(--text-primary)]">Clinical Assistant</span>
+          <span className="font-bold text-[13px] text-[var(--text-primary)]">AI Coach</span>
         </div>
 
         {isAnalyzing && (
@@ -144,13 +144,13 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
       <div className="mb-5 flex-shrink-0">
         <div className="flex justify-between items-center mb-2">
           <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-bold">Hydration</span>
-          <span className={`text-[10px] font-black ${Number(water) < 1000 ? 'text-[#f87171]' : 'text-[#60a5fa]'}`}>
+          <span className={`text-[10px] font-black ${Number(water) < 1000 ? 'text-[#ef5350]' : 'text-(--metric-water)'}`}>
             {water} / {goal} ml
           </span>
         </div>
         <div className="h-1.5 bg-[var(--bg-hover)] rounded-full w-full relative overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-1000 ease-in-out ${Number(water) < 1000 ? 'bg-[#f87171]' : 'bg-[#60a5fa]'}`}
+            className={`h-full rounded-full transition-all duration-1000 ease-in-out ${Number(water) < 1000 ? 'bg-[#ef5350]' : 'bg-(--metric-water)'}`}
             style={{ width: `${barWidth}%`, minWidth: barWidth > 0 ? '4px' : '0px' }}
           />
         </div>

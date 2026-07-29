@@ -86,8 +86,9 @@ function FeedbackModal({ onClose }) {
           style={{
             width: '100%', maxWidth: '420px',
             background: 'var(--bg-card)',
-            border: '1px solid var(--border-medium)',
-            borderRadius: '20px', overflow: 'hidden',
+            backgroundImage: 'var(--card-gradient)',
+            border: '1px solid var(--border-light)',
+            borderRadius: '24px', overflow: 'hidden',
             boxShadow: 'var(--shadow-xl)',
             position: 'relative',
           }}
@@ -117,7 +118,7 @@ function FeedbackModal({ onClose }) {
                 Feedback Received
               </div>
               <div className="fb-success-sub" style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: "'DM Sans', sans-serif", lineHeight: 1.6, maxWidth: 260 }}>
-                Thanks for helping us improve Vitalis. We'll review your message shortly.
+                Thanks for helping us improve. We'll review your message shortly.
               </div>
             </div>
           ) : (

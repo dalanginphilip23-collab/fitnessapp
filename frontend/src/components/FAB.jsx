@@ -22,7 +22,7 @@ const FAB = ({ onSave }) => {
         <span className="absolute inset-[-8px] rounded-full bg-(--accent)/15 animate-pulse-ring" />
         <button
           onClick={() => setIsOpen(true)}
-          className="relative w-14 h-14 bg-(--accent) rounded-full shadow-lg shadow-(--accent)/20 flex items-center justify-center hover:scale-110 transition-transform active:scale-95"
+          className="relative w-14 h-14 bg-(--accent) rounded-full shadow-lg shadow-(--accent)/25 flex items-center justify-center hover:scale-110 hover:shadow-[0_0_24px_var(--accent-bg)] transition-all active:scale-95"
         >
           <span className="material-symbols-outlined text-[#131313] text-[32px] font-bold">add</span>
         </button>
@@ -31,12 +31,12 @@ const FAB = ({ onSave }) => {
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
           <div
-            className="bg-(--bg-card) border border-(--border-medium) w-full max-w-md max-h-[90vh] overflow-y-auto rounded-[28px] p-6 md:p-8 shadow-2xl relative scroll-hidden"
+            className="bg-(--bg-card) border border-(--border-light) w-full max-w-md max-h-[90vh] overflow-y-auto rounded-[28px] p-6 md:p-8 shadow-2xl relative scroll-hidden"
           >
             <div className="flex justify-between items-center mb-6 md:mb-8 sticky top-0 bg-(--bg-card) z-10 pb-2">
               <div>
-                <h2 className="text-xl font-bold text-(--text-primary)">Log Activity</h2>
-                <p className="text-[10px] md:text-[11px] text-(--text-muted) uppercase tracking-wider mt-1">Daily Biometric Entry</p>
+                <h2 className="text-xl font-bold text-(--text-primary)">Log Workout</h2>
+                <p className="text-[10px] md:text-[11px] text-(--text-muted) uppercase tracking-wider mt-1">Track your daily progress</p>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
@@ -118,10 +118,10 @@ const FAB = ({ onSave }) => {
 
               <button
                 type="submit"
-                className="w-full bg-(--accent) text-[#131313] font-bold py-4 md:py-5 rounded-2xl mt-2 md:mt-4 hover:shadow-[0_0_20px_var(--accent)/20] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                className="w-full btn-primary relative bg-(--accent) text-(--text-inverse) font-bold py-4 md:py-5 rounded-2xl mt-2 md:mt-4 active:scale-[0.98] transition-all flex items-center justify-center gap-2 border-none"
               >
                 <span className="material-symbols-outlined font-bold text-[20px]">check_circle</span>
-                <span className="text-sm md:text-base">Update Vitalis Dashboard</span>
+                <span className="text-sm md:text-base">Save Activity</span>
               </button>
             </form>
           </div>

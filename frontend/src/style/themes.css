@@ -1,43 +1,41 @@
 :root,
 .dark-theme {
 
-  --bg-primary: #000000;
-  --bg-secondary: #0a0a0a;
-  --bg-tertiary: #111111;
-  --bg-card: #0d0d0d;
-  --bg-hover: rgba(255, 255, 255, 0.04);
-  --bg-active: rgba(143, 191, 99, 0.08);
+  --bg-primary: #121212;
+  --bg-secondary: #181818;
+  --bg-tertiary: #1e1e1e;
+  --bg-card: #1a1a1a;
+  --bg-hover: rgba(255, 255, 255, 0.05);
+  --bg-active: rgba(139, 195, 74, 0.08);
 
-  --surface: #0a0a0a;
-  --surface-hover: #131313;
-  --surface-active: #161616;
+  --surface: #181818;
+  --surface-hover: #202020;
+  --surface-active: #282828;
 
-  --text-primary: #f2f2f0;
-  --text-secondary: #8a8a8a;
-  --text-muted: #4a4a4a;
-  --text-disabled: #2a2a2a;
+  --text-primary: #f0efed;
+  --text-secondary: #b0aeac;
+  --text-muted: #6a6a6a;
+  --text-disabled: #3a3a3a;
 
   --border-light: rgba(255, 255, 255, 0.07);
   --border-medium: rgba(255, 255, 255, 0.12);
   --border-heavy: rgba(255, 255, 255, 0.18);
 
-  /* ── NEW: fitness-app design tokens ─────────────────────────── */
-  /* Card surfaces get a faint upward gradient instead of a flat fill,
-     so cards read as "raised" rather than as flat clinical panels. */
-  --card-gradient: linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0) 100%);
-  --card-radius-lg: 28px;   /* hero / feature cards */
-  --card-radius-md: 20px;   /* standard cards */
-  --card-radius-sm: 14px;   /* pills, chips, inputs */
+  /* ── Fitness-app design tokens ──────────────────────────── */
+  /* Card surfaces — warm raised gradient */
+  --card-gradient: linear-gradient(180deg, rgba(139, 195, 74, 0.04) 0%, rgba(255, 183, 77, 0.01) 50%, transparent 100%);
+  --card-radius-lg: 28px;
+  --card-radius-md: 24px;
+  --card-radius-sm: 14px;
 
-  /* Secondary ring/metric colors — used consistently across every
-     ring, chart line, and badge so "steps" is always blue, etc. */
-  --metric-calories: #7dd625e1;
-  --metric-steps: #5ba8ff;
-  --metric-load: #ffb648;
-  --metric-water: #4fc3f7;
-  --metric-sleep: #b98af2;
+  /* Metric colors — vibrant per category */
+  --metric-calories: #FFB74D;
+  --metric-steps: #64B5F6;
+  --metric-load: #FFB74D;
+  --metric-water: #4DD0E1;
+  --metric-sleep: #CE93D8;
 
-  --hero-glow: radial-gradient(circle at 30% 20%, rgba(125, 214, 37, 0.14) 0%, transparent 60%);
+  --hero-glow: radial-gradient(circle at 30% 20%, rgba(139, 195, 74, 0.15) 0%, rgba(255, 183, 77, 0.05) 50%, transparent 70%);
 }
 
 
@@ -56,15 +54,18 @@
   letter-spacing: 0.03em;
 }
 
-/* ── NEW: shared fitness-app surface classes ──────────────────────
-   Opt-in utility classes so components can pick these up without
-   every Tailwind class needing to change. Purely additive — nothing
-   here overrides existing styles unless a component adds the class. */
+/* ── Shared fitness-app surface classes ──────────────────────── */
 .fx-card {
   background: var(--bg-tertiary);
   background-image: var(--card-gradient);
   border: 1px solid var(--border-light);
   border-radius: var(--card-radius-md);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fx-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
 }
 
 .fx-card-hero {

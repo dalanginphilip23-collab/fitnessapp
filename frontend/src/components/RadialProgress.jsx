@@ -19,7 +19,7 @@ const RadialProgress = ({
   return (
     <div className="flex flex-col items-center gap-2.5">
       <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="-rotate-90">
+        <svg width={size} height={size} className="-rotate-90" style={{ filter: pct > 50 ? 'drop-shadow(0 0 4px var(--accent-bg))' : 'none' }}>
           <circle
             cx={size / 2}
             cy={size / 2}

@@ -32,7 +32,7 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
             <button
               key={key}
               onClick={() => handleNavClick(item.path)}
-              className={`relative flex flex-col items-center justify-center bg-transparent border-none cursor-pointer transition-all duration-200 outline-none h-full flex-1 min-w-11 ${
+              className={`relative flex flex-col items-center justify-center bg-transparent border-none cursor-pointer transition-all duration-200 outline-none h-full flex-1 min-w-12 ${
                 isActive ? 'text-(--accent)' : 'text-(--text-muted)'
               }`}
             >
@@ -43,7 +43,7 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
               >
                 {isActive && (
                   <span
-                    className="absolute inset-[-6px] rounded-full"
+                    className="absolute inset-[-8px] rounded-full animate-energy-pulse"
                     style={{ backgroundColor: 'color-mix(in srgb, var(--accent) 14%, transparent)' }}
                   />
                 )}
@@ -54,7 +54,7 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
                 />
               </div>
               {isActive && (
-                <span className="absolute top-0 w-6 h-0.5 rounded-full bg-(--accent) shadow-[0_0_6px_var(--accent)]" />
+                <span className="absolute top-0 w-6 h-0.5 rounded-full bg-(--accent) shadow-[0_0_8px_var(--accent)]" />
               )}
             </button>
           );
@@ -63,7 +63,7 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback }) => {
         {onFeedback && (
           <button
             onClick={onFeedback}
-            className="relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-200 outline-none h-full flex-1 min-w-11 text-(--text-muted) hover:text-(--accent)"
+            className="relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-200 outline-none h-full flex-1 min-w-12 text-(--text-muted) hover:text-(--accent-warm)"
           >
             <div className="relative flex items-center justify-center transition-transform duration-200 scale-100">
               <Icon

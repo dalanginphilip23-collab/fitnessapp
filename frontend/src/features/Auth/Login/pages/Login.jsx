@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLogin } from '../hooks/useLogin';
 
-const ACCENT        = '#8FBF63';
-const ACCENT_HOVER  = '#9DCB72';
-const ACCENT_BORDER = 'rgba(143, 191, 99, 0.22)';
-const ACCENT_TINT   = 'rgba(143, 191, 99, 0.05)';
+const ACCENT        = '#8BC34A';
+const ACCENT_HOVER  = '#9CCC65';
+const ACCENT_BORDER = 'rgba(139, 195, 74, 0.22)';
+const ACCENT_TINT   = 'rgba(139, 195, 74, 0.06)';
 
 // Simple inline eye / eye-off icons so no extra icon package is required.
 // If your project already uses lucide-react elsewhere, you can swap these
@@ -145,7 +145,7 @@ const Login = () => {
         {/* Left Hero Panel — desktop only */}
         <div className="hidden lg:flex flex-col justify-center p-14 gap-4">
           <span className="v-hero-eyebrow text-[11px] font-semibold tracking-[0.35em] uppercase opacity-80" style={{ color: ACCENT }}>
-            Vitalis Performance OS
+            Your Fitness Journey
           </span>
           <h1 className="v-hero-h1 font-['Bebas_Neue'] text-[clamp(56px,6vw,88px)] leading-[0.95] tracking-wider">
             TRAIN<br />
@@ -154,13 +154,13 @@ const Login = () => {
             SMARTER.
           </h1>
           <p className="v-hero-sub text-[13px] text-[#e5e2e1]/45 max-w-[320px] leading-relaxed font-light mt-1">
-            AI-powered biometric tracking that adapts to your body in real time. Every rep, every rest, optimized.
+            Smart fitness tracking powered by AI. Every rep, every rest, optimized for you.
           </p>
 
           <div className="v-hero-stats flex gap-8 mt-6 pt-6 border-t border-white/10">
             <div className="flex flex-col">
               <span className="font-['Bebas_Neue'] text-3xl leading-none" style={{ color: ACCENT }}>12K+</span>
-              <span className="text-[10px] tracking-widest uppercase text-white/30">Athletes</span>
+              <span className="text-[10px] tracking-widest uppercase text-white/30">Active Users</span>
             </div>
             <div className="flex flex-col">
               <span className="font-['Bebas_Neue'] text-3xl leading-none" style={{ color: ACCENT }}>98%</span>
@@ -188,8 +188,8 @@ const Login = () => {
               <span className="font-['Bebas_Neue'] text-[20px] sm:text-[22px] tracking-[0.12em] text-[#e5e2e1]">VITALIS</span>
             </div>
 
-            <h2 className="v-card-title font-['Bebas_Neue'] text-[26px] sm:text-[32px] tracking-wider leading-none mb-1.5 text-[#e5e2e1]">ACCESS PORTAL</h2>
-            <p className="v-card-sub text-xs text-[#c4c9b0]/55 tracking-wide mb-6 sm:mb-8">Enter credentials to synchronize biometrics.</p>
+            <h2 className="v-card-title font-['Bebas_Neue'] text-[26px] sm:text-[32px] tracking-wider leading-none mb-1.5 text-[#e5e2e1]">Welcome Back</h2>
+            <p className="v-card-sub text-xs text-[#c4c9b0]/55 tracking-wide mb-6 sm:mb-8">Sign in to continue your fitness journey.</p>
 
             <form onSubmit={(e) => handleSubmit(e, { email, password })} className="space-y-4 sm:space-y-5">
               {error && (
@@ -213,7 +213,7 @@ const Login = () => {
                     borderColor: focused === 'email' ? `${ACCENT}80` : undefined,
                     backgroundColor: focused === 'email' ? `${ACCENT}0d` : undefined,
                   }}
-                  placeholder="athlete@vitalis.io"
+                  placeholder="you@email.com"
                   required
                   value={email}
                   onChange={e => setEmail(e.target.value)}
@@ -272,7 +272,7 @@ const Login = () => {
                   onMouseEnter={e => e.currentTarget.style.color = ACCENT}
                   onMouseLeave={e => e.currentTarget.style.color = `${ACCENT}b3`}
                 >
-                  Forgot password?
+                  Reset password
                 </a>
               </div>
 
@@ -288,7 +288,7 @@ const Login = () => {
                 {loading ? (
                   <><div className="vitalis-spinner" /> Processing...</>
                 ) : (
-                  <>Initialize Session <span className="text-lg">→</span></>
+                  <>Sign In <span className="text-lg">→</span></>
                 )}
               </button>
 

@@ -42,7 +42,7 @@ const Hero = ({ name = 'Athlete', goal = 'Unspecified', avatar, activeProgramCou
   }, []);
 
   return (
-    <div className="bg-(--bg-tertiary) border border-(--border-light) rounded-[20px] p-[22px] mb-6 flex items-center justify-between gap-4 shadow-sm fitness-card">
+    <div className="bg-(--bg-tertiary) border border-(--border-light) rounded-[20px] p-[22px] mb-6 flex items-center justify-between gap-4 shadow-sm card-glow mesh-gradient-warm">
       <div className="min-w-0">
         <div className="flex items-center gap-2 mb-1.5">
           <span className="text-[10px] font-black uppercase tracking-[0.18em] text-(--accent)">
@@ -81,15 +81,15 @@ const Hero = ({ name = 'Athlete', goal = 'Unspecified', avatar, activeProgramCou
           <img
             src={avatar}
             alt={name}
-            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-(--accent-border) ring-2 ring-(--accent)/20"
+            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-(--accent-border) ring-3 ring-(--accent)/15"
           />
         ) : (
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-(--accent-bg) border-2 border-(--accent-border) ring-2 ring-(--accent)/20 flex items-center justify-center text-base font-black text-(--accent)">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-(--accent-bg) border-2 border-(--accent-border) ring-3 ring-(--accent)/15 flex items-center justify-center text-base font-black text-(--accent)">
             {name?.charAt(0)?.toUpperCase() || 'A'}
           </div>
         )}
         {activeProgramCount > 0 && (
-          <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-(--accent) rounded-full border-[2px] border-(--bg-tertiary) animate-status-glow" />
+          <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-(--accent) rounded-full border-[2px] border-(--bg-tertiary) animate-energy-pulse" />
         )}
       </div>
     </div>

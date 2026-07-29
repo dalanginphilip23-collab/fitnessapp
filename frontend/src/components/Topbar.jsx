@@ -83,7 +83,7 @@ function NotificationOverlay({ notifications, onMarkRead, onMarkAllRead, onClose
       >
         {displayed.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 gap-3">
-            <span className="material-icons text-[40px] text-(--text-disabled)">notifications_none</span>
+            <span className="material-symbols-outlined text-[40px] text-(--text-disabled)">notifications_none</span>
             <p className="text-[12px] text-(--text-muted) m-0 font-medium">No notifications yet</p>
           </div>
         ) : (
@@ -97,11 +97,11 @@ function NotificationOverlay({ notifications, onMarkRead, onMarkAllRead, onClose
               <div className="mt-1.5 shrink-0">
                 {notif.is_read
                   ? <div className="w-1.5 h-1.5 rounded-full bg-(--text-muted) border border-(--border-medium)" />
-                  : <div className="w-2 h-2 rounded-full bg-(--accent) shadow-[0_0_6px_var(--accent)] animate-pulse" />
+                  : <div className="w-2 h-2 rounded-full bg-(--accent) shadow-[0_0_8px_var(--accent)] animate-pulse" />
                 }
               </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-[12px] leading-relaxed m-0 wrap-break-word font-medium ${notif.is_read ? 'text-(--text-muted)' : 'text-(--text-secondary)'}`}>{notif.message}</p>
+                <p className={`text-[12px] leading-relaxed m-0 font-medium ${notif.is_read ? 'text-(--text-muted)' : 'text-(--text-secondary)'}`}>{notif.message}</p>
                 <p className={`text-[10px] mt-1 m-0 font-medium ${notif.is_read ? 'text-(--text-disabled)' : 'text-(--text-muted)'}`}>
                   {new Date(notif.created_at).toLocaleString()}
                 </p>
@@ -382,7 +382,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
       <header
         className={
           'fixed top-0 right-0 h-14 sm:h-15 z-[2001] ' +
-          'bg-(--bg-secondary)/90 backdrop-blur-xl ' +
+          'bg-(--bg-secondary)/85 backdrop-blur-xl ' +
           'border-b border-(--border-light) ' +
           'flex items-center justify-between px-3 sm:px-4 md:px-6 ' +
           'transition-all duration-400 ease-in-out ' +
@@ -413,11 +413,16 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                 key={i}
                 onClick={() => handleNavClick(item.path)}
                 className={
-                  'font-[Manrope] text-[13px] transition-colors duration-200 border-none bg-transparent cursor-pointer ' +
-                  (activePath === item.path ? 'text-(--accent) font-bold' : 'text-(--text-muted) hover:text-(--accent)')
+                  'font-[Manrope] text-[13px] transition-colors duration-200 border-none bg-transparent cursor-pointer relative ' +
+                  (activePath === item.path
+                    ? 'text-(--accent) font-bold'
+                    : 'text-(--text-muted) hover:text-(--accent)')
                 }
               >
                 {item.name}
+                {activePath === item.path && (
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-0.5 rounded-full bg-(--accent)" />
+                )}
               </button>
             ))}
           </nav>
@@ -426,7 +431,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
         {/* ── Right ── */}
         <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
           {/* Search */}
-          <div className="relative hidden sm:flex items-center gap-2 bg-(--bg-hover) border border-(--border-light) rounded-full px-3 sm:px-3.5 py-1.5 focus-within:border-(--accent)/40 focus-within:bg-(--bg-active) transition-all">
+          <div className="relative hidden sm:flex items-center gap-2 bg-(--bg-hover) border border-(--border-light) rounded-full px-3 sm:px-3.5 py-1.5 focus-within:border-(--accent)/40 focus-within:bg-(--accent-bg) transition-all">
             <Icon name="search" className="text-(--text-disabled) text-[14px] sm:text-[15px]" />
             <input
               placeholder="Search stats..."
@@ -441,7 +446,6 @@ const Topbar = ({ sidebarExpanded, userId }) => {
             <button
               className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl cursor-pointer group bg-transparent border-none transition-all duration-200 hover:bg-(--bg-hover)"
               onClick={() => {
-                // Close mobile menu when opening notification
                 if (mobileMenuOpen) setMobileMenuOpen(false);
                 setNotifOpen(prev => !prev);
                 fetchNotifications();
@@ -449,7 +453,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
             >
               <Icon name="notifications" className={`text-[20px] sm:text-[21px] transition-colors ${notifOpen ? 'text-(--accent)' : 'text-(--text-muted) group-hover:text-(--accent)'}`} />
               {notifCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-(--accent) rounded-full border-[1.5px] border-(--bg-secondary) animate-pulse shadow-[0_0_6px_var(--accent)]" />
+                <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-(--accent) rounded-full border-[1.5px] border-(--bg-secondary) animate-pulse shadow-[0_0_8px_var(--accent)]" />
               )}
             </button>
             {notifOpen && !mobileMenuOpen && (
@@ -487,12 +491,12 @@ const Topbar = ({ sidebarExpanded, userId }) => {
             {settingsOpen && !mobileMenuOpen && (
               <div className="absolute right-0 top-[calc(100%+10px)] w-52.5 sm:w-55 bg-(--bg-secondary) border border-(--border-medium) rounded-2xl shadow-(--shadow-lg) overflow-hidden z-9999">
                 <div className="flex items-center gap-3 px-4 py-3.5 border-b border-(--border-light) bg-(--surface)">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-(--accent)/20 bg-(--bg-tertiary) shrink-0">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-(--accent)/20 bg-(--bg-tertiary) shrink-0 ring-2 ring-(--accent)/10">
                     <img src={avatarSrc} alt="User" className="w-full h-full object-cover" onError={handleAvatarError} />
                   </div>
                   <div>
                     <p className="text-[12px] sm:text-[13px] font-bold text-(--text-primary) leading-tight m-0">{userData.name}</p>
-                    <p className="text-[9px] sm:text-[10px] text-(--accent)/50 m-0 font-medium">Pro Member</p>
+                    <p className="text-[9px] sm:text-[10px] text-(--accent)/40 m-0 font-medium">Pro Member</p>
                   </div>
                 </div>
                 <div className="p-1.5 flex flex-col gap-0.5">
@@ -528,7 +532,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
               <span className="text-[11px] sm:text-[12px] font-semibold text-(--text-secondary)">{userData.name}</span>
               <span className="text-[9px] sm:text-[10px] text-(--accent)/40 font-medium">Pro Member</span>
             </div>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden border border-(--accent)/20 bg-(--bg-tertiary) shrink-0 ring-1 ring-white/5">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden bg-(--bg-tertiary) shrink-0 ring-2 ring-(--accent)/15">
               <img src={avatarSrc} alt="User" className="w-full h-full object-cover" onError={handleAvatarError} />
             </div>
           </div>

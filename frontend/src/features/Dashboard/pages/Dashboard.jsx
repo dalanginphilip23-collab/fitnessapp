@@ -85,7 +85,7 @@ const Dashboard = () => {
   if (!USER_ID) return null;
 
   return (
-    <div className="min-h-screen w-full bg-[var(--bg-primary)] text-[var(--text-primary)] font-['Inter',sans-serif] overflow-x-hidden">
+    <div className="min-h-screen w-full bg-[var(--bg-primary)] text-[var(--text-primary)] font-['Inter',sans-serif] overflow-x-hidden mesh-gradient-warm">
       {/* Sidebar only exists at md+ ; MobileNav covers everything below that */}
       <div className="hidden md:block">
         <Sidebar
@@ -148,7 +148,7 @@ const Dashboard = () => {
                   <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 flex items-center gap-1.5 sm:gap-2 bg-[var(--accent-bg)] px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border border-[var(--accent-border)] shadow-lg max-w-[calc(100%-1rem)]">
                     <div className="w-1.5 h-1.5 shrink-0 bg-[var(--accent)] rounded-full animate-ping" />
                     <span className="text-[8px] sm:text-[9px] font-black text-[var(--accent)] uppercase tracking-widest truncate">
-                      AI Scanning Vitals
+                      AI Analyzing
                     </span>
                   </div>
                 )}

@@ -1,56 +1,63 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 /* Theme CSS Variables */
 :root,
 .dark-theme {
-  /* Background colors */
-  --bg-primary: #0e0e0e;
-  --bg-secondary: #131313;
-  --bg-tertiary: #1c1b1b;
-  --bg-card: #141414;
-  --bg-hover: rgba(255, 255, 255, 0.05);
-  --bg-active: rgba(143, 191, 99, 0.08);
+  /* Background colors — warmer dark */
+  --bg-primary: #121212;
+  --bg-secondary: #181818;
+  --bg-tertiary: #1e1e1e;
+  --bg-card: #1a1a1a;
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --bg-active: rgba(139, 195, 74, 0.1);
   --bg-overlay: rgba(0, 0, 0, 0.8);
+  --bg-warm: rgba(255, 183, 77, 0.06);
   
   /* Surface colors */
-  --surface: #131313;
-  --surface-hover: #1a1a1a;
-  --surface-active: #1e1e1e;
-  --surface-elevated: #1a1a1a;
+  --surface: #181818;
+  --surface-hover: #222;
+  --surface-active: #282828;
+  --surface-elevated: #222;
   
   /* Text colors */
-  --text-primary: #e5e2e1;
-  --text-secondary: #a0a0a0;
-  --text-muted: #555555;
-  --text-disabled: #333333;
+  --text-primary: #f0efed;
+  --text-secondary: #b0aeac;
+  --text-muted: #6a6a6a;
+  --text-disabled: #3a3a3a;
   --text-inverse: #1a1a1a;
   
   /* Border colors */
-  --border-light: rgba(255, 255, 255, 0.06);
-  --border-medium: rgba(255, 255, 255, 0.1);
-  --border-heavy: rgba(255, 255, 255, 0.15);
+  --border-light: rgba(255, 255, 255, 0.07);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-heavy: rgba(255, 255, 255, 0.18);
   
-  /* Accent colors — muted forest green (not neon) */
-  --accent: #7dd625e1;
-  --accent-dark: #7dd625e1;
-  --accent-light: #7dd625e1;
-  --accent-bg: rgba(37, 73, 0, 0.10);
-  --accent-border: rgba(37, 73, 0, 0.22);
-  --accent-hover: #7dd625e1;
+  /* Accent colors — vibrant fitness green */
+  --accent: #8BC34A;
+  --accent-dark: #7CB342;
+  --accent-light: #9CCC65;
+  --accent-bg: rgba(139, 195, 74, 0.1);
+  --accent-border: rgba(139, 195, 74, 0.2);
+  --accent-hover: #9CCC65;
   
-  /* Shadows — flat, no colored glow */
+  /* Secondary accent — warm amber for energy */
+  --accent-warm: #FFB74D;
+  --accent-warm-bg: rgba(255, 183, 77, 0.1);
+  --accent-warm-border: rgba(255, 183, 77, 0.2);
+  
+  /* Shadows — with subtle green glow */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
-  --shadow-glow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  --shadow-glow: 0 4px 20px rgba(139, 195, 74, 0.2);
+  --shadow-glow-amber: 0 4px 20px rgba(255, 183, 77, 0.15);
   
   /* Input */
   --input-bg: rgba(255, 255, 255, 0.05);
   --input-border: rgba(255, 255, 255, 0.1);
-  --input-focus: rgba(143, 191, 99, 0.3);
-  --input-placeholder: #333333;
+  --input-focus: rgba(139, 195, 74, 0.3);
+  --input-placeholder: #444;
   
   /* Scrollbar */
   --scrollbar-track: transparent;
@@ -58,80 +65,77 @@
   --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
   
   /* Status */
-  --success: #7dd625e1;
-  --success-bg: rgba(74, 222, 128, 0.1);
-  --error: #f87171;
-  --error-bg: rgba(248, 113, 113, 0.1);
-  --warning: #fbbf24;
-  --warning-bg: rgba(251, 191, 36, 0.1);
-  --info: #60a5fa;
-  --info-bg: rgba(96, 165, 250, 0.1);
+  --success: #8BC34A;
+  --success-bg: rgba(139, 195, 74, 0.12);
+  --error: #ef5350;
+  --error-bg: rgba(239, 83, 80, 0.1);
+  --warning: #FFB74D;
+  --warning-bg: rgba(255, 183, 77, 0.1);
+  --info: #64B5F6;
+  --info-bg: rgba(100, 181, 246, 0.1);
 }
 
-/* Light theme overrides */
+/* Light theme overrides — warm, energetic, friendly */
 .light-theme {
-  /* Background colors - Light mode (WHITE) */
-  --bg-primary: #f5f5f5;
+  --bg-primary: #f7f7f5;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f8f8f8;
+  --bg-tertiary: #fafaf8;
   --bg-card: #ffffff;
   --bg-hover: rgba(0, 0, 0, 0.04);
-  --bg-active: rgba(0, 0, 0, 0.06);
-  --bg-overlay: rgba(0, 0, 0, 0.6);
+  --bg-active: rgba(139, 195, 74, 0.08);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  --bg-warm: rgba(255, 183, 77, 0.05);
   
-  /* Surface colors */
   --surface: #ffffff;
-  --surface-hover: #f8f8f8;
-  --surface-active: #f0f0f0;
-  --surface-elevated: #fafafa;
+  --surface-hover: #f8f8f6;
+  --surface-active: #f0f0ee;
+  --surface-elevated: #fafaf8;
   
-  /* Text colors - Light mode (DARK) */
   --text-primary: #1a1a1a;
-  --text-secondary: #4a4a4a;
-  --text-muted: #888888;
-  --text-disabled: #cccccc;
+  --text-secondary: #5a5a5a;
+  --text-muted: #999;
+  --text-disabled: #ccc;
   --text-inverse: #ffffff;
   
-  /* Border colors */
-  --border-light: rgba(0, 0, 0, 0.08);
+  --border-light: rgba(0, 0, 0, 0.07);
   --border-medium: rgba(0, 0, 0, 0.12);
-  --border-heavy: rgba(0, 0, 0, 0.2);
+  --border-heavy: rgba(0, 0, 0, 0.18);
   
-  /* Accent colors — muted forest green (not neon) */
-  --accent: #7dd625e1;
-  --accent-dark: #7dd625e1;
-  --accent-light: #7dd625e1;
-  --accent-bg: rgba(37, 73, 0, 0.10);
-  --accent-border: rgba(37, 73, 0, 0.22);
-  --accent-hover: #7dd625e1;
+  --accent: #7CB342;
+  --accent-dark: #689F38;
+  --accent-light: #8BC34A;
+  --accent-bg: rgba(124, 179, 66, 0.08);
+  --accent-border: rgba(124, 179, 66, 0.18);
+  --accent-hover: #8BC34A;
   
-  /* Shadows - Light mode */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
-  --shadow-glow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  --accent-warm: #FF9800;
+  --accent-warm-bg: rgba(255, 152, 0, 0.08);
+  --accent-warm-border: rgba(255, 152, 0, 0.18);
   
-  /* Input */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.09);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.11);
+  --shadow-glow: 0 4px 20px rgba(124, 179, 66, 0.15);
+  --shadow-glow-amber: 0 4px 20px rgba(255, 152, 0, 0.12);
+  
   --input-bg: rgba(0, 0, 0, 0.03);
   --input-border: rgba(0, 0, 0, 0.1);
-  --input-focus: rgba(94, 158, 74, 0.3);
-  --input-placeholder: #aaaaaa;
+  --input-focus: rgba(124, 179, 66, 0.25);
+  --input-placeholder: #bbb;
   
-  /* Scrollbar */
   --scrollbar-track: transparent;
-  --scrollbar-thumb: rgba(0, 0, 0, 0.1);
-  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.2);
+  --scrollbar-thumb: rgba(0, 0, 0, 0.08);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.15);
   
-  /* Status */
-  --success: #7dd625e1;
-  --success-bg: rgba(37, 73, 0, 0.1);
-  --error: #ef4444;
-  --error-bg: rgba(239, 68, 68, 0.1);
-  --warning: #f59e0b;
-  --warning-bg: rgba(245, 158, 11, 0.1);
-  --info: #3b82f6;
-  --info-bg: rgba(59, 130, 246, 0.1);
+  --success: #7CB342;
+  --success-bg: rgba(124, 179, 66, 0.1);
+  --error: #ef5350;
+  --error-bg: rgba(239, 83, 80, 0.08);
+  --warning: #FF9800;
+  --warning-bg: rgba(255, 152, 0, 0.08);
+  --info: #42A5F5;
+  --info-bg: rgba(66, 165, 245, 0.08);
 }
 
 /* Smooth transitions for theme switching */
@@ -214,12 +218,19 @@ body {
 .border-medium { border-color: var(--border-medium); }
 .border-accent { border-color: var(--accent-border); }
 
-/* The Mesh Gradient Background */
+/* The Mesh Gradient Background — warm fitness energy */
 .mesh-gradient {
   background-color: var(--bg-primary);
   background-image:
-    radial-gradient(at 0% 0%, hsla(100, 30%, 45%, 0.03) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, hsla(100, 30%, 45%, 0.02) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(139, 195, 74, 0.04) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(255, 183, 77, 0.03) 0px, transparent 50%);
+}
+
+.mesh-gradient-warm {
+  background-color: var(--bg-primary);
+  background-image:
+    radial-gradient(at 20% 80%, rgba(255, 183, 77, 0.05) 0px, transparent 50%),
+    radial-gradient(at 80% 20%, rgba(139, 195, 74, 0.04) 0px, transparent 50%);
 }
 
 /* The Frosted Glass Effect */
@@ -258,7 +269,7 @@ input::placeholder {
   color: var(--input-placeholder);
 }
 
-/* Sci-fi grid texture */
+/* Subtle grid texture */
 .vitalis-grid {
   background-image:
     linear-gradient(var(--border-light) 1px, transparent 1px),
@@ -266,10 +277,15 @@ input::placeholder {
   background-size: 60px 60px;
 }
 
-/* Subtle green vignette (glow removed, kept as soft gradient) */
+/* Fitness energy vignette — warm green + amber blend */
 .vitalis-vignette {
-  background: radial-gradient(ellipse 80% 60% at 50% 110%, rgba(143, 191, 99, 0.05) 0%, transparent 70%),
+  background: radial-gradient(ellipse 80% 60% at 50% 110%, rgba(139, 195, 74, 0.06) 0%, transparent 70%),
     linear-gradient(to top, var(--bg-primary) 0%, transparent 50%);
+}
+
+.vitalis-vignette-warm {
+  background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255, 183, 77, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(139, 195, 74, 0.05) 0%, transparent 70%);
 }
 
 /* Entry Animation for the card */
@@ -336,16 +352,25 @@ input::placeholder {
   background-size: 60px 60px;
 }
 
-/* Glass card */
+/* Glass card — warmer, softer */
 .glass-card {
-  background: rgba(18, 18, 16, 0.65);
+  background: rgba(26, 26, 24, 0.7);
   backdrop-filter: blur(32px) saturate(1.2);
   -webkit-backdrop-filter: blur(32px) saturate(1.2);
   box-shadow:
-    0 0 0 1px rgba(0,0,0,0.4),
+    0 0 0 1px rgba(139, 195, 74, 0.08),
     0 32px 80px rgba(0,0,0,0.6),
     inset 0 1px 0 rgba(255,255,255,0.06);
   animation: cardIn 0.55s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+/* Glass card for light theme */
+.light-theme .glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 0 0 1px rgba(124, 179, 66, 0.1),
+    0 32px 80px rgba(0,0,0,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.8);
 }
 
 @keyframes cardIn {
@@ -365,24 +390,24 @@ input::placeholder {
 }
 
 .btn-primary {
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-glow);
 }
 
 .btn-primary::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
   pointer-events: none;
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--accent-hover);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+  box-shadow: 0 4px 24px rgba(139, 195, 74, 0.3);
+  transform: translateY(-2px);
 }
 
-.btn-primary:active:not(:disabled) { transform: scale(0.98); }
+.btn-primary:active:not(:disabled) { transform: scale(0.97); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .spinner {
@@ -608,4 +633,68 @@ input::placeholder {
 .fitness-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+}
+
+/* ── Gradient text utility ── */
+.text-gradient-accent {
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-warm {
+  background: linear-gradient(135deg, var(--accent-warm), #FF8A65);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Soft bounce animation ── */
+@keyframes bounce-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.animate-bounce-soft {
+  animation: bounce-soft 0.6s ease-in-out infinite;
+}
+
+/* ── Energetic pulse for badges ── */
+@keyframes energy-pulse {
+  0% { box-shadow: 0 0 0 0 var(--accent-bg); }
+  70% { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.animate-energy-pulse {
+  animation: energy-pulse 2s ease-in-out infinite;
+}
+
+/* ── Card glow on hover ── */
+.card-glow {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.card-glow:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-glow);
+}
+
+/* ── Warm card variant ── */
+.bg-warm-subtle {
+  background-color: var(--bg-warm);
+}
+
+/* ── Fitness chip/pill ── */
+.fitness-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
 }

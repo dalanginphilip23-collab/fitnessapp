@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useRegister } from '../hooks/useRegister';
 
-const ACCENT        = '#8FBF63';
-const ACCENT_HOVER  = '#9DCB72';
-const ACCENT_BORDER = 'rgba(143, 191, 99, 0.22)';
-const ACCENT_TINT   = 'rgba(143, 191, 99, 0.05)';
+const ACCENT        = '#8BC34A';
+const ACCENT_HOVER  = '#9CCC65';
+const ACCENT_BORDER = 'rgba(139, 195, 74, 0.22)';
+const ACCENT_TINT   = 'rgba(139, 195, 74, 0.06)';
 
 const GOALS = [
   'Peak Metabolic Efficiency',
@@ -148,7 +148,7 @@ const Register = () => {
           animation: vitalis-modal-in 0.35s cubic-bezier(0.22,1,0.36,1) forwards;
         }
         .goal-select-custom {
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238FBF63' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238BC34A' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
           background-repeat: no-repeat;
           background-position: right 14px center;
           padding-right: 38px !important;
@@ -177,9 +177,9 @@ const Register = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="font-['Bebas_Neue'] text-[26px] sm:text-3xl tracking-wider text-[#e5e2e1] mb-2 uppercase">Identity Encrypted</h2>
+            <h2 className="font-['Bebas_Neue'] text-[26px] sm:text-3xl tracking-wider text-[#e5e2e1] mb-2 uppercase">You're All Set!</h2>
             <p className="text-[11px] sm:text-[12px] text-[#c4c9b0]/60 tracking-wider mb-6 sm:mb-8 leading-relaxed uppercase">
-              Your clinical athlete profile has been successfully initialized into the Vitalis Core.
+              Your account is ready. Let's crush your fitness goals!
             </p>
             <button
               onClick={handleModalConfirm}
@@ -191,7 +191,7 @@ const Register = () => {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 16l-4-4m0 0l4-4m-4 4h14" />
               </svg>
-              Go Back to Login
+              Go to Login
             </button>
           </div>
         </div>
@@ -202,16 +202,16 @@ const Register = () => {
         {/* Left Hero Panel — desktop only */}
         <div className="hidden lg:flex flex-col justify-center p-14 gap-4">
           <span className="v-hero-eyebrow text-[11px] font-semibold tracking-[0.35em] uppercase opacity-80" style={{ color: ACCENT }}>
-            Vitalis Performance OS
+            Your Fitness Journey
           </span>
           <h1 className="v-hero-h1 font-['Bebas_Neue'] text-[clamp(52px,5.5vw,82px)] leading-[0.95] tracking-wider">
-            BUILD<br />
+            START<br />
             YOUR<br />
-            <span style={{ color: ACCENT }}>ATHLETE</span><br />
-            PROFILE.
+            <span style={{ color: ACCENT }}>TRANSFORMATION</span><br />
+            TODAY.
           </h1>
-          <p className="v-hero-sub text-[13px] text-[#e5e2e1]/45 max-w-[320px] leading-relaxed font-light mt-1">
-            Choose your goal, sync your biometrics, and let the AI engine build a program around your biology.
+          <p className="v-hero-sub text-[13px] text-[#e5e2e1]/45 max-[320px] leading-relaxed font-light mt-1">
+            Set your goal, track your progress, and let AI build a program around your unique body.
           </p>
 
           <div className="v-hero-goals flex flex-wrap gap-2 mt-5 pt-6 border-t border-white/10">
@@ -248,7 +248,7 @@ const Register = () => {
 
             {/* Progress */}
             <div className="v-card-progress flex justify-between items-center mb-2">
-              <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#c4c9b0]/40">Profile Setup</span>
+              <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#c4c9b0]/40">Your Profile</span>
               <span className="font-['Bebas_Neue'] text-[16px] leading-none" style={{ color: ACCENT }}>{progressPct}%</span>
             </div>
             <div className="v-card-progress h-[2px] bg-white/5 rounded-full mb-6 sm:mb-8 overflow-hidden">
@@ -258,8 +258,8 @@ const Register = () => {
               />
             </div>
 
-            <h2 className="v-card-title font-['Bebas_Neue'] text-[26px] sm:text-[32px] tracking-wider leading-none mb-1.5 text-[#e5e2e1]">CREATE IDENTITY</h2>
-            <p className="v-card-sub text-xs text-[#c4c9b0]/55 tracking-wide mb-6 sm:mb-8">Initialize your clinical athlete profile.</p>
+            <h2 className="v-card-title font-['Bebas_Neue'] text-[26px] sm:text-[32px] tracking-wider leading-none mb-1.5 text-[#e5e2e1]">Create Your Account</h2>
+            <p className="v-card-sub text-xs text-[#c4c9b0]/55 tracking-wide mb-6 sm:mb-8">Start your fitness journey today.</p>
 
             <form onSubmit={(e) => handleRegister(e, formData)} className="space-y-4 sm:space-y-5">
               {error && (
@@ -307,7 +307,7 @@ const Register = () => {
                     borderColor: focused === 'email' ? `${ACCENT}80` : undefined,
                     backgroundColor: focused === 'email' ? `${ACCENT}0d` : undefined,
                   }}
-                  placeholder="athlete@vitalis.io"
+                  placeholder="you@email.com"
                   required
                   value={formData.email}
                   onChange={update('email')}
@@ -364,7 +364,7 @@ const Register = () => {
                   className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 transition-colors"
                   style={{ color: focused === 'goal' ? ACCENT : 'rgba(255,255,255,0.5)' }}
                 >
-                  Primary Goal
+                  Your Goal
                 </label>
                 <select
                   className="goal-select-custom w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none cursor-pointer appearance-none transition-all text-[#e5e2e1]"
@@ -395,7 +395,7 @@ const Register = () => {
                 {loading ? (
                   <><div className="vitalis-spinner" /> Initializing...</>
                 ) : (
-                  <>Initiate Optimization <span className="text-lg">→</span></>
+                  <>Create Account <span className="text-lg">→</span></>
                 )}
               </button>
             </form>

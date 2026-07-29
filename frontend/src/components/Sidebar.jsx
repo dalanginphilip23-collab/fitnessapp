@@ -37,23 +37,24 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
         className={`
           hidden md:flex fixed left-0 top-0 h-full flex-col
           bg-(--bg-secondary) border-r border-(--border-light)
-          py-7 z-60 overflow-hidden
+          py-7 z-60 overflow-hidden mesh-gradient-warm
           transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
           ${expanded ? 'w-60' : 'w-18'}
         `}
       >
         {/* Logo */}
         <div className="flex items-center gap-3.5 px-5 mb-9 overflow-hidden">
-          <div className="min-w-8 h-8 bg-(--accent) flex items-center justify-center rounded-lg shrink-0 shadow-lg shadow-(--accent)/20">
+          <div className="min-w-8 h-8 bg-(--accent) flex items-center justify-center rounded-lg shrink-0 shadow-lg shadow-(--accent)/25">
             <Icon name="pulse_alert" fill={1} weight={400} className="text-[#161f00] text-[18px]" />
           </div>
-          <span
-            className={`font-['Manrope'] font-black tracking-[0.2em] text-[13px] text-(--accent) whitespace-nowrap transition-all duration-300 ${
-              expanded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'
-            }`}
-          >
-            VITALIS
-          </span>
+          <div className={`whitespace-nowrap transition-all duration-300 ${expanded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'}`}>
+            <span className="font-['Manrope'] font-black tracking-[0.2em] text-[13px] text-(--accent) block leading-tight">
+              VITALIS
+            </span>
+            <span className="text-[7px] font-bold uppercase tracking-[0.3em] text-(--text-muted) block">
+              Fitness OS
+            </span>
+          </div>
         </div>
 
         {/* Primary nav */}
@@ -68,27 +69,29 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
                 onMouseEnter={() => setHoveredItem(item.label)}
                 onMouseLeave={() => setHoveredItem(null)}
                 className={`
-                  flex items-center gap-4 px-3 h-11 rounded-xl whitespace-nowrap overflow-hidden
+                  group flex items-center gap-4 px-3 h-11 rounded-xl whitespace-nowrap overflow-hidden
                   text-[11px] uppercase tracking-[0.12em] no-underline transition-all duration-200
                   ${
                     isActive
-                      ? 'text-(--accent) bg-(--accent-bg) font-bold'
+                      ? 'text-(--accent) bg-(--accent-bg) font-bold shadow-[0_0_12px_var(--accent-bg)]'
                       : 'text-(--text-muted) hover:bg-(--bg-hover) hover:text-(--text-secondary)'
                   }
                 `}
               >
-                <div className="relative">
+                <div className="relative flex items-center justify-center w-5 h-5">
                   <Icon
                     name={item.icon}
-                    className={`text-[20px] min-w-5 shrink-0 transition-transform duration-200 ${isHovered && !isActive ? 'scale-110' : ''}`}
+                    className={`text-[20px] min-w-5 shrink-0 transition-all duration-200 ${isHovered && !isActive ? 'scale-110 text-(--accent)' : ''}`}
                     fill={isActive ? 1 : 0}
                   />
                   {isActive && (
-                    <span className="absolute -right-1 -top-0.5 w-2 h-2 bg-(--accent) rounded-full shadow-[0_0_6px_var(--accent)]" />
+                    <>
+                      <span className="absolute -right-1 -top-0.5 w-2 h-2 bg-(--accent) rounded-full shadow-[0_0_8px_var(--accent)] animate-energy-pulse" />
+                    </>
                   )}
                 </div>
                 <span
-                  className={`transition-all duration-200 ${
+                  className={`transition-all duration-200 font-semibold ${
                     expanded ? 'opacity-100' : 'opacity-0'
                   }`}
                 >
@@ -103,7 +106,7 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
         <div className="border-t border-(--border-light) pt-2 px-2">
           <button
             onClick={() => setShowFeedback(true)}
-            className="w-full flex items-center gap-4 px-3 h-10 rounded-xl text-[11px] uppercase tracking-[0.12em] text-(--text-muted) hover:text-(--accent) hover:bg-(--accent-bg) whitespace-nowrap overflow-hidden transition-all duration-200 border-none bg-transparent cursor-pointer"
+            className="w-full flex items-center gap-4 px-3 h-10 rounded-xl text-[11px] uppercase tracking-[0.12em] text-(--text-muted) hover:text-(--accent-warm) hover:bg-(--accent-warm-bg) whitespace-nowrap overflow-hidden transition-all duration-200 border-none bg-transparent cursor-pointer font-semibold"
           >
             <Icon name="feedback" className="text-[20px] min-w-5 shrink-0" />
             <span
@@ -116,7 +119,7 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
           </button>
           <button
             onClick={onClick}
-            className="w-full flex items-center gap-4 px-3 h-10 rounded-xl text-[11px] uppercase tracking-[0.12em] text-(--text-muted) hover:text-(--text-secondary) hover:bg-(--bg-hover) whitespace-nowrap overflow-hidden transition-all duration-200 border-none bg-transparent cursor-pointer"
+            className="w-full flex items-center gap-4 px-3 h-10 rounded-xl text-[11px] uppercase tracking-[0.12em] text-(--text-muted) hover:text-(--text-secondary) hover:bg-(--bg-hover) whitespace-nowrap overflow-hidden transition-all duration-200 border-none bg-transparent cursor-pointer font-semibold"
           >
             <Icon name="logout" className="text-[20px] min-w-5 shrink-0" />
             <span
@@ -137,13 +140,16 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-72 bg-(--bg-secondary) border-r border-(--border-light) animate-slide-in-right shadow-2xl flex flex-col py-6">
+          <aside className="absolute left-0 top-0 h-full w-72 bg-(--bg-secondary) border-r border-(--border-light) animate-slide-in-right shadow-2xl flex flex-col py-6 mesh-gradient-warm">
             <div className="flex items-center justify-between px-4 mb-8">
               <div className="flex items-center gap-3.5">
-                <div className="min-w-8 h-8 bg-(--accent) flex items-center justify-center rounded-lg shrink-0 shadow-lg shadow-(--accent)/20">
+                <div className="min-w-8 h-8 bg-(--accent) flex items-center justify-center rounded-lg shrink-0 shadow-lg shadow-(--accent)/25">
                   <Icon name="pulse_alert" fill={1} weight={400} className="text-[#161f00] text-[18px]" />
                 </div>
-                <span className="font-['Manrope'] font-black tracking-[0.2em] text-[13px] text-(--accent) whitespace-nowrap">VITALIS</span>
+                <div>
+                  <span className="font-['Manrope'] font-black tracking-[0.2em] text-[13px] text-(--accent) block leading-tight">VITALIS</span>
+                  <span className="text-[7px] font-bold uppercase tracking-[0.3em] text-(--text-muted) block">Fitness OS</span>
+                </div>
               </div>
               <button
                 onClick={() => setMobileOpen(false)}
