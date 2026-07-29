@@ -130,6 +130,31 @@ function EarlyExitDialog({
   );
 }
 
+// ── Real alignment score (replaces the old Math.random() placeholder) ───────
+// Measures horizontal drift of the shoulder midpoint over the hip midpoint,
+// normalised by shoulder width so it's scale-invariant (works whether the
+// person is close to or far from the camera).
+function computeAlignmentScore(landmarks) {
+  try {
+    const lShoulder = landmarks[11];
+    const rShoulder = landmarks[12];
+    const lHip = landmarks[23];
+    const rHip = landmarks[24];
+
+    const shoulderMidX = (lShoulder.x + rShoulder.x) / 2;
+    const hipMidX = (lHip.x + rHip.x) / 2;
+    const shoulderWidth = Math.abs(lShoulder.x - rShoulder.x) || 0.001;
+
+    const drift = Math.abs(shoulderMidX - hipMidX) / shoulderWidth;
+    // drift of 0   -> perfectly stacked -> 100
+    // drift of 0.6 -> leaning hard      -> 0
+    const score = 100 - (drift / 0.6) * 100;
+    return Math.max(0, Math.min(100, Math.round(score)));
+  } catch {
+    return 0;
+  }
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // Main component
 // ══════════════════════════════════════════════════════════════════════════════
@@ -176,7 +201,7 @@ const CameraWorkout = () => {
   const [earlyExitReps, setEarlyExitReps] = useState(0);
   const [showEarlyExit, setShowEarlyExit] = useState(false);
   const webcamRef = useRef(null);
-  const canvasRef = useRef(null); // NEW — skeleton overlay canvas, drawn by usePoseEngine
+  const canvasRef = useRef(null); // skeleton overlay canvas, drawn by usePoseEngine
   const { repCount, repCountRef, countRep, resetReps } = useRepCounter({
     workoutType,
     voiceEnabled,
@@ -278,6 +303,8 @@ const CameraWorkout = () => {
 
     setElapsedSecs(0);
     setIsRecording(false);
+    // Session ended — clear the live biometrics panel back to zero.
+    setBiometrics({ alignment: 0, velocity: 0, symmetry: 0 });
   }, [
     endSession,
     repCountRef,
@@ -292,7 +319,6 @@ const CameraWorkout = () => {
 
   const handleStartStop = async () => {
     if (!isRecording) {
-      // ── START ──────────────────────────────────────────────────
       startSession(workoutType).catch((err) =>
         console.warn("[startSession] background error:", err),
       );
@@ -310,8 +336,6 @@ const CameraWorkout = () => {
     } else {
       // ── STOP — check if session qualifies ──────────────────────
       if (fromPlan && !isSessionComplete()) {
-        // FIX: snapshot the current rep count into state NOW (event handler,
-        // not during render) so the dialog can display it as a plain number.
         setEarlyExitReps(repCountRef.current);
         setShowEarlyExit(true);
         return;
@@ -332,7 +356,7 @@ const CameraWorkout = () => {
     isRecording,
     cameraOn,
     webcamRef,
-    canvasRef, // NEW — passed through so usePoseEngine can draw the skeleton
+    canvasRef,
     workoutType,
     onPoseResult: (landmarks, type, noDetectCount) => {
       if (!landmarks) {
@@ -345,7 +369,17 @@ const CameraWorkout = () => {
           }
           maybeAnalyze(null);
         }
-        setBiometrics({ alignment: 0, velocity: 0, symmetry: 0 });
+        if (isRecording) {
+          setBiometrics({ alignment: 0, velocity: 0, symmetry: 0 });
+        }
+        return;
+      }
+
+      // ── FIX: pose detection runs continuously once the camera is on
+      // (for live skeleton preview), but biometrics should only reflect
+      // an active session. Bail out here before touching setBiometrics
+      // if the user hasn't pressed Start yet.
+      if (!isRecording) {
         return;
       }
 
@@ -357,7 +391,7 @@ const CameraWorkout = () => {
         (i) => landmarks[i] && landmarks[i].visibility > 0.4,
       );
 
-      if (!isVisible && isRecording) {
+      if (!isVisible) {
         const msg = "Move back — position your full body in the camera view";
         setAiFeedback(msg);
         if (voiceEnabled) speak(msg, 0.95, 1.0);
@@ -365,10 +399,8 @@ const CameraWorkout = () => {
         return;
       }
 
-      if (isRecording && isVisible) {
-        countRep(landmarks, type);
-        maybeAnalyze(landmarks);
-      }
+      countRep(landmarks, type);
+      maybeAnalyze(landmarks);
 
       const lShoulder = landmarks[11];
       const rShoulder = landmarks[12];
@@ -376,11 +408,10 @@ const CameraWorkout = () => {
         0,
         100 - Math.abs(lShoulder.y - rShoulder.y) * 500,
       );
+
       setBiometrics({
-        alignment: isVisible
-          ? Math.floor(Math.random() * 5) + 92
-          : Math.floor(Math.random() * 20) + 50,
-        velocity: isRecording ? Math.floor(Math.random() * 15) + 20 : 0,
+        alignment: computeAlignmentScore(landmarks),
+        velocity: Math.floor(Math.random() * 15) + 20,
         symmetry: Math.floor(symScore),
       });
     },
