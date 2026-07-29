@@ -11,6 +11,9 @@ import {
   SleepHoursGraph,
   MobileNav,
   FAB,
+  CaloriesCard,
+  LoadCard,
+  ActivityCard,
 } from '../../../components';
 
 import FeedbackModal from '../../../components/FeedbackModal';
@@ -117,18 +120,22 @@ const Dashboard = () => {
             activeProgramCount={activeProgramCount}
           />
 
+          {/* ── Quick Stats Row ── */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-5 lg:mb-6">
+            <CaloriesCard value={data.stats?.calories_burned || 0} />
+            <LoadCard minutes={data.stats?.workout_duration_mins || 0} />
+            <ActivityCard steps={data.stats?.steps || 0} />
+          </div>
+
           {/*
-            Grid breakpoints:
-            - base (phones):        1 column, everything stacks
-            - md (tablets ~768px):  1 column still — 4-col squeeze at md
-                                     looked cramped on iPad-portrait/landscape
-            - xl (laptops+ 1280px): 4 columns, 3/1 split
+            Two-column layout:
+            - mobile: stack
+            - lg+: rings + program on left, AI Coach on right
           */}
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 items-start mb-4 sm:mb-5 lg:mb-6">
 
-            {/* Left Column */}
-            <div className="xl:col-span-3 flex flex-col gap-4 sm:gap-5 lg:gap-6 min-w-0">
-
+            {/* Left — Program Summary with rings */}
+            <div className="lg:col-span-2 flex flex-col gap-4 sm:gap-5 lg:gap-6 min-w-0">
               <ProgramSummaryCard
                 goalLabel={
                   activeProgramCount > 0
@@ -141,23 +148,10 @@ const Dashboard = () => {
                 onChangeProgram={() => navigate('/dashboard/plans')}
                 onSeeMore={() => navigate('/dashboard/analytics')}
               />
-
-              {/* Sleep Graph Section */}
-              <div className="w-full min-w-0 relative">
-                {isAnalyzing && (
-                  <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 flex items-center gap-1.5 sm:gap-2 bg-[var(--accent-bg)] px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border border-[var(--accent-border)] shadow-lg max-w-[calc(100%-1rem)]">
-                    <div className="w-1.5 h-1.5 shrink-0 bg-[var(--accent)] rounded-full animate-ping" />
-                    <span className="text-[8px] sm:text-[9px] font-black text-[var(--accent)] uppercase tracking-widest truncate">
-                      AI Analyzing
-                    </span>
-                  </div>
-                )}
-                <SleepHoursGraph biometrics={biometrics} userId={USER_ID} />
-              </div>
             </div>
 
-            {/* Right Column - Clinical Assistant */}
-            <div className="xl:col-span-1 min-w-0">
+            {/* Right — AI Coach */}
+            <div className="min-w-0">
               <ClinicalAssistant
                 insights={insights}
                 water={data.stats?.water_intake_ml || 0}
@@ -167,6 +161,19 @@ const Dashboard = () => {
                 userId={USER_ID}
               />
             </div>
+          </div>
+
+          {/* ── Sleep Graph Section (full width) ── */}
+          <div className="w-full min-w-0 relative">
+            {isAnalyzing && (
+              <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 flex items-center gap-1.5 sm:gap-2 bg-[var(--accent-bg)] px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border border-[var(--accent-border)] shadow-lg max-w-[calc(100%-1rem)]">
+                <div className="w-1.5 h-1.5 shrink-0 bg-[var(--accent)] rounded-full animate-ping" />
+                <span className="text-[8px] sm:text-[9px] font-black text-[var(--accent)] uppercase tracking-widest truncate">
+                  AI Analyzing
+                </span>
+              </div>
+            )}
+            <SleepHoursGraph biometrics={biometrics} userId={USER_ID} />
           </div>
         </div>
       </main>
