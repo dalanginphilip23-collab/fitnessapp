@@ -882,11 +882,24 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
   );
 }
 
-function ManualLogForm({ onLog }) {
+function ManualLogForm({ onLog, shouldOpen = 0, onClose }) {
   const [form,      setForm]      = useState(EMPTY_FORM);
   const [open,      setOpen]      = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [errors,    setErrors]    = useState({});
+  const prevTrigger = useRef(shouldOpen);
+
+  useEffect(() => {
+    if (shouldOpen !== prevTrigger.current) {
+      prevTrigger.current = shouldOpen;
+      setOpen(true);
+    }
+  }, [shouldOpen]);
+
+  const close = () => {
+    setOpen(false);
+    onClose?.();
+  };
 
   const setField = (key, val) => {
     setForm((prev) => ({ ...prev, [key]: val }));
@@ -914,7 +927,7 @@ function ManualLogForm({ onLog }) {
       image_url: form.image_url || "",
     });
     setForm(EMPTY_FORM);
-    setOpen(false);
+    close();
   };
 
   // Lock background scroll while the modal is open.
@@ -927,22 +940,11 @@ function ManualLogForm({ onLog }) {
 
   return (
     <>
-      {/*
-        Floating trigger button. Kept on the bottom-right, at bottom-[4.5rem]
-        — small nudge up from bottom-14 for clearance from the row above.
-      */}
-      <button
-        onClick={() => setOpen(true)}
-        aria-label="Log meal manually"
-        className="fixed bottom-[4.5rem] right-6 md:bottom-8 md:right-8 w-14 h-14 bg-(--accent) rounded-full shadow-lg shadow-(--accent)/20 flex items-center justify-center hover:scale-110 transition-transform active:scale-95 z-50"
-      >
-        <Icon name="edit" className="text-[#131313] text-[24px]" fill={1} />
-      </button>
 
       {open && createPortal(
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-          onMouseDown={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
+          onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}
         >
           <div
             className="bg-(--bg-card) border border-(--border-medium) w-full max-w-md max-h-[90vh] overflow-y-auto rounded-[28px] p-6 md:p-8 shadow-2xl relative"
@@ -955,7 +957,7 @@ function ManualLogForm({ onLog }) {
                 <p className="text-[10px] md:text-[11px] text-(--text-muted) uppercase tracking-wider mt-1">Manual Entry</p>
               </div>
               <button
-                onClick={() => setOpen(false)}
+                onClick={close}
                 className="w-8 h-8 flex items-center justify-center rounded-full bg-(--bg-hover) text-(--text-muted) hover:text-(--text-primary) transition-colors"
               >
                 <Icon name="close" className="text-[20px]" />
@@ -1277,6 +1279,7 @@ const NutritionTracker = () => {
   const [selectedDate,     setSelectedDate]     = useState(new Date().toISOString().split("T")[0]);
   const [showAISuggestion, setShowAISuggestion] = useState(false);
   const [currentMeal,      setCurrentMeal]      = useState(null);
+  const [manualLogTrigger, setManualLogTrigger] = useState(0);
 
   const {
     result, isAnalyzing, isLogging, history, historyLoading,
@@ -1332,7 +1335,7 @@ const NutritionTracker = () => {
             <div id="log-meal-section" className="flex flex-col gap-3 sm:gap-4">
               <UploadSection onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
               {result && <ResultCard result={result} onLog={handleLog} isLogging={isLogging} />}
-              <ManualLogForm onLog={handleLog} />
+              <ManualLogForm onLog={handleLog} shouldOpen={manualLogTrigger} onClose={() => setManualLogTrigger(0)} />
             </div>
 
             <div className="flex flex-col gap-3 sm:gap-4">
@@ -1355,7 +1358,7 @@ const NutritionTracker = () => {
         />
       )}
 
-      <div className="md:hidden"><MobileNav /></div>
+      <div className="md:hidden"><MobileNav onFABClick={() => setManualLogTrigger(t => t + 1)} /></div>
       {toast && <Toast message={toast} />}
     </div>
   );
