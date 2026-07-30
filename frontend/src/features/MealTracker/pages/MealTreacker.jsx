@@ -1315,35 +1315,37 @@ const NutritionTracker = () => {
       <main className={`pt-14 sm:pt-16 md:pt-16 pb-24 md:pb-8 px-3 sm:px-4 md:px-6 lg:px-8 transition-all duration-[400ms] ${sidebarExpanded ? "md:ml-[240px]" : "md:ml-[72px]"}`}>
         <div className="max-w-5xl mx-auto">
 
-          <div className="flex items-center justify-between gap-2 sm:gap-3 mt-5 sm:mt-6 mb-4 sm:mb-6">
-            <div className="min-w-0">
-              <h1 className="text-lg sm:text-2xl font-black text-(--text-primary) truncate">Nutrition Tracker</h1>
-              <p className="text-(--text-muted) text-[11px] sm:text-sm mt-0.5 truncate">
+          {/* ── Hero header ── */}
+          <div className="flex items-center justify-between gap-2 mt-5 sm:mt-6 mb-4 sm:mb-6">
+            <div>
+              <h1 className="text-lg sm:text-xl font-black text-(--text-primary)">Nutrition Tracker</h1>
+              <p className="text-(--text-muted) text-[10px] sm:text-xs mt-0.5">
                 {consumed} / {CALORIE_GOAL} kcal ·{" "}
                 {selectedDate === new Date().toISOString().split("T")[0]
                   ? "today"
                   : new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}
               </p>
             </div>
-            <div className="shrink-0">
-              <DateNavigator currentDate={selectedDate} onDateChange={setSelectedDate} />
-            </div>
+            <DateNavigator currentDate={selectedDate} onDateChange={setSelectedDate} />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          {/* ── Daily Summary (rings + macros) ── */}
+          <div className="mb-4 sm:mb-6">
+            <DailySummary userId={USER_ID} refreshSeed={summarySeed} selectedDate={selectedDate} />
+          </div>
 
-            <div id="log-meal-section" className="flex flex-col gap-3 sm:gap-4">
+          {/* ── Content split ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 sm:gap-4">
+
+            {/* Main column — Meal History */}
+            <div className="lg:col-span-3 flex flex-col gap-3 sm:gap-4">
+              <MealHistory meals={history} loading={historyLoading} onDeleteMeal={handleDeleteMeal} selectedDate={selectedDate} />
+            </div>
+
+            {/* Side column — Upload / AI */}
+            <div className="lg:col-span-2 flex flex-col gap-3 sm:gap-4">
               <UploadSection onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
               {result && <ResultCard result={result} onLog={handleLog} isLogging={isLogging} />}
-              <ManualLogForm onLog={handleLog} shouldOpen={manualLogTrigger} onClose={() => setManualLogTrigger(0)} />
-            </div>
-
-            <div className="flex flex-col gap-3 sm:gap-4">
-              <DailySummary userId={USER_ID} refreshSeed={summarySeed} selectedDate={selectedDate} />
-            </div>
-
-            <div id="meal-history-section" className="flex flex-col gap-3 sm:gap-4 md:col-span-2 lg:col-span-1">
-              <MealHistory meals={history} loading={historyLoading} onDeleteMeal={handleDeleteMeal} selectedDate={selectedDate} />
             </div>
 
           </div>
