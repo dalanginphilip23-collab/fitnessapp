@@ -362,19 +362,26 @@ const Profile = () => {
 
                 {showBmiDetails && (
                   <div className="mt-4 pt-4 border-t border-dashed border-(--border-light) space-y-4">
-                    {isEditing && (
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Age</span>
+
+                    {/* Age — always visible when expanded */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Age</span>
+                        {isEditing ? (
                           <input
                             className={rowEditable}
                             type="number"
                             value={formData.age}
                             onChange={e => handleInputChange(e, 'age')}
+                            placeholder="25"
                           />
-                        </div>
-                        <div>
-                          <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Gender</span>
+                        ) : (
+                          <span className={rowLocked}>{formData.age || '—'}</span>
+                        )}
+                      </div>
+                      <div>
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Gender</span>
+                        {isEditing ? (
                           <select
                             className="w-full bg-transparent outline-none text-[13px] font-medium border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 text-(--text-primary) appearance-none cursor-pointer"
                             value={formData.gender}
@@ -384,13 +391,16 @@ const Profile = () => {
                             <option value="female" className="bg-(--bg-secondary)">Female</option>
                             <option value="other" className="bg-(--bg-secondary)">Other</option>
                           </select>
-                        </div>
+                        ) : (
+                          <span className={rowLocked}>{formData.gender || '—'}</span>
+                        )}
                       </div>
-                    )}
+                    </div>
 
-                    {isEditing && (
-                      <div>
-                        <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Activity Level</span>
+                    {/* Activity Level — always visible when expanded */}
+                    <div>
+                      <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Activity Level</span>
+                      {isEditing ? (
                         <select
                           className="w-full bg-transparent outline-none text-[13px] font-medium border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 text-(--text-primary) appearance-none cursor-pointer"
                           value={formData.activity_level}
@@ -400,9 +410,12 @@ const Profile = () => {
                             <option key={lvl.id} value={lvl.id} className="bg-(--bg-secondary)">{lvl.label} — {lvl.desc}</option>
                           ))}
                         </select>
-                      </div>
-                    )}
+                      ) : (
+                        <span className={rowLocked}>{formData.activity_level ? ACTIVITY_LEVELS.find(l => l.id === formData.activity_level)?.label || formData.activity_level : '—'}</span>
+                      )}
+                    </div>
 
+                    {/* BMI Details — show from stored record if available */}
                     {bmiRecord?.tdee ? (
                       <>
                         <div className="grid grid-cols-2 gap-3">
@@ -464,9 +477,25 @@ const Profile = () => {
                         </div>
                       </>
                     ) : (
-                      <p className="text-[10px] text-(--text-muted) text-center">
-                        Save changes to calculate your calorie data
-                      </p>
+                      <div className="bg-(--bg-hover) rounded-xl p-4 text-center">
+                        {bmi != null ? (
+                          <>
+                            <p className="text-[10px] text-(--text-muted) mb-2">
+                              Enter your age and save to unlock full calorie data.
+                            </p>
+                            <button
+                              onClick={() => setIsEditing(true)}
+                              className="text-[9px] font-bold uppercase tracking-widest text-[#62aa1a]/70 hover:text-[#62aa1a] transition-colors"
+                            >
+                              Edit Profile →
+                            </button>
+                          </>
+                        ) : (
+                          <p className="text-[10px] text-(--text-muted)">
+                            Update your height and weight to see BMI calculations.
+                          </p>
+                        )}
+                      </div>
                     )}
                   </div>
                 )}
