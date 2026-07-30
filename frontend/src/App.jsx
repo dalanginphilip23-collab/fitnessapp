@@ -6,6 +6,7 @@ import { NotificationProvider } from "./context/NotificationSystem";
 import { ThemeProvider } from "./context/ThemeContext";
 import Landing from "./pages/Landing/Landing";
 import IOSInstallBanner from "./components/IOSInstallBanner";
+import SplashScreen from "./components/SplashScreen";
 
 const Dashboard = lazy(() => import("./features/Dashboard/pages/Dashboard"));
 const Plans = lazy(() => import("./features/Plan/pages/Plans"));
@@ -64,7 +65,7 @@ export default function App() {
 function RoutesHandler() {
   const { user, loading } = useAuth();
 
-  if (loading) return null;
+  if (loading) return <SplashScreen />;
 
   return (
     <Suspense fallback={<RouteFallback />}>
