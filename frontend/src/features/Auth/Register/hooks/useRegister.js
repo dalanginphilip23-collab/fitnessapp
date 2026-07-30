@@ -13,15 +13,23 @@ export const useRegister = () => {
     setLoading(true);
     setError('');
     try {
+      const body = {
+        name:         formData.name,
+        email:        formData.email,
+        password:     formData.password,
+        fitness_goal: formData.goal,
+      };
+
+      if (formData.weight) body.weight_kg = parseFloat(formData.weight);
+      if (formData.height) body.height_cm = parseFloat(formData.height);
+      if (formData.age)    body.age = parseInt(formData.age, 10);
+      if (formData.gender) body.gender = formData.gender;
+      if (formData.activityLevel) body.activity_level = formData.activityLevel;
+
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name:         formData.name,
-          email:        formData.email,
-          password:     formData.password,
-          fitness_goal: formData.goal,
-        }),
+        body: JSON.stringify(body),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Initialization failed. System conflict.');

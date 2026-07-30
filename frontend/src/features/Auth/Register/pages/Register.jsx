@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useRegister } from '../hooks/useRegister';
+import { ACTIVITY_LEVELS } from '../../../BMI/constants/bmiConstants';
 
 const ACCENT        = '#8BC34A';
 const ACCENT_HOVER  = '#9CCC65';
@@ -39,9 +40,15 @@ const Register = () => {
     email:    '',
     password: '',
     goal:     'Peak Metabolic Efficiency',
+    weight:   '',
+    height:   '',
+    age:      '',
+    gender:   'male',
+    activityLevel: 'light',
   });
   const [focused, setFocused] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showBodyMetrics, setShowBodyMetrics] = useState(false);
 
   const { loading, error, showSuccessModal, handleRegister, handleModalConfirm } = useRegister();
 
@@ -142,7 +149,10 @@ const Register = () => {
         .v-card-field2   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.86s forwards; }
         .v-card-field3   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 0.94s forwards; }
         .v-card-field4   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.02s forwards; }
-        .v-card-btn      { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.12s forwards; }
+        .v-card-field5   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.10s forwards; }
+        .v-card-field6   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.18s forwards; }
+        .v-card-field7   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.26s forwards; }
+        .v-card-btn      { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.34s forwards; }
         .v-card-footer   { opacity: 0; animation: vitalis-fade-in 0.4s ease            1.22s forwards; }
         .v-modal-card {
           animation: vitalis-modal-in 0.35s cubic-bezier(0.22,1,0.36,1) forwards;
@@ -382,6 +392,119 @@ const Register = () => {
                   ))}
                 </select>
               </div>
+
+              {/* ── Body Metrics (Optional) ── */}
+              <div className="v-card-field5">
+                <button
+                  type="button"
+                  onClick={() => setShowBodyMetrics(s => !s)}
+                  className="w-full flex items-center justify-between text-[10px] font-semibold tracking-[0.25em] uppercase py-2 transition-colors"
+                  style={{ color: ACCENT }}
+                >
+                  <span>Body Metrics (Optional)</span>
+                  <svg
+                    className="w-4 h-4 transition-transform duration-300"
+                    style={{ transform: showBodyMetrics ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+
+              {showBodyMetrics && (
+                <div className="space-y-4 sm:space-y-5 overflow-hidden transition-all duration-300">
+                  <div className="v-card-field6 grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2"
+                        style={{ color: 'rgba(255,255,255,0.5)' }}>
+                        Weight (kg)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                        placeholder="70"
+                        value={formData.weight}
+                        onChange={update('weight')}
+                        onFocus={() => setFocused('weight')}
+                        onBlur={() => setFocused('')}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2"
+                        style={{ color: 'rgba(255,255,255,0.5)' }}>
+                        Height (cm)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                        placeholder="175"
+                        value={formData.height}
+                        onChange={update('height')}
+                        onFocus={() => setFocused('height')}
+                        onBlur={() => setFocused('')}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="v-card-field6 grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2"
+                        style={{ color: 'rgba(255,255,255,0.5)' }}>
+                        Age
+                      </label>
+                      <input
+                        type="number"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                        placeholder="25"
+                        value={formData.age}
+                        onChange={update('age')}
+                        onFocus={() => setFocused('age')}
+                        onBlur={() => setFocused('')}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2"
+                        style={{ color: 'rgba(255,255,255,0.5)' }}>
+                        Gender
+                      </label>
+                      <select
+                        className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none cursor-pointer appearance-none transition-all text-[#e5e2e1]"
+                        value={formData.gender}
+                        onChange={update('gender')}
+                        onFocus={() => setFocused('gender')}
+                        onBlur={() => setFocused('')}
+                      >
+                        <option className="bg-[#1a1a1a] text-[#e5e2e1]" value="male">Male</option>
+                        <option className="bg-[#1a1a1a] text-[#e5e2e1]" value="female">Female</option>
+                        <option className="bg-[#1a1a1a] text-[#e5e2e1]" value="other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="v-card-field7">
+                    <label className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2"
+                      style={{ color: 'rgba(255,255,255,0.5)' }}>
+                      Activity Level
+                    </label>
+                    <select
+                      className="w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none cursor-pointer appearance-none transition-all text-[#e5e2e1]"
+                      value={formData.activityLevel}
+                      onChange={update('activityLevel')}
+                      onFocus={() => setFocused('activityLevel')}
+                      onBlur={() => setFocused('')}
+                    >
+                      {ACTIVITY_LEVELS.map(lvl => (
+                        <option className="bg-[#1a1a1a] text-[#e5e2e1]" key={lvl.id} value={lvl.id}>
+                          {lvl.label} — {lvl.desc}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
 
               <button
                 type="submit"

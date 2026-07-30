@@ -11,7 +11,6 @@ export const navList = [
 export const NAV_ITEMS = [
   { icon: 'dashboard',     label: 'Overview',   path: '/dashboard' },
   { icon: 'monitor_heart', label: 'Biometrics', path: '/dashboard/analytics' },
-  { icon: 'calculate',     label: 'BMI',        path: '/dashboard/bmi' },
   { icon: 'book',          label: 'Plans',      path: '/dashboard/plans' },
   { icon: 'chat',          label: 'Community',  path: '/dashboard/messenger' },
 ];

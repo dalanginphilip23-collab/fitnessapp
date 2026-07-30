@@ -1,5 +1,6 @@
 const authService = require('../services/auth.service');
 const { bcrypt, jwt, COOKIE_NAME, googleClient, getCookieOptions, setSessionCookie, logUserSession } = authService;
+const { getBmiCategory, calcTdee, insertBmiRecord, syncUserProfile } = require('../services/bmi.service');
 
 // ─── FIX: Disable SSL verification on localhost (dev only) ───
 // (kept exactly as in the original route/auth.js — note this is a
@@ -39,7 +40,7 @@ async function getMe(req, res) {
 
 // ─── POST /api/auth/register ───
 async function register(req, res) {
-  const { name, email, password, fitness_goal } = req.body;
+  const { name, email, password, fitness_goal, weight_kg, height_cm, age, gender, activity_level } = req.body;
 
   try {
     const existing = await authService.findUserByEmail(email);
@@ -50,9 +51,42 @@ async function register(req, res) {
     const salt = await bcrypt.genSalt(10);
     const hashedPw = await bcrypt.hash(password, salt);
 
-    await authService.createUser({ name, email, hashedPw, fitness_goal });
+    const result = await authService.createUser({ name, email, hashedPw, fitness_goal });
+    const userId = result[0].insertId;
 
-    res.status(201).json({ success: true, message: 'Identity created.' });
+    let bmiData = null;
+    if (weight_kg && height_cm) {
+      const heightM = parseFloat(height_cm) / 100;
+      const bmi = parseFloat((parseFloat(weight_kg) / (heightM * heightM)).toFixed(2));
+      const category = getBmiCategory(bmi);
+      const ageNum = age ? parseInt(age, 10) : null;
+      const sex = gender === 'female' ? 'female' : 'male';
+      const tdeeResult = calcTdee({
+        sex,
+        kg: parseFloat(weight_kg),
+        cm: parseFloat(height_cm),
+        age: ageNum,
+        activityId: activity_level || null,
+      });
+
+      await insertBmiRecord(
+        userId,
+        parseFloat(weight_kg),
+        parseFloat(height_cm),
+        bmi,
+        category,
+        ageNum,
+        activity_level || null,
+        tdeeResult?.bmr ?? null,
+        tdeeResult?.tdee ?? null,
+      );
+
+      await syncUserProfile(userId, parseFloat(height_cm), parseFloat(weight_kg));
+
+      bmiData = { bmi, category, bmr: tdeeResult?.bmr ?? null, tdee: tdeeResult?.tdee ?? null };
+    }
+
+    res.status(201).json({ success: true, message: 'Identity created.', bmi: bmiData });
   } catch (err) {
     res.status(500).json({ error: 'Database rejection: ' + err.message });
   }
