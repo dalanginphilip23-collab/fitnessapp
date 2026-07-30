@@ -206,22 +206,15 @@ const Profile = () => {
             </p>
 
             {isDirty && (
-              <div className="flex items-center gap-2 sm:gap-3 mt-5">
-                <span className="hidden sm:flex items-center gap-1.5 text-[10px] font-bold text-amber-400 uppercase tracking-widest">
+              <div className="flex items-center justify-center gap-3 mt-4 mb-2">
+                <span className="flex items-center gap-1.5 text-[9px] font-bold text-amber-400 uppercase tracking-widest">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                   Unsaved
                 </span>
-                <button
-                  onClick={handleDiscard}
-                  className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-(--text-muted) hover:text-(--text-secondary) rounded-lg hover:bg-(--bg-hover) transition-all"
-                >
+                <button onClick={handleDiscard} className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-(--text-muted) hover:text-(--text-secondary) rounded-lg hover:bg-(--bg-hover) transition-all">
                   Discard
                 </button>
-                <button
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="flex items-center gap-2 bg-[#62aa1a] text-[#161f00] px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.15em] active:scale-95 transition-all disabled:opacity-60 hover:brightness-105"
-                >
+                <button onClick={handleSave} disabled={isSaving} className="flex items-center gap-2 bg-[#62aa1a] text-[#161f00] px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] active:scale-95 transition-all disabled:opacity-60 hover:brightness-105">
                   {isSaving && <span className="w-3 h-3 border-2 border-[#161f00]/30 border-t-[#161f00] rounded-full animate-spin" />}
                   {isSaving ? 'Saving…' : 'Save changes'}
                 </button>
@@ -298,8 +291,8 @@ const Profile = () => {
           {activeTab === 'profile' && (
             <div className="flex flex-col gap-5">
 
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-4">Today's activity</p>
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-4">
+                <p className="text-[8px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-3">Today's activity</p>
                 <div className="flex gap-2">
                   <StatPill icon="local_fire_department" value={Number(dailyStats.calories_burned || 0).toLocaleString()} label="kcal" />
                   <StatPill icon="footprint"              value={Number(dailyStats.steps || 0).toLocaleString()}          label="Steps" />
@@ -308,82 +301,66 @@ const Profile = () => {
               </div>
 
               <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-3">
                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Body Metrics</p>
                   <span className="material-symbols-outlined text-[12px] text-(--text-disabled)">monitor_heart</span>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="grid grid-cols-3 gap-3 items-end">
                   <div>
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Height (cm)</span>
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">Height</span>
                     {isEditing ? (
-                      <input
-                        className={rowEditable}
-                        type="number"
-                        step="0.1"
-                        value={formData.height_cm}
-                        onChange={e => handleInputChange(e, 'height_cm')}
-                      />
+                      <input className={rowEditable} type="number" step="0.1" value={formData.height_cm} onChange={e => handleInputChange(e, 'height_cm')} />
                     ) : (
-                      <span className={rowLocked}>{formData.height_cm || '—'}</span>
+                      <span className={rowLocked}>{formData.height_cm ? `${formData.height_cm} cm` : '—'}</span>
                     )}
                   </div>
                   <div>
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Weight (kg)</span>
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">Weight</span>
                     {isEditing ? (
-                      <input
-                        className={rowEditable}
-                        type="number"
-                        step="0.1"
-                        value={formData.weight_kg}
-                        onChange={e => handleInputChange(e, 'weight_kg')}
-                      />
+                      <input className={rowEditable} type="number" step="0.1" value={formData.weight_kg} onChange={e => handleInputChange(e, 'weight_kg')} />
                     ) : (
-                      <span className={rowLocked}>{formData.weight_kg || '—'}</span>
+                      <span className={rowLocked}>{formData.weight_kg ? `${formData.weight_kg} kg` : '—'}</span>
                     )}
                   </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-3 border-t border-dashed border-(--border-light)">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled)">BMI</span>
-                  <span className="text-[11px] font-black" style={{ color: bmiInfo.color }}>
-                    {bmi != null ? bmi : '—'} {bmi != null && <span className="text-[9px] font-bold uppercase tracking-widest ml-1">{bmiInfo.label}</span>}
-                  </span>
+                  <div className="text-right">
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">BMI</span>
+                    <span className="text-[13px] font-black" style={{ color: bmiInfo.color }}>
+                      {bmi != null ? bmi : '—'}
+                      {bmi != null && <span className="text-[8px] font-bold uppercase tracking-widest ml-1.5" style={{ color: bmiInfo.color }}>{bmiInfo.label}</span>}
+                    </span>
+                  </div>
                 </div>
 
                 <button
                   onClick={() => setShowBmiDetails(s => !s)}
-                  className="mt-3 w-full flex items-center justify-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#62aa1a]/70 hover:text-[#62aa1a] transition-colors py-1"
+                  className="mt-3 w-full flex items-center justify-center gap-1 text-[8px] font-bold uppercase tracking-widest text-[#62aa1a]/70 hover:text-[#62aa1a] transition-colors py-1"
                 >
-                  <span className="material-symbols-outlined text-[12px]">monitoring</span>
+                  <span className="material-symbols-outlined text-[11px]">monitoring</span>
                   {showBmiDetails ? 'Hide Details' : 'View More'}
-                  <span className={`material-symbols-outlined text-[12px] transition-transform ${showBmiDetails ? 'rotate-180' : ''}`}>expand_more</span>
+                  <span className={`material-symbols-outlined text-[11px] transition-transform ${showBmiDetails ? 'rotate-180' : ''}`}>expand_more</span>
                 </button>
 
                 {showBmiDetails && (
-                  <div className="mt-4 pt-4 border-t border-dashed border-(--border-light) space-y-4">
+                  <div className="mt-3 pt-3 border-t border-dashed border-(--border-light) space-y-3">
 
-                    {/* Age — always visible when expanded */}
+
+
+                    {/* Age/Gender — always visible when expanded */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Age</span>
+                        <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">Age</span>
                         {isEditing ? (
-                          <input
-                            className={rowEditable}
-                            type="number"
-                            value={formData.age}
-                            onChange={e => handleInputChange(e, 'age')}
-                            placeholder="25"
-                          />
+                          <input className={rowEditable} type="number" value={formData.age} onChange={e => handleInputChange(e, 'age')} placeholder="25" />
                         ) : (
                           <span className={rowLocked}>{formData.age || '—'}</span>
                         )}
                       </div>
                       <div>
-                        <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Gender</span>
+                        <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">Gender</span>
                         {isEditing ? (
                           <select
-                            className="w-full bg-transparent outline-none text-[13px] font-medium border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 text-(--text-primary) appearance-none cursor-pointer"
+                            className="w-full bg-transparent outline-none text-[12px] font-medium border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 text-(--text-primary) appearance-none cursor-pointer"
                             value={formData.gender}
                             onChange={e => handleInputChange(e, 'gender')}
                           >
@@ -399,7 +376,7 @@ const Profile = () => {
 
                     {/* Activity Level — always visible when expanded */}
                     <div>
-                      <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Activity Level</span>
+                      <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">Activity Level</span>
                       {isEditing ? (
                         <select
                           className="w-full bg-transparent outline-none text-[13px] font-medium border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 text-(--text-primary) appearance-none cursor-pointer"
@@ -419,34 +396,33 @@ const Profile = () => {
                     {bmiRecord?.tdee ? (
                       <>
                         {/* Hero Section */}
-                        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1a2a1a] to-[#0d1a0d] border border-[#c7f248]/20 p-5 text-center">
+                        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#1a2a1a] to-[#0d1a0d] border border-[#c7f248]/20 p-4 text-center">
                           <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(circle_at_50%_0%,#c7f248,transparent_70%)]" />
-                          <span className="relative text-[8px] font-bold uppercase tracking-[0.25em] text-[#c7f248]/60">Total Daily Energy Expenditure</span>
-                          <div className="relative mt-1 flex items-baseline justify-center gap-1">
-                            <span className="text-[34px] font-black text-[#c7f248] tracking-tight">{bmiRecord.tdee?.toLocaleString()}</span>
-                            <span className="text-[11px] font-bold text-(--text-disabled)">kcal</span>
+                          <span className="relative text-[7px] font-bold uppercase tracking-[0.25em] text-[#c7f248]/60">Total Daily Energy Expenditure</span>
+                          <div className="relative mt-0.5 flex items-baseline justify-center gap-1">
+                            <span className="text-[28px] font-black text-[#c7f248] tracking-tight">{bmiRecord.tdee?.toLocaleString()}</span>
+                            <span className="text-[10px] font-bold text-(--text-disabled)">kcal</span>
                           </div>
-                          <div className="relative mt-2 flex items-center justify-center gap-4 text-[10px] text-(--text-muted)">
-                            <span>BMR <strong className="text-(--text-primary)">{bmiRecord.bmr?.toLocaleString()}</strong> kcal</span>
+                          <div className="relative mt-1.5 flex items-center justify-center gap-3 text-[9px] text-(--text-muted)">
+                            <span>BMR <strong className="text-(--text-primary)">{bmiRecord.bmr?.toLocaleString()}</strong></span>
                             <span className="text-(--text-disabled)">|</span>
-                            <span>Activity <strong className="text-(--text-primary)">{bmiRecord.tdee - bmiRecord.bmr}</strong> kcal</span>
+                            <span>Activity <strong className="text-(--text-primary)">{bmiRecord.tdee - bmiRecord.bmr}</strong></span>
                           </div>
                         </div>
 
                         {/* Calorie Zones */}
-
                         <div>
-                          <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted) block mb-2.5">Calorie Targets</span>
+                          <span className="text-[7px] font-bold uppercase tracking-widest text-(--text-muted) block mb-2">Calorie Targets</span>
                           <div className="flex gap-2">
                             {[
                               { label: 'Cut', value: Math.round(bmiRecord.tdee - 500), color: '#f87171', desc: 'Fat loss' },
                               { label: 'Maintain', value: bmiRecord.tdee, color: '#c7f248', desc: 'Current weight' },
                               { label: 'Bulk', value: Math.round(bmiRecord.tdee + 500), color: '#60a5fa', desc: 'Muscle gain' },
                             ].map(g => (
-                              <div key={g.label} className="flex-1 bg-(--bg-hover) rounded-xl p-3 text-center border border-transparent hover:border-(--border-light) transition-colors">
-                                <span className="text-[7px] font-bold uppercase tracking-widest block" style={{ color: g.color }}>{g.label}</span>
-                                <span className="text-[16px] font-black text-(--text-primary)">{g.value?.toLocaleString()}</span>
-                                <span className="text-[7px] text-(--text-disabled) block">{g.desc}</span>
+                              <div key={g.label} className="flex-1 bg-(--bg-hover) rounded-xl p-2.5 text-center">
+                                <span className="text-[6px] font-bold uppercase tracking-widest block" style={{ color: g.color }}>{g.label}</span>
+                                <span className="text-[13px] font-black text-(--text-primary)">{g.value?.toLocaleString()}</span>
+                                <span className="text-[6px] text-(--text-disabled) block">{g.desc}</span>
                               </div>
                             ))}
                           </div>
@@ -454,14 +430,14 @@ const Profile = () => {
 
                         {/* Macro Split Selector + Breakdown */}
                         <div>
-                          <div className="flex items-center justify-between mb-2.5">
-                            <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted)">Macronutrients</span>
-                            <div className="flex gap-1">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[7px] font-bold uppercase tracking-widest text-(--text-muted)">Macronutrients</span>
+                            <div className="flex gap-0.5">
                               {MACRO_SPLITS.map(split => (
                                 <button
                                   key={split.id}
                                   onClick={() => {}}
-                                  className={`text-[7px] font-bold uppercase tracking-widest px-2 py-1 rounded-lg transition-colors ${
+                                  className={`text-[6px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-md transition-colors ${
                                     split.id === 'moderate'
                                       ? 'bg-[#c7f248]/15 text-[#c7f248]'
                                       : 'text-(--text-disabled) hover:text-(--text-muted)'
@@ -516,23 +492,20 @@ const Profile = () => {
                         </div>
                       </>
                     ) : (
-                      <div className="bg-(--bg-hover) rounded-xl p-4 text-center">
+                      <div className="bg-(--bg-hover) rounded-xl p-3 text-center">
                         {bmi != null ? (
                           <>
-                            <p className="text-[10px] text-(--text-muted) mb-2">
+                            <p className="text-[9px] text-(--text-muted) mb-1.5">
                               {!formData.age
                                 ? 'Enter your age and activity level to unlock full calorie data.'
                                 : 'Set your activity level and save to calculate your calorie needs.'}
                             </p>
-                            <button
-                              onClick={() => setIsEditing(true)}
-                              className="text-[9px] font-bold uppercase tracking-widest text-[#62aa1a]/70 hover:text-[#62aa1a] transition-colors"
-                            >
+                            <button onClick={() => setIsEditing(true)} className="text-[8px] font-bold uppercase tracking-widest text-[#62aa1a]/70 hover:text-[#62aa1a] transition-colors">
                               Edit Profile →
                             </button>
                           </>
                         ) : (
-                          <p className="text-[10px] text-(--text-muted)">
+                          <p className="text-[9px] text-(--text-muted)">
                             Update your height and weight to see BMI calculations.
                           </p>
                         )}
@@ -543,46 +516,14 @@ const Profile = () => {
               </div>
 
               <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-3">Chart notes · Goal</p>
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#7dd625e1]/10 flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-[18px] text-[#7dd625e1]">flag</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-(--text-primary) leading-snug">
-                      {formData.bio || 'No goal set yet'}
-                    </p>
-                    {!isEditing && (
-                      <button onClick={() => setIsEditing(true)} className="text-[9px] font-bold uppercase tracking-widest text-[#62aa1a]/70 hover:text-[#62aa1a] transition-colors mt-1">
-                        Edit goal →
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6 relative overflow-hidden">
-                <div
-                  className="absolute top-0 right-0 w-10 h-10 pointer-events-none"
-                  style={{ background: 'linear-gradient(135deg, transparent 50%, var(--border-light) 50%)' }}
-                />
-
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Patient information</p>
-                  <button
-                    onClick={() => setIsEditing(v => !v)}
-                    className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest border rounded-lg px-3 py-1.5 transition-all ${
-                      isEditing
-                        ? 'border-[#62aa1a]/30 bg-[#62aa1a]/8 text-[#62aa1a] hover:border-[#62aa1a]/50 hover:text-[#62aa1a]'
-                        : 'border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:border-(--border-heavy) hover:text-(--text-primary)'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[13px]">{isEditing ? 'check' : 'edit'}</span>
-                    {isEditing ? 'Done' : 'Edit'}
-                  </button>
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Patient Information</p>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#62aa1a]">
+                    Active file
+                  </span>
                 </div>
 
-                <div className="mt-3">
+                <div className="mt-1">
                   <RecordRow label="Full name">
                     <input
                       className={isEditing ? rowEditable : rowLocked}
@@ -609,16 +550,20 @@ const Profile = () => {
                     />
                   </RecordRow>
 
-                  <RecordRow label="Record status">
-                    <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-[#62aa1a]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#62aa1a] animate-pulse" />
-                      Active file
-                    </span>
+                  <RecordRow label="Goal / Notes">
+                    <textarea
+                      className={`${isEditing ? rowEditable : rowLocked} resize-none min-h-[36px] leading-snug`}
+                      rows={1}
+                      value={formData.bio}
+                      onChange={e => handleInputChange(e, 'bio')}
+                      readOnly={!isEditing}
+                      placeholder="Add a note or fitness goal…"
+                    />
                   </RecordRow>
                 </div>
               </div>
 
-              <div className="bg-(--bg-secondary) border border-red-500/10 rounded-2xl p-5">
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-3">Account</p>
                 <button
                   onClick={handleLogout}
