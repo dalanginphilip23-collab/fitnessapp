@@ -415,64 +415,103 @@ const Profile = () => {
                       )}
                     </div>
 
-                    {/* BMI Details — show from stored record if available */}
+                    {/* TDEE Display — full layout when data exists */}
                     {bmiRecord?.tdee ? (
                       <>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-(--bg-hover) rounded-xl p-3 text-center">
-                            <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted) block">BMR</span>
-                            <span className="text-[15px] font-black text-(--text-primary)">{bmiRecord.bmr}</span>
-                            <span className="text-[8px] text-(--text-disabled) block">kcal/day</span>
+                        {/* Hero Section */}
+                        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1a2a1a] to-[#0d1a0d] border border-[#c7f248]/20 p-5 text-center">
+                          <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(circle_at_50%_0%,#c7f248,transparent_70%)]" />
+                          <span className="relative text-[8px] font-bold uppercase tracking-[0.25em] text-[#c7f248]/60">Total Daily Energy Expenditure</span>
+                          <div className="relative mt-1 flex items-baseline justify-center gap-1">
+                            <span className="text-[34px] font-black text-[#c7f248] tracking-tight">{bmiRecord.tdee?.toLocaleString()}</span>
+                            <span className="text-[11px] font-bold text-(--text-disabled)">kcal</span>
                           </div>
-                          <div className="bg-(--bg-hover) rounded-xl p-3 text-center">
-                            <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted) block">TDEE</span>
-                            <span className="text-[15px] font-black text-(--text-primary)">{bmiRecord.tdee}</span>
-                            <span className="text-[8px] text-(--text-disabled) block">kcal/day</span>
+                          <div className="relative mt-2 flex items-center justify-center gap-4 text-[10px] text-(--text-muted)">
+                            <span>BMR <strong className="text-(--text-primary)">{bmiRecord.bmr?.toLocaleString()}</strong> kcal</span>
+                            <span className="text-(--text-disabled)">|</span>
+                            <span>Activity <strong className="text-(--text-primary)">{bmiRecord.tdee - bmiRecord.bmr}</strong> kcal</span>
                           </div>
                         </div>
 
+                        {/* Calorie Zones */}
+
                         <div>
-                          <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted) block mb-2">Calorie Goals</span>
-                          <div className="grid grid-cols-3 gap-2">
+                          <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted) block mb-2.5">Calorie Targets</span>
+                          <div className="flex gap-2">
                             {[
-                              { label: 'Cutting', value: Math.round(bmiRecord.tdee - 500), color: '#f87171' },
-                              { label: 'Maintain', value: bmiRecord.tdee, color: '#c7f248' },
-                              { label: 'Bulking', value: Math.round(bmiRecord.tdee + 500), color: '#60a5fa' },
+                              { label: 'Cut', value: Math.round(bmiRecord.tdee - 500), color: '#f87171', desc: 'Fat loss' },
+                              { label: 'Maintain', value: bmiRecord.tdee, color: '#c7f248', desc: 'Current weight' },
+                              { label: 'Bulk', value: Math.round(bmiRecord.tdee + 500), color: '#60a5fa', desc: 'Muscle gain' },
                             ].map(g => (
-                              <div key={g.label} className="bg-(--bg-hover) rounded-xl p-2.5 text-center">
+                              <div key={g.label} className="flex-1 bg-(--bg-hover) rounded-xl p-3 text-center border border-transparent hover:border-(--border-light) transition-colors">
                                 <span className="text-[7px] font-bold uppercase tracking-widest block" style={{ color: g.color }}>{g.label}</span>
-                                <span className="text-[11px] font-black text-(--text-primary)">{g.value}</span>
-                                <span className="text-[7px] text-(--text-disabled) block">kcal</span>
+                                <span className="text-[16px] font-black text-(--text-primary)">{g.value?.toLocaleString()}</span>
+                                <span className="text-[7px] text-(--text-disabled) block">{g.desc}</span>
                               </div>
                             ))}
                           </div>
                         </div>
 
+                        {/* Macro Split Selector + Breakdown */}
                         <div>
-                          <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted) block mb-2">Macros (Moderate)</span>
+                          <div className="flex items-center justify-between mb-2.5">
+                            <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted)">Macronutrients</span>
+                            <div className="flex gap-1">
+                              {MACRO_SPLITS.map(split => (
+                                <button
+                                  key={split.id}
+                                  onClick={() => {}}
+                                  className={`text-[7px] font-bold uppercase tracking-widest px-2 py-1 rounded-lg transition-colors ${
+                                    split.id === 'moderate'
+                                      ? 'bg-[#c7f248]/15 text-[#c7f248]'
+                                      : 'text-(--text-disabled) hover:text-(--text-muted)'
+                                  }`}
+                                >
+                                  {split.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                           {(() => {
                             const macros = calcMacros(bmiRecord.tdee, MACRO_SPLITS[0]);
+                            const totalCals = macros.protein.calories + macros.fat.calories + macros.carb.calories;
+                            const items = [
+                              { ...macros.protein, label: 'Protein', color: '#f87171', pct: Math.round(macros.protein.calories / totalCals * 100) },
+                              { ...macros.fat, label: 'Fat', color: '#f59e0b', pct: Math.round(macros.fat.calories / totalCals * 100) },
+                              { ...macros.carb, label: 'Carbs', color: '#60a5fa', pct: Math.round(macros.carb.calories / totalCals * 100) },
+                            ];
                             return (
-                              <div className="grid grid-cols-3 gap-2">
-                                {[
-                                  { label: 'Protein', grams: macros.protein.grams, cal: macros.protein.calories, color: '#f87171' },
-                                  { label: 'Fat', grams: macros.fat.grams, cal: macros.fat.calories, color: '#f59e0b' },
-                                  { label: 'Carbs', grams: macros.carb.grams, cal: macros.carb.calories, color: '#60a5fa' },
-                                ].map(m => (
-                                  <div key={m.label} className="bg-(--bg-hover) rounded-xl p-2.5 text-center">
-                                    <span className="text-[7px] font-bold uppercase tracking-widest block" style={{ color: m.color }}>{m.label}</span>
-                                    <span className="text-[11px] font-black text-(--text-primary)">{m.grams}g</span>
-                                    <span className="text-[7px] text-(--text-disabled) block">{m.cal} kcal</span>
-                                  </div>
-                                ))}
-                              </div>
+                              <>
+                                {/* Macro Bar */}
+                                <div className="h-2 rounded-full bg-(--bg-hover) overflow-hidden flex mb-3">
+                                  {items.map(m => (
+                                    <div key={m.label} style={{ width: m.pct + '%', backgroundColor: m.color, opacity: 0.7 }} />
+                                  ))}
+                                </div>
+                                {/* Macro Details */}
+                                <div className="grid grid-cols-3 gap-2">
+                                  {items.map(m => (
+                                    <div key={m.label} className="bg-(--bg-hover) rounded-xl p-2.5 text-center">
+                                      <span className="text-[7px] font-bold uppercase tracking-widest block" style={{ color: m.color }}>{m.label}</span>
+                                      <span className="text-[13px] font-black text-(--text-primary)">{m.grams}g</span>
+                                      <span className="text-[7px] text-(--text-disabled) block">{m.calories} kcal · {m.pct}%</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </>
                             );
                           })()}
                         </div>
 
-                        <div className="text-center pt-2">
+                        {/* Activity Info + Timestamp */}
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="text-[7px] text-(--text-disabled)">
+                            {bmiRecord.activity_level
+                              ? ACTIVITY_LEVELS.find(l => l.id === bmiRecord.activity_level)?.label || bmiRecord.activity_level
+                              : 'Activity not set'}
+                          </span>
                           <span className="text-[7px] text-(--text-disabled) font-mono">
-                            Last updated: {bmiRecord.recorded_at || '—'}
+                            {bmiRecord.recorded_at || ''}
                           </span>
                         </div>
                       </>
