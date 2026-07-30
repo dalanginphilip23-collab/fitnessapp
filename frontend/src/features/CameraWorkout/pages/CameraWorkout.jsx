@@ -448,7 +448,7 @@ const CameraWorkout = () => {
   };
 
   return (
-    <div className="flex flex-row h-screen bg-(--bg-primary) text-(--text-primary) font-['Inter'] overflow-hidden">
+    <div className="flex flex-row h-screen bg-(--bg-primary) text-(--text-primary) font-['Poppins'] overflow-hidden">
       {showEarlyExit && (
         <EarlyExitDialog
           reps={earlyExitReps}

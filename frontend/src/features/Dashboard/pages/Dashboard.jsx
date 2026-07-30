@@ -85,7 +85,7 @@ const Dashboard = () => {
   if (!USER_ID) return null;
 
   return (
-    <div className="min-h-screen w-full bg-[var(--bg-primary)] text-[var(--text-primary)] font-['Inter',sans-serif] overflow-x-hidden">
+    <div className="min-h-screen w-full bg-[var(--bg-primary)] text-[var(--text-primary)] font-['Poppins',sans-serif] overflow-x-hidden">
       {/* Sidebar only exists at md+ ; MobileNav covers everything below that */}
       <div className="hidden md:block">
         <Sidebar

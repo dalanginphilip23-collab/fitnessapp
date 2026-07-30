@@ -604,7 +604,7 @@ const VirtualClinic = () => {
   };
 
   return (
-    <div className="min-h-screen bg-(--bg-primary) text-(--text-primary) font-['Inter',sans-serif] relative overflow-hidden">
+    <div className="min-h-screen bg-(--bg-primary) text-(--text-primary) font-['Poppins',sans-serif] relative overflow-hidden">
 
       {/* Voice Call Overlay */}
       {showVoiceCall && selectedDoctor && sessionId && (

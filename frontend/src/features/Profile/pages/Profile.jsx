@@ -129,7 +129,7 @@ const Profile = () => {
   const bmiInfo = bmiCategory(bmi);
 
   return (
-    <div className="min-h-screen bg-(--bg-primary) text-(--text-primary) font-['Inter'] flex overflow-x-hidden">
+    <div className="min-h-screen bg-(--bg-primary) text-(--text-primary) font-['Poppins'] flex overflow-x-hidden">
       <Toast
         message={toastMessage}
         visible={toastVisible}

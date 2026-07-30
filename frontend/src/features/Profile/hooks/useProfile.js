@@ -233,7 +233,37 @@ export const useProfile = () => {
         body:        JSON.stringify(body),
       });
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error(`Profile save failed: HTTP ${res.status}`);
+
+      // Save BMI data — use POST response directly
+      let bmiSaved = true;
+      if (formData.height_cm && formData.weight_kg) {
+        const bmiRes = await fetch(`${API_BASE_URL}/api/bmi/${USER_ID}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            weight_kg: parseFloat(formData.weight_kg),
+            height_cm: parseFloat(formData.height_cm),
+            age: formData.age ? parseInt(formData.age, 10) : null,
+            gender: formData.gender || null,
+            activity_level: formData.activity_level || null,
+          }),
+        });
+        if (bmiRes.ok) {
+          const data = await bmiRes.json();
+          setBmiRecord({
+            ...data,
+            weight_kg: parseFloat(formData.weight_kg),
+            height_cm: parseFloat(formData.height_cm),
+            age: formData.age ? parseInt(formData.age, 10) : null,
+            activity_level: formData.activity_level || null,
+          });
+        } else {
+          console.error('BMI save failed:', await bmiRes.text());
+          bmiSaved = false;
+        }
+      }
 
       setSavedData({ ...formData });
       setSavedAvatarSrc(avatarToSave);
@@ -249,52 +279,6 @@ export const useProfile = () => {
       }));
 
       await refreshAuth();
-
-      // Save BMI data
-      if (formData.height_cm && formData.weight_kg) {
-        try {
-          await fetch(`${API_BASE_URL}/api/bmi/${USER_ID}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-              weight_kg: parseFloat(formData.weight_kg),
-              height_cm: parseFloat(formData.height_cm),
-              age: formData.age ? parseInt(formData.age, 10) : null,
-              gender: formData.gender || null,
-              activity_level: formData.activity_level || null,
-            }),
-          });
-        } catch (bmiErr) {
-          console.error('BMI save error:', bmiErr);
-        }
-      }
-
-      // Re-fetch BMI record to sync local state with backend
-      try {
-        const bmiRes = await fetch(`${API_BASE_URL}/api/bmi/${USER_ID}?limit=1`, {
-          credentials: 'include',
-        });
-        if (bmiRes.ok) {
-          const data = await bmiRes.json();
-          if (data.records?.length > 0) {
-            const r = data.records[0];
-            setBmiRecord(r);
-            setFormData(prev => ({
-              ...prev,
-              age: r.age != null ? String(r.age) : prev.age,
-              activity_level: r.activity_level || prev.activity_level,
-            }));
-            setSavedData(prev => ({
-              ...prev,
-              age: r.age != null ? String(r.age) : prev.age,
-              activity_level: r.activity_level || prev.activity_level,
-            }));
-          }
-        }
-      } catch (bmiErr) {
-        console.error('BMI re-fetch error:', bmiErr);
-      }
 
       showToast('Profile saved');
     } catch (err) {

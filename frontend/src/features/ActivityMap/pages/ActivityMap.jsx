@@ -238,7 +238,7 @@ const ActivityMap = () => {
   return (
     <div
       className="flex flex-row bg-(--bg-primary) text-(--text-primary) overflow-hidden"
-      style={{ height: '100dvh', fontFamily: "'Inter', sans-serif" }}
+      style={{ height: '100dvh', fontFamily: "'Poppins', sans-serif" }}
     >
       <SidebarAnalytics onExpandChange={setSidebarExpanded} />
 

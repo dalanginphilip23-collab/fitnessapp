@@ -48,7 +48,7 @@ const BMI = () => {
   const badgeColor = CATEGORY_COLOR[category] || "var(--accent)";
 
   return (
-    <div className="min-h-screen bg-(--bg-primary) text-(--text-primary) font-[Inter,sans-serif]">
+    <div className="min-h-screen bg-(--bg-primary) text-(--text-primary) font-[Poppins,sans-serif]">
       <div className="hidden md:block">
         <Sidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
       </div>

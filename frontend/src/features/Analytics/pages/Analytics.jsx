@@ -188,13 +188,13 @@ function SleepScatterChart({ scatterData, sleepHours, sleepQuality }) {
     },
     scales: {
       x: {
-        title: { display: true, text: 'Sleep Duration (hours)', color: textMuted, font: { size: 10, weight: 'bold', family: 'Inter' } },
+        title: { display: true, text: 'Sleep Duration (hours)', color: textMuted, font: { size: 10, weight: 'bold', family: 'Poppins' } },
         min: 0, max: 13,
         ticks: { color: textMuted, stepSize: 2, callback: (v) => `${v}h`, font: { size: 9 } },
         grid:  { color: borderLight },
       },
       y: {
-        title: { display: true, text: 'Quality (1–10)', color: textMuted, font: { size: 10, weight: 'bold', family: 'Inter' } },
+        title: { display: true, text: 'Quality (1–10)', color: textMuted, font: { size: 10, weight: 'bold', family: 'Poppins' } },
         min: 0, max: 11,
         ticks: { color: textMuted, stepSize: 2, font: { size: 9 } },
         grid:  { color: borderLight },
@@ -368,7 +368,7 @@ function AnalyticsInner({ USER_ID }) {
   });
 
   return (
-    <div className="flex flex-col md:flex-row min-h-dvh bg-(--bg-primary) text-(--text-primary) font-['Inter'] selection:bg-(--accent) selection:text-[#161f00]">
+    <div className="flex flex-col md:flex-row min-h-dvh bg-(--bg-primary) text-(--text-primary) font-['Poppins'] selection:bg-(--accent) selection:text-[#161f00]">
       <SidebarAnalytics onExpandChange={setSidebarExpanded} />
       <AnalyticsMobileNav navigate={navigate} />
 

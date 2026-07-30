@@ -1302,7 +1302,7 @@ const NutritionTracker = () => {
     .reduce((sum, m) => sum + (m.calories || 0), 0);
 
   return (
-    <div className="min-h-screen bg-(--bg-primary) text-(--text-primary)" style={{ fontFamily: "Inter, sans-serif" }}>
+    <div className="min-h-screen bg-(--bg-primary) text-(--text-primary)" style={{ fontFamily: "Poppins, sans-serif" }}>
       <div className="hidden md:block">
         <Sidebar onClick={() => { localStorage.clear(); navigate("/login"); }} expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
       </div>

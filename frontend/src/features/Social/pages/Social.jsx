@@ -83,7 +83,7 @@ const ClinicalMessenger = () => {
   if (loading) return null;
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-[Inter,sans-serif] overflow-hidden">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-[Poppins,sans-serif] overflow-hidden">
       <Sidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
       <Topbar sidebarExpanded={sidebarExpanded} userId={userId} />
 

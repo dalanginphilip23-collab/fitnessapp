@@ -157,7 +157,7 @@
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: "Inter", sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 /* Scrollbar styling */
@@ -191,7 +191,7 @@ body {
 
 @layer base {
   * {
-    font-family: "Inter", sans-serif;
+    font-family: "Poppins", sans-serif;
   }
 
   :root {

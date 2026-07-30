@@ -1038,7 +1038,7 @@ const Plans = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', fontFamily: 'Inter, sans-serif' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', fontFamily: 'Poppins, sans-serif' }}>
       <div className="hidden md:block">
         <Sidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
       </div>

@@ -224,7 +224,7 @@ const Log = () => {
     : 'All Time';
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-['Inter'] flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-['Poppins'] flex flex-col md:flex-row">
       <SidebarAnalytics />
 
       <div className="flex-1 flex flex-col md:ml-20 transition-all duration-500 overflow-hidden">
