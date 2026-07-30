@@ -250,10 +250,10 @@ export const useProfile = () => {
 
       await refreshAuth();
 
-      // If BMI fields changed, recalculate on backend
+      // Save BMI data
       if (formData.height_cm && formData.weight_kg) {
         try {
-          const bmiRes = await fetch(`${API_BASE_URL}/api/bmi/${USER_ID}`, {
+          await fetch(`${API_BASE_URL}/api/bmi/${USER_ID}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -265,24 +265,35 @@ export const useProfile = () => {
               activity_level: formData.activity_level || null,
             }),
           });
-          if (bmiRes.ok) {
-            const bmiResult = await bmiRes.json();
-            setBmiRecord(prev => ({
+        } catch (bmiErr) {
+          console.error('BMI save error:', bmiErr);
+        }
+      }
+
+      // Re-fetch BMI record to sync local state with backend
+      try {
+        const bmiRes = await fetch(`${API_BASE_URL}/api/bmi/${USER_ID}?limit=1`, {
+          credentials: 'include',
+        });
+        if (bmiRes.ok) {
+          const data = await bmiRes.json();
+          if (data.records?.length > 0) {
+            const r = data.records[0];
+            setBmiRecord(r);
+            setFormData(prev => ({
               ...prev,
-              weight_kg: bmiResult.weight_kg || formData.weight_kg,
-              height_cm: bmiResult.height_cm || formData.height_cm,
-              bmi: bmiResult.bmi,
-              bmi_category: bmiResult.category,
-              bmr: bmiResult.bmr,
-              tdee: bmiResult.tdee,
-              age: formData.age ? parseInt(formData.age, 10) : null,
-              activity_level: formData.activity_level || null,
-              recorded_at: new Date().toISOString(),
+              age: r.age != null ? String(r.age) : prev.age,
+              activity_level: r.activity_level || prev.activity_level,
+            }));
+            setSavedData(prev => ({
+              ...prev,
+              age: r.age != null ? String(r.age) : prev.age,
+              activity_level: r.activity_level || prev.activity_level,
             }));
           }
-        } catch (bmiErr) {
-          console.error('BMI recalculation error:', bmiErr);
         }
+      } catch (bmiErr) {
+        console.error('BMI re-fetch error:', bmiErr);
       }
 
       showToast('Profile saved');
