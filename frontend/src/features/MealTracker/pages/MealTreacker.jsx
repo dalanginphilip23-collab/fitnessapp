@@ -1151,9 +1151,10 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
     : `Summary · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 
   return (
-    <div className="bg-(--bg-tertiary) border border-(--border-light) rounded-2xl p-[22px] flex flex-col gap-6">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1a2a1a] to-[#0d1a0d] border border-(--accent)/15 p-[22px] flex flex-col gap-5">
+      <div className="absolute inset-0 opacity-[0.04] bg-[radial-gradient(circle_at_50%_0%,var(--accent),transparent_70%)]" />
       {/* Header row */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
+      <div className="relative flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-(--accent) shadow-[0_0_6px_var(--accent)]" />
           <span className="text-[12px] font-bold text-(--text-secondary)">{dateLabel}</span>
@@ -1161,18 +1162,22 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
         {loading && <Spinner />}
       </div>
 
-      {/* Rings row */}
-      <div className="flex items-start justify-around">
-        <div className="flex flex-col items-center gap-2.5">
-          <RadialProgress
-            value={consumed}
-            goal={CALORIE_GOAL}
-            color="var(--accent)"
-            displayValue={consumed.toLocaleString()}
-          />
-          <RingLabel icon="local_fire_department" color="var(--accent)">Calories</RingLabel>
-        </div>
+      {/* Big calorie number */}
+      <div className="relative flex items-baseline justify-center gap-1">
+        <span className="text-5xl sm:text-6xl font-black text-(--accent) tracking-tight">{consumed.toLocaleString()}</span>
+        <span className="text-sm text-(--text-muted)">/ {CALORIE_GOAL.toLocaleString()} kcal</span>
+      </div>
 
+      {/* Progress bar */}
+      <div className="relative flex items-center justify-center gap-2">
+        <div className="flex-1 max-w-xs h-2 rounded-full bg-white/10 overflow-hidden">
+          <div className="h-full rounded-full bg-(--accent) transition-all duration-700" style={{ width: `${Math.min(Math.round(consumed / CALORIE_GOAL * 100), 100)}%` }} />
+        </div>
+        <span className="text-[10px] font-bold text-(--accent)">{Math.min(Math.round(consumed / CALORIE_GOAL * 100), 100)}%</span>
+      </div>
+
+      {/* Macro rings only */}
+      <div className="relative flex items-start justify-around">
         <div className="flex flex-col items-center gap-2.5">
           <RadialProgress
             value={summary.total_protein}
@@ -1191,6 +1196,16 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
             displayValue={`${Math.round(summary.total_carbs)}g`}
           />
           <RingLabel icon="grain" color="#f2c448">Carbs</RingLabel>
+        </div>
+
+        <div className="flex flex-col items-center gap-2.5">
+          <RadialProgress
+            value={summary.total_fat}
+            goal={MACRO_TARGETS.fat}
+            color="#f97316"
+            displayValue={`${Math.round(summary.total_fat)}g`}
+          />
+          <RingLabel icon="water_drop" color="#f97316">Fat</RingLabel>
         </div>
       </div>
     </div>
@@ -1304,8 +1319,6 @@ const NutritionTracker = () => {
     .filter((m) => m.logged_at?.startsWith(selectedDate))
     .reduce((sum, m) => sum + (m.calories || 0), 0);
 
-  const pct = Math.min(Math.round(consumed / CALORIE_GOAL * 100), 100);
-
   return (
     <div className="min-h-screen bg-(--bg-primary) text-(--text-primary)" style={{ fontFamily: "Poppins, sans-serif" }}>
       <div className="hidden md:block">
@@ -1317,30 +1330,8 @@ const NutritionTracker = () => {
       <main className={`pt-14 sm:pt-16 md:pt-16 pb-24 md:pb-8 px-3 sm:px-4 md:px-6 lg:px-8 transition-all duration-[400ms] ${sidebarExpanded ? "md:ml-[240px]" : "md:ml-[72px]"}`}>
         <div className="max-w-5xl mx-auto">
 
-          {/* ── Hero: gradient card with big calorie number ── */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1a2a1a] to-[#0d1a0d] border border-(--accent)/15 p-5 sm:p-6 mt-5 sm:mt-6 mb-3 sm:mb-4">
-            <div className="absolute inset-0 opacity-[0.04] bg-[radial-gradient(circle_at_50%_0%,var(--accent),transparent_70%)]" />
-            <div className="relative flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">🍽️</span>
-                <span className="text-sm font-bold text-(--text-primary)">Nutrition Tracker</span>
-              </div>
-              <DateNavigator currentDate={selectedDate} onDateChange={setSelectedDate} />
-            </div>
-            <div className="relative flex items-baseline justify-center gap-1 mb-1">
-              <span className="text-5xl sm:text-6xl font-black text-(--accent) tracking-tight">{consumed.toLocaleString()}</span>
-              <span className="text-sm text-(--text-muted)">/ {CALORIE_GOAL.toLocaleString()} kcal</span>
-            </div>
-            <div className="relative flex items-center justify-center gap-2 mb-3">
-              <div className="flex-1 max-w-xs h-2 rounded-full bg-white/10 overflow-hidden">
-                <div className="h-full rounded-full bg-(--accent) transition-all duration-700" style={{ width: `${pct}%` }} />
-              </div>
-              <span className="text-[10px] font-bold text-(--accent)">{pct}%</span>
-            </div>
-          </div>
-
           {/* ── Content split ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 sm:gap-4 mt-5 sm:mt-6">
 
             {/* Left: Daily rings + Upload */}
             <div className="lg:col-span-2 flex flex-col gap-3 sm:gap-4">
