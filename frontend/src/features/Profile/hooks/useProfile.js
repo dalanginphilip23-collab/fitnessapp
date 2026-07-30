@@ -106,6 +106,11 @@ export const useProfile = () => {
             age: r.age != null ? String(r.age) : prev.age,
             activity_level: r.activity_level || prev.activity_level,
           }));
+          setSavedData(prev => ({
+            ...prev,
+            age: r.age != null ? String(r.age) : prev.age,
+            activity_level: r.activity_level || prev.activity_level,
+          }));
         }
       } catch (err) {
         console.error('BMI fetch error:', err);
@@ -160,7 +165,10 @@ export const useProfile = () => {
       formData.bio      !== savedData.bio;
     const bmiChanged =
       formData.height_cm !== savedData.height_cm ||
-      formData.weight_kg !== savedData.weight_kg;
+      formData.weight_kg !== savedData.weight_kg ||
+      String(formData.age) !== String(savedData.age) ||
+      formData.gender !== savedData.gender ||
+      formData.activity_level !== savedData.activity_level;
     setIsDirty(formChanged || bmiChanged || !!pendingAvatar);
   }, [formData, savedData, pendingAvatar]);
 
