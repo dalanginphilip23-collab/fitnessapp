@@ -46,27 +46,27 @@ async function insertBmiRecord(
   height_cm,
   bmi,
   category,
-  age = null,
-  activity_level = null,
-  bmr = null,
-  tdee = null,
-  connection = db,
+  age,
+  activity_level,
+  bmr,
+  tdee,
+  connection,
 ) {
-  try {
-    return await connection.execute(
-      `INSERT INTO bmi_records
-          (user_id, weight_kg, height_cm, bmi, bmi_category, age, activity_level, bmr, tdee, recorded_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-      [userId, weight_kg, height_cm, bmi, category, age, activity_level, bmr, tdee],
-    );
-  } catch {
+  if (!connection) connection = db;
+  var userIdNum = Number(userId);
+  var columns = await getExistingColumns();
+  var hasExtra = columns.indexOf('age') !== -1;
+
+  if (hasExtra) {
     return connection.execute(
-      `INSERT INTO bmi_records
-          (user_id, weight_kg, height_cm, bmi, bmi_category, recorded_at)
-       VALUES (?, ?, ?, ?, ?, NOW())`,
-      [userId, weight_kg, height_cm, bmi, category],
+      'INSERT INTO bmi_records (user_id, weight_kg, height_cm, bmi, bmi_category, age, activity_level, bmr, tdee, recorded_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
+      [userIdNum, weight_kg, height_cm, bmi, category, age, activity_level, bmr, tdee],
     );
   }
+  return connection.execute(
+    'INSERT INTO bmi_records (user_id, weight_kg, height_cm, bmi, bmi_category, recorded_at) VALUES (?, ?, ?, ?, ?, NOW())',
+    [userIdNum, weight_kg, height_cm, bmi, category],
+  );
 }
 
 async function syncUserProfile(userId, height_cm, weight_kg, connection = db) {
@@ -120,40 +120,54 @@ async function saveBmiAndSyncProfile(
 }
 
 async function getBmiHistory(userId, limit, offset) {
-  let rows, total;
+  const userIdNum = Number(userId);
+  const columns = await getExistingColumns();
+  const hasExtra = columns.indexOf('age') !== -1;
 
-  try {
-    [rows] = await db.execute(
+  var rows;
+
+  if (hasExtra) {
+    [rows] = await db.query(
       `SELECT id, weight_kg, height_cm, bmi, bmi_category, age, activity_level, bmr, tdee,
               DATE_FORMAT(recorded_at, '%Y-%m-%d %H:%i') AS recorded_at
        FROM bmi_records
        WHERE user_id = ?
        ORDER BY recorded_at DESC
        LIMIT ? OFFSET ?`,
-      [userId, limit, offset],
+      [userIdNum, limit, offset],
     );
-  } catch {
-    [rows] = await db.execute(
+  } else {
+    [rows] = await db.query(
       `SELECT id, weight_kg, height_cm, bmi, bmi_category,
               DATE_FORMAT(recorded_at, '%Y-%m-%d %H:%i') AS recorded_at
        FROM bmi_records
        WHERE user_id = ?
        ORDER BY recorded_at DESC
        LIMIT ? OFFSET ?`,
-      [userId, limit, offset],
+      [userIdNum, limit, offset],
     );
   }
 
+  var total = 0;
   try {
-    [[{ total }]] = await db.execute(
+    [[{ total }]] = await db.query(
       `SELECT COUNT(*) AS total FROM bmi_records WHERE user_id = ?`,
-      [userId],
+      [userIdNum],
     );
-  } catch {
+  } catch (e) {
     total = 0;
   }
 
   return { rows, total };
+}
+
+async function getExistingColumns() {
+  try {
+    const [colRows] = await db.query('SHOW COLUMNS FROM bmi_records');
+    return colRows.map(function (r) { return r.Field; });
+  } catch (e) {
+    return [];
+  }
 }
 
 module.exports = {
