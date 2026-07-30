@@ -520,7 +520,9 @@ const Profile = () => {
                         {bmi != null ? (
                           <>
                             <p className="text-[10px] text-(--text-muted) mb-2">
-                              Enter your age and save to unlock full calorie data.
+                              {!formData.age
+                                ? 'Enter your age and activity level to unlock full calorie data.'
+                                : 'Set your activity level and save to calculate your calorie needs.'}
                             </p>
                             <button
                               onClick={() => setIsEditing(true)}
