@@ -7,7 +7,7 @@ import { useAvatar }  from '../hooks/useAvatar';
 import Toast from '../components/Toast';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 import { DEFAULT_AVATARS, getAvatarUrl } from '../utils/avatar';
-import { calcMacros, MACRO_SPLITS } from '../../BMI/constants/bmiConstants';
+import { calcMacros, MACRO_SPLITS, ACTIVITY_LEVELS } from '../../BMI/constants/bmiConstants';
 
 const RecordRow = ({ label, locked, children }) => (
   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-3.5 border-b border-dashed border-(--border-light) last:border-0">
@@ -316,11 +316,31 @@ const Profile = () => {
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div>
                     <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Height (cm)</span>
-                    <span className={rowLocked}>{formData.height_cm || '—'}</span>
+                    {isEditing ? (
+                      <input
+                        className={rowEditable}
+                        type="number"
+                        step="0.1"
+                        value={formData.height_cm}
+                        onChange={e => handleInputChange(e, 'height_cm')}
+                      />
+                    ) : (
+                      <span className={rowLocked}>{formData.height_cm || '—'}</span>
+                    )}
                   </div>
                   <div>
                     <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Weight (kg)</span>
-                    <span className={rowLocked}>{formData.weight_kg || '—'}</span>
+                    {isEditing ? (
+                      <input
+                        className={rowEditable}
+                        type="number"
+                        step="0.1"
+                        value={formData.weight_kg}
+                        onChange={e => handleInputChange(e, 'weight_kg')}
+                      />
+                    ) : (
+                      <span className={rowLocked}>{formData.weight_kg || '—'}</span>
+                    )}
                   </div>
                 </div>
 
@@ -331,19 +351,60 @@ const Profile = () => {
                   </span>
                 </div>
 
-                {bmiRecord?.tdee && (
-                  <>
-                    <button
-                      onClick={() => setShowBmiDetails(s => !s)}
-                      className="mt-3 w-full flex items-center justify-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#62aa1a]/70 hover:text-[#62aa1a] transition-colors py-1"
-                    >
-                      <span className="material-symbols-outlined text-[12px]">monitoring</span>
-                      {showBmiDetails ? 'Hide Details' : 'View More'}
-                      <span className={`material-symbols-outlined text-[12px] transition-transform ${showBmiDetails ? 'rotate-180' : ''}`}>expand_more</span>
-                    </button>
+                <button
+                  onClick={() => setShowBmiDetails(s => !s)}
+                  className="mt-3 w-full flex items-center justify-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#62aa1a]/70 hover:text-[#62aa1a] transition-colors py-1"
+                >
+                  <span className="material-symbols-outlined text-[12px]">monitoring</span>
+                  {showBmiDetails ? 'Hide Details' : 'View More'}
+                  <span className={`material-symbols-outlined text-[12px] transition-transform ${showBmiDetails ? 'rotate-180' : ''}`}>expand_more</span>
+                </button>
 
-                    {showBmiDetails && (
-                      <div className="mt-4 pt-4 border-t border-dashed border-(--border-light) space-y-4">
+                {showBmiDetails && (
+                  <div className="mt-4 pt-4 border-t border-dashed border-(--border-light) space-y-4">
+                    {isEditing && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Age</span>
+                          <input
+                            className={rowEditable}
+                            type="number"
+                            value={formData.age}
+                            onChange={e => handleInputChange(e, 'age')}
+                          />
+                        </div>
+                        <div>
+                          <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Gender</span>
+                          <select
+                            className="w-full bg-transparent outline-none text-[13px] font-medium border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 text-(--text-primary) appearance-none cursor-pointer"
+                            value={formData.gender}
+                            onChange={e => handleInputChange(e, 'gender')}
+                          >
+                            <option value="male" className="bg-(--bg-secondary)">Male</option>
+                            <option value="female" className="bg-(--bg-secondary)">Female</option>
+                            <option value="other" className="bg-(--bg-secondary)">Other</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+
+                    {isEditing && (
+                      <div>
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Activity Level</span>
+                        <select
+                          className="w-full bg-transparent outline-none text-[13px] font-medium border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 text-(--text-primary) appearance-none cursor-pointer"
+                          value={formData.activity_level}
+                          onChange={e => handleInputChange(e, 'activity_level')}
+                        >
+                          {ACTIVITY_LEVELS.map(lvl => (
+                            <option key={lvl.id} value={lvl.id} className="bg-(--bg-secondary)">{lvl.label} — {lvl.desc}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {bmiRecord?.tdee ? (
+                      <>
                         <div className="grid grid-cols-2 gap-3">
                           <div className="bg-(--bg-hover) rounded-xl p-3 text-center">
                             <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted) block">BMR</span>
@@ -356,13 +417,6 @@ const Profile = () => {
                             <span className="text-[8px] text-(--text-disabled) block">kcal/day</span>
                           </div>
                         </div>
-
-                        {bmiRecord.activity_level && (
-                          <div className="text-center">
-                            <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted)">Activity Level</span>
-                            <p className="text-[11px] font-semibold text-(--text-secondary) mt-0.5 capitalize">{bmiRecord.activity_level}</p>
-                          </div>
-                        )}
 
                         <div>
                           <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted) block mb-2">Calorie Goals</span>
@@ -408,15 +462,13 @@ const Profile = () => {
                             Last updated: {bmiRecord.recorded_at || '—'}
                           </span>
                         </div>
-                      </div>
+                      </>
+                    ) : (
+                      <p className="text-[10px] text-(--text-muted) text-center">
+                        Save changes to calculate your calorie data
+                      </p>
                     )}
-                  </>
-                )}
-
-                {!bmiRecord?.tdee && bmi != null && (
-                  <p className="mt-3 text-[9px] text-(--text-muted) text-center">
-                    Register with weight, height, and age to see calorie details
-                  </p>
+                  </div>
                 )}
               </div>
 

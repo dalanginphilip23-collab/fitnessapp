@@ -203,10 +203,6 @@ export const useProfile = () => {
         ? pendingAvatar.value
         : (avatarSrc || savedAvatarSrc || null);
 
-      // FIX: height_cm / weight_kg intentionally NOT included in this
-      // request anymore — they're read-only on this page and are owned
-      // by the BMI page. Sending them here (even unchanged) is unnecessary
-      // now that the backend route no longer accepts/updates them.
       const body = {
         fullName:   formData.fullName,
         contact:    formData.contact,
@@ -237,6 +233,41 @@ export const useProfile = () => {
       }));
 
       await refreshAuth();
+
+      // If BMI fields changed, recalculate on backend
+      if (formData.height_cm && formData.weight_kg) {
+        try {
+          const bmiRes = await fetch(`${API_BASE_URL}/api/bmi/${USER_ID}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              weight_kg: parseFloat(formData.weight_kg),
+              height_cm: parseFloat(formData.height_cm),
+              age: formData.age ? parseInt(formData.age, 10) : null,
+              gender: formData.gender || null,
+              activity_level: formData.activity_level || null,
+            }),
+          });
+          if (bmiRes.ok) {
+            const bmiResult = await bmiRes.json();
+            setBmiRecord(prev => ({
+              ...prev,
+              weight_kg: bmiResult.weight_kg || formData.weight_kg,
+              height_cm: bmiResult.height_cm || formData.height_cm,
+              bmi: bmiResult.bmi,
+              bmi_category: bmiResult.category,
+              bmr: bmiResult.bmr,
+              tdee: bmiResult.tdee,
+              age: formData.age ? parseInt(formData.age, 10) : null,
+              activity_level: formData.activity_level || null,
+              recorded_at: new Date().toISOString(),
+            }));
+          }
+        } catch (bmiErr) {
+          console.error('BMI recalculation error:', bmiErr);
+        }
+      }
 
       showToast('Profile saved');
     } catch (err) {
