@@ -205,6 +205,18 @@ const Profile = () => {
               Record No. {recordId}
             </p>
 
+            <button
+              onClick={() => isEditing ? handleDiscard() : setIsEditing(true)}
+              className={`mt-3 flex items-center gap-1.5 mx-auto text-[9px] font-black uppercase tracking-widest border rounded-lg px-3 py-1.5 transition-all ${
+                isEditing
+                  ? 'border-[#62aa1a]/30 bg-[#62aa1a]/8 text-[#62aa1a]'
+                  : 'border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:border-(--border-heavy) hover:text-(--text-primary)'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[12px]">{isEditing ? 'close' : 'edit'}</span>
+              {isEditing ? 'Cancel' : 'Edit'}
+            </button>
+
             {isDirty && (
               <div className="flex items-center justify-center gap-3 mt-4 mb-2">
                 <span className="flex items-center gap-1.5 text-[9px] font-bold text-amber-400 uppercase tracking-widest">
