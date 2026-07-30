@@ -1151,7 +1151,7 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
     : `Summary · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1a2a1a] to-[#0d1a0d] border border-(--accent)/15 p-[22px] flex flex-col gap-5">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-(--bg-tertiary) to-(--bg-card) border border-(--accent)/15 p-[22px] flex flex-col gap-5">
       <div className="absolute inset-0 opacity-[0.04] bg-[radial-gradient(circle_at_50%_0%,var(--accent),transparent_70%)]" />
       {/* Header row */}
       <div className="relative flex items-center justify-between gap-3 flex-wrap">
@@ -1170,7 +1170,7 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
 
       {/* Progress bar */}
       <div className="relative flex items-center justify-center gap-2">
-        <div className="flex-1 max-w-xs h-2 rounded-full bg-white/10 overflow-hidden">
+        <div className="flex-1 max-w-xs h-2 rounded-full bg-(--bg-hover) overflow-hidden">
           <div className="h-full rounded-full bg-(--accent) transition-all duration-700" style={{ width: `${Math.min(Math.round(consumed / CALORIE_GOAL * 100), 100)}%` }} />
         </div>
         <span className="text-[10px] font-bold text-(--accent)">{Math.min(Math.round(consumed / CALORIE_GOAL * 100), 100)}%</span>
@@ -1330,14 +1330,23 @@ const NutritionTracker = () => {
       <main className={`pt-14 sm:pt-16 md:pt-16 pb-24 md:pb-8 px-3 sm:px-4 md:px-6 lg:px-8 transition-all duration-[400ms] ${sidebarExpanded ? "md:ml-[240px]" : "md:ml-[72px]"}`}>
         <div className="max-w-5xl mx-auto">
 
-          {/* ── Content split ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 sm:gap-4 mt-5 sm:mt-6">
+          {/* ── Header ── */}
+          <div className="flex items-center justify-between gap-2 mt-5 sm:mt-6 mb-3 sm:mb-4">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🍽️</span>
+              <span className="text-sm sm:text-base font-bold text-(--text-primary)">Nutrition Tracker</span>
+            </div>
+            <DateNavigator currentDate={selectedDate} onDateChange={setSelectedDate} />
+          </div>
 
-            {/* Left: Daily rings + Upload */}
+          {/* ── Content split ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 sm:gap-4">
+
+            {/* Left: Upload first, DailySummary at the bottom */}
             <div className="lg:col-span-2 flex flex-col gap-3 sm:gap-4">
-              <DailySummary userId={USER_ID} refreshSeed={summarySeed} selectedDate={selectedDate} />
               <UploadSection onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
               {result && <ResultCard result={result} onLog={handleLog} isLogging={isLogging} />}
+              <DailySummary userId={USER_ID} refreshSeed={summarySeed} selectedDate={selectedDate} />
             </div>
 
             {/* Right: Meal History */}
