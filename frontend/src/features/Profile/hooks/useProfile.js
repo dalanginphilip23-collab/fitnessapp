@@ -133,16 +133,24 @@ export const useProfile = () => {
         if (res.ok) {
           const dbData = await res.json();
 
-          const mapped = {
+          setFormData(prev => ({
+            ...prev,
             fullName:  dbData.fullName || user?.name  || '',
             email:     dbData.email    || user?.email || '',
             contact:   dbData.contact  || '',
             bio:       dbData.bio      || user?.goal  || '',
             height_cm: dbData.height_cm ?? '',
             weight_kg: dbData.weight_kg ?? '',
-          };
-          setFormData(mapped);
-          setSavedData(mapped);
+          }));
+          setSavedData(prev => ({
+            ...prev,
+            fullName:  dbData.fullName || user?.name  || '',
+            email:     dbData.email    || user?.email || '',
+            contact:   dbData.contact  || '',
+            bio:       dbData.bio      || user?.goal  || '',
+            height_cm: dbData.height_cm ?? '',
+            weight_kg: dbData.weight_kg ?? '',
+          }));
 
           const src = dbData.avatar_url || user?.avatar || getAvatarUrl(USER_ID);
           setAvatarSrc(src);
