@@ -52,22 +52,21 @@ async function insertBmiRecord(
   tdee = null,
   connection = db,
 ) {
-  return connection.execute(
-    `INSERT INTO bmi_records
-        (user_id, weight_kg, height_cm, bmi, bmi_category, age, activity_level, bmr, tdee, recorded_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-    [
-      userId,
-      weight_kg,
-      height_cm,
-      bmi,
-      category,
-      age,
-      activity_level,
-      bmr,
-      tdee,
-    ],
-  );
+  try {
+    return await connection.execute(
+      `INSERT INTO bmi_records
+          (user_id, weight_kg, height_cm, bmi, bmi_category, age, activity_level, bmr, tdee, recorded_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [userId, weight_kg, height_cm, bmi, category, age, activity_level, bmr, tdee],
+    );
+  } catch {
+    return connection.execute(
+      `INSERT INTO bmi_records
+          (user_id, weight_kg, height_cm, bmi, bmi_category, recorded_at)
+       VALUES (?, ?, ?, ?, ?, NOW())`,
+      [userId, weight_kg, height_cm, bmi, category],
+    );
+  }
 }
 
 async function syncUserProfile(userId, height_cm, weight_kg, connection = db) {
@@ -121,20 +120,38 @@ async function saveBmiAndSyncProfile(
 }
 
 async function getBmiHistory(userId, limit, offset) {
-  const [rows] = await db.execute(
-    `SELECT id, weight_kg, height_cm, bmi, bmi_category, age, activity_level, bmr, tdee,
-            DATE_FORMAT(recorded_at, '%Y-%m-%d %H:%i') AS recorded_at
-     FROM bmi_records
-     WHERE user_id = ?
-     ORDER BY recorded_at DESC
-     LIMIT ? OFFSET ?`,
-    [userId, limit, offset],
-  );
+  let rows, total;
 
-  const [[{ total }]] = await db.execute(
-    `SELECT COUNT(*) AS total FROM bmi_records WHERE user_id = ?`,
-    [userId],
-  );
+  try {
+    [rows] = await db.execute(
+      `SELECT id, weight_kg, height_cm, bmi, bmi_category, age, activity_level, bmr, tdee,
+              DATE_FORMAT(recorded_at, '%Y-%m-%d %H:%i') AS recorded_at
+       FROM bmi_records
+       WHERE user_id = ?
+       ORDER BY recorded_at DESC
+       LIMIT ? OFFSET ?`,
+      [userId, limit, offset],
+    );
+  } catch {
+    [rows] = await db.execute(
+      `SELECT id, weight_kg, height_cm, bmi, bmi_category,
+              DATE_FORMAT(recorded_at, '%Y-%m-%d %H:%i') AS recorded_at
+       FROM bmi_records
+       WHERE user_id = ?
+       ORDER BY recorded_at DESC
+       LIMIT ? OFFSET ?`,
+      [userId, limit, offset],
+    );
+  }
+
+  try {
+    [[{ total }]] = await db.execute(
+      `SELECT COUNT(*) AS total FROM bmi_records WHERE user_id = ?`,
+      [userId],
+    );
+  } catch {
+    total = 0;
+  }
 
   return { rows, total };
 }
