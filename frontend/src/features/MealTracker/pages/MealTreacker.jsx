@@ -784,7 +784,7 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
   const busy = isAnalyzing || compressing;
 
   return (
-    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light)">
+    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light) transition-shadow duration-300">
       <SectionLabel text="Meal Photo" />
 
       <div className="flex gap-1.5 mb-3 bg-(--bg-hover) rounded-xl p-1">
@@ -792,8 +792,8 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
           <button
             key={id}
             onClick={() => switchTab(id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all touch-manipulation ${
-              tab === id ? "bg-(--accent) text-[#131313]" : "text-(--text-muted) hover:text-(--text-secondary)"
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 touch-manipulation ${
+              tab === id ? "bg-(--accent) text-[#131313] shadow-sm" : "text-(--text-muted) hover:text-(--text-secondary) hover:bg-(--bg-active)/50"
             }`}
           >
             <span>{icon}</span>{label}
@@ -803,9 +803,11 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
 
       {tab === "upload" && (
         <div
-          className={`relative rounded-xl border-2 border-dashed transition-colors duration-200 cursor-pointer ${
-            dragOver ? "border-(--accent)/60 bg-(--accent-bg)" : "border-(--border-medium) hover:border-(--border-heavy)"
-          } ${preview ? "border-solid border-(--border-medium)" : ""}`}
+          className={`relative rounded-xl border-2 border-dashed transition-all duration-300 cursor-pointer ${
+            dragOver
+              ? "border-(--accent) bg-(--accent-bg) shadow-[0_0_20px_var(--accent-bg)]"
+              : "border-(--border-medium) hover:border-(--accent)/40 hover:bg-(--bg-hover)/50"
+          } ${preview ? "border-solid border-(--border-medium) hover:border-(--accent)/30" : ""}`}
           style={{ minHeight: 180 }}
           onClick={() => !preview && fileInputRef.current?.click()}
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -817,11 +819,11 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
               <img src={preview} alt="Meal preview" className="w-full rounded-xl object-cover" style={{ maxHeight: 240 }} />
               <button
                 onClick={(e) => { e.stopPropagation(); handleClear(); }}
-                className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/60 hover:bg-black/80 text-white rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-xs font-bold transition-colors touch-manipulation"
+                className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/60 hover:bg-black/80 text-white rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-xs font-bold transition-all duration-200 touch-manipulation hover:scale-110"
               >✕</button>
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center py-10 sm:py-12 px-4 text-center">
+            <div className="flex flex-col items-center justify-center py-10 sm:py-12 px-4 text-center transition-transform duration-300 group-hover:scale-105">
               <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-(--bg-hover) flex items-center justify-center mb-3 text-2xl">📁</div>
               <p className="text-(--text-primary) text-xs sm:text-sm font-medium mb-1">Drop a photo here</p>
               <p className="text-(--text-muted) text-xs">or tap to browse</p>
@@ -832,7 +834,7 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
 
       {tab === "camera" && (
         <div
-          className="relative rounded-xl overflow-hidden bg-black flex items-center justify-center cursor-pointer"
+          className="relative rounded-xl overflow-hidden bg-black flex items-center justify-center cursor-pointer transition-all duration-300 hover:ring-2 hover:ring-(--accent)/30"
           style={{ minHeight: 180 }}
           onClick={() => !preview && setIsCameraOpen(true)}
         >
@@ -841,12 +843,12 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
               <img src={preview} alt="Captured meal" className="w-full rounded-xl object-cover" style={{ maxHeight: 240 }} />
               <button
                 onClick={(e) => { e.stopPropagation(); handleClear(); }}
-                className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold transition-colors touch-manipulation"
+                className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold transition-all duration-200 touch-manipulation hover:scale-110"
               >✕</button>
             </>
           ) : (
             <div className="flex flex-col items-center justify-center py-10 sm:py-12 px-4 text-center">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-3 text-2xl">📷</div>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-3 text-2xl transition-transform duration-300 hover:scale-110">📷</div>
               <p className="text-white text-xs sm:text-sm font-medium mb-1">Tap to open camera</p>
               <p className="text-white/50 text-xs">Fullscreen capture</p>
             </div>
@@ -862,7 +864,7 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
         className={`mt-3 sm:mt-4 w-full py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold tracking-wide transition-all duration-200 touch-manipulation ${
           busy || !preview
             ? "bg-(--bg-hover) text-(--text-muted) cursor-not-allowed"
-            : "bg-(--accent) active:scale-[0.98] text-[#131313]"
+            : "bg-(--accent) active:scale-[0.98] text-[#131313] hover:shadow-lg hover:shadow-(--accent)/20"
         }`}
       >
         {compressing ? (
@@ -943,7 +945,7 @@ function ManualLogForm({ onLog, shouldOpen = 0, onClose }) {
 
       {open && createPortal(
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
           onMouseDown={(e) => { if (e.target === e.currentTarget) close(); }}
         >
           <div
@@ -958,7 +960,7 @@ function ManualLogForm({ onLog, shouldOpen = 0, onClose }) {
               </div>
               <button
                 onClick={close}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-(--bg-hover) text-(--text-muted) hover:text-(--text-primary) transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-(--bg-hover) hover:bg-(--bg-active) text-(--text-muted) hover:text-(--text-primary) transition-all duration-200 hover:scale-110"
               >
                 <Icon name="close" className="text-[20px]" />
               </button>
@@ -1033,7 +1035,7 @@ function ManualLogForm({ onLog, shouldOpen = 0, onClose }) {
                 ))}
               </div>
 
-              <button onClick={handleSubmit} className="w-full py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold bg-(--accent) text-[#131313] transition-colors touch-manipulation">
+              <button onClick={handleSubmit} className="w-full py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold bg-(--accent) text-[#131313] transition-all duration-200 touch-manipulation active:scale-[0.98] hover:shadow-lg hover:shadow-(--accent)/20">
                 + Add to Log
               </button>
             </div>
@@ -1049,14 +1051,14 @@ function ResultCard({ result, onLog, isLogging }) {
   if (!result) return null;
 
   return (
-    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light)">
+    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light) transition-shadow duration-300 hover:shadow-sm">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <SectionLabel text="Analysis Result" />
-        <span className="text-[10px] bg-(--accent-bg) text-(--accent) px-2 py-0.5 rounded-full font-semibold">AI Estimated</span>
+        <span className="text-[10px] bg-(--accent-bg) text-(--accent) px-2 py-0.5 rounded-full font-semibold shadow-[0_0_8px_var(--accent-bg)]">AI Estimated</span>
       </div>
 
       <div className="flex items-start gap-3 mb-5 sm:mb-6">
-        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-(--bg-hover) flex items-center justify-center text-xl sm:text-2xl shrink-0">🍽️</div>
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-(--bg-hover) flex items-center justify-center text-xl sm:text-2xl shrink-0 border border-(--border-light)">🍽️</div>
         <div className="flex-1 min-w-0">
           <p className="text-(--text-primary) font-semibold text-sm sm:text-base leading-tight truncate">{result.food_name}</p>
           {result.suggestion && (
@@ -1097,7 +1099,7 @@ function ResultCard({ result, onLog, isLogging }) {
       <button
         onClick={() => onLog(result)}
         disabled={isLogging}
-        className="w-full py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-(--bg-hover) hover:bg-(--accent-bg) hover:text-(--accent) text-(--text-primary) border border-(--border-light) transition-all touch-manipulation disabled:opacity-50"
+        className="w-full py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-(--bg-hover) hover:bg-(--accent-bg) hover:text-(--accent) text-(--text-primary) border border-(--border-light) transition-all duration-200 touch-manipulation disabled:opacity-50 active:scale-[0.98] hover:shadow-sm"
       >
         {isLogging ? <span className="flex items-center justify-center gap-2"><Spinner /> Saving...</span> : "+ Log This Meal"}
       </button>
@@ -1231,34 +1233,43 @@ function MealHistory({ meals, loading, onDeleteMeal, selectedDate }) {
     : `Meals · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 
   return (
-    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light)">
+    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light) transition-shadow duration-300">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <SectionLabel text={dateLabel} />
         {loading && <Spinner />}
       </div>
 
       {filteredMeals.length === 0 ? (
-        <p className="text-(--text-muted) text-xs sm:text-sm text-center py-6 sm:py-8">
-          No meals logged {isToday ? "yet" : "on this day"}
-        </p>
+        <div className="flex flex-col items-center justify-center py-8 sm:py-10 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-(--bg-hover) flex items-center justify-center text-2xl mb-3">🍽️</div>
+          <p className="text-(--text-muted) text-xs sm:text-sm font-medium">No meals logged {isToday ? "yet" : "on this day"}</p>
+          <p className="text-(--text-muted) text-[10px] sm:text-xs mt-1 opacity-60">Tap the + button to add a meal</p>
+        </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {filteredMeals.map((meal) => (
-            <div key={meal.id} className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-(--bg-hover) transition-colors group">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-(--bg-hover) flex items-center justify-center text-base sm:text-lg shrink-0">
+            <div key={meal.id} className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-(--bg-hover) hover:bg-(--bg-active) transition-all duration-200 group shadow-xs hover:shadow-sm">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-(--bg-tertiary) flex items-center justify-center text-base sm:text-lg shrink-0 border border-(--border-light)">
                 {meal.emoji || "🍽️"}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs sm:text-sm font-medium text-(--text-primary) truncate">{meal.food_name}</p>
-                <p className="text-[10px] text-(--text-muted)">{meal.logged_at}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-[10px] text-(--text-muted)">{meal.logged_at}</span>
+                  {(meal.protein || meal.carbs || meal.fat) && (
+                    <span className="text-[9px] text-(--text-disabled) hidden sm:inline">
+                      <span className="text-[#60a5fa]">P{meal.protein || 0}</span>
+                      <span className="mx-0.5">·</span>
+                      <span className="text-(--accent)">C{meal.carbs || 0}</span>
+                      <span className="mx-0.5">·</span>
+                      <span className="text-[#f97316]">F{meal.fat || 0}</span>
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-xs sm:text-sm font-bold text-(--accent)">{meal.calories} kcal</p>
-                {(meal.protein || meal.carbs || meal.fat) && (
-                  <p className="text-[9px] sm:text-[10px] text-(--text-muted) hidden sm:block">
-                    P:{meal.protein}g C:{meal.carbs}g F:{meal.fat}g
-                  </p>
-                )}
+                <p className="text-xs sm:text-sm font-bold text-(--accent)">{meal.calories}</p>
+                <p className="text-[8px] text-(--text-disabled) uppercase tracking-wide">kcal</p>
               </div>
               {/*
                 Delete button: fixed w-8/h-8 + shrink-0 so it can never be
