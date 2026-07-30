@@ -1378,6 +1378,7 @@ const NutritionTracker = () => {
       )}
 
       <div className="md:hidden"><MobileNav onFABClick={() => setManualLogTrigger(t => t + 1)} /></div>
+      <ManualLogForm onLog={handleLog} shouldOpen={manualLogTrigger} />
       {toast && <Toast message={toast} />}
     </div>
   );
