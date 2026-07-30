@@ -39,7 +39,7 @@ const Register = () => {
     name:     '',
     email:    '',
     password: '',
-    goal:     'Peak Metabolic Efficiency',
+
     weight:   '',
     height:   '',
     age:      '',
@@ -150,7 +150,6 @@ const Register = () => {
         .v-card-field4   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.02s forwards; }
         .v-card-field5   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.10s forwards; }
         .v-card-field6   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.18s forwards; }
-        .v-card-field7   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.26s forwards; }
         .v-card-btn      { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.34s forwards; }
         .v-card-footer   { opacity: 0; animation: vitalis-fade-in 0.4s ease            1.42s forwards; }
         .v-modal-card {
@@ -367,33 +366,8 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Goal */}
-              <div className="v-card-field4 relative">
-                <label
-                  className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2 transition-colors"
-                  style={{ color: focused === 'goal' ? ACCENT : 'rgba(255,255,255,0.5)' }}
-                >
-                  Your Goal
-                </label>
-                <select
-                  className="goal-select-custom w-full bg-white/5 border border-white/10 rounded-xl text-sm p-3 sm:p-3.5 outline-none cursor-pointer appearance-none transition-all text-[#e5e2e1]"
-                  style={{
-                    borderColor: focused === 'goal' ? `${ACCENT}80` : undefined,
-                    backgroundColor: focused === 'goal' ? `${ACCENT}0d` : undefined,
-                  }}
-                  value={formData.goal}
-                  onChange={update('goal')}
-                  onFocus={() => setFocused('goal')}
-                  onBlur={() => setFocused('')}
-                >
-                  {GOALS.map(g => (
-                    <option className="bg-[#1a1a1a] text-[#e5e2e1]" key={g} value={g}>{g}</option>
-                  ))}
-                </select>
-              </div>
-
               {/* ── Body Metrics (Optional) ── */}
-              <div className="v-card-field5 border-t border-white/5 pt-4 mt-2">
+              <div className="v-card-field4 border-t border-white/5 pt-4 mt-2">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-[10px] font-semibold tracking-[0.25em] uppercase" style={{ color: ACCENT }}>
                     Body Metrics
@@ -402,7 +376,7 @@ const Register = () => {
                 </div>
 
                 <div className="space-y-4 sm:space-y-5">
-                  <div className="v-card-field6 grid grid-cols-2 gap-3">
+                  <div className="v-card-field5 grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2"
                         style={{ color: 'rgba(255,255,255,0.5)' }}>
@@ -437,7 +411,7 @@ const Register = () => {
                     </div>
                   </div>
 
-                  <div className="v-card-field6 grid grid-cols-2 gap-3">
+                  <div className="v-card-field5 grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2"
                         style={{ color: 'rgba(255,255,255,0.5)' }}>
@@ -472,7 +446,7 @@ const Register = () => {
                     </div>
                   </div>
 
-                  <div className="v-card-field7">
+                  <div className="v-card-field6">
                     <label className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2"
                       style={{ color: 'rgba(255,255,255,0.5)' }}>
                       Activity Level

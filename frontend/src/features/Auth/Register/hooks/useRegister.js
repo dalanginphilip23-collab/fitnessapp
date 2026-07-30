@@ -17,7 +17,6 @@ export const useRegister = () => {
         name:         formData.name,
         email:        formData.email,
         password:     formData.password,
-        fitness_goal: formData.goal,
       };
 
       if (formData.weight) body.weight_kg = parseFloat(formData.weight);
