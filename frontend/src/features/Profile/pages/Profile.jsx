@@ -1,12 +1,13 @@
 // pages/Profile.jsx
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Sidebar, MobileNav, Topbar } from '../../../components';
 import { useProfile } from '../hooks/useProfile';
 import { useAvatar }  from '../hooks/useAvatar';
 import Toast from '../components/Toast';
 import ChangePasswordModal from '../components/ChangePasswordModal';
 import { DEFAULT_AVATARS, getAvatarUrl } from '../utils/avatar';
+import { calcMacros, MACRO_SPLITS } from '../../BMI/constants/bmiConstants';
 
 const RecordRow = ({ label, locked, children }) => (
   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-3.5 border-b border-dashed border-(--border-light) last:border-0">
@@ -81,7 +82,7 @@ const Profile = () => {
     loading, isLoading, isSaving, isEditing, isDirty,
     toastVisible, toastMessage, toastVariant,
     sessions,
-    dailyStats,
+    dailyStats, bmiRecord,
     formData, avatarSrc,
     setToastVisible, setAvatarSrc, setPendingAvatar, setIsEditing,
     handleInputChange, handleDiscard, handleSave, handleLogout,
@@ -101,6 +102,7 @@ const Profile = () => {
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const [activeTab,  setActiveTab]  = React.useState('profile');
   const [changePwOpen, setChangePwOpen] = React.useState(false);
+  const [showBmiDetails, setShowBmiDetails] = React.useState(false);
 
   if (loading || isLoading) {
     return (
@@ -307,9 +309,10 @@ const Profile = () => {
 
               <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Vitals</p>
-                  <span className="material-symbols-outlined text-[12px] text-(--text-disabled)">lock</span>
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Body Metrics</p>
+                  <span className="material-symbols-outlined text-[12px] text-(--text-disabled)">monitor_heart</span>
                 </div>
+
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div>
                     <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-1">Height (cm)</span>
@@ -320,19 +323,101 @@ const Profile = () => {
                     <span className={rowLocked}>{formData.weight_kg || '—'}</span>
                   </div>
                 </div>
+
                 <div className="flex items-center justify-between pt-3 border-t border-dashed border-(--border-light)">
                   <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-disabled)">BMI</span>
                   <span className="text-[11px] font-black" style={{ color: bmiInfo.color }}>
                     {bmi != null ? bmi : '—'} {bmi != null && <span className="text-[9px] font-bold uppercase tracking-widest ml-1">{bmiInfo.label}</span>}
                   </span>
                 </div>
-                <Link
-                  to="/bmi"
-                  className="mt-3 flex items-center justify-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#62aa1a]/70 hover:text-[#62aa1a] transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[12px]">monitoring</span>
-                  Update on BMI page
-                </Link>
+
+                {bmiRecord?.tdee && (
+                  <>
+                    <button
+                      onClick={() => setShowBmiDetails(s => !s)}
+                      className="mt-3 w-full flex items-center justify-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-[#62aa1a]/70 hover:text-[#62aa1a] transition-colors py-1"
+                    >
+                      <span className="material-symbols-outlined text-[12px]">monitoring</span>
+                      {showBmiDetails ? 'Hide Details' : 'View More'}
+                      <span className={`material-symbols-outlined text-[12px] transition-transform ${showBmiDetails ? 'rotate-180' : ''}`}>expand_more</span>
+                    </button>
+
+                    {showBmiDetails && (
+                      <div className="mt-4 pt-4 border-t border-dashed border-(--border-light) space-y-4">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-(--bg-hover) rounded-xl p-3 text-center">
+                            <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted) block">BMR</span>
+                            <span className="text-[15px] font-black text-(--text-primary)">{bmiRecord.bmr}</span>
+                            <span className="text-[8px] text-(--text-disabled) block">kcal/day</span>
+                          </div>
+                          <div className="bg-(--bg-hover) rounded-xl p-3 text-center">
+                            <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted) block">TDEE</span>
+                            <span className="text-[15px] font-black text-(--text-primary)">{bmiRecord.tdee}</span>
+                            <span className="text-[8px] text-(--text-disabled) block">kcal/day</span>
+                          </div>
+                        </div>
+
+                        {bmiRecord.activity_level && (
+                          <div className="text-center">
+                            <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted)">Activity Level</span>
+                            <p className="text-[11px] font-semibold text-(--text-secondary) mt-0.5 capitalize">{bmiRecord.activity_level}</p>
+                          </div>
+                        )}
+
+                        <div>
+                          <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted) block mb-2">Calorie Goals</span>
+                          <div className="grid grid-cols-3 gap-2">
+                            {[
+                              { label: 'Cutting', value: Math.round(bmiRecord.tdee - 500), color: '#f87171' },
+                              { label: 'Maintain', value: bmiRecord.tdee, color: '#c7f248' },
+                              { label: 'Bulking', value: Math.round(bmiRecord.tdee + 500), color: '#60a5fa' },
+                            ].map(g => (
+                              <div key={g.label} className="bg-(--bg-hover) rounded-xl p-2.5 text-center">
+                                <span className="text-[7px] font-bold uppercase tracking-widest block" style={{ color: g.color }}>{g.label}</span>
+                                <span className="text-[11px] font-black text-(--text-primary)">{g.value}</span>
+                                <span className="text-[7px] text-(--text-disabled) block">kcal</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-muted) block mb-2">Macros (Moderate)</span>
+                          {(() => {
+                            const macros = calcMacros(bmiRecord.tdee, MACRO_SPLITS[0]);
+                            return (
+                              <div className="grid grid-cols-3 gap-2">
+                                {[
+                                  { label: 'Protein', grams: macros.protein.grams, cal: macros.protein.calories, color: '#f87171' },
+                                  { label: 'Fat', grams: macros.fat.grams, cal: macros.fat.calories, color: '#f59e0b' },
+                                  { label: 'Carbs', grams: macros.carb.grams, cal: macros.carb.calories, color: '#60a5fa' },
+                                ].map(m => (
+                                  <div key={m.label} className="bg-(--bg-hover) rounded-xl p-2.5 text-center">
+                                    <span className="text-[7px] font-bold uppercase tracking-widest block" style={{ color: m.color }}>{m.label}</span>
+                                    <span className="text-[11px] font-black text-(--text-primary)">{m.grams}g</span>
+                                    <span className="text-[7px] text-(--text-disabled) block">{m.cal} kcal</span>
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          })()}
+                        </div>
+
+                        <div className="text-center pt-2">
+                          <span className="text-[7px] text-(--text-disabled) font-mono">
+                            Last updated: {bmiRecord.recorded_at || '—'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {!bmiRecord?.tdee && bmi != null && (
+                  <p className="mt-3 text-[9px] text-(--text-muted) text-center">
+                    Register with weight, height, and age to see calorie details
+                  </p>
+                )}
               </div>
 
               <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">

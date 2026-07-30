@@ -25,17 +25,18 @@ export const useProfile = () => {
     workout_duration_mins: 0,
   });
 
+  const [bmiRecord, setBmiRecord] = useState(null);
+
   const [formData, setFormData] = useState({
     fullName: '',
     email:    '',
     contact:  '',
     bio:      '',
-    // FIX: height_cm / weight_kg are still part of formData so they can be
-    // displayed, but they are READ-ONLY here — they're only ever written
-    // by the BMI page (POST /api/bmi/:userId). No handler in this hook
-    // mutates them.
     height_cm: '',
     weight_kg: '',
+    age: '',
+    gender: 'male',
+    activity_level: 'light',
   });
   const [savedData,      setSavedData]      = useState({ ...formData });
   const [avatarSrc,      setAvatarSrc]      = useState(null);
@@ -87,6 +88,32 @@ export const useProfile = () => {
     fetchStats();
   }, [USER_ID]);
 
+  // ── Fetch latest BMI record ──────────────────────────────────────────────
+  useEffect(() => {
+    if (!USER_ID) return;
+    const fetchBmi = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/bmi/${USER_ID}?limit=1`, {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Failed to fetch BMI');
+        const data = await res.json();
+        if (data.records?.length > 0) {
+          const r = data.records[0];
+          setBmiRecord(r);
+          setFormData(prev => ({
+            ...prev,
+            age: r.age != null ? String(r.age) : prev.age,
+            activity_level: r.activity_level || prev.activity_level,
+          }));
+        }
+      } catch (err) {
+        console.error('BMI fetch error:', err);
+      }
+    };
+    fetchBmi();
+  }, [USER_ID]);
+
   // ── Fetch profile ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (!USER_ID) {
@@ -126,14 +153,15 @@ export const useProfile = () => {
   }, [USER_ID, loading, user]);
 
   // ── Track dirty state ──────────────────────────────────────────────────────
-  // FIX: height_cm / weight_kg removed from the dirty check — they're
-  // read-only on this page now and can never differ from savedData here.
   useEffect(() => {
     const formChanged =
       formData.fullName !== savedData.fullName ||
       formData.contact  !== savedData.contact  ||
       formData.bio      !== savedData.bio;
-    setIsDirty(formChanged || !!pendingAvatar);
+    const bmiChanged =
+      formData.height_cm !== savedData.height_cm ||
+      formData.weight_kg !== savedData.weight_kg;
+    setIsDirty(formChanged || bmiChanged || !!pendingAvatar);
   }, [formData, savedData, pendingAvatar]);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
@@ -229,7 +257,7 @@ export const useProfile = () => {
     isLoading, isSaving, isEditing, isDirty,
     toastVisible, toastMessage, toastVariant,
     sessions,
-    dailyStats,
+    dailyStats, bmiRecord,
     formData, avatarSrc, pendingAvatar,
     setToastVisible, setAvatarSrc, setPendingAvatar, setIsEditing,
     handleInputChange, handleDiscard, handleRevoke, handleSave, handleLogout,
