@@ -35,6 +35,7 @@ const Dashboard = () => {
 
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [feedbackOpen,    setFeedbackOpen]    = useState(false);
+  const [fabOpen,         setFabOpen]         = useState(false);
 
   const openFeedback  = useCallback(() => setFeedbackOpen(true),  []);
   const closeFeedback = useCallback(() => setFeedbackOpen(false), []);
@@ -171,8 +172,8 @@ const Dashboard = () => {
         </div>
       </main>
 
-      <div className="md:hidden"><MobileNav /></div>
-      <FAB onSave={handleLogActivity} />
+      <div className="md:hidden"><MobileNav onFABClick={() => setFabOpen(true)} /></div>
+      <FAB isOpen={fabOpen} onClose={() => setFabOpen(false)} onSave={handleLogActivity} />
 
       {feedbackOpen && (
         <FeedbackModal onClose={closeFeedback} />
