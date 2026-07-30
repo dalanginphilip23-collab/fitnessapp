@@ -48,7 +48,6 @@ const Register = () => {
   });
   const [focused, setFocused] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [showBodyMetrics, setShowBodyMetrics] = useState(false);
 
   const { loading, error, showSuccessModal, handleRegister, handleModalConfirm } = useRegister();
 
@@ -153,7 +152,7 @@ const Register = () => {
         .v-card-field6   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.18s forwards; }
         .v-card-field7   { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.26s forwards; }
         .v-card-btn      { opacity: 0; animation: vitalis-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) 1.34s forwards; }
-        .v-card-footer   { opacity: 0; animation: vitalis-fade-in 0.4s ease            1.22s forwards; }
+        .v-card-footer   { opacity: 0; animation: vitalis-fade-in 0.4s ease            1.42s forwards; }
         .v-modal-card {
           animation: vitalis-modal-in 0.35s cubic-bezier(0.22,1,0.36,1) forwards;
         }
@@ -394,26 +393,15 @@ const Register = () => {
               </div>
 
               {/* ── Body Metrics (Optional) ── */}
-              <div className="v-card-field5">
-                <button
-                  type="button"
-                  onClick={() => setShowBodyMetrics(s => !s)}
-                  className="w-full flex items-center justify-between text-[10px] font-semibold tracking-[0.25em] uppercase py-2 transition-colors"
-                  style={{ color: ACCENT }}
-                >
-                  <span>Body Metrics (Optional)</span>
-                  <svg
-                    className="w-4 h-4 transition-transform duration-300"
-                    style={{ transform: showBodyMetrics ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-              </div>
+              <div className="v-card-field5 border-t border-white/5 pt-4 mt-2">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[10px] font-semibold tracking-[0.25em] uppercase" style={{ color: ACCENT }}>
+                    Body Metrics
+                  </span>
+                  <span className="text-[8px] text-white/20 font-semibold tracking-widest uppercase">Optional</span>
+                </div>
 
-              {showBodyMetrics && (
-                <div className="space-y-4 sm:space-y-5 overflow-hidden transition-all duration-300">
+                <div className="space-y-4 sm:space-y-5">
                   <div className="v-card-field6 grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[10px] font-semibold tracking-[0.25em] uppercase mb-2"
@@ -504,7 +492,7 @@ const Register = () => {
                     </select>
                   </div>
                 </div>
-              )}
+              </div>
 
               <button
                 type="submit"
