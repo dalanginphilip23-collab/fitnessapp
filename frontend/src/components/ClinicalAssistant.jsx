@@ -10,9 +10,13 @@ const trendIcon = (trend) => {
 
 // Used to keep the default "Recent Insights" view scoped to today only.
 // "Show All History" intentionally bypasses this and shows everything.
-const isToday = (timestamp) => {
-  if (!timestamp) return false;
-  const d = new Date(timestamp);
+// Prefers the raw ISO `created_at` the backend now sends; falls back to
+// the display `timestamp`. A locale string like "7/31/2026, 6:56:37 PM"
+// fails `new Date()` in many locales, which silently hid today's insights.
+const isToday = (item) => {
+  const source = item?.created_at ?? item?.timestamp;
+  if (!source) return false;
+  const d = new Date(source);
   if (Number.isNaN(d.getTime())) return false;
   const now = new Date();
   return (
@@ -86,7 +90,8 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
     const fetchLatestIfEmpty = async () => {
       setHistoryLoad(true);
       try {
-        const res  = await fetch(`${API_BASE_URL}/api/ai/history/${userId}`);
+        const res  = await fetch(`${API_BASE_URL}/api/ai/history/${userId}`, { credentials: 'include' });
+        if (!res.ok) throw new Error(`History request failed: HTTP ${res.status}`);
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) setHistory(data);
       } catch (err) {
@@ -104,7 +109,8 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
       setHistoryLoad(true);
       setHistoryError(false);
       try {
-        const res  = await fetch(`${API_BASE_URL}/api/ai/history/${userId}`);
+        const res  = await fetch(`${API_BASE_URL}/api/ai/history/${userId}`, { credentials: 'include' });
+        if (!res.ok) throw new Error(`History request failed: HTTP ${res.status}`);
         const data = await res.json();
         setHistory(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -119,7 +125,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
 
   const activeInsights = showHistory
     ? history
-    : (insights.length > 0 ? insights : history.filter(item => isToday(item.timestamp)).slice(0, 5));
+    : (insights.length > 0 ? insights : history.filter(item => isToday(item)).slice(0, 5));
 
   return (
     <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[20px] p-[22px] flex flex-col overflow-hidden card-glow">

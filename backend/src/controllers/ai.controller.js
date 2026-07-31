@@ -222,8 +222,8 @@ async function history(req, res) {
   try {
     const rows = await aiService.getInsightHistory(userId);
     const history = rows.map(row => ([
-      { ...JSON.parse(row.sleep_suggestion), id: `sleep-${row.created_at}`, timestamp: new Date(row.created_at).toLocaleString() },
-      { ...JSON.parse(row.activity_suggestion), id: `activity-${row.created_at}`, timestamp: new Date(row.created_at).toLocaleString() },
+      { ...JSON.parse(row.sleep_suggestion), id: `sleep-${row.created_at}`, timestamp: new Date(row.created_at).toLocaleString(), created_at: row.created_at },
+      { ...JSON.parse(row.activity_suggestion), id: `activity-${row.created_at}`, timestamp: new Date(row.created_at).toLocaleString(), created_at: row.created_at },
     ])).flat();
     res.json(history);
   } catch (err) {
