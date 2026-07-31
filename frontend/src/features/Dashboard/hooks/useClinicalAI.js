@@ -1,5 +1,16 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { API_BASE_URL } from '../../../config/port';
+import { saveLocalFallbackInsight } from '../../../utils/localInsight';
+
+const buildLocalFallback = (currentStats) => {
+  const s = currentStats || {};
+  const parts = [];
+  if (s.steps)                 parts.push(`${s.steps} steps`);
+  if (s.calories_burned)       parts.push(`${s.calories_burned} kcal burned`);
+  if (s.workout_duration_mins) parts.push(`${s.workout_duration_mins} mins of work`);
+  const lead = parts.length > 0 ? `Your latest activity is in: ${parts.join(', ')}.` : 'Your latest activity was logged.';
+  return `${lead} The AI analysis engine is temporarily unavailable — your data is still being tracked and a personalized breakdown will appear here shortly.`;
+};
 
 export const useClinicalAI = (USER_ID, setInsights) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -33,6 +44,16 @@ export const useClinicalAI = (USER_ID, setInsights) => {
           },
         }),
       });
+
+      if (!response.ok) {
+        saveLocalFallbackInsight(USER_ID, {
+          id:        `local-${Date.now()}`,
+          message:   buildLocalFallback(currentStats),
+          category:  'Performance Tip',
+          trend:     currentStats?.steps > 0 ? 'up' : 'stable',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        });
+      }
 
       const result = await response.json();
 
