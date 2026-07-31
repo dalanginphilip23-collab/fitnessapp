@@ -996,6 +996,8 @@ const QUICK_ACCESS_ITEMS = [
 ];
 
 const QUICK_SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+const QUICK_X = 36;   // horizontal distance from FAB center to each icon
+const QUICK_Y = 72;   // vertical rise from the FAB to the resting row
 
 const QuickAccessSheet = ({ open, onClose }) => {
   const navigate = useNavigate();
@@ -1050,7 +1052,12 @@ const QuickAccessSheet = ({ open, onClose }) => {
             onClick={() => handleSelect(item.path)}
             aria-label={item.label}
             className="flex flex-col items-center gap-1.5 border-none bg-transparent cursor-pointer outline-none select-none"
-            style={{ animation: `${closing ? 'itemOut' : 'itemIn'} 0.32s ${QUICK_SPRING} both`, animationDelay: closing ? '0s' : `${0.05 + idx * 0.06}s` }}
+            style={{
+              animation: `${closing ? 'popOut' : 'popIn'} 0.4s ${QUICK_SPRING} both`,
+              animationDelay: closing ? '0s' : `${0.04 + idx * 0.05}s`,
+              '--dx': `${idx === 0 ? QUICK_X : -QUICK_X}px`,
+              '--dy': `${QUICK_Y}px`,
+            }}
           >
             <div
               className="w-11 h-11 rounded-full flex items-center justify-center border shadow-lg active:scale-90 transition-transform duration-150"
@@ -1218,8 +1225,8 @@ const Plans = () => {
       <style>{`
         @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes itemIn { from { opacity: 0; transform: translateY(16px) scale(0.6); } to { opacity: 1; transform: translateY(0) scale(1); } }
-        @keyframes itemOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(12px) scale(0.7); } }
+        @keyframes popIn { from { opacity: 0; transform: translateX(var(--dx, 0px)) translateY(var(--dy, 0px)) scale(0.4); } to { opacity: 1; transform: translateX(0) translateY(0) scale(1); } }
+        @keyframes popOut { from { opacity: 1; transform: translateX(0) translateY(0) scale(1); } to { opacity: 0; transform: translateX(calc(var(--dx, 0px) * 0.6)) translateY(calc(var(--dy, 0px) * 0.6)) scale(0.5); } }
         input::placeholder { color: var(--text-muted); opacity: 1; }
         @media (min-width: 480px) { .xs\\:inline { display: inline; } .xs\\:hidden { display: none; } }
       `}</style>
