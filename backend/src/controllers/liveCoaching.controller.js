@@ -12,7 +12,7 @@ async function startSession(req, res) {
     res.status(201).json({ message: 'Session started', session_id: result.insertId });
   } catch (err) {
     console.error('[COACHING] Start session error:', err.message);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    res.status(500).json({ error: err.message });
   }
 }
 
@@ -32,7 +32,7 @@ async function endSession(req, res) {
     res.json({ message: 'Session ended', session_id: Number(sessionId) });
   } catch (err) {
     console.error('[COACHING] End session error:', err.message);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    res.status(500).json({ error: err.message });
   }
 }
 
@@ -48,23 +48,22 @@ async function logRep(req, res) {
     res.status(201).json({ message: 'Rep logged', rep_id: result.insertId });
   } catch (err) {
     console.error('[COACHING] Log rep error:', err.message);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    res.status(500).json({ error: err.message });
   }
 }
 
 // GET /api/live-coaching/sessions/:userId — All sessions for a user
 async function getSessions(req, res) {
   const { userId } = req.params;
-  const parsedLimit = parseInt(req.query.limit, 10);
-  const limit = Math.min(Math.max(isNaN(parsedLimit) ? 10 : parsedLimit, 1), 100);
-  const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = parseInt(req.query.offset) || 0;
 
   try {
     const { rows, total } = await liveCoachingService.getSessionsForUser(userId, limit, offset);
     res.json({ records: rows, total });
   } catch (err) {
     console.error('[COACHING] Fetch sessions error:', err.message);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    res.status(500).json({ error: err.message });
   }
 }
 
@@ -77,7 +76,7 @@ async function getReps(req, res) {
     res.json({ reps: rows, total: rows.length });
   } catch (err) {
     console.error('[COACHING] Fetch reps error:', err.message);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    res.status(500).json({ error: err.message });
   }
 }
 
@@ -90,7 +89,7 @@ async function getDailySummary(req, res) {
     res.json(row);
   } catch (err) {
     console.error('[COACHING] Daily summary error:', err.message);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    res.status(500).json({ error: err.message });
   }
 }
 

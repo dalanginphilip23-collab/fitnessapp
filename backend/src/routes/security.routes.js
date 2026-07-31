@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const securityController = require('../controllers/security.controller');
-const requireAuth = require('../middleware/requireAuth');
+const verifyUser = require('../middleware/verifyUser');
 
-router.get('/', requireAuth, securityController.getSessions);
-router.delete('/:sessionId', requireAuth, securityController.revokeSession);
+console.log('verifyUser type:', typeof verifyUser);
+
+router.get('/', verifyUser, securityController.getSessions);
+router.delete('/:sessionId', verifyUser, securityController.revokeSession);
 
 module.exports = router;

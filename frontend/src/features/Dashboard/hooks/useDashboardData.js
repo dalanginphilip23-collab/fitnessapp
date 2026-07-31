@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
-import { API_BASE_URL, SOCKET_URL } from '../../../config/port';
+import { API_BASE_URL } from '../../../config/port';
 
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000';
+const socket = io(SOCKET_URL, { withCredentials: true });
 const getTodayKey = () => new Date().toLocaleDateString('en-CA');
 
 export const useDashboardData = (USER_ID) => {
@@ -52,16 +54,12 @@ export const useDashboardData = (USER_ID) => {
   useEffect(() => {
     if (!USER_ID) return;
 
-    const socket = io(SOCKET_URL, { withCredentials: true });
-
     const fetchDashboardData = async () => {
       try {
         const response  = await fetch(`${API_BASE_URL}/api/dashboard/${USER_ID}`, { credentials: 'include' });
-        if (!response.ok) throw new Error(`Dashboard fetch failed: ${response.status}`);
         const result    = await response.json();
 
         const sleepRes  = await fetch(`${API_BASE_URL}/api/sleep/${USER_ID}/today`, { credentials: 'include' });
-        if (!sleepRes.ok) throw new Error(`Sleep fetch failed: ${sleepRes.status}`);
         const sleepData = await sleepRes.json();
 
         setData(mergeData({
@@ -75,7 +73,6 @@ export const useDashboardData = (USER_ID) => {
         }));
 
         const bioRes  = await fetch(`${API_BASE_URL}/api/sleep/${USER_ID}?range=D&metric=duration`, { credentials: 'include' });
-        if (!bioRes.ok) throw new Error(`Biometrics fetch failed: ${bioRes.status}`);
         const bioData = await bioRes.json();
         if (Array.isArray(bioData) && bioData.length > 0) {
           setBiometrics(bioData);
@@ -123,7 +120,6 @@ export const useDashboardData = (USER_ID) => {
     return () => {
       socket.off('new-biometric-data',   handleNewBiometric);
       socket.off('new-clinical-insight', handleNewInsight);
-      socket.disconnect();
       clearInterval(dayCheckInterval);
     };
   }, [USER_ID]);

@@ -14,7 +14,7 @@ async function logActivity(req, res) {
     res.status(200).json({ message: "Activity logged successfully" });
   } catch (err) {
     console.error("[LOGS] DB Error:", err.message);
-    res.status(500).json({ error: 'Failed to log activity' });
+    res.status(500).json({ error: err.message });
   }
 }
 

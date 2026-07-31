@@ -6,8 +6,7 @@ async function start(req, res) {
     const log = await workoutLogsService.startLog(req.user.id, workout_type);
     res.status(201).json({ session_id: log.id, start_time: log.start_time });
   } catch (err) {
-    console.error('start log error:', err.message);
-    res.status(500).json({ message: 'Failed to start workout log' });
+    res.status(500).json({ message: err.message });
   }
 }
 
@@ -22,8 +21,7 @@ async function end(req, res) {
     const updated = await workoutLogsService.endLog(logId, status, rep_count);
     res.json(updated);
   } catch (err) {
-    console.error('end log error:', err.message);
-    res.status(500).json({ message: 'Failed to end workout log' });
+    res.status(500).json({ message: err.message });
   }
 }
 
@@ -32,8 +30,7 @@ async function list(req, res) {
     const logs = await workoutLogsService.getLogs(req.user.id);
     res.json({ logs });
   } catch (err) {
-    console.error('fetch logs error:', err.message);
-    res.status(500).json({ message: 'Failed to fetch workout logs' });
+    res.status(500).json({ message: err.message });
   }
 }
 

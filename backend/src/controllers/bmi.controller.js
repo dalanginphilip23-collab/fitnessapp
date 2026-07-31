@@ -11,23 +11,17 @@ async function saveBmi(req, res) {
       .json({ error: "weight_kg and height_cm are required" });
   }
 
-  const weightNum = parseFloat(weight_kg);
-  const heightNum = parseFloat(height_cm);
-  if (!(weightNum > 0) || !(heightNum > 50) || !(heightNum < 300)) {
-    return res
-      .status(400)
-      .json({ error: "Invalid weight or height values" });
-  }
-
-  const heightM = heightNum / 100;
-  const bmi = parseFloat((weightNum / (heightM * heightM)).toFixed(2));
+  const heightM = parseFloat(height_cm) / 100;
+  const bmi = parseFloat(
+    (parseFloat(weight_kg) / (heightM * heightM)).toFixed(2),
+  );
   const category = bmiService.getBmiCategory(bmi);
   const ageNum = age ? parseInt(age, 10) : null;
   const sex = gender === "female" ? "female" : "male";
   const tdeeResult = bmiService.calcTdee({
     sex,
-    kg: weightNum,
-    cm: heightNum,
+    kg: parseFloat(weight_kg),
+    cm: parseFloat(height_cm),
     age: ageNum,
     activityId: activity_level,
   });
@@ -35,8 +29,8 @@ async function saveBmi(req, res) {
   try {
     const [result] = await bmiService.insertBmiRecord(
       userId,
-      weightNum,
-      heightNum,
+      parseFloat(weight_kg),
+      parseFloat(height_cm),
       bmi,
       category,
       ageNum,
@@ -47,8 +41,8 @@ async function saveBmi(req, res) {
 
     await bmiService.syncUserProfile(
       userId,
-      heightNum,
-      weightNum,
+      parseFloat(height_cm),
+      parseFloat(weight_kg),
     );
 
     // Generate AI suggestion — now aware of TDEE/calorie target when available
@@ -89,16 +83,15 @@ async function saveBmi(req, res) {
     });
   } catch (err) {
     console.error("[BMI] Insert Error:", err.message);
-    res.status(500).json({ error: "Failed to save BMI" });
+    res.status(500).json({ error: "Database error", details: err.message });
   }
 }
 
 // Get BMI history
 async function getBmiHistory(req, res) {
   const { userId } = req.params;
-  const parsedLimit = parseInt(req.query.limit, 10);
-  const limit = Math.min(Math.max(isNaN(parsedLimit) ? 10 : parsedLimit, 1), 100);
-  const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = parseInt(req.query.offset) || 0;
 
   try {
     const { rows, total } = await bmiService.getBmiHistory(
@@ -109,7 +102,7 @@ async function getBmiHistory(req, res) {
     res.json({ records: rows, total });
   } catch (err) {
     console.error("[BMI] Fetch Error:", err.message);
-    res.status(500).json({ error: "Failed to fetch BMI history" });
+    res.status(500).json({ error: err.message });
   }
 }
 

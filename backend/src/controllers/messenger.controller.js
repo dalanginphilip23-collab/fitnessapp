@@ -23,12 +23,12 @@ async function getMessageHistory(req, res) {
 }
 
 async function sendMessage(req, res) {
-  const { receiver_id, content } = req.body;
-  if (!receiver_id || !content?.trim()) {
+  const { sender_id, receiver_id, content } = req.body;
+  if (!sender_id || !receiver_id || !content?.trim()) {
     return res.status(400).json({ error: "Missing required fields" });
   }
   try {
-    const message = await messengerService.sendMessage(req.user.id, receiver_id, content);
+    const message = await messengerService.sendMessage(sender_id, receiver_id, content);
     res.status(201).json(message);
   } catch (err) {
     console.error("Send Message Error:", err);

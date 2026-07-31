@@ -7,12 +7,7 @@ const foodLogsUrl = (userId, ...parts) =>
   `${API_BASE_URL}/api/food-logs/${[userId, ...parts].join("/")}`;
 
 const jsonPost = (url, body) =>
-  fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify(body),
-  });
+  fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
 async function compressImageToBase64(dataUrl) {
   return new Promise((resolve, reject) => {
@@ -54,7 +49,7 @@ async function apiSaveFoodLog(userId, meal) {
 }
 
 async function apiFetchFoodLogs(userId) {
-  const res  = await fetch(foodLogsUrl(userId), { credentials: "include" });
+  const res  = await fetch(foodLogsUrl(userId));
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Fetch failed");
   return data;
@@ -64,7 +59,6 @@ async function apiDeleteFoodLog(userId, mealId) {
   const res  = await fetch(foodLogsUrl(userId, mealId), {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
-    credentials: "include",
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Delete failed");

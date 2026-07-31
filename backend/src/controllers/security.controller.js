@@ -9,7 +9,7 @@ async function getSessions(req, res) {
     res.json(rows);
   } catch (err) {
     console.error('fetch sessions error:', err.message);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    res.status(500).json({ error: err.message });
   }
 }
 
@@ -24,7 +24,7 @@ async function revokeSession(req, res) {
     res.json({ success: true, message: 'Session removed' });
   } catch (err) {
     console.error('delete session error:', err.message);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    res.status(500).json({ error: err.message });
   }
 }
 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useRef, useCallback, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import Icon from '../components/Icon';
 
 // ── Context ──────────────────────────────────────────────────────────────
@@ -40,7 +40,9 @@ function Toast({ id, message, type, onClose }) {
         ${visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}
       `}
     >
-      <Icon name={ICONS[type]} className="text-[16px] mt-0.5 shrink-0" />
+      <span className="material-icons text-[18px] mt-0.5 shrink-0">
+         <Icon name={'check_circle'} className={'text-[16px]'}/>
+      </span>
       <p className="text-[12px] text-[#e5e2e1] leading-relaxed flex-1 m-0">
         {message}
       </p>
@@ -68,14 +70,13 @@ function ToastContainer({ toasts, onClose }) {
 // ── Provider (wrap your app with this) ───────────────────────────────────
 export function NotificationProvider({ children }) {
   const [toasts, setToasts] = useState([]);
-  const idRef = useRef(0);
 
   const removeToast = useCallback((id) => {
     setToasts(prev => prev.filter(t => t.id !== id));
   }, []);
 
   const addToast = useCallback((message, type = 'info') => {
-    const id = ++idRef.current;
+    const id = Date.now();
     setToasts(prev => [...prev, { id, message, type }]);
     setTimeout(() => removeToast(id), 4000);
   }, [removeToast]);

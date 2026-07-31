@@ -119,22 +119,21 @@ async function createLog(req, res) {
 
   } catch (err) {
     console.error('[food-log POST] ERROR:', err.message);
-    res.status(500).json({ error: 'Failed to save meal log' });
+    res.status(500).json({ error: 'Database error', details: err.message });
   }
 }
 
 async function getLogs(req, res) {
   const { userId } = req.params;
-  const parsedLimit = parseInt(req.query.limit, 10);
-  const limit = Math.min(Math.max(isNaN(parsedLimit) ? 200 : parsedLimit, 1), 200);
-  const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+  const limit = parseInt(req.query.limit) || 200;
+  const offset = parseInt(req.query.offset) || 0;
 
   try {
     const { rows, total } = await foodLogsService.getFoodLogs(userId, limit, offset);
     res.json({ records: rows, total });
   } catch (err) {
     console.error('[food-log GET] ERROR:', err.message);
-    res.status(500).json({ error: 'Failed to load meal logs' });
+    res.status(500).json({ error: 'Database error', details: err.message });
   }
 }
 
@@ -150,7 +149,7 @@ async function deleteLog(req, res) {
     res.json({ success: true, message: 'Meal deleted' });
   } catch (err) {
     console.error('[food-log DELETE] ERROR:', err.message);
-    res.status(500).json({ error: 'Failed to delete meal log' });
+    res.status(500).json({ error: 'Database error', details: err.message });
   }
 }
 

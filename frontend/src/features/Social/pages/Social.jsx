@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { MobileNav, Sidebar, Topbar } from '../../../components';
 import { useAuth } from '../../../hooks/useAuth';
-import { SOCKET_URL } from '../../../config/port';
 import { useContacts } from '../hooks/useContact';
 import { useMessages } from '../hooks/useMessages';
+
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:8000';
 
 const Icon = ({ name, className = '', fill = 0, weight = 300 }) => (
   <span

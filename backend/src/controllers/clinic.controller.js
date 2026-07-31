@@ -1,12 +1,7 @@
 const clinicService = require('../services/clinic.service');
 
 async function createOrGetSession(req, res) {
-  const { doctorName } = req.body;
-  const userId = req.user.id;
-
-  if (!doctorName?.trim()) {
-    return res.status(400).json({ error: "doctorName is required" });
-  }
+  const { userId, doctorName } = req.body;
 
   try {
     const existing = await clinicService.findSession(userId, doctorName);
@@ -21,7 +16,7 @@ async function createOrGetSession(req, res) {
 
   } catch (err) {
     console.error("Session error:", err.message);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    res.status(500).json({ error: err.message });
   }
 }
 
@@ -30,10 +25,6 @@ async function sendMessage(req, res) {
 
   if (!message) {
     return res.status(400).json({ error: "Message is required" });
-  }
-
-  if (!sessionId) {
-    return res.status(400).json({ error: "Session is required" });
   }
 
   try {
@@ -73,7 +64,7 @@ async function sendMessage(req, res) {
 
   } catch (err) {
     console.error("Message error:", err.message);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    res.status(500).json({ error: err.message });
   }
 }
 
@@ -85,7 +76,7 @@ async function getMessages(req, res) {
     res.json(rows);
   } catch (err) {
     console.error("Fetch messages error:", err.message);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    res.status(500).json({ error: err.message });
   }
 }
 
@@ -97,7 +88,7 @@ async function resetChat(req, res) {
     res.json({ success: true, message: 'Consultation reset successfully.' });
   } catch (err) {
     console.error('Reset error:', err.message);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    res.status(500).json({ error: err.message });
   }
 }
 
@@ -109,7 +100,7 @@ async function getDoctors(req, res) {
     res.json(rows);
   } catch (err) {
     console.error("Fetch doctors error:", err.message);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    res.status(500).json({ error: err.message });
   }
 }
 

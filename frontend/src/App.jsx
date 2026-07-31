@@ -16,7 +16,6 @@ const Log = lazy(() => import("./features/Log/pages/Log"));
 const NutritionTracker = lazy(() => import("./features/MealTracker/pages/MealTreacker"));
 const VirtualClinic = lazy(() => import("./features/Coach/pages/virtual-clinic"));
 const LiveCoaching = lazy(() => import("./features/LiveCoaching/pages/LiveCoaching"));
-const BMI = lazy(() => import("./features/BMI/pages/BMI"));
 const Profile = lazy(() => import("./features/Profile/pages/Profile"));
 const ActivityMap = lazy(() => import("./features/ActivityMap/pages/ActivityMap"));
 const Register = lazy(() => import("./features/Auth/Register/pages/Register"));
@@ -176,14 +175,6 @@ function RoutesHandler() {
           element={
             <ProtectedRoute>
               <LiveCoaching />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard/bmi"
-          element={
-            <ProtectedRoute>
-              <BMI />
             </ProtectedRoute>
           }
         />

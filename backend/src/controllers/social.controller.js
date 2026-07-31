@@ -6,8 +6,7 @@ async function getMessages(req, res) {
     const messages = await socialService.getMessages(userId, friendId);
     res.json(messages);
   } catch (err) {
-    console.error('social messages error:', err.message);
-    res.status(500).json({ error: 'Failed to load messages' });
+    res.status(500).json({ error: err.message });
   }
 }
 

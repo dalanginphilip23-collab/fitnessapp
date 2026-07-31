@@ -16,8 +16,9 @@ app.set("trust proxy", 1);
 
 const ALLOWED_ORIGINS = [
   process.env.CLIENT_URL,
+  "https://fitness-app1-chi.vercel.app/",
   "https://fitnessapp-0cgj.onrender.com",
-].filter(Boolean);
+];
 
 // ============================
 // CORS
@@ -31,9 +32,7 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    // Local dev tunnel (VSCode) — pin to the configured URL instead of
-    // allowing any *.devtunnels.ms subdomain.
-    if (process.env.DEV_TUNNEL_URL && origin === process.env.DEV_TUNNEL_URL) {
+    if (origin.endsWith(".devtunnels.ms")) {
       return callback(null, true);
     }
 
@@ -103,13 +102,11 @@ const workoutLogRoutes = require("./routes/workoutLogs.routes");
 const forgotPasswordRoutes = require("./routes/forgotPassword.routes");
 const feedbackRoutes = require("./routes/feedback.routes");
 const statsRoutes = require("./routes/stats.routes");
-const liveCoachingRoutes = require("./routes/liveCoaching.routes");
 
-// NOTE: social.routes.js exists but is intentionally NOT mounted — its
-// GET /messages/:userId/:friendId duplicates messenger.routes.js's
-// GET /messages/:userId/:contactId (the endpoint the Social frontend
-// actually calls). Mounting it would create a shadowed, conflicting
-// route. Its broken import was fixed so it can't crash if ever mounted.
+// NOTE: liveCoaching.routes.js and social.routes.js exist (carried over
+// from route/liveCoaching.js and route/social.js) but were NOT mounted
+// in the original server.js either — preserved as unmounted here too.
+// See the summary notes for details on both.
 
 app.use("/api/bmi", bmiRoutes);
 app.use("/api/auth", authRoutes);
@@ -134,7 +131,6 @@ app.use("/api/workout-logs", workoutLogRoutes);
 app.use("/api/forgot-password", forgotPasswordRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/stats", statsRoutes);
-app.use("/api/live-coaching", liveCoachingRoutes);
 
 // ============================
 // Socket Handler
@@ -166,7 +162,10 @@ app.use((err, req, res, next) => {
 
   res.status(err.status || 500).json({
     success: false,
-    message: "Internal Server Error",
+    message:
+      process.env.NODE_ENV === "production"
+        ? "Internal Server Error"
+        : err.message,
   });
 });
 

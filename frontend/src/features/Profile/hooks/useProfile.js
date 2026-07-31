@@ -163,11 +163,7 @@ export const useProfile = () => {
       }
     };
     fetchProfile();
-    // Only re-run when the user id actually changes. Depending on the
-    // whole `user` object re-fetches after every save (setUser/refreshAuth
-    // build a fresh object) for no benefit.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [USER_ID]);
+  }, [USER_ID, loading, user]);
 
   // ── Track dirty state ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -175,12 +171,10 @@ export const useProfile = () => {
       formData.fullName !== savedData.fullName ||
       formData.contact  !== savedData.contact  ||
       formData.bio      !== savedData.bio;
-    // Height/weight come back from the DB as numbers but inputs always
-    // produce strings — compare as strings or a same-value edit looks dirty.
     const bmiChanged =
-      String(formData.height_cm ?? '')  !== String(savedData.height_cm ?? '') ||
-      String(formData.weight_kg ?? '')  !== String(savedData.weight_kg ?? '') ||
-      String(formData.age ?? '')        !== String(savedData.age ?? '') ||
+      formData.height_cm !== savedData.height_cm ||
+      formData.weight_kg !== savedData.weight_kg ||
+      String(formData.age) !== String(savedData.age) ||
       formData.gender !== savedData.gender ||
       formData.activity_level !== savedData.activity_level;
     setIsDirty(formChanged || bmiChanged || !!pendingAvatar);
@@ -241,7 +235,8 @@ export const useProfile = () => {
 
       if (!res.ok) throw new Error(`Profile save failed: HTTP ${res.status}`);
 
-      // Save BMI data - use POST response directly
+      // Save BMI data — use POST response directly
+      let bmiSaved = true;
       if (formData.height_cm && formData.weight_kg) {
         const bmiRes = await fetch(`${API_BASE_URL}/api/bmi/${USER_ID}`, {
           method: 'POST',
@@ -266,6 +261,7 @@ export const useProfile = () => {
           });
         } else {
           console.error('BMI save failed:', await bmiRes.text());
+          bmiSaved = false;
         }
       }
 

@@ -1,3 +1,5 @@
+import { handleLogout } from '../utils/logout';
+
 export const navList = [
   { name: "Dashboard",   icon: "speed",          path: "/dashboard" },
   { name: "Sleep Stats", icon: "monitoring",      path: "/dashboard/analytics" },
@@ -11,7 +13,6 @@ export const NAV_ITEMS = [
   { icon: 'monitor_heart', label: 'Biometrics', path: '/dashboard/analytics' },
   { icon: 'book',          label: 'Plans',      path: '/dashboard/plans' },
   { icon: 'chat',          label: 'Community',  path: '/dashboard/messenger' },
-  { icon: 'monitor_weight', label: 'BMI',       path: '/dashboard/bmi' },
 ];
 
 export const getSettingsItems = (navigate, notify) => [

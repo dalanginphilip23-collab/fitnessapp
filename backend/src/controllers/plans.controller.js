@@ -1,13 +1,7 @@
 const plansService = require('../services/plans.service');
 
 async function enroll(req, res) {
-  const { planId } = req.body;
-  const userId = req.user.id;
-
-  if (!planId) {
-    return res.status(400).json({ error: "planId is required" });
-  }
-
+  const { userId, planId } = req.body;
   try {
     await plansService.enroll(userId, planId);
     res.json({ success: true, message: "Blueprint added to your library" });
@@ -19,13 +13,7 @@ async function enroll(req, res) {
 }
 
 async function completeDay(req, res) {
-  const { planId, dayNumber } = req.body;
-  const userId = req.user.id;
-
-  if (!planId || !dayNumber) {
-    return res.status(400).json({ error: "planId and dayNumber are required" });
-  }
-
+  const { userId, planId, dayNumber } = req.body;
   try {
     await plansService.completeDay(userId, planId, dayNumber);
     res.json({ success: true });

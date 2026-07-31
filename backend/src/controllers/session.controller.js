@@ -15,7 +15,7 @@ async function start(req, res) {
 
   } catch (err) {
     console.error('start session error:', err.message);
-    res.status(500).json({ message: 'Failed to start session' });
+    res.status(500).json({ message: 'Failed to start session: ' + err.message });
   }
 }
 
@@ -52,15 +52,14 @@ async function end(req, res) {
 
   } catch (err) {
     console.error('end session error:', err.message);
-    res.status(500).json({ message: 'Failed to end session' });
+    res.status(500).json({ message: 'Failed to end session: ' + err.message });
   }
 }
 
 // GET /api/workout-sessions
 async function list(req, res) {
   const userId = req.user.id;
-  const parsedLimit = parseInt(req.query.limit, 10);
-  const limit = Math.min(Math.max(isNaN(parsedLimit) ? 20 : parsedLimit, 1), 100);
+  const limit = Math.min(parseInt(req.query.limit, 10) || 20, 100);
   const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
 
   try {
@@ -69,7 +68,7 @@ async function list(req, res) {
 
   } catch (err) {
     console.error('fetch sessions error:', err.message);
-    res.status(500).json({ message: 'Failed to fetch sessions' });
+    res.status(500).json({ message: 'Failed to fetch sessions: ' + err.message });
   }
 }
 

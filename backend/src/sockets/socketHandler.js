@@ -1,49 +1,16 @@
-const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 
-const COOKIE_NAME = 'vitalis_session';
-
-// Socket.io exposes the handshake as raw headers, so parse the session
-// cookie manually instead of depending on express cookie-parser.
-function parseCookies(header) {
-  if (!header) return {};
-  return header.split(';').reduce((cookies, part) => {
-    const [key, ...rest] = part.trim().split('=');
-    if (!key) return cookies;
-    cookies[key] = rest.join('=');
-    return cookies;
-  }, {});
-}
-
 module.exports = (io) => {
-    // Refuse connections without a valid session — every event below
-    // binds the acting user from the verified token, never from the client.
-    io.use((socket, next) => {
-        const cookies = parseCookies(socket.handshake.headers.cookie);
-        const token = cookies[COOKIE_NAME];
-        if (!token) return next(new Error('Not authenticated'));
-
-        try {
-            socket.user = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
-            next();
-        } catch {
-            next(new Error('Invalid session'));
-        }
-    });
-
     io.on('connection', (socket) => {
         console.log('User Connected:', socket.id);
 
-        socket.on('join-room', () => {
-            socket.join(`user_${socket.user.id}`);
-            console.log(`User ${socket.user.id} joined private room user_${socket.user.id}`);
+        socket.on('join-room', (userId) => {
+            socket.join(`user_${userId}`);
+            console.log(`User ${userId} joined private room user_${userId}`);
         });
 
         socket.on('send-chat', async (msg) => {
-            const { receiver_id, content, latitude, longitude } = msg;
-            if (!receiver_id || !content?.trim()) return;
-
-            const sender_id = socket.user.id;
+            const { sender_id, receiver_id, content, latitude, longitude } = msg;
             try {
                 const [result] = await db.execute(
                     `INSERT INTO messages (sender_id, receiver_id, content, latitude, longitude, is_read, sent_at) 
@@ -65,8 +32,7 @@ module.exports = (io) => {
         });
 
         socket.on('send-pose-alert', async (data) => {
-            const { sessionId, issueType, feedbackText } = data;
-            const userId = socket.user.id;
+            const { sessionId, issueType, feedbackText, userId } = data;
             try {
                 await db.execute(
                     `INSERT INTO posture_alerts (session_id, issue_type, feedback_text) VALUES (?, ?, ?)`,

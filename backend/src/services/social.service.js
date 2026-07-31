@@ -1,8 +1,10 @@
-// NOTE: this file is not mounted anywhere (see app.js) — the Social
-// frontend talks to the messenger routes instead, and this module's
-// GET /messages/:userId/:friendId duplicates that functionality. The
-// import below was previously broken (`require('../db')` — no such file).
-const db = require('../config/db');
+// NOTE: this route file is NOT mounted anywhere in server.js/app.js —
+// it was already dead code in the original project. It also has a
+// broken import here (`require('../db')` — there is no db.js at that
+// path, it should be `require('../config/db')`). Preserved exactly as
+// found, per "don't change any logic" instructions. Flagging this for
+// you to decide whether to wire it up (and fix the import) or delete it.
+const db = require('../db');
 
 async function getMessages(userId, friendId) {
   const [messages] = await db.execute(

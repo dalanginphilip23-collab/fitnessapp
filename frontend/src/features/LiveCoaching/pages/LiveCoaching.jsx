@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Webcam from 'react-webcam';
 import { Sidebar, Topbar } from '../../../components';
-import { useAuth } from '../../../hooks/useAuth';
+import { handleLogout } from '../../../services/authService';
 
 const FEEDBACKS = [
   "Great depth! Keep elbows at 45°",
@@ -20,16 +19,8 @@ const WORKOUT_OPTIONS = [
 ];
 
 export default function LiveCoaching() {
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
-  const USER_ID = user?.id;
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [isRecording,     setIsRecording]     = useState(false);
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
 
   // ── FIX: track the currently selected exercise ──────────────
   const [current,         setCurrent]         = useState(WORKOUT_OPTIONS[0]);
@@ -88,7 +79,7 @@ export default function LiveCoaching() {
       {/* ── Main ─────────────────────────────────────────────── */}
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarExpanded ? 'ml-56' : 'ml-[60px]'}`}>
 
-        <Topbar sidebarExpanded={sidebarExpanded} userId={USER_ID} />
+        <Topbar />
 
         {/* ── Header ───────────────────────────────────────── */}
         <header className="h-16 bg-[#0d0d0d] border-b border-white/5 flex items-center justify-between px-6 shrink-0">

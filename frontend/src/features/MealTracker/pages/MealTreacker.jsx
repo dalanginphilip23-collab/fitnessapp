@@ -14,11 +14,6 @@ const MONTH_NAMES    = ["January","February","March","April","May","June","July"
 const DOW_LABELS     = ["Su","Mo","Tu","We","Th","Fr","Sa"];
 const PLAN_TAG_ICONS = { Strength: "🏋️", Cardio: "🏃", "Fat Loss": "🔥", Flexibility: "🧘", Recovery: "💆", Hypertrophy: "💪" };
 
-// Format a Date as a local "YYYY-MM-DD" key. toISOString() is UTC, so for
-// users ahead of UTC it can roll midnight back to the previous day.
-const toDateKey = (date) =>
-  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-
 const EMOJI_OPTIONS = [
   "🍗","🥩","🥦","🍚","🥗","🍜","🍕","🥙","🌮","🍱",
   "🥣","🍳","🥐","🍞","🧆","🥘","🍲","🫕","🥫","🍎",
@@ -155,7 +150,7 @@ function DateNavigator({ currentDate, onDateChange }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const today   = toDateKey(new Date());
+  const today   = new Date().toISOString().split("T")[0];
   const isToday = currentDate === today;
 
   const parseDate = (s) => {
@@ -166,7 +161,7 @@ function DateNavigator({ currentDate, onDateChange }) {
   const shiftDay = (delta) => {
     const d = parseDate(currentDate);
     d.setDate(d.getDate() + delta);
-    const next = toDateKey(d);
+    const next = d.toISOString().split("T")[0];
     if (next <= today) onDateChange(next);
   };
 
@@ -190,7 +185,7 @@ function DateNavigator({ currentDate, onDateChange }) {
     return Array.from({ length: totalCells }, (_, i) => {
       const dayNum  = i - firstDow + 1;
       const date    = new Date(year, month, dayNum);
-      const dateStr = toDateKey(date);
+      const dateStr = date.toISOString().split("T")[0];
       return {
         dateStr,
         dayNum:         date.getDate(),
@@ -332,7 +327,6 @@ function AISuggestion({ meal, onClose, userId }) {
     fetch(`${API_BASE_URL}/api/food-logs/${userId}/suggest-plan`, {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include",
       body: JSON.stringify({
         food_name: meal.food_name,
         calories:  meal.calories || 0,
@@ -1126,7 +1120,7 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
     (async () => {
       setLoading(true);
       try {
-        const res  = await fetch(`${API_BASE_URL}/api/food-logs/${userId}`, { credentials: "include" });
+        const res  = await fetch(`${API_BASE_URL}/api/food-logs/${userId}`);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Could not fetch logs");
 
@@ -1153,7 +1147,7 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
   }, [userId, refreshSeed, selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const consumed  = Math.round(summary.total_calories);
-  const isToday   = selectedDate === toDateKey(new Date());
+  const isToday   = selectedDate === new Date().toISOString().split("T")[0];
   const dateLabel = isToday
     ? "Today's Summary"
     : `Summary · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
@@ -1233,7 +1227,7 @@ function MealHistory({ meals, loading, onDeleteMeal, selectedDate }) {
     finally { setDeletingId(null); }
   };
 
-  const isToday   = selectedDate === toDateKey(new Date());
+  const isToday   = selectedDate === new Date().toISOString().split("T")[0];
   const dateLabel = isToday
     ? "Today's Meals"
     : `Meals · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
@@ -1304,16 +1298,11 @@ function MealHistory({ meals, loading, onDeleteMeal, selectedDate }) {
 
 const NutritionTracker = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const USER_ID  = user?.id;
 
-  const handleLogout = useCallback(async () => {
-    await logout();
-    navigate('/login');
-  }, [logout, navigate]);
-
   const [sidebarExpanded,  setSidebarExpanded]  = useState(false);
-  const [selectedDate,     setSelectedDate]     = useState(toDateKey(new Date()));
+  const [selectedDate,     setSelectedDate]     = useState(new Date().toISOString().split("T")[0]);
   const [showAISuggestion, setShowAISuggestion] = useState(false);
   const [currentMeal,      setCurrentMeal]      = useState(null);
   const [manualLogTrigger, setManualLogTrigger] = useState(0);
@@ -1344,7 +1333,7 @@ const NutritionTracker = () => {
   return (
     <div className="min-h-screen bg-(--bg-primary) text-(--text-primary)" style={{ fontFamily: "Poppins, sans-serif" }}>
       <div className="hidden md:block">
-        <Sidebar onClick={handleLogout} expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
+        <Sidebar onClick={() => { localStorage.clear(); navigate("/login"); }} expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
       </div>
 
       <Topbar sidebarExpanded={sidebarExpanded} userId={USER_ID} />
