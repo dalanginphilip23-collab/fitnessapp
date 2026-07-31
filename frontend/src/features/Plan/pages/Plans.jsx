@@ -996,8 +996,6 @@ const QUICK_ACCESS_ITEMS = [
 ];
 
 const QUICK_SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
-const QUICK_ARC_ANGLE = 48;
-const QUICK_ARC_RADIUS = 0.87;
 
 const QuickAccessSheet = ({ open, onClose }) => {
   const navigate = useNavigate();
@@ -1040,7 +1038,7 @@ const QuickAccessSheet = ({ open, onClose }) => {
   if (!open && !closing) return null;
 
   const domeStyle = {
-    animation: `${closing ? 'domeDown' : 'domeUp'} 0.45s ${QUICK_SPRING} both`,
+    animation: `${closing ? 'domeDown' : 'domeUp'} 0.25s ease both`,
   };
 
   const R = 88;
@@ -1049,7 +1047,7 @@ const QuickAccessSheet = ({ open, onClose }) => {
     <div className="md:hidden fixed inset-0 z-[90]" onClick={close}>
       <div
         className="absolute left-1/2 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))]"
-        style={{ transform: 'translateX(-50%)', perspective: '700px' }}
+        style={{ transform: 'translateX(-50%)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Connector notch that tucks under the nav's top edge */}
@@ -1060,12 +1058,11 @@ const QuickAccessSheet = ({ open, onClose }) => {
             background: 'var(--bg-secondary)',
             border: '1px solid var(--border-medium)',
             borderTop: 'none',
-            animation: closing ? 'fadeOut 0.2s ease both' : 'fadeIn 0.2s ease 0.28s both',
           }}
         />
         {/* Dome — top half of a circle, flat edge flush against the nav */}
         <div
-          className="relative"
+          className="flex items-start justify-center gap-6 pt-5 relative"
           style={{
             ...domeStyle,
             width: R * 2,
@@ -1078,71 +1075,38 @@ const QuickAccessSheet = ({ open, onClose }) => {
             transformOrigin: 'center bottom',
           }}
         >
-          {QUICK_ACCESS_ITEMS.map((item, idx) => {
-            const sign = idx === 0 ? -1 : 1;
-            const rad = (sign * QUICK_ARC_ANGLE * Math.PI) / 180;
-            const arcR = R * QUICK_ARC_RADIUS;
-            const x = R + Math.round(Math.sin(rad) * arcR);
-            const y = R - Math.round(Math.cos(rad) * arcR);
-            const dx = R - x;
-            const dy = R - y;
-            const flyDelay = `${0.1 + idx * 0.07}s`;
-            return (
+          {QUICK_ACCESS_ITEMS.map((item, idx) => (
+            <button
+              key={item.path}
+              onClick={() => handleSelect(item.path)}
+              aria-label={item.label}
+              className="flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer outline-none select-none"
+              style={{ animation: `${closing ? 'itemOut' : 'itemIn'} 0.22s ease both`, animationDelay: closing ? '0s' : `${0.08 + idx * 0.05}s` }}
+            >
               <div
-                key={item.path}
-                className="absolute"
-                style={{ left: x, top: y, transform: 'translate(-50%, -50%)' }}
+                className="w-9 h-9 rounded-full flex items-center justify-center border shadow-lg active:scale-90 transition-transform duration-150"
+                style={{
+                  background: 'linear-gradient(135deg, var(--accent), var(--accent-2, var(--accent)))',
+                  borderColor: 'rgba(255,255,255,0.35)',
+                  color: '#fff',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(255,255,255,0.12)',
+                }}
               >
-                {/* Horizontal axis of the curved flight (fast-then-slow) */}
-                <div
-                  style={{
-                    animation: closing ? 'none' : 'arcFlyX 0.4s cubic-bezier(0.16, 1, 0.3, 1) both',
-                    animationDelay: flyDelay,
-                    '--dx': `${dx}px`,
-                  }}
-                >
-                  {/* Vertical axis of the curved flight (slow-then-fast) */}
-                  <div
-                    style={{
-                      animation: closing ? 'none' : 'arcFlyY 0.4s cubic-bezier(0.55, 0.06, 0.68, 0.19) both',
-                      animationDelay: flyDelay,
-                      '--dy': `${dy}px`,
-                    }}
-                  >
-                    <button
-                      onClick={() => handleSelect(item.path)}
-                      aria-label={item.label}
-                      className="flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer outline-none select-none"
-                      style={{ animation: closing ? 'arcDown 0.22s ease both' : 'none' }}
-                    >
-                      <div
-                        className="w-9 h-9 rounded-full flex items-center justify-center border shadow-lg active:scale-90 transition-transform duration-150"
-                        style={{
-                          background: 'linear-gradient(135deg, var(--accent), var(--accent-2, var(--accent)))',
-                          borderColor: 'rgba(255,255,255,0.35)',
-                          color: '#fff',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(255,255,255,0.12)',
-                        }}
-                      >
-                        <Icon name={item.icon} className="text-[17px]" fill={1} />
-                      </div>
-                      <span
-                        className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full whitespace-nowrap"
-                        style={{
-                          background: 'rgba(0,0,0,0.18)',
-                          backdropFilter: 'blur(4px)',
-                          color: 'var(--text-secondary)',
-                          border: '1px solid var(--border-light)',
-                        }}
-                      >
-                        {item.label}
-                      </span>
-                    </button>
-                  </div>
-                </div>
+                <Icon name={item.icon} className="text-[17px]" fill={1} />
               </div>
-            );
-          })}
+              <span
+                className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full whitespace-nowrap"
+                style={{
+                  background: 'rgba(0,0,0,0.18)',
+                  backdropFilter: 'blur(4px)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border-light)',
+                }}
+              >
+                {item.label}
+              </span>
+            </button>
+          ))}
         </div>
       </div>
     </div>
@@ -1286,12 +1250,10 @@ const Plans = () => {
       <style>{`
         @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes domeUp { 0% { opacity: 0; transform: rotateX(70deg) translateY(22px) scale(0.8); } 60% { opacity: 1; transform: rotateX(-8deg) translateY(-2px) scale(1.03); } 100% { opacity: 1; transform: rotateX(0deg) translateY(0) scale(1); } }
-        @keyframes domeDown { from { opacity: 1; transform: rotateX(0deg) translateY(0) scale(1); } to { opacity: 0; transform: rotateX(70deg) translateY(16px) scale(0.8); } }
-        @keyframes arcFlyX { from { transform: translateX(var(--dx, 0px)) rotate(16deg); } to { transform: translateX(0) rotate(0deg); } }
-        @keyframes arcFlyY { from { transform: translateY(var(--dy, 0px)); } to { transform: translateY(0); } }
-        @keyframes arcDown { from { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); } to { opacity: 0; transform: translateY(10px) scale(0.6) rotate(-16deg); } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes domeUp { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes domeDown { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.8); } }
+        @keyframes itemIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes itemOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(6px); } }
         input::placeholder { color: var(--text-muted); opacity: 1; }
         @media (min-width: 480px) { .xs\\:inline { display: inline; } .xs\\:hidden { display: none; } }
       `}</style>
