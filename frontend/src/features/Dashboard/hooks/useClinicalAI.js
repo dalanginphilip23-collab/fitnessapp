@@ -12,6 +12,20 @@ export const useClinicalAI = (USER_ID, setInsights) => {
   const generateClinicalInsight = useCallback(async (currentBiometrics, currentStats) => {
     if (isAnalyzingRef.current) return;
 
+    const hasActivity =
+      (currentStats?.calories_burned || 0) > 0 ||
+      (currentStats?.steps || 0) > 0 ||
+      (currentStats?.workout_duration_mins || 0) > 0;
+    const hasSleep =
+      (currentStats?.sleep_duration || 0) > 0 ||
+      (currentStats?.sleep_quality || 0) > 0 ||
+      (currentStats?.water_intake_ml || 0) > 0;
+
+    // The Clinical Assistant only unlocks once the user has BOTH logged a
+    // workout AND synced sleep data. Generating earlier would produce a
+    // misleading insight (e.g. "0 steps = rest day").
+    if (!hasActivity || !hasSleep) return;
+
     setIsAnalyzing(true);
     isAnalyzingRef.current = true;
 

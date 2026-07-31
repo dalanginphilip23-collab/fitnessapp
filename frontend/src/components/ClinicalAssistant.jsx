@@ -221,7 +221,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
             <p className="text-[11px] text-[var(--text-muted)] italic text-center px-4">
               {showHistory
                 ? 'No history found. Your AI insights will appear here after analysis.'
-                : 'Waiting for biometric data to assess health condition...'}
+                : 'Log a workout and sync your sleep data to unlock your clinical analysis.'}
             </p>
           </div>
         )}

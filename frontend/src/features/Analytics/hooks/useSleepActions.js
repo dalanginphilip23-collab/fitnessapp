@@ -22,6 +22,17 @@ const refreshClinicalInsight = async (USER_ID, sleepHours, sleepQuality, waterIn
       console.error('Latest stats fetch failed:', err);
     }
 
+    const hasActivity =
+      activityStats.steps > 0 ||
+      activityStats.calories_burned > 0 ||
+      activityStats.workout_duration_mins > 0;
+    const hasSleep = sleepHours > 0 || sleepQuality > 0 || waterIntake > 0;
+
+    // The Clinical Assistant only unlocks once the user has BOTH logged a
+    // workout AND synced sleep data. Generating earlier would produce a
+    // misleading insight (e.g. "0 steps = rest day").
+    if (!hasActivity || !hasSleep) return;
+
     await fetch(`${API_BASE_URL}/api/ai/clinical-analysis`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
