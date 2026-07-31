@@ -5,9 +5,8 @@ const FOOD_ANALYSIS_PROMPT = require("../constants/foodAnalysisPrompt");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const groq  = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-// ─────────────────────────────────────────────────────────────────────────────
+
 // SECTION 1 — TEXT-ONLY FALLBACK CHAIN
-// ─────────────────────────────────────────────────────────────────────────────
 
 async function callGeminiWithFallback(prompt) {
   const models = [
@@ -23,10 +22,6 @@ async function callGeminiWithFallback(prompt) {
         model: modelName,
         generationConfig: {
           maxOutputTokens: 1000,
-          // gemini-2.5-flash-preview has "thinking" on by default and those
-          // hidden reasoning tokens count against maxOutputTokens, which can
-          // silently truncate the visible response. Turn it off — we don't
-          // need chain-of-thought for these prompts, just the final text.
           thinkingConfig: { thinkingBudget: 0 },
         },
       });
@@ -162,11 +157,7 @@ function validateAndCorrectMacros(parsed) {
     }
   }
 
-  // Sanity cap: single dishes rarely exceed 2500 kcal — but that assumption
-  // breaks for countable multi-piece orders (e.g. "Fried Chicken (12 pieces)"),
-  // which legitimately run well past 2500 kcal. Scale the cap by piece count
-  // when one is detected in food_name, otherwise fall back to the original
-  // flat 2500 kcal single-dish cap.
+  
   const pieceCountForCap = extractPieceCount(food_name);
   const calorieCap = pieceCountForCap ? Math.min(pieceCountForCap * 350, 6000) : 2500;
 
@@ -182,7 +173,7 @@ function validateAndCorrectMacros(parsed) {
   return { ...parsed, calories, protein, carbs, fat };
 }
 
-// ─── JSON PARSER ──────────────────────────────────────────────────────────────
+// JSON PARSER 
 
 function parseNutritionJSON(raw) {
   const clean = raw
@@ -216,13 +207,10 @@ function parseNutritionJSON(raw) {
   };
 }
 
-// ─── VISION PROVIDERS ─────────────────────────────────────────────────────────
+// VISION PROVIDERS 
 
 async function analyzeWithGroqVision(base64Data, mimeType) {
   console.log("[VITALIS IMAGE] Trying Groq Qwen3.6 vision...");
-  // NOTE: meta-llama/llama-4-scout-17b-16e-instruct was deprecated by Groq
-  // on June 17, 2026 (404 model_not_found). qwen/qwen3.6-27b is the current
-  // vision-capable model on Groq's free/dev tier as of mid-2026.
   const resp = await groq.chat.completions.create({
     model:       "qwen/qwen3.6-27b",
     max_tokens:  300,
@@ -244,12 +232,6 @@ async function analyzeWithGroqVision(base64Data, mimeType) {
   return text;
 }
 
-// NOTE on model order: gemini-2.0-flash's free-tier quota is currently
-// exhausted on this project (limit: 0 requests), so it's tried LAST here —
-// no point burning a retry + 1s backoff on a model that's guaranteed to 429.
-// gemini-2.5-flash is tried first since it's the strongest vision model,
-// with thinking disabled (see analyzeWithGeminiVision) so its answer isn't
-// silently truncated by internal reasoning tokens.
 const GEMINI_VISION_MODELS = [
   "gemini-2.5-flash",
   "gemini-2.0-flash-lite",
@@ -266,12 +248,6 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
         generationConfig: {
           temperature: 0,
           maxOutputTokens: 500,
-          // Gemini 2.5 (and newer) models have "thinking" on by default.
-          // Those hidden reasoning tokens count against maxOutputTokens,
-          // which was silently truncating our JSON before it could close
-          // (e.g. cutting off after just "food_name"). Disabling thinking
-          // fixes it — we don't need chain-of-thought for a JSON extraction
-          // task like this.
           thinkingConfig: { thinkingBudget: 0 },
         },
       });
@@ -285,8 +261,6 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
       if (!text) throw new Error("Gemini returned empty response");
       console.log(`[VITALIS IMAGE] Gemini (${modelName}) raw:`, text.slice(0, 200));
 
-      // Handy for future debugging: if a response ever looks truncated again,
-      // check thoughtsTokenCount here to confirm whether thinking ate the budget.
       const usage = result.response.usageMetadata;
       if (usage) {
         console.log(
