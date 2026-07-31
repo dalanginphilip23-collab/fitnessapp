@@ -1001,7 +1001,6 @@ const QuickAccessSheet = ({ open, onClose }) => {
 
   return (
     <div className="md:hidden fixed inset-0 z-[90]" onClick={onClose}>
-      <div className="absolute inset-0" style={{ background: 'var(--bg-overlay)', backdropFilter: 'blur(2px)' }} />
       <div
         className="absolute left-1/2 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))]"
         style={{ transform: 'translateX(-50%)', animation: 'fadeIn 0.2s ease both' }}
@@ -1009,15 +1008,15 @@ const QuickAccessSheet = ({ open, onClose }) => {
       >
         {/* Dome — top half of a circle, flat edge flush against the nav */}
         <div
-          className="flex items-start justify-center gap-8 pt-7"
+          className="flex items-start justify-center gap-5 pt-4"
           style={{
-            width: 280,
-            height: 140,
-            borderRadius: '140px 140px 0 0',
+            width: 200,
+            height: 100,
+            borderRadius: '100px 100px 0 0',
             background: 'var(--bg-secondary)',
             border: '1px solid var(--border-medium)',
             borderBottom: 'none',
-            boxShadow: '0 -10px 30px rgba(0,0,0,0.18)',
+            boxShadow: '0 -6px 20px rgba(0,0,0,0.14)',
             transformOrigin: 'center bottom',
             animation: 'domeUp 0.25s ease both',
           }}
@@ -1026,17 +1025,17 @@ const QuickAccessSheet = ({ open, onClose }) => {
             <button
               key={item.path}
               onClick={() => { onClose(); navigate(item.path); }}
-              className="flex flex-col items-center gap-1.5 border-none bg-transparent cursor-pointer outline-none"
+              className="flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer outline-none"
               style={{ animation: 'arcPop 0.25s ease both', animationDelay: `${0.05 + idx * 0.05}s` }}
             >
               <div
-                className="w-12 h-12 rounded-full flex items-center justify-center border shadow-lg"
+                className="w-10 h-10 rounded-full flex items-center justify-center border shadow-lg"
                 style={{ background: 'var(--bg-hover)', borderColor: 'var(--border-medium)', color: 'var(--accent)' }}
               >
-                <Icon name={item.icon} className="text-[22px]" fill={1} />
+                <Icon name={item.icon} className="text-[18px]" fill={1} />
               </div>
               <span
-                className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full whitespace-nowrap"
+                className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full whitespace-nowrap"
                 style={{ background: 'var(--bg-hover)', color: 'var(--text-secondary)' }}
               >
                 {item.label}
