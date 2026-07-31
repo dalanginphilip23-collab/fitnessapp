@@ -1000,15 +1000,33 @@ const QUICK_SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
 const QuickAccessSheet = ({ open, onClose }) => {
   const navigate = useNavigate();
   const [closing, setClosing] = useState(false);
+  const closeTimer = useRef(null);
+  const navTimer = useRef(null);
 
   useEffect(() => {
-    if (open) setClosing(false);
+    if (open) {
+      setClosing(false);
+      clearTimeout(closeTimer.current);
+      clearTimeout(navTimer.current);
+    }
   }, [open]);
+
+  useEffect(() => () => {
+    clearTimeout(closeTimer.current);
+    clearTimeout(navTimer.current);
+  }, []);
 
   const close = () => {
     if (closing) return;
     setClosing(true);
-    setTimeout(onClose, 180);
+    closeTimer.current = setTimeout(onClose, 180);
+  };
+
+  const handleSelect = path => {
+    if (closing) return;
+    setClosing(true);
+    closeTimer.current = setTimeout(onClose, 150);
+    navTimer.current = setTimeout(() => navigate(path), 140);
   };
 
   if (!open && !closing) return null;
@@ -1031,39 +1049,46 @@ const QuickAccessSheet = ({ open, onClose }) => {
         />
         {/* Dome — top half of a circle, flat edge flush against the nav */}
         <div
-          className="flex items-start justify-center gap-5 pt-4 relative"
+          className="flex items-start justify-center gap-6 pt-5 relative"
           style={{
             ...domeStyle,
-            width: 210,
-            height: 105,
-            borderRadius: '105px 105px 0 0',
+            width: 220,
+            height: 110,
+            borderRadius: '110px 110px 0 0',
             background: 'linear-gradient(180deg, var(--bg-hover) 0%, var(--bg-secondary) 100%)',
             border: '1px solid var(--border-medium)',
             borderBottom: 'none',
-            boxShadow: '0 -8px 28px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.06)',
+            boxShadow: '0 -8px 28px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.07)',
             transformOrigin: 'center bottom',
           }}
         >
           {QUICK_ACCESS_ITEMS.map((item, idx) => (
             <button
               key={item.path}
-              onClick={() => { close(); setTimeout(() => navigate(item.path), 160); }}
-              className="flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer outline-none"
+              onClick={() => handleSelect(item.path)}
+              aria-label={item.label}
+              className="flex flex-col items-center gap-1.5 border-none bg-transparent cursor-pointer outline-none select-none"
               style={{ animation: `${closing ? 'arcDown' : 'arcPop'} 0.28s ${QUICK_SPRING} both`, animationDelay: closing ? '0s' : `${0.05 + idx * 0.06}s` }}
             >
               <div
-                className="w-11 h-11 rounded-full flex items-center justify-center border shadow-lg"
+                className="w-12 h-12 rounded-full flex items-center justify-center border shadow-lg active:scale-90 transition-transform duration-150"
                 style={{
                   background: 'linear-gradient(135deg, var(--accent), var(--accent-2, var(--accent)))',
-                  borderColor: 'var(--border-light)',
+                  borderColor: 'rgba(255,255,255,0.35)',
                   color: '#fff',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(255,255,255,0.12)',
                 }}
               >
-                <Icon name={item.icon} className="text-[19px]" fill={1} />
+                <Icon name={item.icon} className="text-[20px]" fill={1} />
               </div>
               <span
                 className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full whitespace-nowrap"
-                style={{ background: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: '1px solid var(--border-light)' }}
+                style={{
+                  background: 'rgba(0,0,0,0.18)',
+                  backdropFilter: 'blur(4px)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border-light)',
+                }}
               >
                 {item.label}
               </span>
