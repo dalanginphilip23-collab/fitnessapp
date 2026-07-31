@@ -135,7 +135,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
           <div className="w-8 h-8 rounded-full bg-[var(--accent-bg)] flex items-center justify-center">
             <Icon name="auto_awesome" className="text-[var(--accent)] text-[16px]" />
           </div>
-          <span className="font-bold text-[13px] text-[var(--text-primary)]">AI Coach</span>
+          <span className="font-bold text-[13px] text-[var(--text-primary)]">Clinical Assistant</span>
         </div>
 
         {isAnalyzing && (
