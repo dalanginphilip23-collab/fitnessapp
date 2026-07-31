@@ -988,13 +988,15 @@ const TabBar = ({ active, onChange, enrolledCount }) => (
   </div>
 );
 
-// QUICK ACCESS SHEET — an oval half-circle speed dial revealed by the "+"
-// button on the mobile bottom nav. The two shortcuts fan out in an arc above
-// the FAB.
+// QUICK ACCESS SHEET — a curved speed dial revealed by the "+" button on the
+// mobile bottom nav. The two shortcuts sit on a visible semicircular arc that
+// rises above the FAB.
 const QUICK_ACCESS_ITEMS = [
-  { label: 'Meal Tracker',   icon: 'restaurant',       path: '/dashboard/meal-tracker',   angle: -36, delay: '0.05s' },
-  { label: 'Virtual Clinic', icon: 'medical_services', path: '/dashboard/virtual-clinic', angle:  36, delay: '0.10s' },
+  { label: 'Meal Tracker',   icon: 'restaurant',       path: '/dashboard/meal-tracker',   angle: -50, delay: '0.05s' },
+  { label: 'Virtual Clinic', icon: 'medical_services', path: '/dashboard/virtual-clinic', angle:  50, delay: '0.10s' },
 ];
+
+const QUICK_ARC_RADIUS = 120;
 
 const QuickAccessSheet = ({ open, onClose }) => {
   const navigate = useNavigate();
@@ -1004,14 +1006,28 @@ const QuickAccessSheet = ({ open, onClose }) => {
     <div className="md:hidden fixed inset-0 z-[90]" onClick={onClose}>
       <div className="absolute inset-0" style={{ background: 'var(--bg-overlay)', backdropFilter: 'blur(2px)' }} />
       <div
-        className="absolute left-1/2 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))]"
+        className="absolute left-1/2 bottom-[calc(2rem+env(safe-area-inset-bottom,0px))]"
         style={{ transform: 'translateX(-50%)' }}
         onClick={e => e.stopPropagation()}
       >
+        {/* Curved guide — top half of a circle centered on the FAB */}
+        <div
+          className="absolute left-0 bottom-0"
+          style={{
+            width: QUICK_ARC_RADIUS * 2,
+            height: QUICK_ARC_RADIUS,
+            transform: 'translateX(-50%)',
+            borderTopLeftRadius: QUICK_ARC_RADIUS,
+            borderTopRightRadius: QUICK_ARC_RADIUS,
+            border: '1.5px dashed var(--border-medium)',
+            borderBottom: 'none',
+            animation: 'fadeIn 0.2s ease both',
+          }}
+        />
         {QUICK_ACCESS_ITEMS.map(item => {
           const rad = (item.angle * Math.PI) / 180;
-          const x = Math.round(Math.sin(rad) * 112);
-          const y = Math.round(-Math.cos(rad) * 74);
+          const x = Math.round(Math.sin(rad) * QUICK_ARC_RADIUS);
+          const y = Math.round(-Math.cos(rad) * QUICK_ARC_RADIUS);
           return (
             <button
               key={item.path}
@@ -1188,7 +1204,7 @@ const Plans = () => {
       <style>{`
         @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes arcPop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+        @keyframes arcPop { from { opacity: 0; transform: scale(0.4) rotate(-10deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
         input::placeholder { color: var(--text-muted); opacity: 1; }
         @media (min-width: 480px) { .xs\\:inline { display: inline; } .xs\\:hidden { display: none; } }
       `}</style>
