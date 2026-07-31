@@ -988,6 +988,42 @@ const TabBar = ({ active, onChange, enrolledCount }) => (
   </div>
 );
 
+// QUICK ACCESS SHEET — revealed by the "+" button on the mobile bottom nav.
+const QuickAccessSheet = ({ open, onClose }) => {
+  const navigate = useNavigate();
+  if (!open) return null;
+  const items = [
+    { label: 'Meal Tracker',   icon: 'restaurant',       path: '/dashboard/meal-tracker' },
+    { label: 'Virtual Clinic', icon: 'medical_services', path: '/dashboard/virtual-clinic' },
+  ];
+  return (
+    <div className="md:hidden fixed inset-0 z-[90]" onClick={onClose}>
+      <div className="absolute inset-0" style={{ background: 'var(--bg-overlay)', backdropFilter: 'blur(2px)' }} />
+      <div
+        className="absolute left-1/2 -translate-x-1/2 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))] w-56 rounded-2xl overflow-hidden border"
+        style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', animation: 'quickPop 0.2s ease' }}
+        onClick={e => e.stopPropagation()}
+      >
+        {items.map(item => (
+          <button
+            key={item.path}
+            onClick={() => { onClose(); navigate(item.path); }}
+            className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors border-none cursor-pointer"
+            style={{ color: 'var(--text-primary)', background: 'transparent' }}
+            onMouseOver={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+            onMouseOut={e => (e.currentTarget.style.background = 'transparent')}
+          >
+            <span className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'var(--accent-bg)' }}>
+              <Icon name={item.icon} className="text-[18px]" style={{ color: 'var(--accent)' }} fill={1} />
+            </span>
+            <span className="text-xs font-bold uppercase tracking-widest">{item.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // MAIN PLANS PAGE COMPONENT
 const Plans = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
@@ -996,6 +1032,7 @@ const Plans = () => {
   const [activeTab, setActiveTab] = useState(
     searchParams.get('tab') || 'explore'
   );
+  const [quickMenuOpen, setQuickMenuOpen] = useState(false);
 
   const {
     loading, authError, trainingPlans, enrolledCount,
@@ -1117,11 +1154,14 @@ const Plans = () => {
         />
       )}
 
-      <div className="md:hidden"><MobileNav /></div>
+      <QuickAccessSheet open={quickMenuOpen} onClose={() => setQuickMenuOpen(false)} />
+
+      <div className="md:hidden"><MobileNav onFABClick={() => setQuickMenuOpen(v => !v)} /></div>
 
       <style>{`
         @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes quickPop { from { opacity: 0; transform: translate(-50%, 10px) scale(0.96); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
         input::placeholder { color: var(--text-muted); opacity: 1; }
         @media (min-width: 480px) { .xs\\:inline { display: inline; } .xs\\:hidden { display: none; } }
       `}</style>
