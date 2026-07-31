@@ -11,7 +11,7 @@ const refreshClinicalInsight = async (USER_ID, sleepHours, sleepQuality, waterIn
   try {
     let activityStats = { calories_burned: 0, steps: 0, workout_duration_mins: 0 };
     try {
-      const res  = await fetch(`${API_BASE_URL}/api/ai/logs/latest/${USER_ID}`, { credentials: 'include' });
+      const res  = await fetch(`${API_BASE_URL}/api/dashboard/${USER_ID}`, { credentials: 'include' });
       const data = await res.json();
       activityStats = {
         calories_burned:       data?.stats?.calories_burned       || 0,
