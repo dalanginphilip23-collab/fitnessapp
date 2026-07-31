@@ -988,37 +988,64 @@ const TabBar = ({ active, onChange, enrolledCount }) => (
   </div>
 );
 
-// QUICK ACCESS SHEET — revealed by the "+" button on the mobile bottom nav.
+// QUICK ACCESS SHEET — an oval half-circle speed dial revealed by the "+"
+// button on the mobile bottom nav. The two shortcuts fan out in an arc above
+// the FAB.
+const QUICK_ACCESS_ITEMS = [
+  { label: 'Meal Tracker',   icon: 'restaurant',       path: '/dashboard/meal-tracker',   angle: -36, delay: '0.05s' },
+  { label: 'Virtual Clinic', icon: 'medical_services', path: '/dashboard/virtual-clinic', angle:  36, delay: '0.10s' },
+];
+
 const QuickAccessSheet = ({ open, onClose }) => {
   const navigate = useNavigate();
   if (!open) return null;
-  const items = [
-    { label: 'Meal Tracker',   icon: 'restaurant',       path: '/dashboard/meal-tracker' },
-    { label: 'Virtual Clinic', icon: 'medical_services', path: '/dashboard/virtual-clinic' },
-  ];
+
   return (
     <div className="md:hidden fixed inset-0 z-[90]" onClick={onClose}>
       <div className="absolute inset-0" style={{ background: 'var(--bg-overlay)', backdropFilter: 'blur(2px)' }} />
       <div
-        className="absolute left-1/2 -translate-x-1/2 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))] w-56 rounded-2xl overflow-hidden border"
-        style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-medium)', animation: 'quickPop 0.2s ease' }}
+        className="absolute left-1/2 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))]"
+        style={{ transform: 'translateX(-50%)' }}
         onClick={e => e.stopPropagation()}
       >
-        {items.map(item => (
-          <button
-            key={item.path}
-            onClick={() => { onClose(); navigate(item.path); }}
-            className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors border-none cursor-pointer"
-            style={{ color: 'var(--text-primary)', background: 'transparent' }}
-            onMouseOver={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
-            onMouseOut={e => (e.currentTarget.style.background = 'transparent')}
-          >
-            <span className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'var(--accent-bg)' }}>
-              <Icon name={item.icon} className="text-[18px]" style={{ color: 'var(--accent)' }} fill={1} />
-            </span>
-            <span className="text-xs font-bold uppercase tracking-widest">{item.label}</span>
-          </button>
-        ))}
+        {QUICK_ACCESS_ITEMS.map(item => {
+          const rad = (item.angle * Math.PI) / 180;
+          const x = Math.round(Math.sin(rad) * 112);
+          const y = Math.round(-Math.cos(rad) * 74);
+          return (
+            <button
+              key={item.path}
+              onClick={() => { onClose(); navigate(item.path); }}
+              className="absolute left-0 top-0 flex flex-col items-center gap-1.5 border-none bg-transparent cursor-pointer outline-none"
+              style={{ transform: `translate(-50%, -50%) translate(${x}px, ${y}px)` }}
+            >
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center border shadow-lg"
+                style={{
+                  background: 'var(--bg-secondary)',
+                  borderColor: 'var(--border-medium)',
+                  color: 'var(--accent)',
+                  animation: 'arcPop 0.25s ease both',
+                  animationDelay: item.delay,
+                }}
+              >
+                <Icon name={item.icon} className="text-[22px]" fill={1} />
+              </div>
+              <span
+                className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full whitespace-nowrap"
+                style={{
+                  background: 'var(--bg-secondary)',
+                  color: 'var(--text-secondary)',
+                  border: '1px solid var(--border-light)',
+                  animation: 'arcPop 0.25s ease both',
+                  animationDelay: item.delay,
+                }}
+              >
+                {item.label}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -1161,7 +1188,7 @@ const Plans = () => {
       <style>{`
         @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes quickPop { from { opacity: 0; transform: translate(-50%, 10px) scale(0.96); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+        @keyframes arcPop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
         input::placeholder { color: var(--text-muted); opacity: 1; }
         @media (min-width: 480px) { .xs\\:inline { display: inline; } .xs\\:hidden { display: none; } }
       `}</style>
