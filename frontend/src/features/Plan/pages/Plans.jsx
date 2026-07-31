@@ -1037,77 +1037,45 @@ const QuickAccessSheet = ({ open, onClose }) => {
 
   if (!open && !closing) return null;
 
-  const domeStyle = {
-    animation: `${closing ? 'domeDown' : 'domeUp'} 0.25s ease both`,
-  };
-
-  const R = 88;
-
   return (
     <div className="md:hidden fixed inset-0 z-[90]" onClick={close}>
       <div
-        className="absolute left-1/2 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))]"
+        className="absolute left-1/2 bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] flex items-end gap-7"
         style={{ transform: 'translateX(-50%)' }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Connector notch that tucks under the nav's top edge */}
-        <div
-          className="absolute left-1/2 -bottom-[5px] w-9 h-2.5 rounded-full"
-          style={{
-            transform: 'translateX(-50%)',
-            background: 'var(--bg-secondary)',
-            border: '1px solid var(--border-medium)',
-            borderTop: 'none',
-          }}
-        />
-        {/* Dome — top half of a circle, flat edge flush against the nav */}
-        <div
-          className="flex items-start justify-center gap-6 pt-5 relative"
-          style={{
-            ...domeStyle,
-            width: R * 2,
-            height: R,
-            borderRadius: `${R}px ${R}px 0 0`,
-            background: 'linear-gradient(180deg, var(--bg-hover) 0%, var(--bg-secondary) 100%)',
-            border: '1px solid var(--border-medium)',
-            borderBottom: 'none',
-            boxShadow: '0 -8px 28px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.07)',
-            transformOrigin: 'center bottom',
-          }}
-        >
-          {QUICK_ACCESS_ITEMS.map((item, idx) => (
-            <button
-              key={item.path}
-              onClick={() => handleSelect(item.path)}
-              aria-label={item.label}
-              className="flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer outline-none select-none"
-              style={{ animation: `${closing ? 'itemOut' : 'itemIn'} 0.22s ease both`, animationDelay: closing ? '0s' : `${0.08 + idx * 0.05}s` }}
+        {QUICK_ACCESS_ITEMS.map((item, idx) => (
+          <button
+            key={item.path}
+            onClick={() => handleSelect(item.path)}
+            aria-label={item.label}
+            className="flex flex-col items-center gap-1.5 border-none bg-transparent cursor-pointer outline-none select-none"
+            style={{ animation: `${closing ? 'itemOut' : 'itemIn'} 0.32s ${QUICK_SPRING} both`, animationDelay: closing ? '0s' : `${0.05 + idx * 0.06}s` }}
+          >
+            <div
+              className="w-11 h-11 rounded-full flex items-center justify-center border shadow-lg active:scale-90 transition-transform duration-150"
+              style={{
+                background: 'linear-gradient(135deg, var(--accent), var(--accent-2, var(--accent)))',
+                borderColor: 'rgba(255,255,255,0.35)',
+                color: '#fff',
+                boxShadow: '0 6px 18px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.12)',
+              }}
             >
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center border shadow-lg active:scale-90 transition-transform duration-150"
-                style={{
-                  background: 'linear-gradient(135deg, var(--accent), var(--accent-2, var(--accent)))',
-                  borderColor: 'rgba(255,255,255,0.35)',
-                  color: '#fff',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(255,255,255,0.12)',
-                }}
-              >
-                <Icon name={item.icon} className="text-[17px]" fill={1} />
-              </div>
-              <span
-                className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full whitespace-nowrap"
-                style={{
-                  background: 'rgba(0,0,0,0.18)',
-                  backdropFilter: 'blur(4px)',
-                  color: 'var(--text-secondary)',
-                  border: '1px solid var(--border-light)',
-                }}
-              >
-                {item.label}
-              </span>
-            </button>
-          ))}
-        </div>
+              <Icon name={item.icon} className="text-[20px]" fill={1} />
+            </div>
+            <span
+              className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full whitespace-nowrap"
+              style={{
+                background: 'rgba(0,0,0,0.18)',
+                backdropFilter: 'blur(4px)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-light)',
+              }}
+            >
+              {item.label}
+            </span>
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -1250,10 +1218,8 @@ const Plans = () => {
       <style>{`
         @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes domeUp { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-        @keyframes domeDown { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.8); } }
-        @keyframes itemIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes itemOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(6px); } }
+        @keyframes itemIn { from { opacity: 0; transform: translateY(16px) scale(0.6); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes itemOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(12px) scale(0.7); } }
         input::placeholder { color: var(--text-muted); opacity: 1; }
         @media (min-width: 480px) { .xs\\:inline { display: inline; } .xs\\:hidden { display: none; } }
       `}</style>
