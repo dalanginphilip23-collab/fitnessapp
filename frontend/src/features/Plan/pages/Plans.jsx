@@ -1019,13 +1019,19 @@ const QuickAccessSheet = ({ open, onClose }) => {
   const close = () => {
     if (closing) return;
     setClosing(true);
-    closeTimer.current = setTimeout(onClose, 180);
+    closeTimer.current = setTimeout(() => {
+      setClosing(false);
+      onClose();
+    }, 180);
   };
 
   const handleSelect = path => {
     if (closing) return;
     setClosing(true);
-    closeTimer.current = setTimeout(onClose, 150);
+    closeTimer.current = setTimeout(() => {
+      setClosing(false);
+      onClose();
+    }, 150);
     navTimer.current = setTimeout(() => navigate(path), 140);
   };
 
