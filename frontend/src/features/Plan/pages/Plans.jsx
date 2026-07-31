@@ -988,15 +988,12 @@ const TabBar = ({ active, onChange, enrolledCount }) => (
   </div>
 );
 
-// QUICK ACCESS SHEET — a curved speed dial revealed by the "+" button on the
-// mobile bottom nav. The two shortcuts sit on a visible semicircular arc that
-// rises above the FAB.
+// QUICK ACCESS SHEET — a semicircular dome that rises out of the top of the
+// mobile bottom nav when the "+" is tapped, holding the two quick features.
 const QUICK_ACCESS_ITEMS = [
-  { label: 'Meal Tracker',   icon: 'restaurant',       path: '/dashboard/meal-tracker',   angle: -50, delay: '0.05s' },
-  { label: 'Virtual Clinic', icon: 'medical_services', path: '/dashboard/virtual-clinic', angle:  50, delay: '0.10s' },
+  { label: 'Meal Tracker',   icon: 'restaurant',       path: '/dashboard/meal-tracker' },
+  { label: 'Virtual Clinic', icon: 'medical_services', path: '/dashboard/virtual-clinic' },
 ];
-
-const QUICK_ARC_RADIUS = 120;
 
 const QuickAccessSheet = ({ open, onClose }) => {
   const navigate = useNavigate();
@@ -1006,62 +1003,47 @@ const QuickAccessSheet = ({ open, onClose }) => {
     <div className="md:hidden fixed inset-0 z-[90]" onClick={onClose}>
       <div className="absolute inset-0" style={{ background: 'var(--bg-overlay)', backdropFilter: 'blur(2px)' }} />
       <div
-        className="absolute left-1/2 bottom-[calc(2rem+env(safe-area-inset-bottom,0px))]"
-        style={{ transform: 'translateX(-50%)' }}
+        className="absolute left-1/2 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))]"
+        style={{ transform: 'translateX(-50%)', animation: 'fadeIn 0.2s ease both' }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Curved guide — top half of a circle centered on the FAB */}
+        {/* Dome — top half of a circle, flat edge flush against the nav */}
         <div
-          className="absolute left-0 bottom-0"
+          className="flex items-start justify-center gap-8 pt-7"
           style={{
-            width: QUICK_ARC_RADIUS * 2,
-            height: QUICK_ARC_RADIUS,
-            transform: 'translateX(-50%)',
-            borderTopLeftRadius: QUICK_ARC_RADIUS,
-            borderTopRightRadius: QUICK_ARC_RADIUS,
-            border: '1.5px dashed var(--border-medium)',
+            width: 280,
+            height: 140,
+            borderRadius: '140px 140px 0 0',
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-medium)',
             borderBottom: 'none',
-            animation: 'fadeIn 0.2s ease both',
+            boxShadow: '0 -10px 30px rgba(0,0,0,0.18)',
+            transformOrigin: 'center bottom',
+            animation: 'domeUp 0.25s ease both',
           }}
-        />
-        {QUICK_ACCESS_ITEMS.map(item => {
-          const rad = (item.angle * Math.PI) / 180;
-          const x = Math.round(Math.sin(rad) * QUICK_ARC_RADIUS);
-          const y = Math.round(-Math.cos(rad) * QUICK_ARC_RADIUS);
-          return (
+        >
+          {QUICK_ACCESS_ITEMS.map((item, idx) => (
             <button
               key={item.path}
               onClick={() => { onClose(); navigate(item.path); }}
-              className="absolute left-0 top-0 flex flex-col items-center gap-1.5 border-none bg-transparent cursor-pointer outline-none"
-              style={{ transform: `translate(-50%, -50%) translate(${x}px, ${y}px)` }}
+              className="flex flex-col items-center gap-1.5 border-none bg-transparent cursor-pointer outline-none"
+              style={{ animation: 'arcPop 0.25s ease both', animationDelay: `${0.05 + idx * 0.05}s` }}
             >
               <div
                 className="w-12 h-12 rounded-full flex items-center justify-center border shadow-lg"
-                style={{
-                  background: 'var(--bg-secondary)',
-                  borderColor: 'var(--border-medium)',
-                  color: 'var(--accent)',
-                  animation: 'arcPop 0.25s ease both',
-                  animationDelay: item.delay,
-                }}
+                style={{ background: 'var(--bg-hover)', borderColor: 'var(--border-medium)', color: 'var(--accent)' }}
               >
                 <Icon name={item.icon} className="text-[22px]" fill={1} />
               </div>
               <span
                 className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full whitespace-nowrap"
-                style={{
-                  background: 'var(--bg-secondary)',
-                  color: 'var(--text-secondary)',
-                  border: '1px solid var(--border-light)',
-                  animation: 'arcPop 0.25s ease both',
-                  animationDelay: item.delay,
-                }}
+                style={{ background: 'var(--bg-hover)', color: 'var(--text-secondary)' }}
               >
                 {item.label}
               </span>
             </button>
-          );
-        })}
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -1205,6 +1187,7 @@ const Plans = () => {
         @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
         @keyframes arcPop { from { opacity: 0; transform: scale(0.4) rotate(-10deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
+        @keyframes domeUp { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
         input::placeholder { color: var(--text-muted); opacity: 1; }
         @media (min-width: 480px) { .xs\\:inline { display: inline; } .xs\\:hidden { display: none; } }
       `}</style>
