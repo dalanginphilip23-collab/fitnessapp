@@ -996,8 +996,8 @@ const QUICK_ACCESS_ITEMS = [
 ];
 
 const QUICK_SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
-const QUICK_ARC_ANGLE = 40;
-const QUICK_ARC_RADIUS = 0.84;
+const QUICK_ARC_ANGLE = 48;
+const QUICK_ARC_RADIUS = 0.87;
 
 const QuickAccessSheet = ({ open, onClose }) => {
   const navigate = useNavigate();
@@ -1040,7 +1040,7 @@ const QuickAccessSheet = ({ open, onClose }) => {
   if (!open && !closing) return null;
 
   const domeStyle = {
-    animation: `${closing ? 'domeDown' : 'domeUp'} 0.32s ${QUICK_SPRING} both`,
+    animation: `${closing ? 'domeDown' : 'domeUp'} 0.45s ${QUICK_SPRING} both`,
   };
 
   const R = 88;
@@ -1049,13 +1049,19 @@ const QuickAccessSheet = ({ open, onClose }) => {
     <div className="md:hidden fixed inset-0 z-[90]" onClick={close}>
       <div
         className="absolute left-1/2 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))]"
-        style={{ transform: 'translateX(-50%)' }}
+        style={{ transform: 'translateX(-50%)', perspective: '700px' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Connector notch that tucks under the nav's top edge */}
         <div
           className="absolute left-1/2 -bottom-[5px] w-9 h-2.5 rounded-full"
-          style={{ transform: 'translateX(-50%)', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderTop: 'none' }}
+          style={{
+            transform: 'translateX(-50%)',
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-medium)',
+            borderTop: 'none',
+            animation: closing ? 'fadeOut 0.2s ease both' : 'fadeIn 0.2s ease 0.28s both',
+          }}
         />
         {/* Dome — top half of a circle, flat edge flush against the nav */}
         <div
@@ -1280,11 +1286,12 @@ const Plans = () => {
       <style>{`
         @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes domeUp { 0% { opacity: 0; transform: scale(0.65) translateY(18px); } 60% { opacity: 1; transform: scale(1.05) translateY(-2px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes domeDown { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.7) translateY(16px); } }
+        @keyframes domeUp { 0% { opacity: 0; transform: rotateX(70deg) translateY(22px) scale(0.8); } 60% { opacity: 1; transform: rotateX(-8deg) translateY(-2px) scale(1.03); } 100% { opacity: 1; transform: rotateX(0deg) translateY(0) scale(1); } }
+        @keyframes domeDown { from { opacity: 1; transform: rotateX(0deg) translateY(0) scale(1); } to { opacity: 0; transform: rotateX(70deg) translateY(16px) scale(0.8); } }
         @keyframes arcFlyX { from { transform: translateX(var(--dx, 0px)) rotate(16deg); } to { transform: translateX(0) rotate(0deg); } }
         @keyframes arcFlyY { from { transform: translateY(var(--dy, 0px)); } to { transform: translateY(0); } }
         @keyframes arcDown { from { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); } to { opacity: 0; transform: translateY(10px) scale(0.6) rotate(-16deg); } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         input::placeholder { color: var(--text-muted); opacity: 1; }
         @media (min-width: 480px) { .xs\\:inline { display: inline; } .xs\\:hidden { display: none; } }
       `}</style>
