@@ -103,6 +103,7 @@ const Profile = () => {
   const [activeTab,  setActiveTab]  = React.useState('profile');
   const [changePwOpen, setChangePwOpen] = React.useState(false);
   const [showBmiDetails, setShowBmiDetails] = React.useState(false);
+  const [macroSplit, setMacroSplit] = React.useState(MACRO_SPLITS[0].id);
 
   if (loading || isLoading) {
     return (
@@ -348,7 +349,6 @@ const Profile = () => {
                   onClick={() => setShowBmiDetails(s => !s)}
                   className="mt-3 w-full flex items-center justify-center gap-1 text-[8px] font-bold uppercase tracking-widest text-[#62aa1a]/70 hover:text-[#62aa1a] transition-colors py-1"
                 >
-                  <span className="material-symbols-outlined text-[11px]">monitoring</span>
                   {showBmiDetails ? 'Hide Details' : 'View More'}
                   <span className={`material-symbols-outlined text-[11px] transition-transform ${showBmiDetails ? 'rotate-180' : ''}`}>expand_more</span>
                 </button>
@@ -448,9 +448,9 @@ const Profile = () => {
                               {MACRO_SPLITS.map(split => (
                                 <button
                                   key={split.id}
-                                  onClick={() => {}}
+                                  onClick={() => setMacroSplit(split.id)}
                                   className={`text-[6px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-md transition-colors ${
-                                    split.id === 'moderate'
+                                    split.id === macroSplit
                                       ? 'bg-[#c7f248]/15 text-[#c7f248]'
                                       : 'text-(--text-disabled) hover:text-(--text-muted)'
                                   }`}
@@ -461,7 +461,7 @@ const Profile = () => {
                             </div>
                           </div>
                           {(() => {
-                            const macros = calcMacros(bmiRecord.tdee, MACRO_SPLITS[0]);
+                            const macros = calcMacros(bmiRecord.tdee, MACRO_SPLITS.find(s => s.id === macroSplit) || MACRO_SPLITS[0]);
                             const totalCals = macros.protein.calories + macros.fat.calories + macros.carb.calories;
                             const items = [
                               { ...macros.protein, label: 'Protein', color: '#f87171', pct: Math.round(macros.protein.calories / totalCals * 100) },
