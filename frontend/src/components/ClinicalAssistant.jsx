@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import Icon from './Icon';
 import { API_BASE_URL } from '../config/port';
-import { readLocalFallbackInsight } from '../utils/localInsight';
 
 const trendIcon = (trend) => {
   if (trend === 'up')   return { icon: 'trending_up',   color: '#4ade80' };
@@ -72,23 +71,8 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
   const [history,      setHistory]      = useState([]);
   const [historyLoad,  setHistoryLoad]  = useState(false);
   const [historyError, setHistoryError] = useState(false);
-  const [localInsight, setLocalInsight] = useState(null);
 
   const goal = 5000;
-
-  // Same-day local fallback (saved when the backend analysis endpoint is
-  // unavailable) — shown so the widget reflects freshly synced data. Also
-  // reacts to a sync performed in another tab via the storage event.
-  useEffect(() => {
-    setLocalInsight(readLocalFallbackInsight(userId));
-    const onStorage = (e) => {
-      if (e.key === `vitalis_local_insight_${userId}`) {
-        setLocalInsight(readLocalFallbackInsight(userId));
-      }
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, [userId]);
 
   useEffect(() => {
     if (isAnalyzing && showHistory) setShowHistory(false);
@@ -141,9 +125,7 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
 
   const activeInsights = showHistory
     ? history
-    : (insights.length > 0
-        ? insights
-        : [localInsight, ...history.filter(item => isToday(item))].filter(Boolean).slice(0, 5));
+    : (insights.length > 0 ? insights : history.filter(item => isToday(item)).slice(0, 5));
 
   return (
     <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[20px] p-[22px] flex flex-col overflow-hidden card-glow">
