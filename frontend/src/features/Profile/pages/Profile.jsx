@@ -103,6 +103,7 @@ const Profile = () => {
   const [activeTab,  setActiveTab]  = React.useState('profile');
   const [changePwOpen, setChangePwOpen] = React.useState(false);
   const [showBmiDetails, setShowBmiDetails] = React.useState(false);
+  const [macroSplit, setMacroSplit] = React.useState(MACRO_SPLITS[0].id);
 
   if (loading || isLoading) {
     return (
@@ -137,7 +138,9 @@ const Profile = () => {
         variant={toastVariant}
       />
 
-      <Sidebar expanded={expanded} setExpanded={setExpanded} onClick={handleLogout} />
+      <div className="hidden md:block">
+        <Sidebar expanded={expanded} setExpanded={setExpanded} onClick={handleLogout} />
+      </div>
 
       <div className={`flex-1 flex flex-col min-w-0 transition-all duration-400 ease-in-out ${expanded ? 'md:ml-60' : 'md:ml-18'}`}>
         <Topbar sidebarExpanded={expanded} userId={USER_ID} />
@@ -448,9 +451,9 @@ const Profile = () => {
                               {MACRO_SPLITS.map(split => (
                                 <button
                                   key={split.id}
-                                  onClick={() => {}}
+                                  onClick={() => setMacroSplit(split.id)}
                                   className={`text-[6px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-md transition-colors ${
-                                    split.id === 'moderate'
+                                    split.id === macroSplit
                                       ? 'bg-[#c7f248]/15 text-[#c7f248]'
                                       : 'text-(--text-disabled) hover:text-(--text-muted)'
                                   }`}
@@ -461,7 +464,7 @@ const Profile = () => {
                             </div>
                           </div>
                           {(() => {
-                            const macros = calcMacros(bmiRecord.tdee, MACRO_SPLITS[0]);
+                            const macros = calcMacros(bmiRecord.tdee, MACRO_SPLITS.find(s => s.id === macroSplit) || MACRO_SPLITS[0]);
                             const totalCals = macros.protein.calories + macros.fat.calories + macros.carb.calories;
                             const items = [
                               { ...macros.protein, label: 'Protein', color: '#f87171', pct: Math.round(macros.protein.calories / totalCals * 100) },

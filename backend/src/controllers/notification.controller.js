@@ -38,7 +38,7 @@ async function getForUser(req, res) {
     res.json({ count, notifications });
   } catch (err) {
     console.error('GET /api/notifications/:userId failed:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 }
 
@@ -58,7 +58,7 @@ async function create(req, res) {
     res.json({ success: true });
   } catch (err) {
     console.error('POST /api/notifications failed:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 }
 
@@ -71,7 +71,7 @@ async function markRead(req, res) {
     res.json({ success: true });
   } catch (err) {
     console.error('PUT /api/notifications/:id/read failed:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 }
 
@@ -84,7 +84,7 @@ async function markAllRead(req, res) {
     res.json({ success: true });
   } catch (err) {
     console.error('PUT /api/notifications/read-all/:userId failed:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 }
 

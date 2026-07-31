@@ -7,7 +7,7 @@ async function summary(req, res) {
     res.json(result || { vo2_max: 0, hrv: 0, stress: 0 });
   } catch (err) {
     console.error('[Summary] Error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to load summary' });
   }
 }
 
@@ -29,7 +29,7 @@ async function zones(req, res) {
 
   } catch (err) {
     console.error('[Zones] Error:', err.message);
-    res.json([]);
+    res.status(500).json({ error: 'Failed to load zone data' });
   }
 }
 
@@ -40,7 +40,7 @@ async function vo2(req, res) {
     res.json(rows);
   } catch (err) {
     console.error('[VO2] Error:', err.message);
-    res.json([]);
+    res.status(500).json({ error: 'Failed to load VO2 data' });
   }
 }
 

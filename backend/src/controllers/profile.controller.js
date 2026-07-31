@@ -29,7 +29,7 @@ async function updateProfile(req, res) {
 
   } catch (err) {
     console.error('profile update error:', err.code, err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 }
 
@@ -56,7 +56,7 @@ async function getProfile(req, res) {
 
   } catch (err) {
     console.error('profile fetch error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Something went wrong. Please try again.' });
   }
 }
 

@@ -211,6 +211,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
     if (!userId) return;
     try {
       const res  = await fetch(`${API_BASE_URL}/api/notifications/${userId}`, { credentials: 'include' });
+      if (!res.ok) throw new Error(`Notif fetch failed: ${res.status}`);
       const data = await res.json();
       setNotifCount(data.count || 0);
       setNotifications(data.notifications || []);
@@ -235,6 +236,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
     const fetchTopbarData = async () => {
       try {
         const res  = await fetch(`${API_BASE_URL}/api/dashboard/${userId}`, { credentials: 'include' });
+        if (!res.ok) throw new Error(`Topbar fetch failed: ${res.status}`);
         const data = await res.json();
         if (data.profile) {
           setUserData(prev => ({
@@ -310,6 +312,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
       if (searchQuery.length > 2) {
         try {
           const res     = await fetch(`${API_BASE_URL}/api/search?q=${searchQuery}`, { credentials: 'include' });
+          if (!res.ok) throw new Error(`Search failed: ${res.status}`);
           const results = await res.json();
           setSearchResults(Array.isArray(results) ? results : []);
         } catch (err) {

@@ -6,7 +6,7 @@ function requireAuth(req, res, next) {
   if (!token) return res.status(401).json({ message: 'Not authenticated' });
 
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
     next();
   } catch {
     res.clearCookie(COOKIE_NAME);

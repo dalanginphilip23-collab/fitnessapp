@@ -23,7 +23,7 @@ async function getDaily(req, res) {
     res.json(stats[0]);
   } catch (err) {
     console.error('daily stats fetch error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to load daily stats' });
   }
 }
 

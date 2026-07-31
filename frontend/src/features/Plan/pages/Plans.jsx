@@ -1,6 +1,7 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import { MobileNav, Sidebar, Topbar } from '../../../components';
+import { useAuth } from '../../../hooks/useAuth';
 import usePlans from '../hooks/usePlan';
 
 // ICON COMPONENT
@@ -990,12 +991,20 @@ const TabBar = ({ active, onChange, enrolledCount }) => (
 
 // MAIN PLANS PAGE COMPONENT
 const Plans = () => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const USER_ID = user?.id;
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(
     searchParams.get('tab') || 'explore'
   );
+
+  const handleLogout = useCallback(async () => {
+    await logout();
+    navigate('/login');
+  }, [logout, navigate]);
 
   const {
     loading, authError, trainingPlans, enrolledCount,
@@ -1040,9 +1049,9 @@ const Plans = () => {
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', fontFamily: 'Poppins, sans-serif' }}>
       <div className="hidden md:block">
-        <Sidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
+        <Sidebar onClick={handleLogout} expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
       </div>
-      <Topbar sidebarExpanded={sidebarExpanded} />
+      <Topbar sidebarExpanded={sidebarExpanded} userId={USER_ID} />
       <main
         className="pt-20 sm:pt-24 pb-24 md:pb-12 px-3 sm:px-6 md:px-8 lg:px-10 min-h-screen transition-all duration-[400ms]"
       >

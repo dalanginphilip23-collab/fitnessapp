@@ -24,7 +24,7 @@ async function submitFeedback(req, res) {
     console.error('Feedback Error:', err.message);
 
     res.status(500).json({
-      error: err.message
+      error: 'Could not send feedback. Please try again.'
     });
   }
 }

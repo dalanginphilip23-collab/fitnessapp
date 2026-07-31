@@ -2,13 +2,6 @@ const authService = require('../services/auth.service');
 const { bcrypt, jwt, COOKIE_NAME, googleClient, getCookieOptions, setSessionCookie, logUserSession } = authService;
 const { getBmiCategory, calcTdee, insertBmiRecord, syncUserProfile } = require('../services/bmi.service');
 
-// ─── FIX: Disable SSL verification on localhost (dev only) ───
-// (kept exactly as in the original route/auth.js — note this is a
-// slightly different condition than the one in server.js/app.js)
-if (process.env.NODE_ENV !== 'production') {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-}
-
 // ─── GET /api/auth/me ───
 async function getMe(req, res) {
   const token = req.cookies?.[COOKIE_NAME];
@@ -41,6 +34,13 @@ async function getMe(req, res) {
 // ─── POST /api/auth/register ───
 async function register(req, res) {
   const { name, email, password, fitness_goal, weight_kg, height_cm, age, gender, activity_level } = req.body;
+
+  if (!name?.trim() || !email?.trim() || !password) {
+    return res.status(400).json({ error: 'Name, email and password are required' });
+  }
+  if (password.length < 8) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  }
 
   try {
     const existing = await authService.findUserByEmail(email);
@@ -88,13 +88,18 @@ async function register(req, res) {
 
     res.status(201).json({ success: true, message: 'Identity created.', bmi: bmiData });
   } catch (err) {
-    res.status(500).json({ error: 'Database rejection: ' + err.message });
+    console.error('Register Error:', err);
+    res.status(500).json({ error: 'Registration failed. Please try again.' });
   }
 }
 
 // ─── POST /api/auth/login ───
 async function login(req, res) {
   const { email, password } = req.body;
+
+  if (!email?.trim() || !password) {
+    return res.status(400).json({ message: 'Email and password are required' });
+  }
 
   const lockStatus = authService.checkRateLimit(email);
   if (lockStatus) {
@@ -217,7 +222,7 @@ async function googleLogin(req, res) {
     });
   } catch (err) {
     console.error('Google Login Error:', err.message);
-    res.status(401).json({ message: 'Google authentication failed: ' + err.message });
+    res.status(401).json({ message: 'Google authentication failed. Please try again.' });
   }
 }
 

@@ -9,7 +9,7 @@ async function create(req, res) {
     res.json({ success: true });
   } catch (err) {
     console.error('[Sleep POST] Error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to load sleep data' });
   }
 }
 
@@ -20,7 +20,7 @@ async function getToday(req, res) {
     res.json(rows[0] || null);
   } catch (err) {
     console.error('[Sleep Today] Error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to load sleep data' });
   }
 }
 
@@ -32,7 +32,7 @@ async function getGraph(req, res) {
     res.json(rows);
   } catch (err) {
     console.error('[Sleep Graph] Error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to load sleep data' });
   }
 }
 
@@ -44,7 +44,7 @@ async function getAnalysis(req, res) {
     res.json(rows);
   } catch (err) {
     console.error('[Analysis Graph] Error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to load sleep data' });
   }
 }
 
@@ -56,7 +56,7 @@ async function getScatter(req, res) {
     res.json(rows);
   } catch (err) {
     console.error('[Scatter] Error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to load sleep data' });
   }
 }
 

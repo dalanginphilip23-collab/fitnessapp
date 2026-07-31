@@ -207,6 +207,9 @@ async function clinicalAnalysis(req, res) {
 // POST /api/ai/coach
 async function coach(req, res) {
   const { landmarks, workoutType } = req.body;
+  if (!workoutType) {
+    return res.status(400).json({ tip: "Workout type is required." });
+  }
   try {
     const tip = await aiService.getCoachTip(landmarks, workoutType);
     res.json({ tip });
@@ -227,7 +230,8 @@ async function history(req, res) {
     ])).flat();
     res.json(history);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('[ai/history] Error:', err.message);
+    res.status(500).json({ error: 'Failed to load insight history' });
   }
 }
 
@@ -262,6 +266,10 @@ async function latestLogs(req, res) {
 // POST /api/ai/run-analysis
 async function runAnalysis(req, res) {
   const { userId, run } = req.body;
+
+  if (!run || typeof run !== 'object') {
+    return res.status(400).json({ error: 'Run data is required' });
+  }
 
   try {
     const user = await aiService.getUserBasic(userId);
