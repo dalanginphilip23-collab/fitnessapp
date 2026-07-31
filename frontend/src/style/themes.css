@@ -38,6 +38,15 @@
   --hero-glow: radial-gradient(circle at 30% 20%, rgba(139, 195, 74, 0.15) 0%, rgba(255, 183, 77, 0.05) 50%, transparent 70%);
 }
 
+.light-theme {
+  /* Metric colors — vibrant per category */
+  --metric-calories: #F57C00;
+  --metric-steps: #1E88E5;
+  --metric-load: #F57C00;
+  --metric-water: #00ACC1;
+  --metric-sleep: #8E24AA;
+}
+
 
 @import url('https://fonts.googleapis.com/css2?family=DSEG7+Classic:wght@400&family=JetBrains+Mono:wght@500;700&display=swap');
 
