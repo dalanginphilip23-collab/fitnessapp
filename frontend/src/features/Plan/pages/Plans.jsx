@@ -988,55 +988,82 @@ const TabBar = ({ active, onChange, enrolledCount }) => (
   </div>
 );
 
-// QUICK ACCESS SHEET — a semicircular dome that rises out of the top of the
+// QUICK ACCESS SHEET — a springy popup dome that rises out of the top of the
 // mobile bottom nav when the "+" is tapped, holding the two quick features.
 const QUICK_ACCESS_ITEMS = [
   { label: 'Meal Tracker',   icon: 'restaurant',       path: '/dashboard/meal-tracker' },
   { label: 'Virtual Clinic', icon: 'medical_services', path: '/dashboard/virtual-clinic' },
 ];
 
+const QUICK_SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+
 const QuickAccessSheet = ({ open, onClose }) => {
   const navigate = useNavigate();
-  if (!open) return null;
+  const [closing, setClosing] = useState(false);
+
+  useEffect(() => {
+    if (open) setClosing(false);
+  }, [open]);
+
+  const close = () => {
+    if (closing) return;
+    setClosing(true);
+    setTimeout(onClose, 180);
+  };
+
+  if (!open && !closing) return null;
+
+  const domeStyle = {
+    animation: `${closing ? 'domeDown' : 'domeUp'} 0.3s ${QUICK_SPRING} both`,
+  };
 
   return (
-    <div className="md:hidden fixed inset-0 z-[90]" onClick={onClose}>
+    <div className="md:hidden fixed inset-0 z-[90]" onClick={close}>
       <div
         className="absolute left-1/2 bottom-[calc(4rem+env(safe-area-inset-bottom,0px))]"
-        style={{ transform: 'translateX(-50%)', animation: 'fadeIn 0.2s ease both' }}
+        style={{ transform: 'translateX(-50%)' }}
         onClick={e => e.stopPropagation()}
       >
+        {/* Connector notch that tucks under the nav's top edge */}
+        <div
+          className="absolute left-1/2 -bottom-[5px] w-9 h-2.5 rounded-full"
+          style={{ transform: 'translateX(-50%)', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderTop: 'none' }}
+        />
         {/* Dome — top half of a circle, flat edge flush against the nav */}
         <div
-          className="flex items-start justify-center gap-5 pt-4"
+          className="flex items-start justify-center gap-5 pt-4 relative"
           style={{
-            width: 200,
-            height: 100,
-            borderRadius: '100px 100px 0 0',
-            background: 'var(--bg-secondary)',
+            ...domeStyle,
+            width: 210,
+            height: 105,
+            borderRadius: '105px 105px 0 0',
+            background: 'linear-gradient(180deg, var(--bg-hover) 0%, var(--bg-secondary) 100%)',
             border: '1px solid var(--border-medium)',
             borderBottom: 'none',
-            boxShadow: '0 -6px 20px rgba(0,0,0,0.14)',
+            boxShadow: '0 -8px 28px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.06)',
             transformOrigin: 'center bottom',
-            animation: 'domeUp 0.25s ease both',
           }}
         >
           {QUICK_ACCESS_ITEMS.map((item, idx) => (
             <button
               key={item.path}
-              onClick={() => { onClose(); navigate(item.path); }}
+              onClick={() => { close(); setTimeout(() => navigate(item.path), 160); }}
               className="flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer outline-none"
-              style={{ animation: 'arcPop 0.25s ease both', animationDelay: `${0.05 + idx * 0.05}s` }}
+              style={{ animation: `${closing ? 'arcDown' : 'arcPop'} 0.28s ${QUICK_SPRING} both`, animationDelay: closing ? '0s' : `${0.05 + idx * 0.06}s` }}
             >
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center border shadow-lg"
-                style={{ background: 'var(--bg-hover)', borderColor: 'var(--border-medium)', color: 'var(--accent)' }}
+                className="w-11 h-11 rounded-full flex items-center justify-center border shadow-lg"
+                style={{
+                  background: 'linear-gradient(135deg, var(--accent), var(--accent-2, var(--accent)))',
+                  borderColor: 'var(--border-light)',
+                  color: '#fff',
+                }}
               >
-                <Icon name={item.icon} className="text-[18px]" fill={1} />
+                <Icon name={item.icon} className="text-[19px]" fill={1} />
               </div>
               <span
-                className="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full whitespace-nowrap"
-                style={{ background: 'var(--bg-hover)', color: 'var(--text-secondary)' }}
+                className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full whitespace-nowrap"
+                style={{ background: 'var(--bg-secondary)', color: 'var(--text-secondary)', border: '1px solid var(--border-light)' }}
               >
                 {item.label}
               </span>
@@ -1185,8 +1212,10 @@ const Plans = () => {
       <style>{`
         @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes arcPop { from { opacity: 0; transform: scale(0.4) rotate(-10deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
-        @keyframes domeUp { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+        @keyframes domeUp { from { opacity: 0; transform: scale(0.6) translateY(14px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes domeDown { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.7) translateY(16px); } }
+        @keyframes arcPop { from { opacity: 0; transform: translateY(12px) scale(0.5) rotate(-8deg); } to { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); } }
+        @keyframes arcDown { from { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); } to { opacity: 0; transform: translateY(10px) scale(0.6) rotate(8deg); } }
         input::placeholder { color: var(--text-muted); opacity: 1; }
         @media (min-width: 480px) { .xs\\:inline { display: inline; } .xs\\:hidden { display: none; } }
       `}</style>
