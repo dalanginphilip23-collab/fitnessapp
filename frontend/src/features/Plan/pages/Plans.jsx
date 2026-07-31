@@ -996,6 +996,8 @@ const QUICK_ACCESS_ITEMS = [
 ];
 
 const QUICK_SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+const QUICK_ARC_ANGLE = 40;
+const QUICK_ARC_RADIUS = 0.84;
 
 const QuickAccessSheet = ({ open, onClose }) => {
   const navigate = useNavigate();
@@ -1038,8 +1040,10 @@ const QuickAccessSheet = ({ open, onClose }) => {
   if (!open && !closing) return null;
 
   const domeStyle = {
-    animation: `${closing ? 'domeDown' : 'domeUp'} 0.3s ${QUICK_SPRING} both`,
+    animation: `${closing ? 'domeDown' : 'domeUp'} 0.32s ${QUICK_SPRING} both`,
   };
+
+  const R = 88;
 
   return (
     <div className="md:hidden fixed inset-0 z-[90]" onClick={close}>
@@ -1055,12 +1059,12 @@ const QuickAccessSheet = ({ open, onClose }) => {
         />
         {/* Dome — top half of a circle, flat edge flush against the nav */}
         <div
-          className="flex items-start justify-center gap-6 pt-5 relative"
+          className="relative"
           style={{
             ...domeStyle,
-            width: 220,
-            height: 110,
-            borderRadius: '110px 110px 0 0',
+            width: R * 2,
+            height: R,
+            borderRadius: `${R}px ${R}px 0 0`,
             background: 'linear-gradient(180deg, var(--bg-hover) 0%, var(--bg-secondary) 100%)',
             border: '1px solid var(--border-medium)',
             borderBottom: 'none',
@@ -1068,38 +1072,50 @@ const QuickAccessSheet = ({ open, onClose }) => {
             transformOrigin: 'center bottom',
           }}
         >
-          {QUICK_ACCESS_ITEMS.map((item, idx) => (
-            <button
-              key={item.path}
-              onClick={() => handleSelect(item.path)}
-              aria-label={item.label}
-              className="flex flex-col items-center gap-1.5 border-none bg-transparent cursor-pointer outline-none select-none"
-              style={{ animation: `${closing ? 'arcDown' : 'arcPop'} 0.28s ${QUICK_SPRING} both`, animationDelay: closing ? '0s' : `${0.05 + idx * 0.06}s` }}
-            >
+          {QUICK_ACCESS_ITEMS.map((item, idx) => {
+            const sign = idx === 0 ? -1 : 1;
+            const rad = (sign * QUICK_ARC_ANGLE * Math.PI) / 180;
+            const arcR = R * QUICK_ARC_RADIUS;
+            const x = R + Math.round(Math.sin(rad) * arcR);
+            const y = R - Math.round(Math.cos(rad) * arcR);
+            return (
               <div
-                className="w-12 h-12 rounded-full flex items-center justify-center border shadow-lg active:scale-90 transition-transform duration-150"
-                style={{
-                  background: 'linear-gradient(135deg, var(--accent), var(--accent-2, var(--accent)))',
-                  borderColor: 'rgba(255,255,255,0.35)',
-                  color: '#fff',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(255,255,255,0.12)',
-                }}
+                key={item.path}
+                className="absolute"
+                style={{ left: x, top: y, transform: 'translate(-50%, -50%)' }}
               >
-                <Icon name={item.icon} className="text-[20px]" fill={1} />
+                <button
+                  onClick={() => handleSelect(item.path)}
+                  aria-label={item.label}
+                  className="flex flex-col items-center gap-1 border-none bg-transparent cursor-pointer outline-none select-none"
+                  style={{ animation: `${closing ? 'arcDown' : 'arcPop'} 0.28s ${QUICK_SPRING} both`, animationDelay: closing ? '0s' : `${0.12 + idx * 0.07}s` }}
+                >
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center border shadow-lg active:scale-90 transition-transform duration-150"
+                    style={{
+                      background: 'linear-gradient(135deg, var(--accent), var(--accent-2, var(--accent)))',
+                      borderColor: 'rgba(255,255,255,0.35)',
+                      color: '#fff',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.22), inset 0 0 0 1px rgba(255,255,255,0.12)',
+                    }}
+                  >
+                    <Icon name={item.icon} className="text-[17px]" fill={1} />
+                  </div>
+                  <span
+                    className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full whitespace-nowrap"
+                    style={{
+                      background: 'rgba(0,0,0,0.18)',
+                      backdropFilter: 'blur(4px)',
+                      color: 'var(--text-secondary)',
+                      border: '1px solid var(--border-light)',
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                </button>
               </div>
-              <span
-                className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full whitespace-nowrap"
-                style={{
-                  background: 'rgba(0,0,0,0.18)',
-                  backdropFilter: 'blur(4px)',
-                  color: 'var(--text-secondary)',
-                  border: '1px solid var(--border-light)',
-                }}
-              >
-                {item.label}
-              </span>
-            </button>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
@@ -1243,10 +1259,10 @@ const Plans = () => {
       <style>{`
         @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes domeUp { from { opacity: 0; transform: scale(0.6) translateY(14px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes domeUp { 0% { opacity: 0; transform: scale(0.65) translateY(18px); } 60% { opacity: 1; transform: scale(1.05) translateY(-2px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
         @keyframes domeDown { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.7) translateY(16px); } }
-        @keyframes arcPop { from { opacity: 0; transform: translateY(12px) scale(0.5) rotate(-8deg); } to { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); } }
-        @keyframes arcDown { from { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); } to { opacity: 0; transform: translateY(10px) scale(0.6) rotate(8deg); } }
+        @keyframes arcPop { from { opacity: 0; transform: translateY(10px) scale(0.4) rotate(24deg); } to { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); } }
+        @keyframes arcDown { from { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); } to { opacity: 0; transform: translateY(10px) scale(0.6) rotate(-16deg); } }
         input::placeholder { color: var(--text-muted); opacity: 1; }
         @media (min-width: 480px) { .xs\\:inline { display: inline; } .xs\\:hidden { display: none; } }
       `}</style>
