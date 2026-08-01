@@ -103,11 +103,6 @@ const forgotPasswordRoutes = require("./routes/forgotPassword.routes");
 const feedbackRoutes = require("./routes/feedback.routes");
 const statsRoutes = require("./routes/stats.routes");
 
-// NOTE: liveCoaching.routes.js and social.routes.js exist (carried over
-// from route/liveCoaching.js and route/social.js) but were NOT mounted
-// in the original server.js either — preserved as unmounted here too.
-// See the summary notes for details on both.
-
 app.use("/api/bmi", bmiRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api", messengerRoutes);
