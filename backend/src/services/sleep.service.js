@@ -39,11 +39,14 @@ async function getGraph(userId, range, metric) {
 
   let query;
   if (isDaily) {
+    // Calendar-day boundary (resets at local midnight, matches getTodayLatest
+    // and the rest of the app) instead of a rolling "last 24 hours" window,
+    // which never resets and lets last night's data bleed into today.
     query = `SELECT DATE_FORMAT(recorded_at, '${labelFormat}') AS label,
                     ${column} AS value
              FROM sleep_logs
              WHERE user_id = ?
-               AND recorded_at >= DATE_SUB(NOW(), INTERVAL ${interval})
+               AND DATE(recorded_at) = CURDATE()
                AND ${column} > 0
              ORDER BY recorded_at ASC`;
   } else {
@@ -69,16 +72,22 @@ const ANALYSIS_MAP = {
 
 async function getAnalysis(userId, range, metric) {
   const column = ANALYSIS_MAP[metric] || 'sleep_duration';
-  const interval = range === 'W' ? '7 DAY' : range === 'M' ? '30 DAY' : '1 DAY';
   const isDaily = range === 'D';
+  const interval = range === 'W' ? '7 DAY' : range === 'M' ? '30 DAY' : '1 DAY';
   const labelFormat = isDaily ? '%H:%i' : (range === 'W' ? '%a' : '%m/%d');
+
+  // Daily view uses a calendar-day boundary (resets at local midnight) to
+  // match getGraph/getTodayLatest, instead of a rolling 24-hour window.
+  const dateFilter = isDaily
+    ? 'DATE(recorded_at) = CURDATE()'
+    : `recorded_at >= DATE_SUB(NOW(), INTERVAL ${interval})`;
 
   const [rows] = await db.execute(
     `SELECT DATE_FORMAT(recorded_at, '${labelFormat}') AS label, 
             AVG(${column}) AS value
      FROM sleep_logs
      WHERE user_id = ? 
-       AND recorded_at >= DATE_SUB(NOW(), INTERVAL ${interval})
+       AND ${dateFilter}
      GROUP BY DATE_FORMAT(recorded_at, '${labelFormat}')
      ORDER BY MIN(recorded_at) ASC`,
     [userId]
