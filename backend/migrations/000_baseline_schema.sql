@@ -1,17 +1,23 @@
--- Migration 000 — Baseline Schema
+-- Migration 000 — Baseline Schema (current, as of 2026-08-01)
 -- Date: 2026-06-17 (approximate, based on earliest created_at timestamps)
 -- Purpose: Full baseline schema for the fitnessapp database, extracted from
 --          backend/docs/fitnessapp_db.sql (dump taken 2026-07-01).
 --
+-- UPDATE 2026-08-01: Migration 001 (age/activity_level/bmr/tdee columns on
+-- bmi_records) has been folded directly into this file so a fresh database
+-- only needs ONE script to reach the current schema — no follow-up ALTER
+-- TABLE required. 001_add_tdee_columns_to_bmi_records.sql is kept only as a
+-- historical record of that change for anyone who already ran 000 without
+-- it; do not run 001 after this file, its columns already exist here.
+--
 -- This is the STARTING POINT of the migrations history. Running this file
--- top-to-bottom on an empty database recreates the full schema as it stood
--- before formal migrations were introduced, including the seed/reference
--- data for workout plans (plans, plan_contents, plan_exercises) that the
--- app depends on to function.
+-- top-to-bottom on an empty database recreates the full CURRENT schema,
+-- including the seed/reference data for workout plans (plans, plan_contents,
+-- plan_exercises) that the app depends on to function.
 --
 -- Do NOT re-run this against the live production database — it already
 -- has this schema. Use this to set up a fresh local/dev database, or as
--- the documented reference for what "start" looked like.
+-- the documented reference for what the schema looks like today.
 --
 -- Table creation order below is arranged so that foreign key dependencies
 -- resolve correctly (referenced tables are created before tables that
@@ -125,6 +131,10 @@ CREATE TABLE `bmi_records` (
   `height_cm` decimal(5,2) DEFAULT NULL,
   `bmi` decimal(5,2) DEFAULT NULL,
   `bmi_category` varchar(50) DEFAULT NULL,
+  `age` int(11) DEFAULT NULL,
+  `activity_level` varchar(50) DEFAULT NULL,
+  `bmr` int(11) DEFAULT NULL,
+  `tdee` int(11) DEFAULT NULL,
   `recorded_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

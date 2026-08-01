@@ -52,8 +52,8 @@ Example: `002_add_notifications_read_index.sql`
 
 | # | File | Date | Description | Applied to prod? |
 |---|------|------|-------------|-------------------|
-| 000 | 000_baseline_schema.sql | 2026-06-17 | Full baseline schema — all 26 tables (users, workouts, social, coaching, plans, etc.), indexes, foreign keys, and seed data for the workout plans catalog. Extracted from `backend/docs/fitnessapp_db.sql`. Running this on an empty database recreates the full starting schema. | N/A — already live; use only to set up a fresh/local database |
-| 001 | 001_add_tdee_columns_to_bmi_records.sql | 2026-07-27 | Added `age`, `activity_level`, `bmr`, `tdee` to `bmi_records` for TDEE/calorie feature | ✅ Yes |
+| 000 | 000_baseline_schema.sql | 2026-06-17 (updated 2026-08-01) | Full **current** schema — all 26 tables (users, workouts, social, coaching, plans, etc.), indexes, foreign keys, and seed data for the workout plans catalog. Now includes the `age`/`activity_level`/`bmr`/`tdee` columns on `bmi_records` (migration 001 folded in). Running this on an empty database recreates the full current schema in one step — no follow-up ALTER needed. | N/A — already live; use to set up a fresh/local database |
+| 001 | 001_add_tdee_columns_to_bmi_records.sql | 2026-07-27 | **Historical/superseded** — added `age`, `activity_level`, `bmr`, `tdee` to `bmi_records`. Now folded into 000; do not run on a database already set up from the updated 000. | ✅ Yes (already live in production) |
 
 ### What's covered in 000 (all 26 tables)
 
