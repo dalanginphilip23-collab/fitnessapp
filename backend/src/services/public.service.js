@@ -1,7 +1,5 @@
 const db = require('../config/db');
 
-// User-generated tables that count as "data points" on the landing page.
-// Excludes reference/seed data (plans, plan_contents, plan_exercises, doctors).
 const DATA_POINT_TABLES = [
   'activity_logs',
   'ai_insight_cache',
@@ -52,8 +50,12 @@ async function getPublicStats() {
 
   let dataPoints = 0;
   for (const table of DATA_POINT_TABLES) {
-    const [[row]] = await db.query(`SELECT COUNT(*) AS c FROM \`${table}\``);
-    dataPoints += Number(row.c || 0);
+    try {
+      const [[row]] = await db.query(`SELECT COUNT(*) AS c FROM \`${table}\``);
+      dataPoints += Number(row.c || 0);
+    } catch (err) {
+      console.error(`[public.stats] skipping table "${table}": ${err.message}`);
+    }
   }
 
   return {
