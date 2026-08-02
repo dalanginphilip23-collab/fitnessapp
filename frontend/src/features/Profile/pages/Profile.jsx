@@ -10,25 +10,25 @@ import { DEFAULT_AVATARS, getAvatarUrl } from '../utils/avatar';
 import { calcMacros, MACRO_SPLITS, ACTIVITY_LEVELS } from '../../BMI/constants/bmiConstants';
 
 const RecordRow = ({ label, locked, children }) => (
-  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-3.5 border-b border-dashed border-(--border-light) last:border-0">
-    <div className="flex items-center gap-2 sm:w-45 shrink-0">
-      <span className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">{label}</span>
+  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-4 border-b border-dashed border-(--border-light) last:border-0">
+    <div className="flex items-center gap-2 sm:w-48 shrink-0">
+      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">{label}</span>
       {locked && (
-        <span className="material-symbols-outlined text-[11px] text-(--text-disabled)">lock</span>
+        <span className="material-symbols-outlined text-[12px] text-(--text-disabled)">lock</span>
       )}
     </div>
     <div className="flex-1 min-w-0">{children}</div>
   </div>
 );
 
-const rowInputBase = 'w-full bg-transparent outline-none text-[13px] font-medium transition-all';
+const rowInputBase = 'w-full bg-transparent outline-none text-[14px] font-medium transition-all';
 const rowEditable  = `${rowInputBase} text-(--text-primary) border-b border-transparent focus:border-[#c7f248]/50 pb-0.5`;
 const rowLocked    = `${rowInputBase} font-['JetBrains_Mono',monospace] text-(--text-secondary) cursor-default select-text`;
 
 const StatPill = ({ icon, value, label }) => (
-  <div className="flex flex-col items-center gap-1 bg-(--bg-hover) rounded-2xl px-4 py-3 border border-(--border-light) flex-1 min-w-20">
-    <span className="material-symbols-outlined text-[18px] text-[#62aa1a]">{icon}</span>
-    <span className="text-base font-black text-(--text-primary) leading-none">{value}</span>
+  <div className="flex flex-col items-center gap-1.5 bg-(--bg-hover) rounded-2xl px-4 py-4 border border-(--border-light) flex-1 min-w-20">
+    <span className="material-symbols-outlined text-[20px] text-[#62aa1a]">{icon}</span>
+    <span className="text-lg font-black text-(--text-primary) leading-none font-['Manrope']">{value}</span>
     <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-muted)">{label}</span>
   </div>
 );
@@ -173,48 +173,50 @@ const Profile = () => {
           </button>
         </div>
 
-        <main className="w-full max-w-160 mx-auto px-4 sm:px-6 lg:px-10 pb-28 md:pb-16 -mt-14 relative z-10">
+        <main className="w-full max-w-164 mx-auto px-4 sm:px-6 lg:px-10 pb-28 md:pb-16 -mt-14 relative z-10">
 
-          {/* ── Centered header: avatar / name / badge / email (like reference) ── */}
-          <div className="flex flex-col items-center text-center mb-8">
+          {/* ── Centered header: avatar / name / badge / email ── */}
+          <div className="flex flex-col items-center text-center mb-10">
             <div className="relative shrink-0">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-4 border-(--bg-primary) bg-(--bg-tertiary) flex items-center justify-center shadow-xl">
+              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-(--bg-primary) bg-(--bg-tertiary) flex items-center justify-center shadow-xl">
                 {avatarSrc
                   ? <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
-                  : <span className="text-3xl font-black text-[#62aa1a] font-['Manrope']">{initials}</span>
+                  : <span className="text-4xl font-black text-[#62aa1a] font-['Manrope']">{initials}</span>
                 }
               </div>
               <button
                 onClick={() => setPickerOpen(v => !v)}
                 aria-label="Edit avatar"
-                className="absolute bottom-0 right-0 w-8 h-8 bg-[#62aa1a] rounded-full flex items-center justify-center border-2 border-(--bg-primary) hover:scale-105 active:scale-95 transition-transform shadow-lg"
+                className="absolute bottom-0 right-0 w-9 h-9 bg-[#62aa1a] rounded-full flex items-center justify-center border-2 border-(--bg-primary) hover:scale-105 active:scale-95 transition-transform shadow-lg"
               >
-                <span className="material-symbols-outlined text-[14px] text-[#1a2800]">photo_camera</span>
+                <span className="material-symbols-outlined text-[16px] text-[#1a2800]">photo_camera</span>
               </button>
             </div>
 
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-              <h1 className="text-2xl sm:text-3xl font-['Manrope'] font-black text-(--text-primary) tracking-tight">
+            <div className="mt-5 flex flex-col items-center gap-2">
+              <h1 className="text-3xl sm:text-4xl font-['Manrope'] font-black text-(--text-primary) tracking-tight">
                 {formData.fullName || 'Your Name'}
               </h1>
-              <span className="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#62aa1a]/10 text-[#62aa1a] border border-[#62aa1a]/20">
-                Pro Member
-              </span>
+              <div className="flex flex-wrap items-center justify-center gap-2.5">
+                <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full bg-[#62aa1a]/10 text-[#62aa1a] border border-[#62aa1a]/20">
+                  Pro Member
+                </span>
+                <span className="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full bg-(--bg-hover) text-(--text-muted) border border-(--border-light) font-['JetBrains_Mono',monospace]">
+                  Record {recordId}
+                </span>
+              </div>
+              <p className="mt-0.5 text-[12px] text-(--text-muted) font-medium">{formData.email}</p>
             </div>
-            <p className="mt-1 text-[11px] text-(--text-muted) font-medium">{formData.email}</p>
-            <p className="text-[10px] text-(--text-disabled) font-['JetBrains_Mono',monospace] font-bold tracking-widest mt-0.5">
-              Record No. {recordId}
-            </p>
 
             <button
               onClick={() => isEditing ? handleDiscard() : setIsEditing(true)}
-              className={`mt-3 flex items-center gap-1.5 mx-auto text-[9px] font-black uppercase tracking-widest border rounded-lg px-3 py-1.5 transition-all ${
+              className={`mt-4 flex items-center gap-1.5 mx-auto text-[10px] font-black uppercase tracking-widest border rounded-xl px-4 py-2 transition-all ${
                 isEditing
                   ? 'border-[#62aa1a]/30 bg-[#62aa1a]/8 text-[#62aa1a]'
                   : 'border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:border-(--border-heavy) hover:text-(--text-primary)'
               }`}
             >
-              <span className="material-symbols-outlined text-[12px]">{isEditing ? 'close' : 'edit'}</span>
+              <span className="material-symbols-outlined text-[14px]">{isEditing ? 'close' : 'edit'}</span>
               {isEditing ? 'Cancel' : 'Edit'}
             </button>
 
@@ -280,7 +282,7 @@ const Profile = () => {
           )}
 
           {/* Tabs — same state/logic, now full-width centered pills instead of a left-aligned bar */}
-          <div className="flex justify-center border-b border-(--border-light) mb-6 gap-8">
+          <div className="flex justify-center border-b border-(--border-light) mb-7 gap-10">
             {[
               { id: 'profile',  label: 'Record',      icon: 'description' },
               { id: 'security', label: 'Access Log',  icon: 'shield'      },
@@ -288,13 +290,13 @@ const Profile = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 pb-3 text-[10px] font-black uppercase tracking-[0.18em] border-b-2 transition-all -mb-px ${
+                className={`flex items-center gap-2.5 pb-3.5 text-[11px] font-black uppercase tracking-[0.2em] border-b-2 transition-all -mb-px ${
                   activeTab === tab.id
                     ? 'text-[#62aa1a] border-[#62aa1a]'
                     : 'text-(--text-disabled) border-transparent hover:text-(--text-muted)'
                 }`}
               >
-                <span className="material-symbols-outlined text-[15px]">{tab.icon}</span>
+                <span className="material-symbols-outlined text-[17px]">{tab.icon}</span>
                 {tab.label}
               </button>
             ))}
@@ -304,9 +306,12 @@ const Profile = () => {
           {activeTab === 'profile' && (
             <div className="flex flex-col gap-5">
 
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-4">
-                <p className="text-[8px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-3">Today's activity</p>
-                <div className="flex gap-2">
+              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="material-symbols-outlined text-[15px] text-[#62aa1a]">bolt</span>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Today's activity</p>
+                </div>
+                <div className="flex gap-2.5">
                   <StatPill icon="local_fire_department" value={Number(dailyStats.calories_burned || 0).toLocaleString()} label="kcal" />
                   <StatPill icon="footprint"              value={Number(dailyStats.steps || 0).toLocaleString()}          label="Steps" />
                   <StatPill icon="timer"                  value={Number(dailyStats.workout_duration_mins || 0)}           label="Min" />
@@ -314,9 +319,12 @@ const Profile = () => {
               </div>
 
               <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Body Metrics</p>
-                  <span className="material-symbols-outlined text-[12px] text-(--text-disabled)">monitor_heart</span>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[15px] text-[#62aa1a]">monitor_heart</span>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Body Metrics</p>
+                  </div>
+                  <span className="material-symbols-outlined text-[13px] text-(--text-disabled)">expand_more</span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 items-end">
@@ -528,8 +536,11 @@ const Profile = () => {
               </div>
 
               <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Patient Information</p>
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[15px] text-[#62aa1a]">badge</span>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Patient Information</p>
+                  </div>
                   <span className="text-[10px] font-black uppercase tracking-widest text-[#62aa1a]">
                     Active file
                   </span>
@@ -576,16 +587,19 @@ const Profile = () => {
               </div>
 
               <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-3">Account</p>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="material-symbols-outlined text-[15px] text-[#62aa1a]">key</span>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Account</p>
+                </div>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-red-400 text-[11px] font-bold hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-red-400 text-[12px] font-bold hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
                 >
-                  <span className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[16px]">logout</span>
+                  <span className="flex items-center gap-2.5">
+                    <span className="material-symbols-outlined text-[18px]">logout</span>
                     Sign out
                   </span>
-                  <span className="material-symbols-outlined text-[14px] opacity-40">chevron_right</span>
+                  <span className="material-symbols-outlined text-[15px] opacity-40">chevron_right</span>
                 </button>
               </div>
             </div>
@@ -594,7 +608,10 @@ const Profile = () => {
           {activeTab === 'security' && (
             <div className="flex flex-col gap-5">
               <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted) mb-4">This device</p>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="material-symbols-outlined text-[15px] text-[#62aa1a]">devices</span>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">This device</p>
+                </div>
                 {currentSession ? (
                   <LogEntry
                     icon="smartphone"
@@ -609,7 +626,10 @@ const Profile = () => {
 
               <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Access log</p>
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[15px] text-[#62aa1a]">history</span>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Access log</p>
+                  </div>
                   {otherSessions.length > 0 && (
                     <button onClick={() => otherSessions.forEach(s => handleRevoke(s.id))} className="text-[9px] font-bold uppercase tracking-widest text-red-400/60 hover:text-red-400 transition-colors">
                       Revoke all
@@ -638,12 +658,12 @@ const Profile = () => {
 
               <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-(--bg-hover) flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-[20px] text-(--text-secondary)">lock</span>
+                  <div className="w-11 h-11 rounded-xl bg-(--bg-hover) flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-[22px] text-(--text-secondary)">lock</span>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-bold text-(--text-primary)">Password</p>
-                    <p className="text-[11px] text-(--text-muted) mt-0.5">Keep your account secure with a strong, unique password</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-black font-['Manrope'] text-(--text-primary)">Password</p>
+                    <p className="text-[11px] text-(--text-muted) mt-1">Keep your account secure with a strong, unique password</p>
                   </div>
                   <button
                     onClick={() => setChangePwOpen(true)}
