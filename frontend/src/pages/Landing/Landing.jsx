@@ -49,7 +49,7 @@ const STATS_FALLBACK = {
   onlineUsers: 0,
   activeToday: 0,
   workouts: 0,
-  logins: 0,
+  uniqueUsers: 0,
   dataPoints: 2100000,
 };
 
@@ -616,7 +616,7 @@ const useLiveStats = () => {
             onlineUsers: Number(data.onlineUsers) || 0,
             activeToday: Number(data.activeToday) || 0,
             workouts:    Number(data.workouts)    || 0,
-            logins:      Number(data.logins)      || 0,
+            uniqueUsers: Number(data.uniqueUsers) || 0,
             dataPoints:  Number(data.dataPoints)  || STATS_FALLBACK.dataPoints,
           });
         }
@@ -648,7 +648,7 @@ const Landing = () => {
   const userCountLabel = `${formatCompact(liveStats.users)}+`;
   const aboutStats = [
     { value: userCountLabel,                    label: 'Active Athletes'    },
-    { value: formatCompact(liveStats.logins),   label: 'Logins'             },
+    { value: formatCompact(liveStats.uniqueUsers), label: 'Members Logged In' },
     { value: formatCompact(liveStats.dataPoints), label: 'Data Points'       },
     { value: formatCompact(liveStats.activeToday), label: 'Active Today'     },
   ];

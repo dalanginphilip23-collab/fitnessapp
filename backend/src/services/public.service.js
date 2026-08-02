@@ -32,10 +32,10 @@ async function getPublicStats() {
     'SELECT COUNT(*) AS onlineCount FROM users WHERE is_online = 1'
   );
 
-  // Every successful login (email or Google) inserts a user_sessions row,
-  // so this is a true "times people have signed in" counter.
-  const [[{ loginCount }]] = await db.query(
-    'SELECT COUNT(*) AS loginCount FROM user_sessions'
+  // Count DISTINCT users who have ever signed in (registered or logged in),
+  // not every individual login event — a user logging in 10 times counts once.
+  const [[{ uniqueUsersCount }]] = await db.query(
+    'SELECT COUNT(DISTINCT user_id) AS uniqueUsersCount FROM user_sessions'
   );
 
   const [[{ activeToday }]] = await db.query(
@@ -61,7 +61,7 @@ async function getPublicStats() {
   return {
     users: Number(userCount || 0),
     onlineUsers: Number(onlineCount || 0),
-    logins: Number(loginCount || 0),
+    uniqueUsers: Number(uniqueUsersCount || 0),
     activeToday: Number(activeToday || 0),
     workouts: Number(workoutCount || 0),
     dataPoints,
