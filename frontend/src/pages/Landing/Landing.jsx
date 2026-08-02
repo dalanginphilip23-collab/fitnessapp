@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from 'framer-motion';
+import { API_BASE_URL } from '../../config/port';
 import {
   Focus, Zap, Camera, Infinity as InfinityIcon, BarChart3, ShieldCheck,
   Activity, ChevronLeft, ChevronRight, PlayCircle, Rocket, Eye,
@@ -43,12 +44,22 @@ const PRICING = [
   },
 ];
 
-const ABOUT_STATS = [
-  { value: '50K+', label: 'Active Athletes' },
-  { value: '98%',  label: 'Satisfaction'    },
-  { value: '2.1M', label: 'Data Points'     },
-  { value: '24/7', label: 'AI Coverage'     },
-];
+const STATS_FALLBACK = {
+  users: 50000,
+  onlineUsers: 0,
+  activeToday: 0,
+  workouts: 0,
+  logins: 0,
+  dataPoints: 2100000,
+};
+
+const formatCompact = (n) => {
+  const num = Number(n);
+  if (!Number.isFinite(num)) return '0';
+  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+  if (num >= 1_000) return `${(num / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
+  return String(num);
+};
 
 const ABOUT_VALUES = [
   { title: 'Innovation First',  desc: "We push the boundaries of what's possible with AI and biometric technology.", icon: 'rocket_launch' },
@@ -588,6 +599,38 @@ const PricingCard = React.memo(({ plan, navigate, isAuthenticated = false }) => 
   );
 });
 
+// ─── Live stats ──────────────────────────────────────────────────────────────
+const useLiveStats = () => {
+  const [stats, setStats] = useState(STATS_FALLBACK);
+
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/public/stats`);
+        if (!res.ok) throw new Error('stats unavailable');
+        const data = await res.json();
+        if (active && data?.success) {
+          setStats({
+            users:       Number(data.users)       || STATS_FALLBACK.users,
+            onlineUsers: Number(data.onlineUsers) || 0,
+            activeToday: Number(data.activeToday) || 0,
+            workouts:    Number(data.workouts)    || 0,
+            logins:      Number(data.logins)      || 0,
+            dataPoints:  Number(data.dataPoints)  || STATS_FALLBACK.dataPoints,
+          });
+        }
+      } catch {
+        // Keep the graceful fallback if the API is unreachable.
+      }
+    };
+    load();
+    return () => { active = false; };
+  }, []);
+
+  return stats;
+};
+
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
 const Landing = () => {
   const navigate = useNavigate();
@@ -601,6 +644,14 @@ const Landing = () => {
   const canHover = useCanHover();
   const prefersReducedMotion = usePrefersReducedMotion();
   const isAuthenticated = false;
+  const liveStats = useLiveStats();
+  const userCountLabel = `${formatCompact(liveStats.users)}+`;
+  const aboutStats = [
+    { value: userCountLabel,                    label: 'Active Athletes'    },
+    { value: formatCompact(liveStats.logins),   label: 'Logins'             },
+    { value: formatCompact(liveStats.dataPoints), label: 'Data Points'       },
+    { value: formatCompact(liveStats.activeToday), label: 'Active Today'     },
+  ];
 
   // navInk decides light-on-dark (white, over the hero photo) vs dark-on-light
   // (once scrolled onto a flat section). The mobile menu ALSO has a light/white
@@ -798,7 +849,7 @@ const Landing = () => {
                   ))}
                 </div>
                 <span className="text-[11px] font-medium" style={{ color: HERO_TEXT_MUTED }}>
-                  Joined by <span style={{ color: HERO_TEXT_WHITE, fontWeight: 700 }}>50K+</span> athletes worldwide
+                  Joined by <span style={{ color: HERO_TEXT_WHITE, fontWeight: 700 }}>{userCountLabel}</span> athletes worldwide
                 </span>
               </div>
             </motion.div>
@@ -823,7 +874,7 @@ const Landing = () => {
             >
               <div className="absolute inset-0 pointer-events-none" style={{ background: `linear-gradient(135deg, ${accentAlpha(8)}, transparent)` }} />
               <div className="absolute top-0 left-0 right-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${accentAlpha(40)}, transparent)` }} />
-              {ABOUT_STATS.map((s) => <StatCounter key={s.label} {...s} />)}
+              {aboutStats.map((s) => <StatCounter key={s.label} {...s} />)}
             </div>
           </div>
         </section>
@@ -841,7 +892,7 @@ const Landing = () => {
               <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.2 }}
                 className="max-w-xs text-sm font-medium leading-relaxed border-l-2 pl-6"
                 style={{ color: ink(0.3), borderColor: accentAlpha(30) }}
-              >Our proprietary models are trained on over 2 million athletic data points to provide accuracy where others guess.</motion.p>
+              >Our proprietary models are trained on over {formatCompact(liveStats.dataPoints)} athletic data points to provide accuracy where others guess.</motion.p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {FEATURES.map((f, i) => <FeatureCard key={f.title} {...f} index={i} canHover={canHover} />)}
@@ -949,7 +1000,7 @@ const Landing = () => {
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.35em] text-black/40 mb-3">Start Today</p>
                   <h2 className="bebas text-black leading-none mb-4" style={{ fontSize: 'clamp(2.25rem, 7vw, 5.5rem)' }}>Ready to Evolve?</h2>
-                  <p className="text-black/50 text-sm font-medium max-w-xs">Join 50,000+ athletes already training with clinical-grade intelligence.</p>
+                  <p className="text-black/50 text-sm font-medium max-w-xs">Join {userCountLabel} athletes already training with clinical-grade intelligence.</p>
                 </div>
                 <div className="flex flex-col gap-3 shrink-0 w-full sm:w-auto">
                   <button

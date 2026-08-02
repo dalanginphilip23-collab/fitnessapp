@@ -102,6 +102,7 @@ const workoutLogRoutes = require("./routes/workoutLogs.routes");
 const forgotPasswordRoutes = require("./routes/forgotPassword.routes");
 const feedbackRoutes = require("./routes/feedback.routes");
 const statsRoutes = require("./routes/stats.routes");
+const publicRoutes = require("./routes/public.routes");
 
 app.use("/api/bmi", bmiRoutes);
 app.use("/api/auth", authRoutes);
@@ -126,6 +127,7 @@ app.use("/api/workout-logs", workoutLogRoutes);
 app.use("/api/forgot-password", forgotPasswordRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/stats", statsRoutes);
+app.use("/api/public", publicRoutes);
 
 // ============================
 // Socket Handler
