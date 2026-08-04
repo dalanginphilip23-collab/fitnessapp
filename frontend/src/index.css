@@ -679,6 +679,17 @@ input::placeholder {
   animation: energy-pulse 2s ease-in-out infinite;
 }
 
+/* ── ECG / heartbeat line sweep — scrolls a repeating waveform left so it
+   reads as a live monitor trace. The path is drawn twice back-to-back and
+   translated by exactly one period width, so the loop is seamless. ── */
+@keyframes ecg-sweep {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-240px); }
+}
+.animate-ecg-sweep {
+  animation: ecg-sweep 1.8s linear infinite;
+}
+
 /* ── Card glow on hover ── */
 .card-glow {
   transition: transform 0.25s ease, box-shadow 0.25s ease;
