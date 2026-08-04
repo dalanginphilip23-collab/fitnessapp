@@ -1,12 +1,10 @@
 // A single heartbeat trace (flat → small bump → sharp spike → small bump →
-// flat), repeated twice so the visible line shows two beats.
-const ECG_PATH =
-  'M0,60 L40,60 L55,40 L65,60 L80,15 L90,105 L100,60 L115,40 L125,60 L200,60 ' +
-  'L240,60 L255,40 L265,60 L280,15 L290,105 L300,60 L315,40 L325,60 L400,60';
+// flat) — kept compact rather than a stretched-out banner.
+const ECG_PATH = 'M0,60 L40,60 L55,40 L65,60 L80,15 L90,105 L100,60 L115,40 L125,60 L200,60';
 
 const EcgLine = () => (
-  <div className="relative w-56 h-20">
-    <svg width="100%" height="100%" viewBox="0 0 400 120" preserveAspectRatio="none">
+  <div className="relative w-36 h-20">
+    <svg width="100%" height="100%" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet">
       <defs>
         {/* Fades from invisible (trailing edge) to fully opaque (leading edge) —
             gives the moving highlight a comet-like fading tail. */}
@@ -16,7 +14,7 @@ const EcgLine = () => (
           <stop offset="100%" stopColor="#fff" stopOpacity="1" />
         </linearGradient>
         <mask id="ecgTrailMask">
-          <rect x="0" y="0" width="140" height="120" fill="url(#ecgTrailFade)" className="animate-ecg-scan" />
+          <rect x="0" y="0" width="70" height="120" fill="url(#ecgTrailFade)" className="animate-ecg-scan" />
         </mask>
       </defs>
 
@@ -25,7 +23,7 @@ const EcgLine = () => (
         d={ECG_PATH}
         fill="none"
         stroke="var(--border-medium)"
-        strokeWidth="4"
+        strokeWidth="5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -35,7 +33,7 @@ const EcgLine = () => (
         d={ECG_PATH}
         fill="none"
         stroke="var(--accent)"
-        strokeWidth="4"
+        strokeWidth="5"
         strokeLinecap="round"
         strokeLinejoin="round"
         mask="url(#ecgTrailMask)"

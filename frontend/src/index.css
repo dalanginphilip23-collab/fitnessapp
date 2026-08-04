@@ -683,11 +683,11 @@ input::placeholder {
    heartbeat trace, revealing the accent-colored stroke with a fading trail
    behind it (like a heart-rate monitor blip), then loops from the start. ── */
 @keyframes ecg-scan {
-  from { transform: translateX(-140px); }
-  to   { transform: translateX(540px); }
+  from { transform: translateX(-70px); }
+  to   { transform: translateX(270px); }
 }
 .animate-ecg-scan {
-  animation: ecg-scan 2.2s linear infinite;
+  animation: ecg-scan 1.8s linear infinite;
 }
 
 /* ── Card glow on hover ── */
