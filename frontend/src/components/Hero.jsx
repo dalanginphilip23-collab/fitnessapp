@@ -42,7 +42,7 @@ const Hero = ({ name = 'Athlete', goal = 'Unspecified', avatar, activeProgramCou
   }, []);
 
   return (
-    <div className="bg-(--bg-tertiary) border border-(--border-light) rounded-[20px] p-[22px] mb-6 flex items-center justify-between gap-4 shadow-sm card-glow mesh-gradient-warm">
+    <div className="border border-(--border-light) rounded-[20px] p-[22px] mb-6 flex items-center justify-between gap-4 shadow-sm card-glow mesh-gradient-hero">
       <div className="min-w-0">
         <div className="flex items-center gap-2 mb-1.5">
           <span className="text-[10px] font-black uppercase tracking-[0.18em] text-(--accent)">

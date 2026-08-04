@@ -234,6 +234,15 @@ body {
     radial-gradient(at 80% 20%, rgba(139, 195, 74, 0.04) 0px, transparent 50%);
 }
 
+/* Deeper, single-hue green glow — used on the Hero card so it reads as
+   "energetic dark green" rather than the warm amber/green mix above. */
+.mesh-gradient-hero {
+  background-color: var(--bg-tertiary);
+  background-image:
+    radial-gradient(at 85% 15%, rgba(139, 195, 74, 0.16) 0px, transparent 55%),
+    radial-gradient(at 0% 100%, rgba(139, 195, 74, 0.05) 0px, transparent 50%);
+}
+
 /* The Frosted Glass Effect */
 .glass-panel {
   background: var(--bg-tertiary);

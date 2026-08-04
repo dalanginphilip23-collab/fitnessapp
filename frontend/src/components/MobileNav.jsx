@@ -44,7 +44,7 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback, onFABClick }) => {
       <button
         key={key}
         onClick={() => handleNavClick(item.path)}
-        className={`relative flex flex-col items-center justify-center bg-transparent border-none cursor-pointer transition-all duration-200 outline-none h-full flex-1 min-w-12 ${
+        className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-200 outline-none h-full flex-1 min-w-12 ${
           isActive ? 'text-(--accent)' : 'text-(--text-muted)'
         }`}
       >
@@ -65,6 +65,9 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback, onFABClick }) => {
             fill={isActive ? 1 : 0}
           />
         </div>
+        <span className={`text-[9px] font-bold leading-none truncate max-w-14 ${isActive ? 'font-black' : ''}`}>
+          {item.label}
+        </span>
         {isActive && (
           <span className="absolute top-0 w-6 h-0.5 rounded-full bg-(--accent) shadow-[0_0_8px_var(--accent)]" />
         )}
@@ -80,7 +83,7 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback, onFABClick }) => {
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
     >
-      <div className="flex justify-around items-center w-full h-16 px-1">
+      <div className="flex justify-around items-center w-full h-[68px] px-1">
         {renderedItems}
 
         {onFeedback && (

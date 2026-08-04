@@ -1,5 +1,4 @@
 import Icon from './Icon';
-import RadialProgress from './RadialProgress';
 
 const formatSessionLoad = (mins = 0) => {
   const safe = Number(mins) || 0;
@@ -8,11 +7,21 @@ const formatSessionLoad = (mins = 0) => {
   return `${h}:${String(m).padStart(2, '0')}`;
 };
 
-const RingLabel = ({ icon, color, children }) => (
-  <div className="flex items-center gap-1">
-    <Icon name={icon} className="text-[11px]" style={{ color }} />
-    <span className="text-[9px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)]">
-      {children}
+// Flat stat tile — icon, big value, unit, caps label. Used for the three
+// headline metrics (calories / steps / session load) inside the summary card.
+const StatTile = ({ icon, color, value, unit, label }) => (
+  <div className="flex-1 min-w-0 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-2xl py-4 px-3 flex flex-col items-center gap-1.5">
+    <Icon name={icon} className="text-[20px]" fill={1} style={{ color }} />
+    <span className="stat-digital text-[22px] font-extrabold text-[var(--text-primary)] leading-none tracking-tight">
+      {value}
+    </span>
+    {unit && (
+      <span className="text-[11px] font-semibold leading-none" style={{ color }}>
+        {unit}
+      </span>
+    )}
+    <span className="text-[9px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)] mt-0.5">
+      {label}
     </span>
   </div>
 );
@@ -43,37 +52,29 @@ const ProgramSummaryCard = ({
         </button>
       </div>
 
-      {/* Rings row */}
-      <div className="flex items-start justify-around">
-        <div className="flex flex-col items-center gap-2.5">
-          <RadialProgress
-            value={calories.value}
-            goal={calories.goal}
-            color="var(--accent)"
-            displayValue={Number(calories.value || 0).toLocaleString()}
-          />
-          <RingLabel icon="local_fire_department" color="var(--accent)">Calories</RingLabel>
-        </div>
-
-        <div className="flex flex-col items-center gap-2.5">
-          <RadialProgress
-            value={steps.value}
-            goal={steps.goal}
-            color="var(--metric-steps)"
-            displayValue={Number(steps.value || 0).toLocaleString()}
-          />
-          <RingLabel icon="footprint" color="var(--metric-steps)">Steps</RingLabel>
-        </div>
-
-        <div className="flex flex-col items-center gap-2.5">
-          <RadialProgress
-            value={sessionLoadMins.value}
-            goal={sessionLoadMins.goal}
-            color="var(--metric-load)"
-            displayValue={formatSessionLoad(sessionLoadMins.value)}
-          />
-          <RingLabel icon="timer" color="var(--metric-load)">Session Load</RingLabel>
-        </div>
+      {/* Stats row */}
+      <div className="flex items-stretch gap-3">
+        <StatTile
+          icon="local_fire_department"
+          color="var(--accent)"
+          value={Number(calories.value || 0).toLocaleString()}
+          unit="kcal"
+          label="Calories"
+        />
+        <StatTile
+          icon="footprint"
+          color="var(--metric-steps)"
+          value={Number(steps.value || 0).toLocaleString()}
+          unit="steps"
+          label="Steps"
+        />
+        <StatTile
+          icon="timer"
+          color="var(--metric-load)"
+          value={formatSessionLoad(sessionLoadMins.value)}
+          unit="h:m"
+          label="Session Load"
+        />
       </div>
 
       {/* Actions row */}

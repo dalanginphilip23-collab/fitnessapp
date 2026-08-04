@@ -402,8 +402,11 @@ const Topbar = ({ sidebarExpanded, userId }) => {
             <Icon name={mobileMenuOpen ? 'close' : 'menu'} className="text-[22px] sm:text-[24px]" />
           </button>
 
-          <span className="font-[Manrope] text-[15px] sm:text-[18px] md:pl-6 font-extrabold tracking-tight text-(--text-primary)">
-            Vitalis
+          <span className="flex items-center gap-1.5 md:pl-6">
+            <Icon name="monitor_heart" className="text-(--accent) text-[19px] sm:text-[21px]" fill={0} />
+            <span className="font-[Manrope] text-[15px] sm:text-[18px] font-extrabold tracking-tight text-(--text-primary)">
+              Vitalis
+            </span>
           </span>
 
           {/* ── Desktop Nav ── */}
