@@ -8,6 +8,7 @@ import { getSettingsItems } from '../constants/nav';
 import { createPortal } from 'react-dom';
 import ThemeToggle from './ThemeToggle';
 import FeedbackModal from './FeedbackModal';
+import logo from '../assets/logo.png';
 
 const NAV_LINKS = [
   { name: 'Overview',       path: '/dashboard',               icon: 'grid_view' },
@@ -403,7 +404,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
           </button>
 
           <span className="flex items-center gap-1.5 md:pl-6">
-            <Icon name="monitor_heart" className="text-(--accent) text-[19px] sm:text-[21px]" fill={0} />
+            <img src={logo} alt="Vitalis" className="h-[19px] sm:h-[22px] w-auto" />
             <span className="font-[Manrope] text-[15px] sm:text-[18px] font-extrabold tracking-tight text-(--text-primary)">
               Vitalis
             </span>
