@@ -12,55 +12,55 @@ import { calcMacros, MACRO_SPLITS, ACTIVITY_LEVELS } from '../../BMI/constants/b
 /* ── Small presentational helpers (styling only, no logic) ───────────────── */
 
 const SectionHeader = ({ icon, title, right }) => (
-  <div className="flex items-center justify-between mb-4">
-    <div className="flex items-center gap-2">
-      <span className="material-symbols-outlined text-[16px] text-[#62aa1a]">{icon}</span>
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">{title}</p>
+  <div className="flex items-center justify-between mb-3">
+    <div className="flex items-center gap-1.5">
+      <span className="material-symbols-outlined text-[13px] text-[#62aa1a]">{icon}</span>
+      <p className="text-[9px] font-black uppercase tracking-[0.15em] text-(--text-muted)">{title}</p>
     </div>
     {right}
   </div>
 );
 
 const StatCard = ({ icon, value, unit, label }) => (
-  <div className="flex-1 min-w-[92px] flex flex-col items-center gap-0.5 bg-[#62aa1a]/[0.07] border border-[#62aa1a]/10 rounded-2xl px-3 py-4">
-    <span className="material-symbols-outlined text-[20px] text-[#62aa1a] mb-1">{icon}</span>
-    <span className="text-xl font-black text-(--text-primary) leading-none font-['Manrope']">{value}</span>
-    <span className="text-[9px] font-semibold text-(--text-muted)">{unit}</span>
-    <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-secondary) mt-0.5">{label}</span>
+  <div className="flex-1 min-w-0 flex flex-col items-center gap-0.5 bg-[#62aa1a]/[0.07] border border-[#62aa1a]/10 rounded-xl px-2 py-3">
+    <span className="material-symbols-outlined text-[16px] text-[#62aa1a] mb-0.5">{icon}</span>
+    <span className="text-base font-black text-(--text-primary) leading-none font-['Manrope']">{value}</span>
+    <span className="text-[8px] font-semibold text-(--text-muted) leading-none">{unit}</span>
+    <span className="text-[7px] font-bold uppercase tracking-wider text-(--text-secondary) mt-0.5 text-center leading-tight">{label}</span>
   </div>
 );
 
 const InfoRow = ({ label, locked, children }) => (
-  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 py-3.5 border-b border-dashed border-(--border-light) last:border-0">
-    <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.15em] text-(--text-muted) shrink-0 sm:w-44">
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 py-3 border-b border-dashed border-(--border-light) last:border-0">
+    <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-[0.12em] text-(--text-muted) shrink-0 sm:w-36">
       {label}
-      {locked && <span className="material-symbols-outlined text-[12px] text-(--text-disabled)">lock</span>}
+      {locked && <span className="material-symbols-outlined text-[11px] text-(--text-disabled)">lock</span>}
     </span>
     <div className="flex-1 min-w-0 sm:text-right">{children}</div>
   </div>
 );
 
-const rowInputBase = 'w-full bg-transparent outline-none text-[13px] font-medium transition-all';
+const rowInputBase = 'w-full bg-transparent outline-none text-[12px] font-medium transition-all';
 const rowEditable  = `${rowInputBase} text-(--text-primary) border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 sm:text-right`;
 const rowLocked    = `${rowInputBase} text-(--text-secondary) cursor-default select-text sm:text-right`;
 
 const LogEntry = ({ icon, title, sub, current, onRevoke }) => (
-  <div className={`flex items-center gap-3 px-3.5 py-3 rounded-xl border transition-all ${
+  <div className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg border transition-all ${
     current ? 'border-[#62aa1a]/15 bg-[#62aa1a]/[0.05]' : 'border-transparent hover:bg-(--bg-hover) hover:border-(--border-light)'
   }`}>
-    <span className={`material-symbols-outlined text-[16px] ${current ? 'text-[#62aa1a]' : 'text-(--text-secondary)'}`}>{icon}</span>
+    <span className={`material-symbols-outlined text-[14px] ${current ? 'text-[#62aa1a]' : 'text-(--text-secondary)'}`}>{icon}</span>
     <div className="flex-1 min-w-0">
-      <p className="text-[11px] font-semibold text-(--text-primary) truncate">{title}</p>
-      <p className="text-[9px] font-medium text-(--text-muted) truncate">{sub}</p>
+      <p className="text-[10px] font-semibold text-(--text-primary) truncate">{title}</p>
+      <p className="text-[8px] font-medium text-(--text-muted) truncate">{sub}</p>
     </div>
     {current ? (
-      <span className="text-[8px] font-black tracking-[0.12em] uppercase bg-[#62aa1a]/10 text-[#62aa1a] border border-[#62aa1a]/20 px-2 py-1 rounded-md shrink-0">
+      <span className="text-[7px] font-black tracking-[0.1em] uppercase bg-[#62aa1a]/10 text-[#62aa1a] border border-[#62aa1a]/20 px-1.5 py-0.5 rounded-md shrink-0">
         Active
       </span>
     ) : (
       <button
         onClick={onRevoke}
-        className="text-[9px] font-bold uppercase tracking-widest text-red-400/60 hover:text-red-400 hover:bg-red-500/10 px-2 py-1 rounded-lg transition-all border border-transparent hover:border-red-500/20 shrink-0"
+        className="text-[8px] font-bold uppercase tracking-widest text-red-400/60 hover:text-red-400 hover:bg-red-500/10 px-1.5 py-1 rounded-lg transition-all border border-transparent hover:border-red-500/20 shrink-0"
       >
         Revoke
       </button>
@@ -154,51 +154,51 @@ const Profile = () => {
       <div className={`flex-1 flex flex-col min-w-0 transition-all duration-400 ease-in-out ${expanded ? 'md:ml-60' : 'md:ml-18'}`}>
         <Topbar sidebarExpanded={expanded} userId={USER_ID} />
 
-        <main className="w-full max-w-164 mx-auto px-4 sm:px-6 lg:px-10 pt-5 sm:pt-7 pb-28 md:pb-16">
+        <main className="w-full max-w-164 mx-auto px-3.5 sm:px-6 lg:px-10 pt-4 sm:pt-6 pb-28 md:pb-16">
 
           {/* ── Header card: avatar / name / badges / email / edit + tabs ── */}
-          <div className="bg-(--bg-card) border border-(--border-light) rounded-3xl overflow-hidden">
-            <div className="p-5 sm:p-6">
+          <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl overflow-hidden">
+            <div className="p-4 sm:p-5">
               <button
                 onClick={() => navigate(-1)}
-                className="mb-4 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-(--text-muted) hover:text-(--text-primary) transition-colors"
+                className="mb-3 flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest text-(--text-muted) hover:text-(--text-primary) transition-colors"
               >
-                <span className="material-symbols-outlined text-[15px]">arrow_back</span>
+                <span className="material-symbols-outlined text-[13px]">arrow_back</span>
                 Back
               </button>
 
-              <div className="flex items-start gap-4 sm:gap-5">
+              <div className="flex items-start gap-3 sm:gap-4">
                 {/* Avatar */}
                 <div className="relative shrink-0">
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-4 border-(--bg-primary) bg-(--bg-tertiary) flex items-center justify-center shadow-md">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-[3px] border-(--bg-primary) bg-(--bg-tertiary) flex items-center justify-center shadow-md">
                     {avatarSrc
                       ? <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
-                      : <span className="text-3xl font-black text-[#62aa1a] font-['Manrope']">{initials}</span>
+                      : <span className="text-xl font-black text-[#62aa1a] font-['Manrope']">{initials}</span>
                     }
                   </div>
                   <button
                     onClick={() => setPickerOpen(v => !v)}
                     aria-label="Edit avatar"
-                    className="absolute bottom-0 right-0 w-8 h-8 bg-[#62aa1a] rounded-full flex items-center justify-center border-2 border-(--bg-card) hover:scale-105 active:scale-95 transition-transform shadow-lg"
+                    className="absolute bottom-0 right-0 w-6 h-6 bg-[#62aa1a] rounded-full flex items-center justify-center border-2 border-(--bg-card) hover:scale-105 active:scale-95 transition-transform shadow-lg"
                   >
-                    <span className="material-symbols-outlined text-[14px] text-[#1a2800]">photo_camera</span>
+                    <span className="material-symbols-outlined text-[11px] text-[#1a2800]">photo_camera</span>
                   </button>
                 </div>
 
                 {/* Name / badges / email / edit button */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="flex items-start justify-between gap-2 flex-wrap">
                     <div className="min-w-0">
-                      <h1 className="text-2xl sm:text-3xl font-['Manrope'] font-black text-(--text-primary) tracking-tight truncate">
+                      <h1 className="text-lg sm:text-xl font-['Manrope'] font-black text-(--text-primary) tracking-tight truncate">
                         {formData.fullName || 'Your Name'}
                       </h1>
-                      <div className="flex flex-wrap items-center gap-2 mt-2">
-                        <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#62aa1a]/10 text-[#62aa1a] border border-[#62aa1a]/20">
-                          <span className="material-symbols-outlined text-[12px]">workspace_premium</span>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                        <span className="flex items-center gap-1 text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#62aa1a]/10 text-[#62aa1a] border border-[#62aa1a]/20">
+                          <span className="material-symbols-outlined text-[10px]">workspace_premium</span>
                           Pro Member
                         </span>
-                        <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-(--bg-hover) text-(--text-muted) border border-(--border-light)">
-                          <span className="material-symbols-outlined text-[12px]">badge</span>
+                        <span className="flex items-center gap-1 text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-(--bg-hover) text-(--text-muted) border border-(--border-light)">
+                          <span className="material-symbols-outlined text-[10px]">badge</span>
                           ID {recordId}
                         </span>
                       </div>
@@ -206,36 +206,36 @@ const Profile = () => {
 
                     <button
                       onClick={() => isEditing ? handleDiscard() : setIsEditing(true)}
-                      className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest border rounded-xl px-3.5 py-2 transition-all shrink-0 ${
+                      className={`flex items-center gap-1 text-[9px] font-black uppercase tracking-wider border rounded-lg px-2.5 py-1.5 transition-all shrink-0 ${
                         isEditing
                           ? 'border-[#62aa1a]/30 bg-[#62aa1a]/8 text-[#62aa1a]'
                           : 'border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:border-(--border-heavy) hover:text-(--text-primary)'
                       }`}
                     >
-                      <span className="material-symbols-outlined text-[14px]">{isEditing ? 'close' : 'edit'}</span>
+                      <span className="material-symbols-outlined text-[12px]">{isEditing ? 'close' : 'edit'}</span>
                       {isEditing ? 'Cancel' : 'Edit Profile'}
                     </button>
                   </div>
 
-                  <p className="flex items-center gap-1.5 mt-3 text-[12px] text-(--text-muted) font-medium truncate">
-                    <span className="material-symbols-outlined text-[14px]">mail</span>
+                  <p className="flex items-center gap-1 mt-2 text-[10px] text-(--text-muted) font-medium truncate">
+                    <span className="material-symbols-outlined text-[12px]">mail</span>
                     {formData.email}
                   </p>
                 </div>
               </div>
 
               {isDirty && (
-                <div className="flex flex-wrap items-center gap-3 mt-5 pt-4 border-t border-dashed border-(--border-light)">
-                  <span className="flex items-center gap-1.5 text-[9px] font-bold text-amber-400 uppercase tracking-widest">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <div className="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-dashed border-(--border-light)">
+                  <span className="flex items-center gap-1 text-[8px] font-bold text-amber-400 uppercase tracking-wider">
+                    <span className="w-1 h-1 rounded-full bg-amber-400 animate-pulse" />
                     Unsaved changes
                   </span>
                   <div className="flex-1" />
-                  <button onClick={handleDiscard} className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-(--text-muted) hover:text-(--text-secondary) rounded-lg hover:bg-(--bg-hover) transition-all">
+                  <button onClick={handleDiscard} className="px-2.5 py-1 text-[8px] font-bold uppercase tracking-wider text-(--text-muted) hover:text-(--text-secondary) rounded-lg hover:bg-(--bg-hover) transition-all">
                     Discard
                   </button>
-                  <button onClick={handleSave} disabled={isSaving} className="flex items-center gap-2 bg-[#62aa1a] text-[#161f00] px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] active:scale-95 transition-all disabled:opacity-60 hover:brightness-105">
-                    {isSaving && <span className="w-3 h-3 border-2 border-[#161f00]/30 border-t-[#161f00] rounded-full animate-spin" />}
+                  <button onClick={handleSave} disabled={isSaving} className="flex items-center gap-1.5 bg-[#62aa1a] text-[#161f00] px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-wider active:scale-95 transition-all disabled:opacity-60 hover:brightness-105">
+                    {isSaving && <span className="w-2.5 h-2.5 border-2 border-[#161f00]/30 border-t-[#161f00] rounded-full animate-spin" />}
                     {isSaving ? 'Saving…' : 'Save changes'}
                   </button>
                 </div>
@@ -243,7 +243,7 @@ const Profile = () => {
             </div>
 
             {/* Tabs */}
-            <div className="flex border-t border-(--border-light) px-1 sm:px-2">
+            <div className="flex border-t border-(--border-light)">
               {[
                 { id: 'profile',  label: 'Overview', icon: 'grid_view' },
                 { id: 'security', label: 'Security',  icon: 'shield'   },
@@ -251,13 +251,13 @@ const Profile = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-4 text-[11px] font-black uppercase tracking-[0.15em] border-b-2 transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[10px] font-black uppercase tracking-wider border-b-2 transition-all ${
                     activeTab === tab.id
                       ? 'text-[#62aa1a] border-[#62aa1a]'
                       : 'text-(--text-disabled) border-transparent hover:text-(--text-muted)'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[16px]">{tab.icon}</span>
+                  <span className="material-symbols-outlined text-[14px]">{tab.icon}</span>
                   {tab.label}
                 </button>
               ))}
@@ -266,42 +266,42 @@ const Profile = () => {
 
           {/* Avatar picker panel */}
           {pickerOpen && (
-            <div className="mt-5 bg-(--bg-card) border border-(--border-light) rounded-2xl p-5" style={{ animation: 'fadeIn 0.15s ease' }}>
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Choose avatar</p>
+            <div className="mt-3 bg-(--bg-card) border border-(--border-light) rounded-2xl p-4" style={{ animation: 'fadeIn 0.15s ease' }}>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[9px] font-black uppercase tracking-[0.15em] text-(--text-muted)">Choose avatar</p>
                 <button onClick={() => setPickerOpen(false)} aria-label="Close avatar picker">
-                  <span className="material-symbols-outlined text-[16px] text-(--text-muted) hover:text-(--text-primary) transition-colors">close</span>
+                  <span className="material-symbols-outlined text-[15px] text-(--text-muted) hover:text-(--text-primary) transition-colors">close</span>
                 </button>
               </div>
-              <div className="grid grid-cols-4 sm:grid-cols-8 gap-3 mb-5">
+              <div className="grid grid-cols-4 sm:grid-cols-8 gap-2.5 mb-4">
                 {DEFAULT_AVATARS.map(av => {
                   const url = getAvatarUrl(av.seed);
                   const isActive = avatarSrc === url;
                   return (
-                    <button key={av.id} onClick={() => { handleSelectPreset(av.seed); setPickerOpen(false); setIsEditing(true); }} className="flex flex-col items-center gap-1.5 group">
-                      <div className={`w-12 h-12 rounded-xl overflow-hidden border-2 transition-all ${isActive ? 'border-[#62aa1a] shadow-[0_0_0_3px_rgba(98,170,26,0.15)]' : 'border-(--border-medium) group-hover:border-[#62aa1a]/50'}`}>
+                    <button key={av.id} onClick={() => { handleSelectPreset(av.seed); setPickerOpen(false); setIsEditing(true); }} className="flex flex-col items-center gap-1 group">
+                      <div className={`w-10 h-10 rounded-xl overflow-hidden border-2 transition-all ${isActive ? 'border-[#62aa1a] shadow-[0_0_0_3px_rgba(98,170,26,0.15)]' : 'border-(--border-medium) group-hover:border-[#62aa1a]/50'}`}>
                         <img src={url} alt={av.label} className="w-full h-full object-cover" />
                       </div>
-                      <span className={`text-[8px] font-bold uppercase tracking-widest ${isActive ? 'text-[#62aa1a]' : 'text-(--text-muted)'}`}>{av.label}</span>
+                      <span className={`text-[7px] font-bold uppercase tracking-wider ${isActive ? 'text-[#62aa1a]' : 'text-(--text-muted)'}`}>{av.label}</span>
                     </button>
                   );
                 })}
               </div>
               <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => { handleFileChange(e); setPickerOpen(false); setIsEditing(true); }} />
-              <button onClick={() => fileInputRef.current?.click()} className="w-full py-3 border border-dashed border-(--border-medium) hover:border-[#62aa1a]/40 rounded-xl flex items-center justify-center gap-2 hover:bg-[#62aa1a]/3 transition-all group">
-                <span className="material-symbols-outlined text-[16px] text-(--text-muted) group-hover:text-[#62aa1a] transition-colors">upload</span>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-(--text-muted) group-hover:text-(--text-secondary) transition-colors">Upload custom photo</span>
+              <button onClick={() => fileInputRef.current?.click()} className="w-full py-2.5 border border-dashed border-(--border-medium) hover:border-[#62aa1a]/40 rounded-xl flex items-center justify-center gap-2 hover:bg-[#62aa1a]/3 transition-all group">
+                <span className="material-symbols-outlined text-[14px] text-(--text-muted) group-hover:text-[#62aa1a] transition-colors">upload</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-(--text-muted) group-hover:text-(--text-secondary) transition-colors">Upload custom photo</span>
               </button>
               {uploadPreview && (
-                <div className="mt-3 flex items-center gap-3 bg-[#62aa1a]/5 px-3 py-2.5 rounded-xl border border-[#62aa1a]/15">
-                  <img src={uploadPreview} alt="Preview" className="w-8 h-8 rounded-lg object-cover border border-[#62aa1a]/30" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#62aa1a]">Custom photo ready</span>
+                <div className="mt-2.5 flex items-center gap-2.5 bg-[#62aa1a]/5 px-2.5 py-2 rounded-xl border border-[#62aa1a]/15">
+                  <img src={uploadPreview} alt="Preview" className="w-7 h-7 rounded-lg object-cover border border-[#62aa1a]/30" />
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-[#62aa1a]">Custom photo ready</span>
                 </div>
               )}
               {avatarSrc && (
                 <button
                   onClick={() => { handleRemoveAvatar(); setIsEditing(true); }}
-                  className="w-full mt-3 py-2.5 text-[10px] font-bold uppercase tracking-widest text-(--text-muted) hover:text-red-400 transition-colors"
+                  className="w-full mt-2.5 py-2 text-[9px] font-bold uppercase tracking-wider text-(--text-muted) hover:text-red-400 transition-colors"
                 >
                   Remove avatar
                 </button>
@@ -311,84 +311,84 @@ const Profile = () => {
 
           {/* ── Overview tab ── */}
           {activeTab === 'profile' && (
-            <div className="flex flex-col gap-5 mt-5">
+            <div className="flex flex-col gap-3 mt-3">
 
               {/* Health overview */}
-              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5">
+              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-4">
                 <SectionHeader icon="bolt" title="Health Overview" />
-                <p className="text-[11px] text-(--text-muted) -mt-3 mb-4">Your summary for today</p>
-                <div className="flex gap-2.5">
+                <p className="text-[10px] text-(--text-muted) -mt-2.5 mb-3">Your summary for today</p>
+                <div className="flex gap-2">
                   <StatCard icon="local_fire_department" value={Number(dailyStats.calories_burned || 0).toLocaleString()} unit="kcal" label="Calories" />
                   <StatCard icon="footprint"              value={Number(dailyStats.steps || 0).toLocaleString()}          unit="steps" label="Steps" />
-                  <StatCard icon="timer"                  value={Number(dailyStats.workout_duration_mins || 0)}           unit="mins"  label="Active Minutes" />
+                  <StatCard icon="timer"                  value={Number(dailyStats.workout_duration_mins || 0)}           unit="mins"  label="Active Min" />
                 </div>
               </div>
 
               {/* Body metrics */}
-              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5">
+              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-4">
                 <SectionHeader
                   icon="monitor_heart"
                   title="Body Metrics"
                   right={
-                    <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-(--text-muted) bg-(--bg-hover) border border-(--border-light) px-2.5 py-1.5 rounded-lg">
-                      <span className="material-symbols-outlined text-[13px]">calendar_month</span>
+                    <span className="flex items-center gap-1 text-[8px] font-bold uppercase tracking-wider text-(--text-muted) bg-(--bg-hover) border border-(--border-light) px-2 py-1 rounded-lg">
+                      <span className="material-symbols-outlined text-[11px]">calendar_month</span>
                       This Week
                     </span>
                   }
                 />
 
-                <div className="grid grid-cols-3 gap-3 items-end">
+                <div className="grid grid-cols-3 gap-2 items-end">
                   <div>
-                    <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">Weight</span>
+                    <span className="text-[7px] font-bold uppercase tracking-wider text-(--text-disabled) block mb-0.5">Weight</span>
                     {isEditing ? (
-                      <input className={rowEditable} type="number" step="0.1" value={formData.weight_kg} onChange={e => handleInputChange(e, 'weight_kg')} />
+                      <input className={rowEditable.replace('sm:text-right', '')} type="number" step="0.1" value={formData.weight_kg} onChange={e => handleInputChange(e, 'weight_kg')} />
                     ) : (
-                      <span className={rowLocked}>{formData.weight_kg ? `${formData.weight_kg} kg` : '—'}</span>
+                      <span className={rowLocked.replace('sm:text-right', '')}>{formData.weight_kg ? `${formData.weight_kg} kg` : '—'}</span>
                     )}
                   </div>
                   <div>
-                    <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">Height</span>
+                    <span className="text-[7px] font-bold uppercase tracking-wider text-(--text-disabled) block mb-0.5">Height</span>
                     {isEditing ? (
-                      <input className={rowEditable} type="number" step="0.1" value={formData.height_cm} onChange={e => handleInputChange(e, 'height_cm')} />
+                      <input className={rowEditable.replace('sm:text-right', '')} type="number" step="0.1" value={formData.height_cm} onChange={e => handleInputChange(e, 'height_cm')} />
                     ) : (
-                      <span className={rowLocked}>{formData.height_cm ? `${formData.height_cm} cm` : '—'}</span>
+                      <span className={rowLocked.replace('sm:text-right', '')}>{formData.height_cm ? `${formData.height_cm} cm` : '—'}</span>
                     )}
                   </div>
-                  <div className="text-right">
-                    <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">BMI</span>
-                    <span className="text-[13px] font-black" style={{ color: bmiInfo.color }}>
+                  <div className="text-center">
+                    <span className="text-[7px] font-bold uppercase tracking-wider text-(--text-disabled) block mb-0.5">BMI</span>
+                    <span className="text-[12px] font-black block leading-tight" style={{ color: bmiInfo.color }}>
                       {bmi != null ? bmi : '—'}
-                      {bmi != null && <span className="text-[8px] font-bold uppercase tracking-widest ml-1.5" style={{ color: bmiInfo.color }}>{bmiInfo.label}</span>}
                     </span>
+                    {bmi != null && <span className="text-[7px] font-bold uppercase tracking-wider" style={{ color: bmiInfo.color }}>{bmiInfo.label}</span>}
                   </div>
                 </div>
 
                 <button
                   onClick={() => setShowBmiDetails(s => !s)}
-                  className="mt-4 pt-3 w-full flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#62aa1a] hover:brightness-110 transition-colors border-t border-(--border-light)"
+                  className="mt-3 pt-2.5 w-full flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wider text-[#62aa1a] hover:brightness-110 transition-colors border-t border-(--border-light)"
                 >
                   View All Metrics
-                  <span className={`material-symbols-outlined text-[14px] transition-transform ${showBmiDetails ? 'rotate-180' : ''}`}>expand_more</span>
+                  <span className={`material-symbols-outlined text-[12px] transition-transform ${showBmiDetails ? 'rotate-180' : ''}`}>expand_more</span>
                 </button>
 
                 {showBmiDetails && (
-                  <div className="mt-3 pt-3 border-t border-dashed border-(--border-light) space-y-3">
+                  <div className="mt-2.5 pt-2.5 border-t border-dashed border-(--border-light) space-y-2.5">
 
                     {/* Age/Gender — always visible when expanded */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2.5">
                       <div>
-                        <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">Age</span>
+                        <span className="text-[7px] font-bold uppercase tracking-wider text-(--text-disabled) block mb-0.5">Age</span>
                         {isEditing ? (
-                          <input className={rowEditable} type="number" value={formData.age} onChange={e => handleInputChange(e, 'age')} placeholder="25" />
+                          <input className={rowEditable.replace('sm:text-right', '')} type="number" value={formData.age} onChange={e => handleInputChange(e, 'age')} placeholder="25" />
                         ) : (
-                          <span className={rowLocked}>{formData.age || '—'}</span>
+                          <span className={rowLocked.replace('sm:text-right', '')}>{formData.age || '—'}</span>
                         )}
                       </div>
                       <div>
-                        <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">Gender</span>
+                        <span className="text-[7px] font-bold uppercase tracking-wider text-(--text-disabled) block mb-0.5">Gender</span>
                         {isEditing ? (
                           <select
-                            className="w-full bg-transparent outline-none text-[12px] font-medium border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 text-(--text-primary) appearance-none cursor-pointer sm:text-right"
+                            className="w-full bg-transparent outline-none text-[11px] font-medium border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 text-(--text-primary) appearance-none cursor-pointer"
                             value={formData.gender}
                             onChange={e => handleInputChange(e, 'gender')}
                           >
@@ -397,17 +397,17 @@ const Profile = () => {
                             <option value="other" className="bg-(--bg-secondary)">Other</option>
                           </select>
                         ) : (
-                          <span className={rowLocked}>{formData.gender || '—'}</span>
+                          <span className={rowLocked.replace('sm:text-right', '')}>{formData.gender || '—'}</span>
                         )}
                       </div>
                     </div>
 
                     {/* Activity Level — always visible when expanded */}
                     <div>
-                      <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">Activity Level</span>
+                      <span className="text-[7px] font-bold uppercase tracking-wider text-(--text-disabled) block mb-0.5">Activity Level</span>
                       {isEditing ? (
                         <select
-                          className="w-full bg-transparent outline-none text-[13px] font-medium border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 text-(--text-primary) appearance-none cursor-pointer"
+                          className="w-full bg-transparent outline-none text-[12px] font-medium border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 text-(--text-primary) appearance-none cursor-pointer"
                           value={formData.activity_level}
                           onChange={e => handleInputChange(e, 'activity_level')}
                         >
@@ -416,7 +416,7 @@ const Profile = () => {
                           ))}
                         </select>
                       ) : (
-                        <span className={rowLocked}>{formData.activity_level ? ACTIVITY_LEVELS.find(l => l.id === formData.activity_level)?.label || formData.activity_level : '—'}</span>
+                        <span className={rowLocked.replace('sm:text-right', '')}>{formData.activity_level ? ACTIVITY_LEVELS.find(l => l.id === formData.activity_level)?.label || formData.activity_level : '—'}</span>
                       )}
                     </div>
 
@@ -424,14 +424,14 @@ const Profile = () => {
                     {bmiRecord?.tdee ? (
                       <>
                         {/* Hero Section */}
-                        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#1a2a1a] to-[#0d1a0d] border border-[#c7f248]/20 p-4 text-center">
+                        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#1a2a1a] to-[#0d1a0d] border border-[#c7f248]/20 p-3.5 text-center">
                           <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(circle_at_50%_0%,#c7f248,transparent_70%)]" />
-                          <span className="relative text-[7px] font-bold uppercase tracking-[0.25em] text-[#c7f248]/60">Total Daily Energy Expenditure</span>
+                          <span className="relative text-[6px] font-bold uppercase tracking-[0.2em] text-[#c7f248]/60">Total Daily Energy Expenditure</span>
                           <div className="relative mt-0.5 flex items-baseline justify-center gap-1">
-                            <span className="text-[28px] font-black text-[#c7f248] tracking-tight">{bmiRecord.tdee?.toLocaleString()}</span>
-                            <span className="text-[10px] font-bold text-(--text-disabled)">kcal</span>
+                            <span className="text-[24px] font-black text-[#c7f248] tracking-tight">{bmiRecord.tdee?.toLocaleString()}</span>
+                            <span className="text-[9px] font-bold text-(--text-disabled)">kcal</span>
                           </div>
-                          <div className="relative mt-1.5 flex items-center justify-center gap-3 text-[9px] text-(--text-muted)">
+                          <div className="relative mt-1 flex items-center justify-center gap-2.5 text-[8px] text-(--text-muted)">
                             <span>BMR <strong className="text-(--text-primary)">{bmiRecord.bmr?.toLocaleString()}</strong></span>
                             <span className="text-(--text-disabled)">|</span>
                             <span>Activity <strong className="text-(--text-primary)">{bmiRecord.tdee - bmiRecord.bmr}</strong></span>
@@ -440,16 +440,16 @@ const Profile = () => {
 
                         {/* Calorie Zones */}
                         <div>
-                          <span className="text-[7px] font-bold uppercase tracking-widest text-(--text-muted) block mb-2">Calorie Targets</span>
-                          <div className="flex gap-2">
+                          <span className="text-[6px] font-bold uppercase tracking-wider text-(--text-muted) block mb-1.5">Calorie Targets</span>
+                          <div className="flex gap-1.5">
                             {[
                               { label: 'Cut', value: Math.round(bmiRecord.tdee - 500), color: '#f87171', desc: 'Fat loss' },
                               { label: 'Maintain', value: bmiRecord.tdee, color: '#c7f248', desc: 'Current weight' },
                               { label: 'Bulk', value: Math.round(bmiRecord.tdee + 500), color: '#60a5fa', desc: 'Muscle gain' },
                             ].map(g => (
-                              <div key={g.label} className="flex-1 bg-(--bg-hover) rounded-xl p-2.5 text-center">
-                                <span className="text-[6px] font-bold uppercase tracking-widest block" style={{ color: g.color }}>{g.label}</span>
-                                <span className="text-[13px] font-black text-(--text-primary)">{g.value?.toLocaleString()}</span>
+                              <div key={g.label} className="flex-1 bg-(--bg-hover) rounded-lg p-2 text-center">
+                                <span className="text-[6px] font-bold uppercase tracking-wider block" style={{ color: g.color }}>{g.label}</span>
+                                <span className="text-[12px] font-black text-(--text-primary)">{g.value?.toLocaleString()}</span>
                                 <span className="text-[6px] text-(--text-disabled) block">{g.desc}</span>
                               </div>
                             ))}
@@ -458,14 +458,14 @@ const Profile = () => {
 
                         {/* Macro Split Selector + Breakdown */}
                         <div>
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-[7px] font-bold uppercase tracking-widest text-(--text-muted)">Macronutrients</span>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-[6px] font-bold uppercase tracking-wider text-(--text-muted)">Macronutrients</span>
                             <div className="flex gap-0.5">
                               {MACRO_SPLITS.map(split => (
                                 <button
                                   key={split.id}
                                   onClick={() => setMacroSplit(split.id)}
-                                  className={`text-[6px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-md transition-colors ${
+                                  className={`text-[6px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md transition-colors ${
                                     split.id === macroSplit
                                       ? 'bg-[#c7f248]/15 text-[#c7f248]'
                                       : 'text-(--text-disabled) hover:text-(--text-muted)'
@@ -486,17 +486,17 @@ const Profile = () => {
                             ];
                             return (
                               <>
-                                <div className="h-2 rounded-full bg-(--bg-hover) overflow-hidden flex mb-3">
+                                <div className="h-1.5 rounded-full bg-(--bg-hover) overflow-hidden flex mb-2.5">
                                   {items.map(m => (
                                     <div key={m.label} style={{ width: m.pct + '%', backgroundColor: m.color, opacity: 0.7 }} />
                                   ))}
                                 </div>
-                                <div className="grid grid-cols-3 gap-2">
+                                <div className="grid grid-cols-3 gap-1.5">
                                   {items.map(m => (
-                                    <div key={m.label} className="bg-(--bg-hover) rounded-xl p-2.5 text-center">
-                                      <span className="text-[7px] font-bold uppercase tracking-widest block" style={{ color: m.color }}>{m.label}</span>
-                                      <span className="text-[13px] font-black text-(--text-primary)">{m.grams}g</span>
-                                      <span className="text-[7px] text-(--text-disabled) block">{m.calories} kcal · {m.pct}%</span>
+                                    <div key={m.label} className="bg-(--bg-hover) rounded-lg p-2 text-center">
+                                      <span className="text-[6px] font-bold uppercase tracking-wider block" style={{ color: m.color }}>{m.label}</span>
+                                      <span className="text-[12px] font-black text-(--text-primary)">{m.grams}g</span>
+                                      <span className="text-[6px] text-(--text-disabled) block">{m.calories} kcal · {m.pct}%</span>
                                     </div>
                                   ))}
                                 </div>
@@ -505,13 +505,13 @@ const Profile = () => {
                           })()}
                         </div>
 
-                        <div className="flex items-center justify-between pt-1">
-                          <span className="text-[7px] text-(--text-disabled)">
+                        <div className="flex items-center justify-between pt-0.5">
+                          <span className="text-[6px] text-(--text-disabled)">
                             {bmiRecord.activity_level
                               ? ACTIVITY_LEVELS.find(l => l.id === bmiRecord.activity_level)?.label || bmiRecord.activity_level
                               : 'Activity not set'}
                           </span>
-                          <span className="text-[7px] text-(--text-disabled) font-mono">
+                          <span className="text-[6px] text-(--text-disabled) font-mono">
                             {bmiRecord.recorded_at || ''}
                           </span>
                         </div>
@@ -520,17 +520,17 @@ const Profile = () => {
                       <div className="bg-(--bg-hover) rounded-xl p-3 text-center">
                         {bmi != null ? (
                           <>
-                            <p className="text-[9px] text-(--text-muted) mb-1.5">
+                            <p className="text-[8px] text-(--text-muted) mb-1.5">
                               {!formData.age
                                 ? 'Enter your age and activity level to unlock full calorie data.'
                                 : 'Set your activity level and save to calculate your calorie needs.'}
                             </p>
-                            <button onClick={() => setIsEditing(true)} className="text-[8px] font-bold uppercase tracking-widest text-[#62aa1a]/70 hover:text-[#62aa1a] transition-colors">
+                            <button onClick={() => setIsEditing(true)} className="text-[7px] font-bold uppercase tracking-wider text-[#62aa1a]/70 hover:text-[#62aa1a] transition-colors">
                               Edit Profile →
                             </button>
                           </>
                         ) : (
-                          <p className="text-[9px] text-(--text-muted)">
+                          <p className="text-[8px] text-(--text-muted)">
                             Update your height and weight to see BMI calculations.
                           </p>
                         )}
@@ -541,20 +541,20 @@ const Profile = () => {
               </div>
 
               {/* Patient information */}
-              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5">
+              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-4">
                 <SectionHeader
                   icon="badge"
                   title="Patient Information"
                   right={
                     <button
                       onClick={() => isEditing ? handleDiscard() : setIsEditing(true)}
-                      className={`flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest border rounded-lg px-3 py-1.5 transition-all ${
+                      className={`flex items-center gap-1 text-[8px] font-black uppercase tracking-wider border rounded-lg px-2.5 py-1 transition-all ${
                         isEditing
                           ? 'border-[#62aa1a]/30 bg-[#62aa1a]/8 text-[#62aa1a]'
                           : 'border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:border-(--border-heavy) hover:text-(--text-primary)'
                       }`}
                     >
-                      <span className="material-symbols-outlined text-[13px]">{isEditing ? 'check' : 'edit'}</span>
+                      <span className="material-symbols-outlined text-[11px]">{isEditing ? 'check' : 'edit'}</span>
                       {isEditing ? 'Done' : 'Edit Information'}
                     </button>
                   }
@@ -588,7 +588,7 @@ const Profile = () => {
                     ) : formData.contact ? (
                       <span className={rowLocked}>{formData.contact}</span>
                     ) : (
-                      <span className="text-[13px] text-(--text-muted)">
+                      <span className="text-[12px] text-(--text-muted)">
                         None ·{' '}
                         <button onClick={() => setIsEditing(true)} className="text-[#62aa1a] font-bold hover:underline">
                           Add Contact
@@ -600,14 +600,14 @@ const Profile = () => {
                   <InfoRow label="Goal / Notes">
                     {isEditing ? (
                       <textarea
-                        className={`${rowEditable} resize-none min-h-[36px] leading-snug`}
+                        className={`${rowEditable} resize-none min-h-[32px] leading-snug`}
                         rows={1}
                         value={formData.bio}
                         onChange={e => handleInputChange(e, 'bio')}
                         placeholder="Add a note or fitness goal…"
                       />
                     ) : (
-                      <span className="text-[13px] italic text-(--text-secondary)">
+                      <span className="text-[12px] italic text-(--text-secondary)">
                         {formData.bio ? `"${formData.bio}"` : '—'}
                       </span>
                     )}
@@ -616,17 +616,17 @@ const Profile = () => {
               </div>
 
               {/* Account */}
-              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5">
+              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-4">
                 <SectionHeader icon="settings" title="Account" />
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-red-400 text-[12px] font-bold hover:bg-red-500/10 border border-(--border-light) hover:border-red-500/20 transition-all"
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-red-400 text-[11px] font-bold hover:bg-red-500/10 border border-(--border-light) hover:border-red-500/20 transition-all"
                 >
-                  <span className="flex items-center gap-2.5">
-                    <span className="material-symbols-outlined text-[18px]">logout</span>
+                  <span className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[16px]">logout</span>
                     Sign Out
                   </span>
-                  <span className="material-symbols-outlined text-[15px] opacity-40">chevron_right</span>
+                  <span className="material-symbols-outlined text-[14px] opacity-40">chevron_right</span>
                 </button>
               </div>
             </div>
@@ -634,8 +634,8 @@ const Profile = () => {
 
           {/* ── Security tab ── */}
           {activeTab === 'security' && (
-            <div className="flex flex-col gap-5 mt-5">
-              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5 sm:p-6">
+            <div className="flex flex-col gap-3 mt-3">
+              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-4 sm:p-5">
                 <SectionHeader icon="devices" title="This Device" />
                 {currentSession ? (
                   <LogEntry
@@ -645,24 +645,24 @@ const Profile = () => {
                     current
                   />
                 ) : (
-                  <p className="text-[11px] text-(--text-disabled) text-center py-6">No session data</p>
+                  <p className="text-[10px] text-(--text-disabled) text-center py-5">No session data</p>
                 )}
               </div>
 
-              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5 sm:p-6">
+              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-4 sm:p-5">
                 <SectionHeader
                   icon="history"
                   title="Access Log"
                   right={otherSessions.length > 0 && (
-                    <button onClick={() => otherSessions.forEach(s => handleRevoke(s.id))} className="text-[9px] font-bold uppercase tracking-widest text-red-400/60 hover:text-red-400 transition-colors">
+                    <button onClick={() => otherSessions.forEach(s => handleRevoke(s.id))} className="text-[8px] font-bold uppercase tracking-wider text-red-400/60 hover:text-red-400 transition-colors">
                       Revoke all
                     </button>
                   )}
                 />
                 {otherSessions.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-8 gap-2 text-center">
-                    <span className="material-symbols-outlined text-[32px] text-(--text-disabled)">devices</span>
-                    <p className="text-[11px] text-(--text-disabled)">No other entries logged</p>
+                  <div className="flex flex-col items-center justify-center py-6 gap-2 text-center">
+                    <span className="material-symbols-outlined text-[28px] text-(--text-disabled)">devices</span>
+                    <p className="text-[10px] text-(--text-disabled)">No other entries logged</p>
                   </div>
                 ) : (
                   <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
@@ -679,20 +679,20 @@ const Profile = () => {
                 )}
               </div>
 
-              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5 sm:p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-11 h-11 rounded-xl bg-(--bg-hover) flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-[22px] text-(--text-secondary)">lock</span>
+              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-4 sm:p-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-(--bg-hover) flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-[18px] text-(--text-secondary)">lock</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-black font-['Manrope'] text-(--text-primary)">Password</p>
-                    <p className="text-[11px] text-(--text-muted) mt-1">Keep your account secure with a strong, unique password</p>
+                    <p className="text-[13px] font-black font-['Manrope'] text-(--text-primary)">Password</p>
+                    <p className="text-[10px] text-(--text-muted) mt-0.5">Keep your account secure with a strong, unique password</p>
                   </div>
                   <button
                     onClick={() => setChangePwOpen(true)}
-                    className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest border border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:text-(--text-primary) hover:border-(--border-heavy) px-4 py-2.5 rounded-xl transition-all"
+                    className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider border border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:text-(--text-primary) hover:border-(--border-heavy) px-3 py-2 rounded-xl transition-all shrink-0"
                   >
-                    <span className="material-symbols-outlined text-[14px]">key</span>
+                    <span className="material-symbols-outlined text-[12px]">key</span>
                     Change
                   </button>
                 </div>
