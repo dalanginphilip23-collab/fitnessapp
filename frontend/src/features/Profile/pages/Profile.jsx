@@ -158,7 +158,7 @@ const Profile = () => {
 
           {/* ── Header card: avatar / name / badges / email / edit + tabs ── */}
           <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl overflow-hidden">
-            <div className="p-4 sm:p-5">
+            <div className="px-4 pt-4 pb-2.5 sm:px-5 sm:pt-5 sm:pb-3">
               <button
                 onClick={() => navigate(-1)}
                 className="mb-3 flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest text-(--text-muted) hover:text-(--text-primary) transition-colors"
@@ -217,7 +217,7 @@ const Profile = () => {
                     </button>
                   </div>
 
-                  <p className="flex items-center gap-1 mt-2 text-[10px] text-(--text-muted) font-medium truncate">
+                  <p className="flex items-center gap-1 mt-1.5 text-[10px] text-(--text-muted) font-medium truncate">
                     <span className="material-symbols-outlined text-[12px]">mail</span>
                     {formData.email}
                   </p>
@@ -251,7 +251,7 @@ const Profile = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[10px] font-black uppercase tracking-wider border-b-2 transition-all ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 pt-2 pb-2.5 text-[10px] font-black uppercase tracking-wider border-b-2 transition-all ${
                     activeTab === tab.id
                       ? 'text-[#62aa1a] border-[#62aa1a]'
                       : 'text-(--text-disabled) border-transparent hover:text-(--text-muted)'
