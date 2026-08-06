@@ -51,7 +51,18 @@ const EmptyState = ({ color }) => (
   </div>
 );
 
-export const SleepHoursGraph = ({ userId = null }) => {
+// "Xh Ym" for duration-style metrics, plain rounded number + unit otherwise.
+const formatHeadline = (value, metaObj) => {
+  const safe = Number(value) || 0;
+  if (metaObj.unit === 'h') {
+    const h = Math.floor(safe);
+    const m = Math.round((safe - h) * 60);
+    return `${h}h ${String(m).padStart(2, '0')}m`;
+  }
+  return `${Math.round(safe).toLocaleString()}${metaObj.unit}`;
+};
+
+export const SleepHoursGraph = ({ userId = null, onExpand }) => {
   const [activeTab,    setActiveTab]    = useState('D');
   const [activeSource, setActiveSource] = useState('sleep');
   const [activeMetric, setActiveMetric] = useState('duration');
@@ -137,6 +148,12 @@ export const SleepHoursGraph = ({ userId = null }) => {
   const status     = getStatus(activeSource, activeMetric, avg);
   const rangeLabel = activeTab === 'D' ? '24 Hours' : activeTab === 'W' ? '7 Days' : '30 Days';
 
+  // Headline number in the summary box: latest reading on the daily view
+  // ("Last Night"), period average on the weekly/monthly views.
+  const headlineValue = activeTab === 'D' ? points[points.length - 1]?.value ?? 0 : avg;
+  const headlineLabel = activeTab === 'D' ? 'Last Night' : activeTab === 'W' ? 'Weekly Avg' : 'Monthly Avg';
+  const headlineDisplay = formatHeadline(headlineValue, metaObj);
+
   const xLabelIndices = (() => {
     if (points.length === 0) return [];
     if (points.length <= 5)  return points.map((_, i) => i);
@@ -152,74 +169,94 @@ export const SleepHoursGraph = ({ userId = null }) => {
   return (
     <div className="bg-[var(--bg-tertiary)] border min-h-[410px] border-[var(--border-light)] rounded-[20px] p-6 pb-4 transition-all duration-300 card-glow">
 
-      <div className="flex flex-wrap justify-between items-start gap-3 mb-5">
-        <div>
-          <div className="flex items-center gap-2 mb-0.5">
-            <h4 className="font-['Manrope'] text-[15px] font-extrabold text-[var(--text-primary)] tracking-tight">
+      {/* Title row */}
+      <div className="flex items-start justify-between gap-3 mb-5">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-[var(--accent-bg)] border border-[var(--accent-border)] flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-[18px]" style={{ color: accentColor, fontVariationSettings: "'FILL' 1" }}>
+              bedtime
+            </span>
+          </div>
+          <div>
+            <h4 className="font-['Manrope'] text-[15px] font-extrabold text-[var(--text-primary)] tracking-tight leading-tight">
               {sourceDef.label}
             </h4>
-            {!loading && !error && points.length > 0 && (
-              <span
-                className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest"
-                style={{ color: accentColor }}
-              >
-                <span
-                  className="w-1.5 h-1.5 rounded-full animate-ping inline-block"
-                  style={{ background: accentColor }}
-                />
-                Live
-              </span>
-            )}
-            {loading && (
-              <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest">
-                Loading…
-              </span>
-            )}
-            {error && !loading && (
-              <span className="text-[9px] font-black text-[#f26048] uppercase tracking-widest">
-                Error
-              </span>
-            )}
+            <p className="text-[11px] text-[var(--text-muted)] leading-tight">
+              {metaObj.label}{metaObj.unit ? ` (${metaObj.unit})` : ''} · Last {rangeLabel}
+            </p>
           </div>
-          <p className="text-[11px] text-[var(--text-muted)]">
-            {metaObj.label}{metaObj.unit ? ` (${metaObj.unit})` : ''} · Last {rangeLabel}
-          </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-xl p-1 gap-1">
+        <div className="flex items-center gap-1.5 shrink-0">
+          {loading && (
+            <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest">Loading…</span>
+          )}
+          {error && !loading && (
+            <span className="text-[9px] font-black text-[#f26048] uppercase tracking-widest">Error</span>
+          )}
+          {/* Source switcher (Sleep vs AI Sleep Analysis) — compact icon toggle */}
+          <div className="hidden sm:flex bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-lg p-0.5 gap-0.5">
             {DATA_SOURCES.map(src => {
               const active = src.key === activeSource;
               return (
                 <button
                   key={src.key}
                   onClick={() => handleSourceSwitch(src.key)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all duration-200 cursor-pointer border-none ${
+                  title={src.label}
+                  className={`flex items-center justify-center w-7 h-7 rounded-md transition-all duration-200 cursor-pointer border-none ${
                     active ? 'text-black shadow-md' : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
                   }`}
-                  style={active ? { background: src.color, boxShadow: `0 2px 12px ${src.color}40` } : {}}
+                  style={active ? { background: src.color } : {}}
                 >
-                  <span
-                    className="material-symbols-outlined text-[14px]"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
+                  <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                     {src.icon}
                   </span>
-                  <span className="hidden sm:inline">{src.label}</span>
                 </button>
               );
             })}
           </div>
+          {onExpand && (
+            <button
+              type="button"
+              onClick={onExpand}
+              className="w-7 h-7 flex items-center justify-center rounded-lg bg-transparent border-none text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] cursor-pointer transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+            </button>
+          )}
+        </div>
+      </div>
 
+      {/* Headline summary box */}
+      <div className="flex items-center justify-between gap-3 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-2xl p-4 mb-4 flex-wrap">
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+            style={{ background: `${accentColor}18` }}
+          >
+            <span className="material-symbols-outlined text-[20px]" style={{ color: accentColor, fontVariationSettings: "'FILL' 1" }}>
+              {sourceDef.icon}
+            </span>
+          </div>
+          <div className="min-w-0">
+            <p className="stat-digital text-[20px] font-extrabold text-[var(--text-primary)] leading-none truncate">
+              {headlineDisplay}
+            </p>
+            <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider mt-1">
+              {headlineLabel}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
           {points.length > 0 && (
             <span
-              className="text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap"
+              className="text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap hidden xs:inline-block"
               style={{ color: status.color, background: `${status.color}18` }}
             >
               {status.label}
             </span>
           )}
-
           <div className="flex bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-lg p-0.5">
             {TABS.map(t => (
               <button
@@ -243,12 +280,13 @@ export const SleepHoursGraph = ({ userId = null }) => {
         </div>
       </div>
 
+      {/* Metric pills */}
       <div className="flex gap-2 mb-5 flex-wrap">
         {sourceDef.metrics.map(m => (
           <button
             key={m.key}
             onClick={() => setActiveMetric(m.key)}
-            className={`px-3 py-1 text-[10px] font-bold rounded-full border transition-all cursor-pointer ${
+            className={`px-3 py-1.5 text-[11px] font-bold rounded-xl border transition-all cursor-pointer ${
               activeMetric === m.key
                 ? 'text-black border-transparent'
                 : 'border-[var(--border-light)] text-[var(--text-muted)] bg-transparent hover:text-[var(--text-secondary)]'

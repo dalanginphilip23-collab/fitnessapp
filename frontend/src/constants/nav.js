@@ -10,7 +10,7 @@ export const navList = [
 
 export const NAV_ITEMS = [
   { icon: 'dashboard',     label: 'Overview',   path: '/dashboard' },
-  { icon: 'monitor_heart', label: 'Biometrics', path: '/dashboard/analytics' },
+  { icon: 'monitor_heart', label: 'Metrics',    path: '/dashboard/analytics' },
   { icon: 'book',          label: 'Plans',      path: '/dashboard/plans' },
   { icon: 'chat',          label: 'Community',  path: '/dashboard/messenger' },
 ];

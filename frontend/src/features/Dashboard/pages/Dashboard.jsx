@@ -7,6 +7,7 @@ import {
   Topbar,
   Hero,
   ProgramSummaryCard,
+  StatCardsRow,
   ClinicalAssistant,
   SleepHoursGraph,
   MobileNav,
@@ -18,6 +19,7 @@ import FeedbackModal from '../../../components/FeedbackModal';
 import { useClinicalAI }     from '../hooks/useClinicalAI';
 import { useActivityLogger } from '../hooks/useActivityLogger';
 import { useDashboardData }  from '../hooks/useDashboardData';
+import { computeReadiness }  from '../utils/readiness';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -71,16 +73,15 @@ const Dashboard = () => {
     () => data.profile?.name || user?.name || 'Athlete',
     [data.profile?.name, user?.name]
   );
-  const heroGoal = useMemo(
-    () => data.profile?.fitness_goal || 'Unspecified',
-    [data.profile?.fitness_goal]
-  );
-  const heroAvatar = useMemo(
-    () => data.profile?.avatar_url || user?.avatar,
-    [data.profile?.avatar_url, user?.avatar]
-  );
-
   const activeProgramCount = data.stats?.active_program_count ?? 0;
+
+  const readiness = useMemo(
+    () => computeReadiness({
+      sleepDurationHours: data.stats?.sleep_duration || 0,
+      sleepQuality:       data.stats?.sleep_quality  || 0,
+    }),
+    [data.stats?.sleep_duration, data.stats?.sleep_quality]
+  );
 
   if (loading)  return null;
   if (!USER_ID) return null;
@@ -110,12 +111,11 @@ const Dashboard = () => {
         `}
       >
         <div className="w-full max-w-[1400px] mx-auto">
-          {/* Hero Section */}
+          {/* Daily Readiness Hero */}
           <Hero
             name={heroName}
-            goal={heroGoal}
-            avatar={heroAvatar}
-            activeProgramCount={activeProgramCount}
+            readiness={readiness}
+            onCoachInsight={() => navigate('/dashboard/analytics')}
           />
 
           {/*
@@ -130,17 +130,15 @@ const Dashboard = () => {
             {/* Left Column */}
             <div className="xl:col-span-3 flex flex-col gap-4 sm:gap-5 lg:gap-6 min-w-0">
 
-              <ProgramSummaryCard
-                goalLabel={
-                  activeProgramCount > 0
-                    ? `${activeProgramCount} active program${activeProgramCount !== 1 ? 's' : ''}`
-                    : 'No active program'
-                }
+              <StatCardsRow
                 calories={{ value: data.stats?.calories_burned || 0, goal: 800 }}
                 steps={{ value: data.stats?.steps || 0, goal: 10000 }}
                 sessionLoadMins={{ value: data.stats?.workout_duration_mins || 0, goal: 120 }}
+              />
+
+              <ProgramSummaryCard
+                activeProgramCount={activeProgramCount}
                 onChangeProgram={() => navigate('/dashboard/plans')}
-                onSeeMore={() => navigate('/dashboard/analytics')}
               />
 
               {/* Sleep Graph Section */}
@@ -153,7 +151,11 @@ const Dashboard = () => {
                     </span>
                   </div>
                 )}
-                <SleepHoursGraph biometrics={biometrics} userId={USER_ID} />
+                <SleepHoursGraph
+                  biometrics={biometrics}
+                  userId={USER_ID}
+                  onExpand={() => navigate('/dashboard/analytics')}
+                />
               </div>
             </div>
 

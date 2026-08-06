@@ -1,24 +1,4 @@
-import { useState, useEffect } from 'react';
 import Icon from './Icon';
-
-const GOAL_LABELS = {
-  weight_loss: 'Weight Loss',
-  muscle_gain: 'Muscle Gain',
-  endurance: 'Endurance',
-  general_fitness: 'General Fitness',
-  Unspecified: 'Set a goal',
-};
-
-const MOTIVATIONS = [
-  "Let's crush today's workout",
-  'Every rep brings you closer',
-  'Stronger than yesterday',
-  'Push beyond your limits',
-  'Your body can do this',
-  'Champions keep moving',
-  'Sweat is just fat crying',
-  'One more set, let\'s go',
-];
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -27,70 +7,108 @@ const getGreeting = () => {
   return 'Good evening';
 };
 
-const Hero = ({ name = 'Athlete', goal = 'Unspecified', avatar, activeProgramCount = 0 }) => {
-  const goalLabel = GOAL_LABELS[goal] || goal;
-  const [motto, setMotto] = useState(MOTIVATIONS[0]);
+// Decorative silhouette — rolling hills, a couple of trees, and a runner.
+// Purely presentational (no data), kept as inline SVG so it themes with
+// the card's white-on-green palette without shipping an image asset.
+const RunnerIllustration = () => (
+  <svg
+    viewBox="0 0 300 160"
+    className="absolute right-0 bottom-0 h-full w-auto opacity-90 pointer-events-none select-none"
+    aria-hidden="true"
+  >
+    <path d="M0 130 Q60 90 120 120 T260 110 L300 130 L300 160 L0 160 Z" fill="rgba(255,255,255,0.10)" />
+    <path d="M40 140 Q100 100 170 135 T300 125 L300 160 L0 160 Z" fill="rgba(255,255,255,0.14)" />
+    <g fill="rgba(255,255,255,0.16)">
+      <rect x="250" y="95" width="4" height="35" rx="2" />
+      <circle cx="252" cy="88" r="14" />
+      <rect x="20" y="105" width="3" height="28" rx="1.5" />
+      <circle cx="21.5" cy="100" r="10" />
+    </g>
+    <g transform="translate(150,60)" fill="rgba(255,255,255,0.55)">
+      <circle cx="18" cy="0" r="8" />
+      <path d="M14 8 L26 8 L30 30 L22 30 L19 16 L8 20 L-2 55 L-10 52 L2 12 Z" />
+      <path d="M22 30 L34 34 L46 22 L52 28 L36 46 L18 40 Z" />
+      <path d="M8 20 L-6 12 L-14 -2 L-8 -8 L2 6 L16 12 Z" />
+    </g>
+  </svg>
+);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMotto(prev => {
-        const idx = MOTIVATIONS.indexOf(prev);
-        return MOTIVATIONS[(idx + 1) % MOTIVATIONS.length];
-      });
-    }, 6000);
-    return () => clearInterval(interval);
-  }, []);
+const ReadinessRing = ({ pct = 0, size = 92, strokeWidth = 8 }) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (Math.min(Math.max(pct, 0), 100) / 100) * circumference;
 
   return (
-    <div className="border border-(--border-light) rounded-[20px] p-[22px] mb-6 flex items-center justify-between gap-4 shadow-sm card-glow mesh-gradient-hero">
-      <div className="min-w-0">
-        <div className="flex items-center gap-2 mb-1.5">
-          <span className="text-[10px] font-black uppercase tracking-[0.18em] text-(--accent)">
-            {getGreeting()}
-          </span>
-          <span className="text-[8px] font-bold text-(--text-muted) animate-fade-in-up inline-block" key={motto}>
-            — {motto}
-          </span>
-        </div>
-        <h1 className="font-['Manrope'] text-[22px] sm:text-[26px] font-bold text-(--text-primary) leading-tight truncate">
-          {name}
-        </h1>
-        <div className="flex items-center gap-1.5 mt-1.5">
-          {activeProgramCount > 0 ? (
-            <>
-              <Icon name="bolt" className="text-[13px] text-(--accent)" fill={1} />
-              <span className="text-[11px] text-(--text-muted) font-medium">
-                <span className="text-(--text-secondary) font-semibold">
-                  {activeProgramCount} active program{activeProgramCount !== 1 ? 's' : ''}
-                </span>
-              </span>
-            </>
-          ) : (
-            <>
-              <Icon name="flag" className="text-[13px] text-(--text-muted)" />
-              <span className="text-[11px] text-(--text-muted) font-medium">
-                Goal: <span className="text-(--text-secondary) font-semibold">{goalLabel}</span>
-              </span>
-            </>
-          )}
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth={strokeWidth} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="#ffffff"
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          className="transition-[stroke-dashoffset] duration-1000 ease-out"
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <Icon name="monitor_heart" className="text-white text-[30px]" fill={1} />
+      </div>
+    </div>
+  );
+};
+
+const Hero = ({ name = 'Athlete', readiness, onCoachInsight }) => {
+  const pct     = readiness?.pct ?? 0;
+  const label   = readiness?.label ?? 'No Data Yet';
+  const message = readiness?.message ?? 'Log your sleep to see your daily readiness.';
+
+  return (
+    <div className="relative overflow-hidden rounded-[24px] p-6 sm:p-7 mb-6 shadow-lg bg-gradient-to-br from-[var(--accent)] to-[color-mix(in_srgb,var(--accent)_55%,#0f2d10)]">
+      <RunnerIllustration />
+
+      <div className="relative flex items-center justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/80 mb-1">
+            {getGreeting()},
+          </p>
+          <h1 className="font-['Manrope'] text-[24px] sm:text-[28px] font-bold text-white leading-tight truncate flex items-center gap-2">
+            {name} <span aria-hidden="true">👋</span>
+          </h1>
+          <p className="text-[13px] text-white/75 font-medium mt-0.5">Let's make today healthier.</p>
         </div>
       </div>
 
-      <div className="shrink-0 relative">
-        {avatar ? (
-          <img
-            src={avatar}
-            alt={name}
-            className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-(--accent-border) ring-3 ring-(--accent)/15"
-          />
-        ) : (
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-(--accent-bg) border-2 border-(--accent-border) ring-3 ring-(--accent)/15 flex items-center justify-center text-base font-black text-(--accent)">
-            {name?.charAt(0)?.toUpperCase() || 'A'}
+      <div className="relative flex items-end justify-between gap-4 mt-8">
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mb-1">
+            Daily Readiness
+          </p>
+          <div className="flex items-baseline gap-1">
+            <span className="stat-digital text-[46px] sm:text-[52px] font-extrabold text-white leading-none tracking-tight">
+              {pct}
+            </span>
+            <span className="text-[20px] font-bold text-white/80">%</span>
           </div>
-        )}
-        {activeProgramCount > 0 && (
-          <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-(--accent) rounded-full border-[2px] border-(--bg-tertiary) animate-energy-pulse" />
-        )}
+          <p className="text-[14px] font-bold text-white mt-2">{label}!</p>
+          <p className="text-[12px] text-white/70 mt-0.5">{message}</p>
+
+          <button
+            type="button"
+            onClick={onCoachInsight}
+            className="mt-4 inline-flex items-center gap-1.5 bg-black/20 hover:bg-black/30 text-white text-[11px] font-bold px-3.5 py-2 rounded-full border-none cursor-pointer transition-colors"
+          >
+            <Icon name="auto_awesome" className="text-[14px]" fill={1} />
+            AI Coach Insight
+            <Icon name="chevron_right" className="text-[14px]" />
+          </button>
+        </div>
+
+        <ReadinessRing pct={pct} />
       </div>
     </div>
   );
