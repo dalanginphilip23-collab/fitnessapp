@@ -154,7 +154,7 @@ const Profile = () => {
       <div className={`flex-1 flex flex-col min-w-0 transition-all duration-400 ease-in-out ${expanded ? 'md:ml-60' : 'md:ml-18'}`}>
         <Topbar sidebarExpanded={expanded} userId={USER_ID} />
 
-        <main className="w-full max-w-164 mx-auto px-3.5 sm:px-6 lg:px-10 pt-4 sm:pt-6 pb-28 md:pb-16">
+        <main className="w-full max-w-164 mx-auto px-3.5 sm:px-6 lg:px-10 pt-6 sm:pt-8 mt-14 sm:mt-15 pb-28 md:pb-16">
 
           {/* ── Header card: avatar / name / badges / email / edit + tabs ── */}
           <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl overflow-hidden">
