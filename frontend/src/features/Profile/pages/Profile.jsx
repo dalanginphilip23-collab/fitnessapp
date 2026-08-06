@@ -9,47 +9,58 @@ import ChangePasswordModal from '../components/ChangePasswordModal';
 import { DEFAULT_AVATARS, getAvatarUrl } from '../utils/avatar';
 import { calcMacros, MACRO_SPLITS, ACTIVITY_LEVELS } from '../../BMI/constants/bmiConstants';
 
-const RecordRow = ({ label, locked, children }) => (
-  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-4 border-b border-dashed border-(--border-light) last:border-0">
-    <div className="flex items-center gap-2 sm:w-48 shrink-0">
-      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">{label}</span>
-      {locked && (
-        <span className="material-symbols-outlined text-[12px] text-(--text-disabled)">lock</span>
-      )}
+/* ── Small presentational helpers (styling only, no logic) ───────────────── */
+
+const SectionHeader = ({ icon, title, right }) => (
+  <div className="flex items-center justify-between mb-4">
+    <div className="flex items-center gap-2">
+      <span className="material-symbols-outlined text-[16px] text-[#62aa1a]">{icon}</span>
+      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">{title}</p>
     </div>
-    <div className="flex-1 min-w-0">{children}</div>
+    {right}
   </div>
 );
 
-const rowInputBase = 'w-full bg-transparent outline-none text-[14px] font-medium transition-all';
-const rowEditable  = `${rowInputBase} text-(--text-primary) border-b border-transparent focus:border-[#c7f248]/50 pb-0.5`;
-const rowLocked    = `${rowInputBase} font-['JetBrains_Mono',monospace] text-(--text-secondary) cursor-default select-text`;
-
-const StatPill = ({ icon, value, label }) => (
-  <div className="flex flex-col items-center gap-1.5 bg-(--bg-hover) rounded-2xl px-4 py-4 border border-(--border-light) flex-1 min-w-20">
-    <span className="material-symbols-outlined text-[20px] text-[#62aa1a]">{icon}</span>
-    <span className="text-lg font-black text-(--text-primary) leading-none font-['Manrope']">{value}</span>
-    <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-muted)">{label}</span>
+const StatCard = ({ icon, value, unit, label }) => (
+  <div className="flex-1 min-w-[92px] flex flex-col items-center gap-0.5 bg-[#62aa1a]/[0.07] border border-[#62aa1a]/10 rounded-2xl px-3 py-4">
+    <span className="material-symbols-outlined text-[20px] text-[#62aa1a] mb-1">{icon}</span>
+    <span className="text-xl font-black text-(--text-primary) leading-none font-['Manrope']">{value}</span>
+    <span className="text-[9px] font-semibold text-(--text-muted)">{unit}</span>
+    <span className="text-[9px] font-bold uppercase tracking-widest text-(--text-secondary) mt-0.5">{label}</span>
   </div>
 );
+
+const InfoRow = ({ label, locked, children }) => (
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 py-3.5 border-b border-dashed border-(--border-light) last:border-0">
+    <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.15em] text-(--text-muted) shrink-0 sm:w-44">
+      {label}
+      {locked && <span className="material-symbols-outlined text-[12px] text-(--text-disabled)">lock</span>}
+    </span>
+    <div className="flex-1 min-w-0 sm:text-right">{children}</div>
+  </div>
+);
+
+const rowInputBase = 'w-full bg-transparent outline-none text-[13px] font-medium transition-all';
+const rowEditable  = `${rowInputBase} text-(--text-primary) border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 sm:text-right`;
+const rowLocked    = `${rowInputBase} text-(--text-secondary) cursor-default select-text sm:text-right`;
 
 const LogEntry = ({ icon, title, sub, current, onRevoke }) => (
-  <div className={`flex items-center gap-3 px-3.5 py-3 border-l-2 transition-all ${
-    current ? 'border-[#62aa1a] bg-[#7dd625e1]/4' : 'border-(--border-light) hover:border-(--border-heavy) hover:bg-(--bg-hover)'
+  <div className={`flex items-center gap-3 px-3.5 py-3 rounded-xl border transition-all ${
+    current ? 'border-[#62aa1a]/15 bg-[#62aa1a]/[0.05]' : 'border-transparent hover:bg-(--bg-hover) hover:border-(--border-light)'
   }`}>
     <span className={`material-symbols-outlined text-[16px] ${current ? 'text-[#62aa1a]' : 'text-(--text-secondary)'}`}>{icon}</span>
     <div className="flex-1 min-w-0">
       <p className="text-[11px] font-semibold text-(--text-primary) truncate">{title}</p>
-      <p className="text-[9px] font-['JetBrains_Mono',monospace] text-(--text-muted) truncate">{sub}</p>
+      <p className="text-[9px] font-medium text-(--text-muted) truncate">{sub}</p>
     </div>
     {current ? (
-      <span className="text-[8px] font-black tracking-[0.12em] uppercase bg-[#254900]/10 text-[#62aa1a] border border-[#7dd625e1]/20 px-2 py-1 rounded-md shrink-0">
+      <span className="text-[8px] font-black tracking-[0.12em] uppercase bg-[#62aa1a]/10 text-[#62aa1a] border border-[#62aa1a]/20 px-2 py-1 rounded-md shrink-0">
         Active
       </span>
     ) : (
       <button
         onClick={onRevoke}
-        className="text-[9px] font-bold uppercase tracking-widest text-red-400/50 hover:text-red-400 hover:bg-red-500/10 px-2 py-1 rounded-lg transition-all border border-transparent hover:border-red-500/20 shrink-0"
+        className="text-[9px] font-bold uppercase tracking-widest text-red-400/60 hover:text-red-400 hover:bg-red-500/10 px-2 py-1 rounded-lg transition-all border border-transparent hover:border-red-500/20 shrink-0"
       >
         Revoke
       </button>
@@ -75,7 +86,7 @@ const bmiCategory = (bmi) => {
 };
 
 const Profile = () => {
-  const navigate = useNavigate(); // NEW: only used for the back button
+  const navigate = useNavigate();
 
   const {
     USER_ID,
@@ -124,7 +135,7 @@ const Profile = () => {
   const currentSession = sessions.find(s => s.is_current);
   const otherSessions  = sessions.filter(s => !s.is_current);
 
-  const recordId = `VTS-${String(USER_ID).padStart(4, '0')}`;
+  const recordId = `VTL-${String(USER_ID).padStart(3, '0')}`;
 
   const bmi = computeBMI(formData.height_cm, formData.weight_kg);
   const bmiInfo = bmiCategory(bmi);
@@ -143,102 +154,119 @@ const Profile = () => {
       <div className={`flex-1 flex flex-col min-w-0 transition-all duration-400 ease-in-out ${expanded ? 'md:ml-60' : 'md:ml-18'}`}>
         <Topbar sidebarExpanded={expanded} userId={USER_ID} />
 
-        <div
-          className="relative w-full overflow-hidden mt-14 sm:mt-15"
-          style={{
-            height: '160px',
-            background: 'linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 60%, var(--bg-primary) 100%)',
-          }}
-        >
-          <div
-            className="absolute inset-0 opacity-[0.07]"
-            style={{
-              backgroundImage: 'repeating-linear-gradient(0deg, var(--border-medium) 0, var(--border-medium) 1px, transparent 1px, transparent 28px)',
-            }}
-          />
-          <div
-            className="absolute inset-x-0 bottom-0 h-24"
-            style={{ background: 'linear-gradient(to top, var(--bg-primary), transparent)' }}
-          />
+        <main className="w-full max-w-164 mx-auto px-4 sm:px-6 lg:px-10 pt-5 sm:pt-7 pb-28 md:pb-16">
 
-          {/* NEW: Back button, top-left over the banner */}
-          <button
-            onClick={() => navigate(-1)}
-            aria-label="Go back"
-            className="absolute top-4 left-4 sm:top-5 sm:left-6 w-9 h-9 rounded-xl flex items-center justify-center
-              bg-(--bg-primary)/60 hover:bg-(--bg-primary)/90 border border-(--border-light) backdrop-blur-sm
-              transition-all active:scale-95 z-20"
-          >
-            <span className="material-symbols-outlined text-[20px] text-(--text-primary)">arrow_back</span>
-          </button>
-        </div>
-
-        <main className="w-full max-w-164 mx-auto px-4 sm:px-6 lg:px-10 pb-28 md:pb-16 -mt-14 relative z-10">
-
-          {/* ── Centered header: avatar / name / badge / email ── */}
-          <div className="flex flex-col items-center text-center mb-10">
-            <div className="relative shrink-0">
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-(--bg-primary) bg-(--bg-tertiary) flex items-center justify-center shadow-xl">
-                {avatarSrc
-                  ? <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
-                  : <span className="text-4xl font-black text-[#62aa1a] font-['Manrope']">{initials}</span>
-                }
-              </div>
+          {/* ── Header card: avatar / name / badges / email / edit + tabs ── */}
+          <div className="bg-(--bg-card) border border-(--border-light) rounded-3xl overflow-hidden">
+            <div className="p-5 sm:p-6">
               <button
-                onClick={() => setPickerOpen(v => !v)}
-                aria-label="Edit avatar"
-                className="absolute bottom-0 right-0 w-9 h-9 bg-[#62aa1a] rounded-full flex items-center justify-center border-2 border-(--bg-primary) hover:scale-105 active:scale-95 transition-transform shadow-lg"
+                onClick={() => navigate(-1)}
+                className="mb-4 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-(--text-muted) hover:text-(--text-primary) transition-colors"
               >
-                <span className="material-symbols-outlined text-[16px] text-[#1a2800]">photo_camera</span>
+                <span className="material-symbols-outlined text-[15px]">arrow_back</span>
+                Back
               </button>
+
+              <div className="flex items-start gap-4 sm:gap-5">
+                {/* Avatar */}
+                <div className="relative shrink-0">
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-4 border-(--bg-primary) bg-(--bg-tertiary) flex items-center justify-center shadow-md">
+                    {avatarSrc
+                      ? <img src={avatarSrc} alt="Avatar" className="w-full h-full object-cover" />
+                      : <span className="text-3xl font-black text-[#62aa1a] font-['Manrope']">{initials}</span>
+                    }
+                  </div>
+                  <button
+                    onClick={() => setPickerOpen(v => !v)}
+                    aria-label="Edit avatar"
+                    className="absolute bottom-0 right-0 w-8 h-8 bg-[#62aa1a] rounded-full flex items-center justify-center border-2 border-(--bg-card) hover:scale-105 active:scale-95 transition-transform shadow-lg"
+                  >
+                    <span className="material-symbols-outlined text-[14px] text-[#1a2800]">photo_camera</span>
+                  </button>
+                </div>
+
+                {/* Name / badges / email / edit button */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-3 flex-wrap">
+                    <div className="min-w-0">
+                      <h1 className="text-2xl sm:text-3xl font-['Manrope'] font-black text-(--text-primary) tracking-tight truncate">
+                        {formData.fullName || 'Your Name'}
+                      </h1>
+                      <div className="flex flex-wrap items-center gap-2 mt-2">
+                        <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-[#62aa1a]/10 text-[#62aa1a] border border-[#62aa1a]/20">
+                          <span className="material-symbols-outlined text-[12px]">workspace_premium</span>
+                          Pro Member
+                        </span>
+                        <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-(--bg-hover) text-(--text-muted) border border-(--border-light)">
+                          <span className="material-symbols-outlined text-[12px]">badge</span>
+                          ID {recordId}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => isEditing ? handleDiscard() : setIsEditing(true)}
+                      className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest border rounded-xl px-3.5 py-2 transition-all shrink-0 ${
+                        isEditing
+                          ? 'border-[#62aa1a]/30 bg-[#62aa1a]/8 text-[#62aa1a]'
+                          : 'border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:border-(--border-heavy) hover:text-(--text-primary)'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[14px]">{isEditing ? 'close' : 'edit'}</span>
+                      {isEditing ? 'Cancel' : 'Edit Profile'}
+                    </button>
+                  </div>
+
+                  <p className="flex items-center gap-1.5 mt-3 text-[12px] text-(--text-muted) font-medium truncate">
+                    <span className="material-symbols-outlined text-[14px]">mail</span>
+                    {formData.email}
+                  </p>
+                </div>
+              </div>
+
+              {isDirty && (
+                <div className="flex flex-wrap items-center gap-3 mt-5 pt-4 border-t border-dashed border-(--border-light)">
+                  <span className="flex items-center gap-1.5 text-[9px] font-bold text-amber-400 uppercase tracking-widest">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    Unsaved changes
+                  </span>
+                  <div className="flex-1" />
+                  <button onClick={handleDiscard} className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-(--text-muted) hover:text-(--text-secondary) rounded-lg hover:bg-(--bg-hover) transition-all">
+                    Discard
+                  </button>
+                  <button onClick={handleSave} disabled={isSaving} className="flex items-center gap-2 bg-[#62aa1a] text-[#161f00] px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] active:scale-95 transition-all disabled:opacity-60 hover:brightness-105">
+                    {isSaving && <span className="w-3 h-3 border-2 border-[#161f00]/30 border-t-[#161f00] rounded-full animate-spin" />}
+                    {isSaving ? 'Saving…' : 'Save changes'}
+                  </button>
+                </div>
+              )}
             </div>
 
-            <div className="mt-5 flex flex-col items-center gap-2">
-              <h1 className="text-3xl sm:text-4xl font-['Manrope'] font-black text-(--text-primary) tracking-tight">
-                {formData.fullName || 'Your Name'}
-              </h1>
-              <div className="flex flex-wrap items-center justify-center gap-2.5">
-                <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full bg-[#62aa1a]/10 text-[#62aa1a] border border-[#62aa1a]/20">
-                  Pro Member
-                </span>
-                <span className="text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full bg-(--bg-hover) text-(--text-muted) border border-(--border-light) font-['JetBrains_Mono',monospace]">
-                  Record {recordId}
-                </span>
-              </div>
-              <p className="mt-0.5 text-[12px] text-(--text-muted) font-medium">{formData.email}</p>
+            {/* Tabs */}
+            <div className="flex border-t border-(--border-light) px-1 sm:px-2">
+              {[
+                { id: 'profile',  label: 'Overview', icon: 'grid_view' },
+                { id: 'security', label: 'Security',  icon: 'shield'   },
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex-1 flex items-center justify-center gap-2 py-4 text-[11px] font-black uppercase tracking-[0.15em] border-b-2 transition-all ${
+                    activeTab === tab.id
+                      ? 'text-[#62aa1a] border-[#62aa1a]'
+                      : 'text-(--text-disabled) border-transparent hover:text-(--text-muted)'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[16px]">{tab.icon}</span>
+                  {tab.label}
+                </button>
+              ))}
             </div>
-
-            <button
-              onClick={() => isEditing ? handleDiscard() : setIsEditing(true)}
-              className={`mt-4 flex items-center gap-1.5 mx-auto text-[10px] font-black uppercase tracking-widest border rounded-xl px-4 py-2 transition-all ${
-                isEditing
-                  ? 'border-[#62aa1a]/30 bg-[#62aa1a]/8 text-[#62aa1a]'
-                  : 'border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:border-(--border-heavy) hover:text-(--text-primary)'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[14px]">{isEditing ? 'close' : 'edit'}</span>
-              {isEditing ? 'Cancel' : 'Edit'}
-            </button>
-
-            {isDirty && (
-              <div className="flex items-center justify-center gap-3 mt-4 mb-2">
-                <span className="flex items-center gap-1.5 text-[9px] font-bold text-amber-400 uppercase tracking-widest">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                  Unsaved
-                </span>
-                <button onClick={handleDiscard} className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-(--text-muted) hover:text-(--text-secondary) rounded-lg hover:bg-(--bg-hover) transition-all">
-                  Discard
-                </button>
-                <button onClick={handleSave} disabled={isSaving} className="flex items-center gap-2 bg-[#62aa1a] text-[#161f00] px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.15em] active:scale-95 transition-all disabled:opacity-60 hover:brightness-105">
-                  {isSaving && <span className="w-3 h-3 border-2 border-[#161f00]/30 border-t-[#161f00] rounded-full animate-spin" />}
-                  {isSaving ? 'Saving…' : 'Save changes'}
-                </button>
-              </div>
-            )}
           </div>
 
+          {/* Avatar picker panel */}
           {pickerOpen && (
-            <div className="mb-6 bg-(--bg-secondary) border border-(--border-medium) rounded-2xl p-5" style={{ animation: 'fadeIn 0.15s ease' }}>
+            <div className="mt-5 bg-(--bg-card) border border-(--border-light) rounded-2xl p-5" style={{ animation: 'fadeIn 0.15s ease' }}>
               <div className="flex items-center justify-between mb-4">
                 <p className="text-[9px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Choose avatar</p>
                 <button onClick={() => setPickerOpen(false)} aria-label="Close avatar picker">
@@ -281,67 +309,49 @@ const Profile = () => {
             </div>
           )}
 
-          {/* Tabs — same state/logic, now full-width centered pills instead of a left-aligned bar */}
-          <div className="flex justify-center border-b border-(--border-light) mb-7 gap-10">
-            {[
-              { id: 'profile',  label: 'Record',      icon: 'description' },
-              { id: 'security', label: 'Access Log',  icon: 'shield'      },
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2.5 pb-3.5 text-[11px] font-black uppercase tracking-[0.2em] border-b-2 transition-all -mb-px ${
-                  activeTab === tab.id
-                    ? 'text-[#62aa1a] border-[#62aa1a]'
-                    : 'text-(--text-disabled) border-transparent hover:text-(--text-muted)'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[17px]">{tab.icon}</span>
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* ── Everything below is now a single vertical stack of list-style groups ── */}
+          {/* ── Overview tab ── */}
           {activeTab === 'profile' && (
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-5 mt-5">
 
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="material-symbols-outlined text-[15px] text-[#62aa1a]">bolt</span>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Today's activity</p>
-                </div>
+              {/* Health overview */}
+              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5">
+                <SectionHeader icon="bolt" title="Health Overview" />
+                <p className="text-[11px] text-(--text-muted) -mt-3 mb-4">Your summary for today</p>
                 <div className="flex gap-2.5">
-                  <StatPill icon="local_fire_department" value={Number(dailyStats.calories_burned || 0).toLocaleString()} label="kcal" />
-                  <StatPill icon="footprint"              value={Number(dailyStats.steps || 0).toLocaleString()}          label="Steps" />
-                  <StatPill icon="timer"                  value={Number(dailyStats.workout_duration_mins || 0)}           label="Min" />
+                  <StatCard icon="local_fire_department" value={Number(dailyStats.calories_burned || 0).toLocaleString()} unit="kcal" label="Calories" />
+                  <StatCard icon="footprint"              value={Number(dailyStats.steps || 0).toLocaleString()}          unit="steps" label="Steps" />
+                  <StatCard icon="timer"                  value={Number(dailyStats.workout_duration_mins || 0)}           unit="mins"  label="Active Minutes" />
                 </div>
               </div>
 
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[15px] text-[#62aa1a]">monitor_heart</span>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Body Metrics</p>
-                  </div>
-                  <span className="material-symbols-outlined text-[13px] text-(--text-disabled)">expand_more</span>
-                </div>
+              {/* Body metrics */}
+              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5">
+                <SectionHeader
+                  icon="monitor_heart"
+                  title="Body Metrics"
+                  right={
+                    <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-(--text-muted) bg-(--bg-hover) border border-(--border-light) px-2.5 py-1.5 rounded-lg">
+                      <span className="material-symbols-outlined text-[13px]">calendar_month</span>
+                      This Week
+                    </span>
+                  }
+                />
 
                 <div className="grid grid-cols-3 gap-3 items-end">
-                  <div>
-                    <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">Height</span>
-                    {isEditing ? (
-                      <input className={rowEditable} type="number" step="0.1" value={formData.height_cm} onChange={e => handleInputChange(e, 'height_cm')} />
-                    ) : (
-                      <span className={rowLocked}>{formData.height_cm ? `${formData.height_cm} cm` : '—'}</span>
-                    )}
-                  </div>
                   <div>
                     <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">Weight</span>
                     {isEditing ? (
                       <input className={rowEditable} type="number" step="0.1" value={formData.weight_kg} onChange={e => handleInputChange(e, 'weight_kg')} />
                     ) : (
                       <span className={rowLocked}>{formData.weight_kg ? `${formData.weight_kg} kg` : '—'}</span>
+                    )}
+                  </div>
+                  <div>
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">Height</span>
+                    {isEditing ? (
+                      <input className={rowEditable} type="number" step="0.1" value={formData.height_cm} onChange={e => handleInputChange(e, 'height_cm')} />
+                    ) : (
+                      <span className={rowLocked}>{formData.height_cm ? `${formData.height_cm} cm` : '—'}</span>
                     )}
                   </div>
                   <div className="text-right">
@@ -355,16 +365,14 @@ const Profile = () => {
 
                 <button
                   onClick={() => setShowBmiDetails(s => !s)}
-                  className="mt-3 w-full flex items-center justify-center gap-1 text-[8px] font-bold uppercase tracking-widest text-[#62aa1a]/70 hover:text-[#62aa1a] transition-colors py-1"
+                  className="mt-4 pt-3 w-full flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#62aa1a] hover:brightness-110 transition-colors border-t border-(--border-light)"
                 >
-                  {showBmiDetails ? 'Hide Details' : 'View More'}
-                  <span className={`material-symbols-outlined text-[11px] transition-transform ${showBmiDetails ? 'rotate-180' : ''}`}>expand_more</span>
+                  View All Metrics
+                  <span className={`material-symbols-outlined text-[14px] transition-transform ${showBmiDetails ? 'rotate-180' : ''}`}>expand_more</span>
                 </button>
 
                 {showBmiDetails && (
                   <div className="mt-3 pt-3 border-t border-dashed border-(--border-light) space-y-3">
-
-
 
                     {/* Age/Gender — always visible when expanded */}
                     <div className="grid grid-cols-2 gap-3">
@@ -380,7 +388,7 @@ const Profile = () => {
                         <span className="text-[8px] font-bold uppercase tracking-widest text-(--text-disabled) block mb-0.5">Gender</span>
                         {isEditing ? (
                           <select
-                            className="w-full bg-transparent outline-none text-[12px] font-medium border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 text-(--text-primary) appearance-none cursor-pointer"
+                            className="w-full bg-transparent outline-none text-[12px] font-medium border-b border-transparent focus:border-[#c7f248]/50 pb-0.5 text-(--text-primary) appearance-none cursor-pointer sm:text-right"
                             value={formData.gender}
                             onChange={e => handleInputChange(e, 'gender')}
                           >
@@ -478,13 +486,11 @@ const Profile = () => {
                             ];
                             return (
                               <>
-                                {/* Macro Bar */}
                                 <div className="h-2 rounded-full bg-(--bg-hover) overflow-hidden flex mb-3">
                                   {items.map(m => (
                                     <div key={m.label} style={{ width: m.pct + '%', backgroundColor: m.color, opacity: 0.7 }} />
                                   ))}
                                 </div>
-                                {/* Macro Details */}
                                 <div className="grid grid-cols-3 gap-2">
                                   {items.map(m => (
                                     <div key={m.label} className="bg-(--bg-hover) rounded-xl p-2.5 text-center">
@@ -499,7 +505,6 @@ const Profile = () => {
                           })()}
                         </div>
 
-                        {/* Activity Info + Timestamp */}
                         <div className="flex items-center justify-between pt-1">
                           <span className="text-[7px] text-(--text-disabled)">
                             {bmiRecord.activity_level
@@ -535,19 +540,28 @@ const Profile = () => {
                 )}
               </div>
 
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[15px] text-[#62aa1a]">badge</span>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Patient Information</p>
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-[#62aa1a]">
-                    Active file
-                  </span>
-                </div>
+              {/* Patient information */}
+              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5">
+                <SectionHeader
+                  icon="badge"
+                  title="Patient Information"
+                  right={
+                    <button
+                      onClick={() => isEditing ? handleDiscard() : setIsEditing(true)}
+                      className={`flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest border rounded-lg px-3 py-1.5 transition-all ${
+                        isEditing
+                          ? 'border-[#62aa1a]/30 bg-[#62aa1a]/8 text-[#62aa1a]'
+                          : 'border-(--border-medium) bg-(--bg-hover) text-(--text-secondary) hover:border-(--border-heavy) hover:text-(--text-primary)'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[13px]">{isEditing ? 'check' : 'edit'}</span>
+                      {isEditing ? 'Done' : 'Edit Information'}
+                    </button>
+                  }
+                />
 
-                <div className="mt-1">
-                  <RecordRow label="Full name">
+                <div>
+                  <InfoRow label="Full Name">
                     <input
                       className={isEditing ? rowEditable : rowLocked}
                       type="text"
@@ -556,48 +570,61 @@ const Profile = () => {
                       readOnly={!isEditing}
                       placeholder="Your full name"
                     />
-                  </RecordRow>
+                  </InfoRow>
 
-                  <RecordRow label="Clinical email" locked>
+                  <InfoRow label="Clinical Email" locked>
                     <input className={rowLocked} type="email" value={formData.email} readOnly />
-                  </RecordRow>
+                  </InfoRow>
 
-                  <RecordRow label="Emergency contact">
-                    <input
-                      className={isEditing ? rowEditable : rowLocked}
-                      type="text"
-                      value={formData.contact}
-                      onChange={e => handleInputChange(e, 'contact')}
-                      readOnly={!isEditing}
-                      placeholder="Name · phone number"
-                    />
-                  </RecordRow>
+                  <InfoRow label="Emergency Contact">
+                    {isEditing ? (
+                      <input
+                        className={rowEditable}
+                        type="text"
+                        value={formData.contact}
+                        onChange={e => handleInputChange(e, 'contact')}
+                        placeholder="Name · phone number"
+                      />
+                    ) : formData.contact ? (
+                      <span className={rowLocked}>{formData.contact}</span>
+                    ) : (
+                      <span className="text-[13px] text-(--text-muted)">
+                        None ·{' '}
+                        <button onClick={() => setIsEditing(true)} className="text-[#62aa1a] font-bold hover:underline">
+                          Add Contact
+                        </button>
+                      </span>
+                    )}
+                  </InfoRow>
 
-                  <RecordRow label="Goal / Notes">
-                    <textarea
-                      className={`${isEditing ? rowEditable : rowLocked} resize-none min-h-[36px] leading-snug`}
-                      rows={1}
-                      value={formData.bio}
-                      onChange={e => handleInputChange(e, 'bio')}
-                      readOnly={!isEditing}
-                      placeholder="Add a note or fitness goal…"
-                    />
-                  </RecordRow>
+                  <InfoRow label="Goal / Notes">
+                    {isEditing ? (
+                      <textarea
+                        className={`${rowEditable} resize-none min-h-[36px] leading-snug`}
+                        rows={1}
+                        value={formData.bio}
+                        onChange={e => handleInputChange(e, 'bio')}
+                        placeholder="Add a note or fitness goal…"
+                      />
+                    ) : (
+                      <span className="text-[13px] italic text-(--text-secondary)">
+                        {formData.bio ? `"${formData.bio}"` : '—'}
+                      </span>
+                    )}
+                  </InfoRow>
                 </div>
               </div>
 
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="material-symbols-outlined text-[15px] text-[#62aa1a]">key</span>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Account</p>
-                </div>
+              {/* Account */}
+              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5">
+                <SectionHeader icon="settings" title="Account" />
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-red-400 text-[12px] font-bold hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
+                  className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-red-400 text-[12px] font-bold hover:bg-red-500/10 border border-(--border-light) hover:border-red-500/20 transition-all"
                 >
                   <span className="flex items-center gap-2.5">
                     <span className="material-symbols-outlined text-[18px]">logout</span>
-                    Sign out
+                    Sign Out
                   </span>
                   <span className="material-symbols-outlined text-[15px] opacity-40">chevron_right</span>
                 </button>
@@ -605,18 +632,16 @@ const Profile = () => {
             </div>
           )}
 
+          {/* ── Security tab ── */}
           {activeTab === 'security' && (
-            <div className="flex flex-col gap-5">
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="material-symbols-outlined text-[15px] text-[#62aa1a]">devices</span>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">This device</p>
-                </div>
+            <div className="flex flex-col gap-5 mt-5">
+              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5 sm:p-6">
+                <SectionHeader icon="devices" title="This Device" />
                 {currentSession ? (
                   <LogEntry
                     icon="smartphone"
                     title={`${currentSession.browser} on ${currentSession.os}`}
-                    sub={`ACTIVE NOW · ${[currentSession.city, currentSession.country].filter(Boolean).join(', ') || 'UNKNOWN LOCATION'}`}
+                    sub={`Active now · ${[currentSession.city, currentSession.country].filter(Boolean).join(', ') || 'Unknown location'}`}
                     current
                   />
                 ) : (
@@ -624,18 +649,16 @@ const Profile = () => {
                 )}
               </div>
 
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[15px] text-[#62aa1a]">history</span>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-(--text-muted)">Access log</p>
-                  </div>
-                  {otherSessions.length > 0 && (
+              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5 sm:p-6">
+                <SectionHeader
+                  icon="history"
+                  title="Access Log"
+                  right={otherSessions.length > 0 && (
                     <button onClick={() => otherSessions.forEach(s => handleRevoke(s.id))} className="text-[9px] font-bold uppercase tracking-widest text-red-400/60 hover:text-red-400 transition-colors">
                       Revoke all
                     </button>
                   )}
-                </div>
+                />
                 {otherSessions.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-8 gap-2 text-center">
                     <span className="material-symbols-outlined text-[32px] text-(--text-disabled)">devices</span>
@@ -648,7 +671,7 @@ const Profile = () => {
                         key={s.id}
                         icon="laptop_mac"
                         title={`${s.browser} on ${s.os}`}
-                        sub={[s.city, s.country].filter(Boolean).join(', ').toUpperCase() || 'UNKNOWN LOCATION'}
+                        sub={[s.city, s.country].filter(Boolean).join(', ') || 'Unknown location'}
                         onRevoke={() => handleRevoke(s.id)}
                       />
                     ))}
@@ -656,7 +679,7 @@ const Profile = () => {
                 )}
               </div>
 
-              <div className="bg-(--bg-secondary) border border-(--border-light) rounded-2xl p-6">
+              <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5 sm:p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-11 h-11 rounded-xl bg-(--bg-hover) flex items-center justify-center shrink-0">
                     <span className="material-symbols-outlined text-[22px] text-(--text-secondary)">lock</span>
