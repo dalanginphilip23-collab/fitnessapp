@@ -73,6 +73,10 @@ const Dashboard = () => {
     () => data.profile?.name || user?.name || 'Athlete',
     [data.profile?.name, user?.name]
   );
+  const heroAvatar = useMemo(
+    () => data.profile?.avatar_url || user?.avatar,
+    [data.profile?.avatar_url, user?.avatar]
+  );
   const activeProgramCount = data.stats?.active_program_count ?? 0;
 
   const readiness = useMemo(
@@ -114,6 +118,7 @@ const Dashboard = () => {
           {/* Daily Readiness Hero */}
           <Hero
             name={heroName}
+            avatar={heroAvatar}
             readiness={readiness}
             onCoachInsight={() => navigate('/dashboard/analytics')}
           />
