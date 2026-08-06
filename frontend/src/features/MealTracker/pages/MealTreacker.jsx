@@ -5,7 +5,6 @@ import { API_BASE_URL } from "../../../config/port";
 import { Sidebar, Topbar, MobileNav } from "../../../components";
 import { useAuth } from "../../../hooks/useAuth";
 import { useNutritionTracker } from "../hooks/useNutritionTracker";
-import RadialProgress from "../../../components/RadialProgress";
 
 const CALORIE_GOAL   = 2000;
 const MACRO_TARGETS  = { protein: 120, carbs: 200, fat: 60 };
@@ -13,6 +12,14 @@ const MEAL_TYPES     = ["Breakfast", "Lunch", "Dinner", "Snack"];
 const MONTH_NAMES    = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const DOW_LABELS     = ["Su","Mo","Tu","We","Th","Fr","Sa"];
 const PLAN_TAG_ICONS = { Strength: "🏋️", Cardio: "🏃", "Fat Loss": "🔥", Flexibility: "🧘", Recovery: "💆", Hypertrophy: "💪" };
+
+// Kept identical to the macro colors already used in ResultCard's MacroBar,
+// so a given macro reads as the same color everywhere on this page.
+const MACRO_COLORS = {
+  protein: { color: "#60a5fa", tint: "#60a5fa14", border: "#60a5fa33", icon: "egg" },
+  carbs:   { color: "var(--accent)", tint: "var(--accent-bg)", border: "var(--accent-border)", icon: "grain" },
+  fat:     { color: "#f97316", tint: "#f9731614", border: "#f9731633", icon: "water_drop" },
+};
 
 const EMOJI_OPTIONS = [
   "🍗","🥩","🥦","🍚","🥗","🍜","🍕","🥙","🌮","🍱",
@@ -25,6 +32,24 @@ const EMPTY_FORM = {
   protein: "", carbs: "", fat: "",
   mealType: "Breakfast", image_url: "",
 };
+
+// ─── Small presentational helpers ──────────────────────────────────────────
+
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+// Formats an ISO-ish logged_at timestamp into "12:15 PM". Falls back to the
+// raw string if it isn't parseable, so we never hide/lose real data.
+function formatMealTime(isoString) {
+  if (!isoString) return "";
+  const d = new Date(isoString);
+  if (isNaN(d.getTime())) return isoString;
+  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+}
 
 // Plain inline SVG — used where we can't risk the material-symbols
 // icon font failing to load (it collapses to a near-invisible sliver
@@ -77,17 +102,6 @@ function MacroBar({ label, value, unit, color, pct }) {
   );
 }
 
-function RingLabel({ icon, color, children }) {
-  return (
-    <div className="flex items-center gap-1">
-      <Icon name={icon} className="text-[11px]" style={{ color }} />
-      <span className="text-[9px] font-black uppercase tracking-[0.18em] text-(--text-muted)">
-        {children}
-      </span>
-    </div>
-  );
-}
-
 function Toast({ message }) {
   return (
     <div className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 bg-(--accent) text-[#131313] text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-lg z-50 whitespace-nowrap">
@@ -119,6 +133,61 @@ function InputField({ label, type = "text", placeholder, value, onChange, error,
       {label && <label className="block text-[11px] text-(--text-muted) mb-1.5">{label}</label>}
       <input type={type} placeholder={placeholder} value={value} onChange={onChange} className={base} />
       {error && <p className="text-red-400 text-[10px] mt-1">{error}</p>}
+    </div>
+  );
+}
+
+// Circular calorie-progress ring. Pure presentation — takes the already-
+// computed consumed/goal numbers and draws them, nothing more.
+function CalorieRing({ consumed, goal, size = 168, strokeWidth = 14 }) {
+  const radius        = (size - strokeWidth) / 2;
+  const circumference  = 2 * Math.PI * radius;
+  const pct            = goal > 0 ? Math.min(consumed / goal, 1) : 0;
+  const offset          = circumference * (1 - pct);
+
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="var(--bg-hover)" strokeWidth={strokeWidth} />
+        <circle
+          cx={size / 2} cy={size / 2} r={radius} fill="none"
+          stroke="var(--accent)" strokeWidth={strokeWidth} strokeLinecap="round"
+          strokeDasharray={circumference} strokeDashoffset={offset}
+          style={{ transition: "stroke-dashoffset 700ms ease" }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-center px-4">
+        <div className="w-8 h-8 rounded-full bg-(--accent-bg) flex items-center justify-center mb-1">
+          <Icon name="local_fire_department" className="text-(--accent) text-base" fill={1} />
+        </div>
+        <span className="text-2xl sm:text-3xl font-black text-(--text-primary) leading-none">{Math.round(consumed).toLocaleString()}</span>
+        <span className="text-[10px] text-(--text-muted) leading-tight">kcal consumed</span>
+        <span className="text-[11px] font-bold text-(--accent) mt-0.5">{Math.round(pct * 100)}% of goal</span>
+      </div>
+    </div>
+  );
+}
+
+// One of the three Protein/Carbs/Fat cards in the overview.
+function MacroStatCard({ macroKey, label, value, unit = "g" }) {
+  const { color, tint, border, icon } = MACRO_COLORS[macroKey];
+  const goal = MACRO_TARGETS[macroKey];
+  const pct  = goal > 0 ? Math.min(Math.round((value / goal) * 100), 100) : 0;
+
+  return (
+    <div className="rounded-2xl p-3 sm:p-4 border" style={{ background: tint, borderColor: border }}>
+      <div className="flex items-center gap-1.5 mb-2.5">
+        <span style={{ color }}><Icon name={icon} className="text-sm" fill={1} /></span>
+        <span className="text-[11px] sm:text-xs font-bold" style={{ color }}>{label}</span>
+      </div>
+      <div className="flex items-baseline gap-1 mb-1">
+        <span className="text-xl sm:text-2xl font-black text-(--text-primary)">{Math.round(value)}</span>
+        <span className="text-[11px] text-(--text-muted)">{unit}</span>
+      </div>
+      <p className="text-[10px] text-(--text-muted) mb-2.5">{pct}% of {goal}{unit}</p>
+      <div className="h-1.5 rounded-full bg-black/10 overflow-hidden">
+        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: color }} />
+      </div>
     </div>
   );
 }
@@ -197,7 +266,12 @@ function DateNavigator({ currentDate, onDateChange }) {
     });
   };
 
-  const formattedDate = parseDate(currentDate).toLocaleDateString("en-US", {
+  // Screenshot-style label: "Today" (or weekday) on top, full date below.
+  const topLabel = isToday
+    ? "Today"
+    : parseDate(currentDate).toLocaleDateString("en-US", { weekday: "short" });
+
+  const subLabel = parseDate(currentDate).toLocaleDateString("en-US", {
     month: "short",
     day:   "numeric",
     year:  parseDate(currentDate).getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
@@ -209,19 +283,21 @@ function DateNavigator({ currentDate, onDateChange }) {
     calendarMonth.month === now.getMonth();
 
   return (
-    <div className="flex items-center gap-1.5 bg-(--bg-tertiary) rounded-xl p-1 border border-(--border-light)">
-      <button onClick={() => shiftDay(-1)} className="p-1 sm:p-1.5 rounded-lg hover:bg-(--bg-hover) transition-colors" aria-label="Previous day">
-        <Icon name="chevron_left" className="text-(--text-muted) text-xs sm:text-sm" />
+    <div className="flex items-center gap-0.5 sm:gap-1 bg-(--bg-card) rounded-2xl p-1 border border-(--border-light) shadow-sm">
+      <button onClick={() => shiftDay(-1)} className="p-1.5 sm:p-2 rounded-xl hover:bg-(--bg-hover) transition-colors" aria-label="Previous day">
+        <Icon name="chevron_left" className="text-(--text-muted) text-sm" />
       </button>
 
       <div className="relative" ref={calendarRef}>
         <button
           onClick={() => setIsCalendarOpen((v) => !v)}
-          className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-(--bg-hover) hover:bg-(--bg-active) transition-colors"
+          className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl hover:bg-(--bg-hover) transition-colors"
         >
-          <Icon name="calendar_today" className="text-(--accent) text-xs sm:text-sm" />
-          <span className="text-(--text-primary) text-[11px] sm:text-xs font-medium whitespace-nowrap">{formattedDate}</span>
-          <Icon name="expand_more" className="text-(--text-muted) text-xs" />
+          <Icon name="calendar_today" className="text-(--text-muted) text-sm" />
+          <span className="text-left leading-tight">
+            <span className="block text-[12px] sm:text-[13px] font-bold text-(--text-primary)">{topLabel}</span>
+            <span className="block text-[9px] sm:text-[10px] text-(--text-muted)">{subLabel}</span>
+          </span>
         </button>
 
         {isCalendarOpen && (
@@ -289,17 +365,11 @@ function DateNavigator({ currentDate, onDateChange }) {
       <button
         onClick={() => shiftDay(1)}
         disabled={isToday}
-        className={`p-1 sm:p-1.5 rounded-lg transition-colors ${isToday ? "opacity-30 cursor-not-allowed" : "hover:bg-(--bg-hover)"}`}
+        className={`p-1.5 sm:p-2 rounded-xl transition-colors ${isToday ? "opacity-30 cursor-not-allowed" : "hover:bg-(--bg-hover)"}`}
         aria-label="Next day"
       >
-        <Icon name="chevron_right" className="text-(--text-muted) text-xs sm:text-sm" />
+        <Icon name="chevron_right" className="text-(--text-muted) text-sm" />
       </button>
-
-      {!isToday && (
-        <button onClick={goToToday} className="px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg bg-(--accent-bg) text-(--accent) text-[9px] sm:text-[11px] font-bold transition-colors whitespace-nowrap">
-          Today
-        </button>
-      )}
     </div>
   );
 }
@@ -740,6 +810,10 @@ function FullscreenCamera({ onCapture, onClose }) {
   );
 }
 
+// "Add a meal" card — visually redesigned to match the target mock
+// (two direct-action buttons instead of a tab switcher), but every piece
+// of underlying state/behavior (tab, preview, drag/drop, camera, analyze)
+// is unchanged from the original component.
 function UploadSection({ onAnalyze, isAnalyzing }) {
   const fileInputRef = useRef(null);
 
@@ -776,6 +850,14 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
     if (next === "camera") setIsCameraOpen(true);
   };
 
+  // "Choose from Gallery" button: switch to the upload tab and open the
+  // native file picker immediately, so it behaves like a direct action
+  // button rather than a passive tab.
+  const handleGalleryClick = () => {
+    switchTab("upload");
+    requestAnimationFrame(() => fileInputRef.current?.click());
+  };
+
   const handleCameraCapture = (photo) => {
     setPreview(photo);
     setIsCameraOpen(false);
@@ -784,87 +866,65 @@ function UploadSection({ onAnalyze, isAnalyzing }) {
   const busy = isAnalyzing || compressing;
 
   return (
-    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light) transition-shadow duration-300">
-      <SectionLabel text="Meal Photo" />
-
-      <div className="flex gap-1.5 mb-3 bg-(--bg-hover) rounded-xl p-1">
-        {[{ id: "upload", icon: "📁", label: "Upload" }, { id: "camera", icon: "📷", label: "Camera" }].map(({ id, icon, label }) => (
-          <button
-            key={id}
-            onClick={() => switchTab(id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 touch-manipulation ${
-              tab === id ? "bg-(--accent) text-[#131313] shadow-sm" : "text-(--text-muted) hover:text-(--text-secondary) hover:bg-(--bg-active)/50"
-            }`}
-          >
-            <span>{icon}</span>{label}
-          </button>
-        ))}
-      </div>
-
-      {tab === "upload" && (
-        <div
-          className={`relative rounded-xl border-2 border-dashed transition-all duration-300 cursor-pointer ${
-            dragOver
-              ? "border-(--accent) bg-(--accent-bg) shadow-[0_0_20px_var(--accent-bg)]"
-              : "border-(--border-medium) hover:border-(--accent)/40 hover:bg-(--bg-hover)/50"
-          } ${preview ? "border-solid border-(--border-medium) hover:border-(--accent)/30" : ""}`}
-          style={{ minHeight: 180 }}
-          onClick={() => !preview && fileInputRef.current?.click()}
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]); }}
-        >
-          {preview ? (
-            <>
-              <img src={preview} alt="Meal preview" className="w-full rounded-xl object-cover" style={{ maxHeight: 240 }} />
-              <button
-                onClick={(e) => { e.stopPropagation(); handleClear(); }}
-                className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/60 hover:bg-black/80 text-white rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-xs font-bold transition-all duration-200 touch-manipulation hover:scale-110"
-              >✕</button>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-10 sm:py-12 px-4 text-center transition-transform duration-300 group-hover:scale-105">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-(--bg-hover) flex items-center justify-center mb-3 text-2xl">📁</div>
-              <p className="text-(--text-primary) text-xs sm:text-sm font-medium mb-1">Drop a photo here</p>
-              <p className="text-(--text-muted) text-xs">or tap to browse</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {tab === "camera" && (
-        <div
-          className="relative rounded-xl overflow-hidden bg-black flex items-center justify-center cursor-pointer transition-all duration-300 hover:ring-2 hover:ring-(--accent)/30"
-          style={{ minHeight: 180 }}
-          onClick={() => !preview && setIsCameraOpen(true)}
-        >
-          {preview ? (
-            <>
-              <img src={preview} alt="Captured meal" className="w-full rounded-xl object-cover" style={{ maxHeight: 240 }} />
-              <button
-                onClick={(e) => { e.stopPropagation(); handleClear(); }}
-                className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold transition-all duration-200 touch-manipulation hover:scale-110"
-              >✕</button>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-10 sm:py-12 px-4 text-center">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-3 text-2xl transition-transform duration-300 hover:scale-110">📷</div>
-              <p className="text-white text-xs sm:text-sm font-medium mb-1">Tap to open camera</p>
-              <p className="text-white/50 text-xs">Fullscreen capture</p>
-            </div>
-          )}
-        </div>
-      )}
-
+    <div
+      className={`bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border transition-colors duration-200 ${
+        dragOver ? "border-(--accent) shadow-[0_0_20px_var(--accent-bg)]" : "border-(--border-light)"
+      }`}
+      onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={(e) => { e.preventDefault(); setDragOver(false); switchTab("upload"); handleFile(e.dataTransfer.files[0]); }}
+    >
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleFile(e.target.files[0])} />
+
+      {preview ? (
+        <>
+          <SectionLabel text="Meal Photo" />
+          <div className="relative rounded-xl overflow-hidden border border-(--border-light)">
+            <img src={preview} alt="Meal preview" className="w-full object-cover" style={{ maxHeight: 240 }} />
+            <button
+              onClick={handleClear}
+              className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/60 hover:bg-black/80 text-white rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-xs font-bold transition-all duration-200 touch-manipulation hover:scale-110"
+            >✕</button>
+          </div>
+        </>
+      ) : (
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-(--accent-bg) flex items-center justify-center shrink-0">
+            <Icon name="photo_camera" className="text-(--accent) text-2xl" fill={1} />
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-sm sm:text-base font-bold text-(--text-primary)">Add a meal</h3>
+            <p className="text-xs text-(--text-muted) mt-0.5 leading-snug">
+              Upload a photo of your meal and let AI analyze the nutrition.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className={`flex gap-2 sm:gap-3 ${preview ? "mt-3" : "mt-4"}`}>
+        <button
+          onClick={() => switchTab("camera")}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold bg-(--accent) text-[#131313] transition-all duration-200 touch-manipulation active:scale-[0.98] hover:shadow-lg hover:shadow-(--accent)/20"
+        >
+          <Icon name="photo_camera" className="text-base" fill={1} />
+          Take Photo
+        </button>
+        <button
+          onClick={handleGalleryClick}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold border border-(--accent-border) text-(--accent) bg-(--accent-bg) hover:bg-(--accent) hover:text-[#131313] transition-all duration-200 touch-manipulation active:scale-[0.98]"
+        >
+          <Icon name="image" className="text-base" fill={1} />
+          Choose from Gallery
+        </button>
+      </div>
 
       <button
         onClick={handleAnalyzeClick}
         disabled={busy || !preview}
-        className={`mt-3 sm:mt-4 w-full py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold tracking-wide transition-all duration-200 touch-manipulation ${
+        className={`mt-3 w-full py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold tracking-wide transition-all duration-200 touch-manipulation ${
           busy || !preview
             ? "bg-(--bg-hover) text-(--text-muted) cursor-not-allowed"
-            : "bg-(--accent) active:scale-[0.98] text-[#131313] hover:shadow-lg hover:shadow-(--accent)/20"
+            : "bg-(--bg-hover) hover:bg-(--accent-bg) hover:text-(--accent) text-(--text-primary) active:scale-[0.98]"
         }`}
       >
         {compressing ? (
@@ -1107,6 +1167,8 @@ function ResultCard({ result, onLog, isLogging }) {
   );
 }
 
+// Calorie ring + macro cards. The data-fetching effect below is untouched
+// from the original component — only the returned markup was redesigned.
 function DailySummary({ userId, refreshSeed, selectedDate }) {
   const ZERO = { total_calories: 0, total_protein: 0, total_carbs: 0, total_fat: 0 };
   const [summary, setSummary] = useState(ZERO);
@@ -1146,74 +1208,47 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
     return () => { cancelled = true; };
   }, [userId, refreshSeed, selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const consumed  = Math.round(summary.total_calories);
-  const isToday   = selectedDate === new Date().toISOString().split("T")[0];
-  const dateLabel = isToday
-    ? "Today's Summary"
-    : `Summary · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+  const consumed  = summary.total_calories;
+  const remaining = Math.max(Math.round(CALORIE_GOAL - consumed), 0);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-(--bg-tertiary) to-(--bg-card) border border-(--accent)/15 p-[22px] flex flex-col gap-5">
-      <div className="absolute inset-0 opacity-[0.04] bg-[radial-gradient(circle_at_50%_0%,var(--accent),transparent_70%)]" />
-      {/* Header row */}
-      <div className="relative flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-(--accent) shadow-[0_0_6px_var(--accent)]" />
-          <span className="text-[12px] font-bold text-(--text-secondary)">{dateLabel}</span>
+    <div className="flex flex-col gap-3 sm:gap-4">
+      {/* Big calorie ring card */}
+      <div className="bg-(--bg-card) rounded-2xl p-4 sm:p-6 border border-(--border-light) shadow-sm">
+        {loading && (
+          <div className="flex justify-end mb-1"><Spinner /></div>
+        )}
+        <div className="flex items-center justify-center sm:justify-between gap-6 flex-wrap">
+          <CalorieRing consumed={consumed} goal={CALORIE_GOAL} />
+
+          <div className="hidden sm:block w-px self-stretch bg-(--border-light)" />
+
+          <div className="flex sm:flex-col gap-6 sm:gap-4 items-center sm:items-start justify-center">
+            <div>
+              <p className="text-xs text-(--text-muted) mb-1">Remaining</p>
+              <p className="text-2xl sm:text-3xl font-black text-(--accent)">{remaining.toLocaleString()}</p>
+              <p className="text-[11px] text-(--text-muted)">kcal</p>
+            </div>
+            <div>
+              <p className="text-xs text-(--text-muted) mb-1">Daily Goal</p>
+              <p className="text-sm sm:text-base font-bold text-(--text-primary)">{CALORIE_GOAL.toLocaleString()} kcal</p>
+            </div>
+          </div>
         </div>
-        {loading && <Spinner />}
       </div>
 
-      {/* Big calorie number */}
-      <div className="relative flex items-baseline justify-center gap-1">
-        <span className="text-5xl sm:text-6xl font-black text-(--accent) tracking-tight">{consumed.toLocaleString()}</span>
-        <span className="text-sm text-(--text-muted)">/ {CALORIE_GOAL.toLocaleString()} kcal</span>
-      </div>
-
-      {/* Progress bar */}
-      <div className="relative flex items-center justify-center gap-2">
-        <div className="flex-1 max-w-xs h-2 rounded-full bg-(--bg-hover) overflow-hidden">
-          <div className="h-full rounded-full bg-(--accent) transition-all duration-700" style={{ width: `${Math.min(Math.round(consumed / CALORIE_GOAL * 100), 100)}%` }} />
-        </div>
-        <span className="text-[10px] font-bold text-(--accent)">{Math.min(Math.round(consumed / CALORIE_GOAL * 100), 100)}%</span>
-      </div>
-
-      {/* Macro rings only */}
-      <div className="relative flex items-start justify-around">
-        <div className="flex flex-col items-center gap-2.5">
-          <RadialProgress
-            value={summary.total_protein}
-            goal={MACRO_TARGETS.protein}
-            color="#60a5fa"
-            displayValue={`${Math.round(summary.total_protein)}g`}
-          />
-          <RingLabel icon="egg" color="#60a5fa">Protein</RingLabel>
-        </div>
-
-        <div className="flex flex-col items-center gap-2.5">
-          <RadialProgress
-            value={summary.total_carbs}
-            goal={MACRO_TARGETS.carbs}
-            color="#f2c448"
-            displayValue={`${Math.round(summary.total_carbs)}g`}
-          />
-          <RingLabel icon="grain" color="#f2c448">Carbs</RingLabel>
-        </div>
-
-        <div className="flex flex-col items-center gap-2.5">
-          <RadialProgress
-            value={summary.total_fat}
-            goal={MACRO_TARGETS.fat}
-            color="#f97316"
-            displayValue={`${Math.round(summary.total_fat)}g`}
-          />
-          <RingLabel icon="water_drop" color="#f97316">Fat</RingLabel>
-        </div>
+      {/* Macro cards */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <MacroStatCard macroKey="protein" label="Protein" value={summary.total_protein} />
+        <MacroStatCard macroKey="carbs"   label="Carbs"   value={summary.total_carbs} />
+        <MacroStatCard macroKey="fat"     label="Fat"     value={summary.total_fat} />
       </div>
     </div>
   );
 }
 
+// Today's Meals list. Delete flow (confirm → delete → spinner) is identical
+// to the original — only each row's markup was redesigned.
 function MealHistory({ meals, loading, onDeleteMeal, selectedDate }) {
   const [deletingId, setDeletingId] = useState(null);
 
@@ -1233,44 +1268,58 @@ function MealHistory({ meals, loading, onDeleteMeal, selectedDate }) {
     : `Meals · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
 
   return (
-    <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light) transition-shadow duration-300">
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <SectionLabel text={dateLabel} />
+    <div>
+      <div className="flex items-center justify-between mb-3 px-1">
+        <h2 className="text-base sm:text-lg font-bold text-(--text-primary)">{dateLabel}</h2>
         {loading && <Spinner />}
       </div>
 
       {filteredMeals.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-8 sm:py-10 text-center">
+        <div className="bg-(--bg-tertiary) rounded-2xl border border-(--border-light) flex flex-col items-center justify-center py-10 sm:py-12 text-center">
           <div className="w-12 h-12 rounded-2xl bg-(--bg-hover) flex items-center justify-center text-2xl mb-3">🍽️</div>
           <p className="text-(--text-muted) text-xs sm:text-sm font-medium">No meals logged {isToday ? "yet" : "on this day"}</p>
           <p className="text-(--text-muted) text-[10px] sm:text-xs mt-1 opacity-60">Tap the + button to add a meal</p>
         </div>
       ) : (
-        <div className="space-y-1.5">
+        <div className="flex flex-col gap-2 sm:gap-2.5">
           {filteredMeals.map((meal) => (
-            <div key={meal.id} className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-(--bg-hover) hover:bg-(--bg-active) transition-all duration-200 group shadow-xs hover:shadow-sm">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-(--bg-tertiary) flex items-center justify-center text-base sm:text-lg shrink-0 border border-(--border-light)">
-                {meal.emoji || "🍽️"}
-              </div>
+            <div
+              key={meal.id}
+              className="flex items-center gap-3 p-2.5 sm:p-3 rounded-2xl bg-(--bg-card) border border-(--border-light) hover:border-(--border-medium) transition-all duration-200 group shadow-sm"
+            >
+              {meal.image_url ? (
+                <img
+                  src={meal.image_url}
+                  alt={meal.food_name}
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover shrink-0 border border-(--border-light)"
+                />
+              ) : (
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-(--bg-hover) border border-(--border-light) flex items-center justify-center text-2xl shrink-0">
+                  {meal.emoji || "🍽️"}
+                </div>
+              )}
+
               <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-(--text-primary) truncate">{meal.food_name}</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[10px] text-(--text-muted)">{meal.logged_at}</span>
-                  {(meal.protein || meal.carbs || meal.fat) && (
-                    <span className="text-[9px] text-(--text-disabled) hidden sm:inline">
-                      <span className="text-[#60a5fa]">P{meal.protein || 0}</span>
-                      <span className="mx-0.5">·</span>
-                      <span className="text-(--accent)">C{meal.carbs || 0}</span>
-                      <span className="mx-0.5">·</span>
-                      <span className="text-[#f97316]">F{meal.fat || 0}</span>
-                    </span>
-                  )}
+                <p className="text-[10px] font-semibold text-(--accent) uppercase tracking-wide">{formatMealTime(meal.logged_at)}</p>
+                <p className="text-sm sm:text-base font-bold text-(--text-primary) truncate">{meal.food_name}</p>
+                <div className="flex items-center gap-2.5 mt-1.5 flex-wrap">
+                  <span className="flex items-center gap-0.5 text-[10px] font-semibold text-[#60a5fa]">
+                    <Icon name="egg" className="text-[12px]" fill={1} />{meal.protein || 0}g
+                  </span>
+                  <span className="flex items-center gap-0.5 text-[10px] font-semibold text-(--accent)">
+                    <Icon name="grain" className="text-[12px]" fill={1} />{meal.carbs || 0}g
+                  </span>
+                  <span className="flex items-center gap-0.5 text-[10px] font-semibold text-[#f97316]">
+                    <Icon name="water_drop" className="text-[12px]" fill={1} />{meal.fat || 0}g
+                  </span>
                 </div>
               </div>
+
               <div className="text-right shrink-0">
-                <p className="text-xs sm:text-sm font-bold text-(--accent)">{meal.calories}</p>
-                <p className="text-[8px] text-(--text-disabled) uppercase tracking-wide">kcal</p>
+                <p className="text-base sm:text-lg font-black text-(--text-primary)">{meal.calories}</p>
+                <p className="text-[9px] text-(--text-muted) uppercase tracking-wide">kcal</p>
               </div>
+
               {/*
                 Delete button: fixed w-8/h-8 + shrink-0 so it can never be
                 squeezed by the flex row, and a plain inline SVG (TrashIcon)
@@ -1326,10 +1375,6 @@ const NutritionTracker = () => {
     return () => clearTimeout(t);
   }, [lastLoggedMeal]);
 
-  const consumed = history
-    .filter((m) => m.logged_at?.startsWith(selectedDate))
-    .reduce((sum, m) => sum + (m.calories || 0), 0);
-
   return (
     <div className="min-h-screen bg-(--bg-primary) text-(--text-primary)" style={{ fontFamily: "Poppins, sans-serif" }}>
       <div className="hidden md:block">
@@ -1339,32 +1384,28 @@ const NutritionTracker = () => {
       <Topbar sidebarExpanded={sidebarExpanded} userId={USER_ID} />
 
       <main className={`pt-14 sm:pt-16 md:pt-16 pb-24 md:pb-8 px-3 sm:px-4 md:px-6 lg:px-8 transition-all duration-[400ms] ${sidebarExpanded ? "md:ml-[240px]" : "md:ml-[72px]"}`}>
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-2xl mx-auto">
 
-          {/* ── Header ── */}
-          <div className="flex items-center justify-between gap-2 mt-5 sm:mt-6 mb-3 sm:mb-4">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🍽️</span>
-              <span className="text-sm sm:text-base font-bold text-(--text-primary)">Nutrition Tracker</span>
+          {/* ── Greeting + title + date nav ── */}
+          <div className="mt-5 sm:mt-6 mb-4 sm:mb-5">
+            <p className="text-xs sm:text-sm text-(--text-muted)">
+              {getGreeting()}, <span className="font-semibold text-(--text-primary)">{user?.name || user?.first_name || "there"}!</span> 👋
+            </p>
+            <div className="flex items-center justify-between gap-3 mt-1">
+              <h1 className="text-2xl sm:text-3xl font-black text-(--text-primary) leading-tight">Nutrition Tracker</h1>
+              <DateNavigator currentDate={selectedDate} onDateChange={setSelectedDate} />
             </div>
-            <DateNavigator currentDate={selectedDate} onDateChange={setSelectedDate} />
+            <p className="text-xs sm:text-sm text-(--text-muted) mt-1">Track your meals. Fuel your goals.</p>
           </div>
 
-          {/* ── Content split ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 sm:gap-4">
+          {/* ── Content stack ── */}
+          <div className="flex flex-col gap-3 sm:gap-4">
+            <DailySummary userId={USER_ID} refreshSeed={summarySeed} selectedDate={selectedDate} />
 
-            {/* Left: Upload first, DailySummary at the bottom */}
-            <div className="lg:col-span-2 flex flex-col gap-3 sm:gap-4">
-              <UploadSection onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
-              {result && <ResultCard result={result} onLog={handleLog} isLogging={isLogging} />}
-              <DailySummary userId={USER_ID} refreshSeed={summarySeed} selectedDate={selectedDate} />
-            </div>
+            <UploadSection onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
+            {result && <ResultCard result={result} onLog={handleLog} isLogging={isLogging} />}
 
-            {/* Right: Meal History */}
-            <div className="lg:col-span-3 flex flex-col gap-3 sm:gap-4">
-              <MealHistory meals={history} loading={historyLoading} onDeleteMeal={handleDeleteMeal} selectedDate={selectedDate} />
-            </div>
-
+            <MealHistory meals={history} loading={historyLoading} onDeleteMeal={handleDeleteMeal} selectedDate={selectedDate} />
           </div>
         </div>
       </main>
