@@ -31,38 +31,38 @@ const DOCTORS_DATA = {
 };
 
 // ─────────────────────────────────────────────
-//  CATEGORY THEMES  (green / purple / blue — matches the mock)
+//  CATEGORY THEMES
+//  Structural colors (bg/border/text) come from the app's own
+//  --bg-* / --text-* / --border-* tokens so they automatically
+//  flip with the app's light/dark toggle. Only the category
+//  accent (green/purple/blue) is a fixed hue, applied as a
+//  semi-transparent overlay so it reads correctly on top of
+//  whichever theme is active underneath.
 // ─────────────────────────────────────────────
 const THEMES = {
   beginner: {
-    text: 'text-emerald-600', textStrong: 'text-emerald-700',
-    bgSoft: 'bg-emerald-50', bgSoftHover: 'group-hover:bg-emerald-100',
-    border: 'border-emerald-100', borderHover: 'hover:border-emerald-200',
+    text: 'text-emerald-500',
+    bgSoft: 'bg-emerald-500/10', bgSoftHover: 'group-hover:bg-emerald-500/20',
     solid: 'bg-emerald-600', solidHover: 'hover:bg-emerald-700',
-    ring: 'ring-emerald-200', dot: 'bg-emerald-500',
-    chipBg: 'bg-emerald-50', chipText: 'text-emerald-700', chipBorder: 'border-emerald-100',
-    glow: 'shadow-[0_0_0_1px_rgba(16,185,129,0.08)]',
-    pulseBorder: 'border-emerald-300',
+    ring: 'ring-emerald-500/40', dot: 'bg-emerald-500',
+    chipBg: 'bg-emerald-500/10', chipText: 'text-emerald-500', chipBorder: 'border-emerald-500/20',
+    pulseBorder: 'border-emerald-500/40',
   },
   intermediate: {
-    text: 'text-violet-600', textStrong: 'text-violet-700',
-    bgSoft: 'bg-violet-50', bgSoftHover: 'group-hover:bg-violet-100',
-    border: 'border-violet-100', borderHover: 'hover:border-violet-200',
+    text: 'text-violet-500',
+    bgSoft: 'bg-violet-500/10', bgSoftHover: 'group-hover:bg-violet-500/20',
     solid: 'bg-violet-600', solidHover: 'hover:bg-violet-700',
-    ring: 'ring-violet-200', dot: 'bg-violet-500',
-    chipBg: 'bg-violet-50', chipText: 'text-violet-700', chipBorder: 'border-violet-100',
-    glow: 'shadow-[0_0_0_1px_rgba(139,92,246,0.08)]',
-    pulseBorder: 'border-violet-300',
+    ring: 'ring-violet-500/40', dot: 'bg-violet-500',
+    chipBg: 'bg-violet-500/10', chipText: 'text-violet-500', chipBorder: 'border-violet-500/20',
+    pulseBorder: 'border-violet-500/40',
   },
   advanced: {
-    text: 'text-sky-600', textStrong: 'text-sky-700',
-    bgSoft: 'bg-sky-50', bgSoftHover: 'group-hover:bg-sky-100',
-    border: 'border-sky-100', borderHover: 'hover:border-sky-200',
+    text: 'text-sky-500',
+    bgSoft: 'bg-sky-500/10', bgSoftHover: 'group-hover:bg-sky-500/20',
     solid: 'bg-sky-600', solidHover: 'hover:bg-sky-700',
-    ring: 'ring-sky-200', dot: 'bg-sky-500',
-    chipBg: 'bg-sky-50', chipText: 'text-sky-700', chipBorder: 'border-sky-100',
-    glow: 'shadow-[0_0_0_1px_rgba(14,165,233,0.08)]',
-    pulseBorder: 'border-sky-300',
+    ring: 'ring-sky-500/40', dot: 'bg-sky-500',
+    chipBg: 'bg-sky-500/10', chipText: 'text-sky-500', chipBorder: 'border-sky-500/20',
+    pulseBorder: 'border-sky-500/40',
   },
 };
 
@@ -127,16 +127,16 @@ const CategoryCard = ({ categoryKey, onClick }) => {
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left p-6 sm:p-7 rounded-3xl bg-white border ${theme.border} ${theme.borderHover} hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-5 group`}
+      className="w-full text-left p-6 sm:p-7 rounded-3xl bg-(--bg-hover) border border-(--border-medium) hover:border-(--border-heavy) hover:shadow-(--shadow-lg) hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-5 group"
     >
       <div className={`w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-2xl ${theme.bgSoft} ${theme.bgSoftHover} flex items-center justify-center transition-colors`}>
         <Icon className={`w-7 h-7 sm:w-8 sm:h-8 ${theme.text}`} />
       </div>
 
       <div className="flex-1 min-w-0">
-        <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-gray-900">{title}</h3>
+        <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight text-(--text-primary)">{title}</h3>
         <p className={`text-xs sm:text-sm font-semibold ${theme.text} mb-1`}>{subtitle}</p>
-        <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">{description}</p>
+        <p className="text-xs sm:text-sm text-(--text-muted) leading-relaxed">{description}</p>
       </div>
 
       <div className={`w-10 h-10 sm:w-11 sm:h-11 shrink-0 rounded-full ${theme.bgSoft} ${theme.bgSoftHover} flex items-center justify-center transition-colors`}>
@@ -154,34 +154,34 @@ const CategoryCard = ({ categoryKey, onClick }) => {
 const DoctorCard = ({ doctor, theme, onSelect }) => (
   <div
     onClick={() => onSelect(doctor)}
-    className={`p-4 sm:p-6 rounded-3xl bg-white border ${theme.border} hover:shadow-lg hover:-translate-y-1 cursor-pointer transition-all duration-300 flex flex-col items-center text-center group`}
+    className="p-4 sm:p-6 rounded-3xl bg-(--bg-hover) border border-(--border-medium) hover:border-(--border-heavy) hover:shadow-(--shadow-lg) hover:-translate-y-1 cursor-pointer transition-all duration-300 flex flex-col items-center text-center group"
   >
     <div className="relative mb-3 sm:mb-4">
-      <img src={doctor.avatar} alt={doctor.name} className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white ring-2 ${theme.ring} group-hover:ring-4 transition-all`} />
-      <div className={`absolute bottom-0 right-0 w-4 h-4 sm:w-5 sm:h-5 ${theme.dot} rounded-full border-4 border-white`} />
+      <img src={doctor.avatar} alt={doctor.name} className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-(--bg-primary) ring-2 ${theme.ring} group-hover:ring-4 transition-all`} />
+      <div className={`absolute bottom-0 right-0 w-4 h-4 sm:w-5 sm:h-5 ${theme.dot} rounded-full border-4 border-(--bg-primary)`} />
     </div>
 
-    <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-1">{doctor.name}</h4>
+    <h4 className="text-base sm:text-lg font-bold text-(--text-primary) mb-1">{doctor.name}</h4>
     <p className={`text-[10px] sm:text-xs uppercase tracking-widest font-bold ${theme.text} mb-2`}>{doctor.prof}</p>
 
     <div className="flex items-center gap-1.5 mb-3 sm:mb-4">
       <span className={`px-2.5 py-1 rounded-full text-[10px] font-semibold ${theme.chipBg} ${theme.chipText} border ${theme.chipBorder}`}>
         AI Specialist
       </span>
-      <span className="px-2.5 py-1 bg-gray-50 border border-gray-100 rounded-full text-[10px] text-gray-500 italic">
+      <span className="px-2.5 py-1 bg-(--bg-active) border border-(--border-light) rounded-full text-[10px] text-(--text-muted) italic">
         {doctor.personality}
       </span>
     </div>
 
-    <div className="w-full border-t border-gray-100 pt-3 sm:pt-4 mt-1 flex flex-col gap-1.5 sm:gap-2 text-left">
-      <div className="flex justify-between text-[10px] sm:text-[11px] text-gray-500 uppercase tracking-wide">
-        <span><strong className="text-gray-800">Age:</strong> {doctor.age}</span>
-        <span><strong className="text-gray-800">Gender:</strong> {doctor.gender}</span>
+    <div className="w-full border-t border-(--border-light) pt-3 sm:pt-4 mt-1 flex flex-col gap-1.5 sm:gap-2 text-left">
+      <div className="flex justify-between text-[10px] sm:text-[11px] text-(--text-secondary) uppercase tracking-wide">
+        <span><strong className="text-(--text-primary)">Age:</strong> {doctor.age}</span>
+        <span><strong className="text-(--text-primary)">Gender:</strong> {doctor.gender}</span>
       </div>
-      <div className="text-[10px] sm:text-[11px] text-gray-500 uppercase tracking-wide">
-        <strong className="text-gray-800">Experience:</strong> {doctor.experience}
+      <div className="text-[10px] sm:text-[11px] text-(--text-secondary) uppercase tracking-wide">
+        <strong className="text-(--text-primary)">Experience:</strong> {doctor.experience}
       </div>
-      <p className={`text-[11px] sm:text-xs text-gray-500 italic mt-1 sm:mt-2 leading-relaxed border-l-2 ${theme.chipBorder} pl-2`}>
+      <p className={`text-[11px] sm:text-xs text-(--text-muted) italic mt-1 sm:mt-2 leading-relaxed border-l-2 ${theme.chipBorder} pl-2`}>
         "{doctor.bio}"
       </p>
     </div>
@@ -348,14 +348,16 @@ const VoiceCallScreen = ({ doctor, theme, sessionId, onShowAlert, onEndCall }) =
     speaking:   `${doctor.name.split(' ')[1]} is speaking...`,
   }[callStatus];
 
+  const micDisabled = callStatus === 'thinking' || callStatus === 'speaking' || callStatus === 'connecting';
+
   return (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-between py-10 px-4 animate-fade-in">
+    <div className="fixed inset-0 z-50 bg-(--bg-primary) flex flex-col items-center justify-between py-10 px-4 animate-fade-in">
 
       <div className="flex flex-col items-center gap-2 mt-4">
         <span className={`text-[10px] font-bold tracking-[0.3em] uppercase ${theme.text}`}>
           Virtual Medical Clinic
         </span>
-        <span className="text-gray-400 text-xs">{formatDuration(callDuration)}</span>
+        <span className="text-(--text-muted) text-xs">{formatDuration(callDuration)}</span>
       </div>
 
       <div className="flex flex-col items-center gap-6">
@@ -368,16 +370,16 @@ const VoiceCallScreen = ({ doctor, theme, sessionId, onShowAlert, onEndCall }) =
           )}
           {callStatus === 'listening' && (
             <>
-              <div className="absolute w-52 h-52 rounded-full border border-gray-300 animate-ping" style={{ animationDuration: '0.9s' }} />
-              <div className="absolute w-44 h-44 rounded-full border border-gray-400 animate-ping" style={{ animationDuration: '0.6s' }} />
+              <div className="absolute w-52 h-52 rounded-full border border-(--border-medium) animate-ping" style={{ animationDuration: '0.9s' }} />
+              <div className="absolute w-44 h-44 rounded-full border border-(--border-heavy) animate-ping" style={{ animationDuration: '0.6s' }} />
             </>
           )}
 
-          <div className={`w-36 h-36 rounded-full overflow-hidden border-4 transition-all duration-500 shadow-lg ${
-            callStatus === 'speaking' ? `border-white ring-4 ${theme.ring}` :
-            callStatus === 'listening' ? 'border-white ring-4 ring-gray-300' :
-            callStatus === 'thinking' ? `border-white ring-4 ${theme.ring}` :
-            'border-white ring-2 ring-gray-100'
+          <div className={`w-36 h-36 rounded-full overflow-hidden border-4 border-(--bg-primary) transition-all duration-500 shadow-(--shadow-lg) ${
+            callStatus === 'speaking'  ? `ring-4 ${theme.ring}` :
+            callStatus === 'listening' ? 'ring-4 ring-(--border-heavy)' :
+            callStatus === 'thinking'  ? `ring-4 ${theme.ring}` :
+            'ring-2 ring-(--border-light)'
           }`}>
             <img src={doctor.avatar} alt={doctor.name} className="w-full h-full object-cover" />
           </div>
@@ -400,13 +402,13 @@ const VoiceCallScreen = ({ doctor, theme, sessionId, onShowAlert, onEndCall }) =
         </div>
 
         <div className="text-center mt-4">
-          <h2 className="text-2xl font-bold text-gray-900">{doctor.name}</h2>
+          <h2 className="text-2xl font-bold text-(--text-primary)">{doctor.name}</h2>
           <p className={`text-xs uppercase tracking-widest font-semibold mt-1 ${theme.text}`}>{doctor.prof}</p>
-          <p className="text-gray-400 text-xs mt-2">{statusLabel}</p>
+          <p className="text-(--text-muted) text-xs mt-2">{statusLabel}</p>
         </div>
 
         {(callStatus === 'listening' && transcript) && (
-          <div className="bg-gray-50 border border-gray-200 rounded-2xl px-5 py-3 max-w-xs text-center text-sm text-gray-600 animate-fade-in">
+          <div className="bg-(--bg-hover) border border-(--border-medium) rounded-2xl px-5 py-3 max-w-xs text-center text-sm text-(--text-secondary) animate-fade-in">
             "{transcript}"
           </div>
         )}
@@ -417,7 +419,7 @@ const VoiceCallScreen = ({ doctor, theme, sessionId, onShowAlert, onEndCall }) =
               <div key={i} className={`text-[11px] px-3 py-1.5 rounded-xl max-w-[85%] leading-relaxed ${
                 m.from === 'patient'
                   ? `self-end ${theme.chipBg} ${theme.chipText} text-right`
-                  : 'self-start bg-gray-50 text-gray-600'
+                  : 'self-start bg-(--bg-hover) text-(--text-secondary)'
               }`}>
                 {m.text}
               </div>
@@ -432,7 +434,7 @@ const VoiceCallScreen = ({ doctor, theme, sessionId, onShowAlert, onEndCall }) =
           <button
             onClick={() => setIsMuted(m => !m)}
             className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-              isMuted ? 'bg-red-50 border border-red-200 text-red-500' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+              isMuted ? 'bg-red-500/10 border border-red-500/30 text-red-400' : 'bg-(--bg-hover) border border-(--border-medium) text-(--text-secondary) hover:bg-(--bg-active)'
             }`}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -446,7 +448,7 @@ const VoiceCallScreen = ({ doctor, theme, sessionId, onShowAlert, onEndCall }) =
           <button
             onClick={() => setIsSpeakerOn(s => !s)}
             className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-              !isSpeakerOn ? 'bg-white border border-gray-100 text-gray-300' : 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50'
+              !isSpeakerOn ? 'bg-(--bg-hover) border border-(--border-light) text-(--text-muted)' : 'bg-(--bg-hover) border border-(--border-medium) text-(--text-secondary) hover:bg-(--bg-active)'
             }`}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -463,17 +465,17 @@ const VoiceCallScreen = ({ doctor, theme, sessionId, onShowAlert, onEndCall }) =
           onMouseUp={stopListening}
           onTouchStart={startListening}
           onTouchEnd={stopListening}
-          disabled={callStatus === 'thinking' || callStatus === 'speaking' || callStatus === 'connecting'}
-          className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg ${
+          disabled={micDisabled}
+          className={`w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 shadow-(--shadow-lg) ${
             callStatus === 'listening'
-              ? 'bg-gray-900 scale-110 shadow-xl'
-              : callStatus === 'thinking' || callStatus === 'speaking' || callStatus === 'connecting'
-              ? 'bg-gray-100 opacity-60 cursor-not-allowed'
+              ? `${theme.solid} scale-110`
+              : micDisabled
+              ? 'bg-(--bg-active) opacity-50 cursor-not-allowed'
               : `${theme.solid} ${theme.solidHover} hover:scale-105`
           }`}
         >
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none"
-            stroke="#fff"
+            stroke={micDisabled ? 'var(--text-muted)' : '#fff'}
             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
@@ -481,13 +483,13 @@ const VoiceCallScreen = ({ doctor, theme, sessionId, onShowAlert, onEndCall }) =
             <line x1="8" y1="23" x2="16" y2="23"/>
           </svg>
         </button>
-        <p className="text-gray-400 text-[10px] tracking-widest uppercase">
+        <p className="text-(--text-muted) text-[10px] tracking-widest uppercase">
           {callStatus === 'listening' ? 'Release to send' : 'Hold to speak'}
         </p>
 
         <button
           onClick={handleEndCall}
-          className="w-16 h-16 rounded-full bg-red-500 hover:bg-red-600 active:scale-95 flex items-center justify-center shadow-lg transition-all"
+          className="w-16 h-16 rounded-full bg-red-500 hover:bg-red-600 active:scale-95 flex items-center justify-center shadow-[0_0_20px_rgba(239,68,68,0.35)] transition-all"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
             <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/>
@@ -582,17 +584,17 @@ const ChatInterface = ({ doctor, theme, sessionId, onShowAlert, onBack, onStartV
   };
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-190px)] sm:h-[calc(100dvh-180px)] md:h-162.5 bg-white border border-gray-100 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl animate-fade-in">
+    <div className="flex flex-col h-[calc(100dvh-190px)] sm:h-[calc(100dvh-180px)] md:h-162.5 bg-(--bg-hover) border border-(--border-medium) rounded-2xl sm:rounded-3xl overflow-hidden shadow-(--shadow-lg) animate-fade-in">
 
-      <div className="p-3 sm:p-4 border-b border-gray-100 flex items-center gap-2 sm:gap-4 bg-white shrink-0">
-        <button onClick={onBack} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:bg-gray-50 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors shrink-0">
+      <div className="p-3 sm:p-4 border-b border-(--border-light) flex items-center gap-2 sm:gap-4 bg-(--bg-primary) shrink-0">
+        <button onClick={onBack} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full hover:bg-(--bg-hover) flex items-center justify-center text-(--text-muted) hover:text-(--text-secondary) transition-colors shrink-0">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
         </button>
-        <img src={doctor.avatar} className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-white ring-2 ${theme.ring} shrink-0`} alt="" />
+        <img src={doctor.avatar} className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-(--bg-primary) ring-2 ${theme.ring} shrink-0`} alt="" />
         <div className="flex-1 min-w-0">
-          <span className="text-sm sm:text-base font-bold text-gray-900 block truncate">{doctor.name}</span>
+          <span className="text-sm sm:text-base font-bold text-(--text-primary) block truncate">{doctor.name}</span>
           <span className={`text-[10px] uppercase font-bold tracking-widest flex items-center gap-1.5 ${theme.text}`}>
             <span className={`w-1.5 h-1.5 ${theme.dot} rounded-full animate-pulse shrink-0`} />
             Consultation Active
@@ -609,41 +611,41 @@ const ChatInterface = ({ doctor, theme, sessionId, onShowAlert, onBack, onStartV
           </svg>
         </button>
 
-        <button onClick={handleReset} disabled={isResetting} title="Reset consultation" className="w-9 h-9 rounded-full hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50 shrink-0">
+        <button onClick={handleReset} disabled={isResetting} title="Reset consultation" className="w-9 h-9 rounded-full hover:bg-red-500/10 flex items-center justify-center text-(--text-muted) hover:text-red-400 transition-colors disabled:opacity-50 shrink-0">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
           </svg>
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3 sm:p-6 flex flex-col gap-3 sm:gap-4 bg-gray-50/50 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-6 flex flex-col gap-3 sm:gap-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {messages.map((m, i) => (
           <div key={i} className={`max-w-[85%] sm:max-w-[80%] p-3 sm:p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
             m.sender === 'user'
               ? `${theme.solid} text-white self-end rounded-br-none font-medium`
-              : 'bg-white text-gray-800 rounded-bl-none border border-gray-100'
+              : 'bg-(--bg-active) text-(--text-primary) rounded-bl-none border border-(--border-light)'
           }`}>
             {m.text}
           </div>
         ))}
         {isSending && (
-          <div className="max-w-[80%] p-3 sm:p-4 rounded-2xl bg-white text-gray-800 rounded-bl-none border border-gray-100 flex gap-1 items-center">
-            <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-            <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          <div className="max-w-[80%] p-3 sm:p-4 rounded-2xl bg-(--bg-active) text-(--text-primary) rounded-bl-none border border-(--border-light) flex gap-1 items-center">
+            <span className="w-2 h-2 bg-(--text-muted) rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-2 h-2 bg-(--text-muted) rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-2 h-2 bg-(--text-muted) rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
           </div>
         )}
         <div ref={endRef} />
       </div>
 
-      <div className="p-3 sm:p-4 bg-white border-t border-gray-100 flex gap-2 sm:gap-3 shrink-0">
+      <div className="p-3 sm:p-4 bg-(--bg-primary) border-t border-(--border-light) flex gap-2 sm:gap-3 shrink-0">
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyPress={e => e.key === 'Enter' && !isSending && handleSend()}
           placeholder="Describe your symptoms..."
           disabled={isSending}
-          className={`flex-1 min-w-0 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3 text-sm text-gray-900 outline-none focus:bg-white focus:border-gray-300 transition-all disabled:opacity-50 placeholder:text-gray-400`}
+          className="flex-1 min-w-0 bg-(--bg-active) border border-(--border-light) rounded-2xl px-4 py-3 text-sm text-(--text-primary) outline-none focus:border-(--border-heavy) focus:bg-(--bg-hover) transition-all disabled:opacity-50 placeholder:text-(--text-muted)"
         />
         <button
           onClick={handleSend}
@@ -724,7 +726,7 @@ const VirtualClinic = () => {
   const activeTheme = selectedCategory ? THEMES[selectedCategory] : THEMES.beginner;
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-['Poppins',sans-serif] relative overflow-hidden">
+    <div className="min-h-screen bg-(--bg-primary) text-(--text-primary) font-['Poppins',sans-serif] relative overflow-hidden">
 
       {/* Voice Call Overlay */}
       {showVoiceCall && selectedDoctor && sessionId && (
@@ -739,7 +741,7 @@ const VirtualClinic = () => {
 
       {/* Popup */}
       <div className={`fixed top-20 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:top-24 sm:right-6 z-100 w-[calc(100%-2rem)] sm:w-auto transition-all duration-500 transform ${showAlert ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'}`}>
-        <div className={`${activeTheme.solid} text-white px-5 py-3 rounded-xl font-bold shadow-xl flex items-center gap-3 text-sm`}>
+        <div className={`${activeTheme.solid} text-white px-5 py-3 rounded-xl font-bold shadow-(--shadow-lg) flex items-center gap-3 text-sm`}>
           <div className="w-2 h-2 bg-white rounded-full animate-pulse shrink-0" />
           {alertMessage}
         </div>
@@ -755,21 +757,21 @@ const VirtualClinic = () => {
           <div className="mb-6 sm:mb-10 text-center flex flex-col items-center">
             {currentView === 'categories' && (
               <>
-                <h1 className="text-3xl sm:text-4xl md:text-6xl font-black italic tracking-tighter text-gray-900 uppercase mb-2 sm:mb-3 leading-none">
-                  Virtual <span className="text-emerald-600">Medical</span> Clinic
+                <h1 className="text-3xl sm:text-4xl md:text-6xl font-black italic tracking-tighter text-(--text-primary) uppercase mb-2 sm:mb-3 leading-none">
+                  Virtual <span className="text-emerald-500">Medical</span> Clinic
                 </h1>
-                <p className="text-gray-500 text-sm sm:text-base max-w-lg px-2">
+                <p className="text-(--text-muted) text-sm sm:text-base max-w-lg px-2">
                   Select a medical specialty to view our roster of AI specialists and begin your consultation.
                 </p>
               </>
             )}
             {currentView === 'doctors' && (
               <div className="w-full flex items-center justify-between gap-4">
-                <button onClick={() => { setSelectedCategory(null); setCurrentView('categories'); }} className="flex items-center gap-2 text-gray-400 hover:text-gray-700 transition-colors text-xs sm:text-sm font-bold uppercase tracking-widest shrink-0">
+                <button onClick={() => { setSelectedCategory(null); setCurrentView('categories'); }} className="flex items-center gap-2 text-(--text-muted) hover:text-(--text-secondary) transition-colors text-xs sm:text-sm font-bold uppercase tracking-widest shrink-0">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                   <span className="hidden xs:inline">Back to</span> Specialties
                 </button>
-                <h2 className="text-lg sm:text-2xl font-black italic uppercase tracking-tighter text-gray-900 text-right">
+                <h2 className="text-lg sm:text-2xl font-black italic uppercase tracking-tighter text-(--text-primary) text-right">
                   Select a <span className={activeTheme.text}>Specialist</span>
                 </h2>
               </div>
