@@ -1,12 +1,22 @@
-const authService = require('../services/auth.service');
-const { bcrypt, jwt, COOKIE_NAME, googleClient, getCookieOptions, setSessionCookie, logUserSession } = authService;
-const { getBmiCategory, calcTdee, insertBmiRecord, syncUserProfile } = require('../services/bmi.service');
+const authService = require("../services/auth.service");
+const {
+  bcrypt,
+  jwt,
+  COOKIE_NAME,
+  googleClient,
+  getCookieOptions,
+  setSessionCookie,
+  logUserSession,
+} = authService;
+const {
+  getBmiCategory,
+  calcTdee,
+  insertBmiRecord,
+  syncUserProfile,
+} = require("../services/bmi.service");
 
-// ─── FIX: Disable SSL verification on localhost (dev only) ───
-// (kept exactly as in the original route/auth.js — note this is a
-// slightly different condition than the one in server.js/app.js)
-if (process.env.NODE_ENV !== 'production') {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+if (process.env.NODE_ENV !== "production") {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 }
 
 // ─── GET /api/auth/me ───
@@ -40,27 +50,45 @@ async function getMe(req, res) {
 
 // ─── POST /api/auth/register ───
 async function register(req, res) {
-  const { name, email, password, fitness_goal, weight_kg, height_cm, age, gender, activity_level } = req.body;
+  const {
+    name,
+    email,
+    password,
+    fitness_goal,
+    weight_kg,
+    height_cm,
+    age,
+    gender,
+    activity_level,
+  } = req.body;
 
   try {
     const existing = await authService.findUserByEmail(email);
     if (existing.length > 0) {
-      return res.status(400).json({ error: 'Email already registered in Vitalis labs.' });
+      return res
+        .status(400)
+        .json({ error: "Email already registered in Vitalis labs." });
     }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPw = await bcrypt.hash(password, salt);
-
-    const result = await authService.createUser({ name, email, hashedPw, fitness_goal });
+    const result = await authService.createUser({
+      name,
+      email,
+      hashedPw,
+      fitness_goal: fitness_goal || null,
+    });
     const userId = result[0].insertId;
 
     let bmiData = null;
     if (weight_kg && height_cm) {
       const heightM = parseFloat(height_cm) / 100;
-      const bmi = parseFloat((parseFloat(weight_kg) / (heightM * heightM)).toFixed(2));
+      const bmi = parseFloat(
+        (parseFloat(weight_kg) / (heightM * heightM)).toFixed(2),
+      );
       const category = getBmiCategory(bmi);
       const ageNum = age ? parseInt(age, 10) : null;
-      const sex = gender === 'female' ? 'female' : 'male';
+      const sex = gender === "female" ? "female" : "male";
       const tdeeResult = calcTdee({
         sex,
         kg: parseFloat(weight_kg),
@@ -81,14 +109,25 @@ async function register(req, res) {
         tdeeResult?.tdee ?? null,
       );
 
-      await syncUserProfile(userId, parseFloat(height_cm), parseFloat(weight_kg));
+      await syncUserProfile(
+        userId,
+        parseFloat(height_cm),
+        parseFloat(weight_kg),
+      );
 
-      bmiData = { bmi, category, bmr: tdeeResult?.bmr ?? null, tdee: tdeeResult?.tdee ?? null };
+      bmiData = {
+        bmi,
+        category,
+        bmr: tdeeResult?.bmr ?? null,
+        tdee: tdeeResult?.tdee ?? null,
+      };
     }
 
-    res.status(201).json({ success: true, message: 'Identity created.', bmi: bmiData });
+    res
+      .status(201)
+      .json({ success: true, message: "Identity created.", bmi: bmiData });
   } catch (err) {
-    res.status(500).json({ error: 'Database rejection: ' + err.message });
+    res.status(500).json({ error: "Database rejection: " + err.message });
   }
 }
 
@@ -109,7 +148,7 @@ async function login(req, res) {
 
     if (users.length === 0) {
       authService.recordFailedAttempt(email);
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const user = users[0];
@@ -118,9 +157,11 @@ async function login(req, res) {
     if (!isMatch) {
       const attempts = authService.recordFailedAttempt(email);
 
-      let hint = 'Invalid credentials';
-      if (attempts >= 20) hint = 'Too many failed attempts. Try again in 30 minutes.';
-      else if (attempts >= 10) hint = 'Too many failed attempts. Try again in 30 seconds.';
+      let hint = "Invalid credentials";
+      if (attempts >= 20)
+        hint = "Too many failed attempts. Try again in 30 minutes.";
+      else if (attempts >= 10)
+        hint = "Too many failed attempts. Try again in 30 seconds.";
 
       return res.status(401).json({ message: hint });
     }
@@ -143,7 +184,7 @@ async function login(req, res) {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error during initialization' });
+    res.status(500).json({ message: "Server error during initialization" });
   }
 }
 
@@ -152,18 +193,20 @@ async function googleLogin(req, res) {
   const { code } = req.body;
 
   if (!code) {
-    return res.status(400).json({ message: 'Missing authorization code' });
+    return res.status(400).json({ message: "Missing authorization code" });
   }
 
   try {
     // Exchange auth code for tokens
     const { tokens } = await googleClient.getToken({
       code,
-      redirect_uri: 'postmessage',
+      redirect_uri: "postmessage",
     });
 
     if (!tokens.id_token) {
-      return res.status(401).json({ message: 'No ID token returned from Google' });
+      return res
+        .status(401)
+        .json({ message: "No ID token returned from Google" });
     }
 
     // Verify the ID token
@@ -176,7 +219,7 @@ async function googleLogin(req, res) {
     const { email, name, picture } = payload;
 
     if (!email) {
-      return res.status(401).json({ message: 'Google account has no email' });
+      return res.status(401).json({ message: "Google account has no email" });
     }
 
     // Check if user exists
@@ -188,12 +231,17 @@ async function googleLogin(req, res) {
       // Create new user
       const salt = await bcrypt.genSalt(10);
       const randomHashedPw = await bcrypt.hash(
-        Math.random().toString(36).slice(-10), salt
+        Math.random().toString(36).slice(-10),
+        salt,
       );
-      const defaultGoal = 'Unspecified (Google Auth)';
+      const defaultGoal = "Unspecified (Google Auth)";
 
       const [insertResult] = await authService.createGoogleUser({
-        name, email, hashedPw: randomHashedPw, fitness_goal: defaultGoal, picture,
+        name,
+        email,
+        hashedPw: randomHashedPw,
+        fitness_goal: defaultGoal,
+        picture,
       });
 
       user = await authService.findUserById(insertResult.insertId);
@@ -216,49 +264,56 @@ async function googleLogin(req, res) {
       goal: user.fitness_goal,
     });
   } catch (err) {
-    console.error('Google Login Error:', err.message);
-    res.status(401).json({ message: 'Google authentication failed: ' + err.message });
+    console.error("Google Login Error:", err.message);
+    res
+      .status(401)
+      .json({ message: "Google authentication failed: " + err.message });
   }
 }
 
 // ─── POST /api/auth/change-password ───
 async function changePassword(req, res) {
   const token = req.cookies?.[COOKIE_NAME];
-  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  if (!token) return res.status(401).json({ error: "Not authenticated" });
 
   let decoded;
   try {
     decoded = jwt.verify(token, process.env.JWT_SECRET);
   } catch (err) {
-    return res.status(401).json({ error: 'Session expired — please log in again.' });
+    return res
+      .status(401)
+      .json({ error: "Session expired — please log in again." });
   }
 
   const { currentPassword, newPassword } = req.body;
 
   if (!currentPassword || !newPassword) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return res.status(400).json({ error: "Missing required fields" });
   }
   if (newPassword.length < 8) {
-    return res.status(400).json({ error: 'New password must be at least 8 characters' });
+    return res
+      .status(400)
+      .json({ error: "New password must be at least 8 characters" });
   }
 
   try {
     const rows = await authService.getUserPasswordHash(decoded.id);
-    if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
+    if (rows.length === 0)
+      return res.status(404).json({ error: "User not found" });
 
     const isMatch = await bcrypt.compare(currentPassword, rows[0].password);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Current password is incorrect' });
+      return res.status(401).json({ error: "Current password is incorrect" });
     }
 
     const salt = await bcrypt.genSalt(10);
     const newHash = await bcrypt.hash(newPassword, salt);
     await authService.updateUserPassword(decoded.id, newHash);
 
-    res.json({ success: true, message: 'Password updated' });
+    res.json({ success: true, message: "Password updated" });
   } catch (err) {
-    console.error('Change Password Error:', err);
-    res.status(500).json({ error: 'Could not update password' });
+    console.error("Change Password Error:", err);
+    res.status(500).json({ error: "Could not update password" });
   }
 }
 
@@ -274,7 +329,14 @@ async function logout(req, res) {
   }
 
   res.clearCookie(COOKIE_NAME, getCookieOptions(req));
-  res.json({ success: true, message: 'User logged out.' });
+  res.json({ success: true, message: "User logged out." });
 }
 
-module.exports = { getMe, register, login, googleLogin, changePassword, logout };
+module.exports = {
+  getMe,
+  register,
+  login,
+  googleLogin,
+  changePassword,
+  logout,
+};
