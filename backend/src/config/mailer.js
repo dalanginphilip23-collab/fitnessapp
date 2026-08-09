@@ -7,6 +7,11 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
   tls: { rejectUnauthorized: false },
+  // Bound the SMTP handshake + send so a stalled Gmail connection can't
+  // hang request handlers (register / resend-verification) for minutes.
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 15000,
 });
 
 // ─── MEAL SUMMARY EMAIL ──────────────────────────────────────────────────────

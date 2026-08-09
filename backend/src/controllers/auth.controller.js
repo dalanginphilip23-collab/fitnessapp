@@ -125,11 +125,14 @@ async function register(req, res) {
       };
     }
 
-    try {
-      await authService.sendEmailVerification(userId, normalizedEmail);
-    } catch (mailErr) {
-      console.error("Verification email failed to send:", mailErr.message);
-    }
+    // Fire the verification email in the background so a slow/failing SMTP
+    // connection can't block the register response. The account is already
+    // created — the user can always re-trigger via resend-verification.
+    authService
+      .sendEmailVerification(userId, normalizedEmail)
+      .catch((mailErr) => {
+        console.error("Verification email failed to send:", mailErr.message);
+      });
 
     res.status(201).json({
       success: true,
