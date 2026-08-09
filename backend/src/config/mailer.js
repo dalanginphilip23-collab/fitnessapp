@@ -145,8 +145,51 @@ async function sendWelcomeEmail(to, name) {
   return transporter.sendMail(mailOptions);
 }
 
+// ─── EMAIL VERIFICATION ───────────────────────────────────────────────────────
+async function sendVerificationEmail(to, verifyLink) {
+  const mailOptions = {
+    from:    `"Vitalis" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: '✅ Verify Your Vitalis Account',
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:auto;background:#0f0f0f;padding:32px;border-radius:12px;">
+        <div style="text-align:center;margin-bottom:24px;">
+          <h1 style="color:#a3e635;margin:0;font-size:24px;letter-spacing:2px;">VITALIS</h1>
+          <p style="color:#888;font-size:12px;margin:4px 0 0;">PERFORMANCE OS</p>
+        </div>
+
+        <h2 style="color:#fff;font-size:18px;margin:0 0 8px;">Confirm Your Email</h2>
+        <p style="color:#aaa;font-size:14px;margin:0 0 24px;">
+          Thanks for signing up. Click the button below to verify your email
+          and activate your account. This link expires in
+          <strong style="color:#fff;">24 hours</strong>.
+        </p>
+
+        <div style="text-align:center;margin:32px 0;">
+          <a href="${verifyLink}"
+             style="background:#a3e635;color:#000;padding:14px 32px;border-radius:8px;
+                    text-decoration:none;font-weight:bold;font-size:15px;letter-spacing:1px;">
+            VERIFY EMAIL
+          </a>
+        </div>
+
+        <p style="color:#555;font-size:12px;">
+          If you didn't create a Vitalis account, you can safely ignore this email.
+        </p>
+
+        <p style="color:#555;font-size:11px;text-align:center;margin-top:32px;">
+          © ${new Date().getFullYear()} Vitalis Performance OS
+        </p>
+      </div>
+    `,
+  };
+
+  return transporter.sendMail(mailOptions);
+}
+
 module.exports = {
   sendMealSummaryEmail,
   sendPasswordResetEmail,
   sendWelcomeEmail,
+  sendVerificationEmail,
 };
