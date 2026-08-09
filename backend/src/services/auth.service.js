@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 const UAParser = require('ua-parser-js');
 const { OAuth2Client } = require('google-auth-library');
+const { sendVerificationEmail } = require('../config/mailer');
 
 // ─── Google OAuth Client ───
 const googleClient = new OAuth2Client({
@@ -151,15 +152,15 @@ async function findUserByEmail(email) {
 
 async function createUser({ name, email, hashedPw, fitness_goal }) {
   return db.execute(
-    'INSERT INTO users (name, email, password, fitness_goal, is_online) VALUES (?, ?, ?, ?, ?)',
-    [name, email, hashedPw, fitness_goal, 0]
+    'INSERT INTO users (name, email, password, fitness_goal, is_online, email_verified) VALUES (?, ?, ?, ?, ?, ?)',
+    [name, email, hashedPw, fitness_goal, 0, 0]
   );
 }
 
 async function createGoogleUser({ name, email, hashedPw, fitness_goal, picture }) {
   return db.execute(
-    'INSERT INTO users (name, email, password, fitness_goal, is_online, avatar_url) VALUES (?, ?, ?, ?, ?, ?)',
-    [name, email, hashedPw, fitness_goal, 1, picture]
+    'INSERT INTO users (name, email, password, fitness_goal, is_online, avatar_url, email_verified) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [name, email, hashedPw, fitness_goal, 1, picture, 1]
   );
 }
 
@@ -204,6 +205,26 @@ async function updateUserPassword(userId, newHash) {
   await db.execute('UPDATE users SET password = ? WHERE id = ?', [newHash, userId]);
 }
 
+async function markEmailVerified(userId) {
+  await db.execute('UPDATE users SET email_verified = 1 WHERE id = ?', [userId]);
+}
+
+// ─── EMAIL VERIFICATION ───
+// Builds a signed 24h token and sends the verification email. Shared by
+// register and resend-verification so the token/link format stays identical.
+async function sendEmailVerification(userId, email) {
+  const verifyToken = jwt.sign(
+    { id: userId, email, purpose: 'verify-email' },
+    process.env.JWT_SECRET,
+    { expiresIn: '24h' }
+  );
+
+  const baseUrl = (process.env.FRONTEND_URL || process.env.CLIENT_URL || '').replace(/\/+$/, '');
+  const verifyLink = `${baseUrl}/verify-email?token=${verifyToken}`;
+
+  await sendVerificationEmail(email, verifyLink);
+}
+
 module.exports = {
   COOKIE_NAME,
   googleClient,
@@ -224,6 +245,8 @@ module.exports = {
   findUserById,
   getUserPasswordHash,
   updateUserPassword,
+  markEmailVerified,
+  sendEmailVerification,
   bcrypt,
   jwt,
 };

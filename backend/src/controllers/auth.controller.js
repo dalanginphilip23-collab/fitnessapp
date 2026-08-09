@@ -14,7 +14,6 @@ const {
   insertBmiRecord,
   syncUserProfile,
 } = require("../services/bmi.service");
-const { sendVerificationEmail } = require("../config/mailer");
 
 if (process.env.NODE_ENV !== "production") {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -126,16 +125,8 @@ async function register(req, res) {
       };
     }
 
-    const verifyToken = jwt.sign(
-      { id: userId, email: normalizedEmail, purpose: "verify-email" },
-      process.env.JWT_SECRET,
-      { expiresIn: "24h" },
-    );
-
-    const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${verifyToken}`;
-
     try {
-      await sendVerificationEmail(normalizedEmail, verifyLink);
+      await authService.sendEmailVerification(userId, normalizedEmail);
     } catch (mailErr) {
       console.error("Verification email failed to send:", mailErr.message);
     }
@@ -159,6 +150,98 @@ async function register(req, res) {
         .json({ error: "Email already registered in Vitalis labs." });
     }
     res.status(500).json({ error: "Database rejection: " + err.message });
+  }
+}
+
+// ─── POST /api/auth/verify-email ───
+async function verifyEmail(req, res) {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ message: "Missing verification token" });
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (err) {
+    const expired = err.name === "TokenExpiredError";
+    return res.status(400).json({
+      message: expired
+        ? "This verification link has expired. Please request a new one."
+        : "This verification link is invalid.",
+      error: expired ? "token_expired" : "invalid_token",
+    });
+  }
+
+  if (decoded.purpose !== "verify-email") {
+    return res.status(400).json({
+      message: "This verification link is invalid.",
+      error: "invalid_token",
+    });
+  }
+
+  try {
+    const user = await authService.findUserById(decoded.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    if (Number(user.email_verified) === 1) {
+      return res.json({
+        success: true,
+        message: "Your email is already verified. You can log in now.",
+      });
+    }
+
+    await authService.markEmailVerified(user.id);
+
+    res.json({
+      success: true,
+      message: "Your email has been verified. You can log in now.",
+    });
+  } catch (err) {
+    console.error("Verify email error:", err);
+    res.status(500).json({ message: "Could not verify email." });
+  }
+}
+
+// ─── POST /api/auth/resend-verification ───
+async function resendVerification(req, res) {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required." });
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+
+  try {
+    const users = await authService.findFullUserByEmail(normalizedEmail);
+
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No account found for that email." });
+    }
+
+    const user = users[0];
+
+    if (Number(user.email_verified) === 1) {
+      return res.json({
+        success: true,
+        message: "This email is already verified. You can log in now.",
+      });
+    }
+
+    await authService.sendEmailVerification(user.id, normalizedEmail);
+
+    res.json({
+      success: true,
+      message: "Verification email sent. Please check your inbox.",
+    });
+  } catch (err) {
+    console.error("Resend verification error:", err);
+    res.status(500).json({ message: "Could not resend verification email." });
   }
 }
 
@@ -196,6 +279,13 @@ async function login(req, res) {
         hint = "Too many failed attempts. Try again in 30 seconds.";
 
       return res.status(401).json({ message: hint });
+    }
+
+    if (Number(user.email_verified) !== 1) {
+      return res.status(403).json({
+        message: "Please verify your email before logging in.",
+        error: "email_not_verified",
+      });
     }
 
     authService.clearAttempts(normalizedEmail);
@@ -282,6 +372,13 @@ async function googleLogin(req, res) {
     } else {
       user = users[0];
       await authService.setUserOnline(user.id);
+
+      // Google already confirmed ownership of this email — treat the
+      // account as verified so Google users are never blocked by the
+      // email-verification gate.
+      if (Number(user.email_verified) !== 1) {
+        await authService.markEmailVerified(user.id);
+      }
     }
 
     const avatarFromProfile = await authService.getLatestAvatar(user.id);
@@ -369,6 +466,8 @@ async function logout(req, res) {
 module.exports = {
   getMe,
   register,
+  verifyEmail,
+  resendVerification,
   login,
   googleLogin,
   changePassword,

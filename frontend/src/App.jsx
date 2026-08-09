@@ -22,6 +22,7 @@ const Register = lazy(() => import("./features/Auth/Register/pages/Register"));
 const Login = lazy(() => import("./features/Auth/Login/pages/Login"));
 const ClinicalMessenger = lazy(() => import("./features/Social/pages/Social"));
 const ForgotPassword = lazy(() => import("./features/Auth/Forgot-password/pages/ForgotPassword"));
+const VerifyEmail = lazy(() => import("./features/Auth/VerifyEmail/pages/VerifyEmail"));
 
 
 const RouteFallback = () => (
@@ -187,6 +188,7 @@ function RoutesHandler() {
           }
         />
         <Route path="/reset-password" element={<ForgotPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>

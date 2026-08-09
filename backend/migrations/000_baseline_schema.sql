@@ -923,6 +923,7 @@ CREATE TABLE `users` (
   `fitness_goal` varchar(100) DEFAULT NULL,
   `avatar_url` longtext DEFAULT NULL,
   `is_online` tinyint(1) DEFAULT 0,
+  `email_verified` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

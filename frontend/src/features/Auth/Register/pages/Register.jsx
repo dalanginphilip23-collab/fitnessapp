@@ -185,9 +185,9 @@ const Register = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="font-['Bebas_Neue'] text-[26px] sm:text-3xl tracking-wider text-[#e5e2e1] mb-2 uppercase">You're All Set!</h2>
+            <h2 className="font-['Bebas_Neue'] text-[26px] sm:text-3xl tracking-wider text-[#e5e2e1] mb-2 uppercase">Check Your Email!</h2>
             <p className="text-[11px] sm:text-[12px] text-[#c4c9b0]/60 tracking-wider mb-6 sm:mb-8 leading-relaxed uppercase">
-              Your account is ready. Let's crush your fitness goals!
+              We sent a verification link to your email. Verify your account to unlock your fitness journey.
             </p>
             <button
               onClick={handleModalConfirm}

@@ -8,6 +8,9 @@ import { useAuth } from '../../../../hooks/useAuth';
 export const useLogin = () => {
   const [error,   setError]   = useState('');
   const [loading, setLoading] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [unverifiedEmail,   setUnverifiedEmail]   = useState('');
+  const [resendState, setResendState] = useState({ sending: false, sent: false, error: '' });
   const navigate  = useNavigate();
   const { setUser } = useAuth();
 
@@ -33,6 +36,9 @@ export const useLogin = () => {
   const handleSubmit = async (e, { email, password }) => {
     e.preventDefault();
     setError('');
+    setNeedsVerification(false);
+    setUnverifiedEmail('');
+    setResendState({ sending: false, sent: false, error: '' });
     setLoading(true);
 
     try {
@@ -44,7 +50,16 @@ export const useLogin = () => {
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Login failed');
+      if (!response.ok) {
+        // Surface the "verify your email" state separately so the UI can
+        // offer a resend link instead of just showing a generic error.
+        if (data.error === 'email_not_verified') {
+          setNeedsVerification(true);
+          setUnverifiedEmail(email);
+          setError(data.message || 'Please verify your email before logging in.');
+        }
+        throw new Error(data.message || 'Login failed');
+      }
 
       const user = normalizeUser(data);
       if (!user.id) throw new Error('Login response did not include a user ID.');
@@ -56,6 +71,27 @@ export const useLogin = () => {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!unverifiedEmail) return;
+    setResendState({ sending: true, sent: false, error: '' });
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/resend-verification`, {
+        method:      'POST',
+        headers:     { 'Content-Type': 'application/json' },
+        body:        JSON.stringify({ email: unverifiedEmail }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Could not resend verification email.');
+
+      setResendState({ sending: false, sent: true, error: '' });
+      setError('');
+    } catch (err) {
+      setResendState({ sending: false, sent: false, error: err.message });
     }
   };
 
@@ -98,5 +134,14 @@ export const useLogin = () => {
     flow:      'auth-code',
   });
 
-  return { error, loading, handleSubmit, loginWithGoogle };
+  return {
+    error,
+    loading,
+    needsVerification,
+    unverifiedEmail,
+    resendState,
+    handleSubmit,
+    handleResendVerification,
+    loginWithGoogle,
+  };
 };

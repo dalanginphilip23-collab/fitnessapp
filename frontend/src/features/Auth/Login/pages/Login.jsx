@@ -31,7 +31,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const { error, loading, handleSubmit, loginWithGoogle } = useLogin();
+  const { error, loading, needsVerification, unverifiedEmail, resendState, handleSubmit, handleResendVerification, loginWithGoogle } = useLogin();
 
   return (
     <div
@@ -195,6 +195,27 @@ const Login = () => {
               {error && (
                 <div className="bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[10px] font-semibold tracking-widest uppercase p-2.5 text-center">
                   {error}
+                  {needsVerification && unverifiedEmail && (
+                    <div className="mt-2 flex flex-col items-center gap-1.5">
+                      {resendState.sent ? (
+                        <span className="text-[#8BC34A] normal-case tracking-normal font-medium">
+                          Verification email sent to {unverifiedEmail}. Please check your inbox.
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleResendVerification}
+                          disabled={resendState.sending}
+                          className="underline text-red-300 hover:text-red-100 disabled:opacity-50 disabled:cursor-not-allowed normal-case tracking-normal font-medium"
+                        >
+                          {resendState.sending ? 'Sending...' : 'Resend verification email'}
+                        </button>
+                      )}
+                      {resendState.error && (
+                        <span className="text-red-400 normal-case tracking-normal font-medium">{resendState.error}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
