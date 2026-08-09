@@ -13,7 +13,13 @@ async function submitFeedback(req, res) {
       });
     }
 
-    await feedbackService.sendFeedbackEmail({ name, email, message });
+    const id = await feedbackService.storeFeedback({ name, email, message });
+
+    feedbackService
+      .sendFeedbackEmail({ id, name, email, message })
+      .catch((mailErr) => {
+        console.error('Feedback email failed to send:', mailErr.message);
+      });
 
     res.json({
       success: true,
