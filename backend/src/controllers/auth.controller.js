@@ -14,6 +14,7 @@ const {
   insertBmiRecord,
   syncUserProfile,
 } = require("../services/bmi.service");
+const { sendVerificationEmail } = require("../config/mailer");
 
 if (process.env.NODE_ENV !== "production") {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -125,10 +126,33 @@ async function register(req, res) {
       };
     }
 
-    res
-      .status(201)
-      .json({ success: true, message: "Identity created.", bmi: bmiData });
+    const verifyToken = jwt.sign(
+      { id: userId, email: normalizedEmail, purpose: "verify-email" },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" },
+    );
+
+    const verifyLink = `${process.env.FRONTEND_URL}/verify-email?token=${verifyToken}`;
+
+    try {
+      await sendVerificationEmail(normalizedEmail, verifyLink);
+    } catch (mailErr) {
+      console.error("Verification email failed to send:", mailErr.message);
+    }
+
+    res.status(201).json({
+      success: true,
+      message:
+        "Account created. Please check your email to verify your account before logging in.",
+      bmi: bmiData,
+    });
   } catch (err) {
+    // Safety net: if two register requests for the same email land at
+    // almost the same time, both can pass the findUserByEmail check
+    // before either INSERT completes. The DB's UNIQUE KEY on `email`
+    // then rejects the second insert with ER_DUP_ENTRY — catch that
+    // specifically so the user still sees the friendly message instead
+    // of a generic "Database rejection" 500.
     if (err.code === "ER_DUP_ENTRY") {
       return res
         .status(400)
