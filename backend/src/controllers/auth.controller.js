@@ -63,7 +63,9 @@ async function register(req, res) {
   } = req.body;
 
   try {
-    const existing = await authService.findUserByEmail(email);
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existing = await authService.findUserByEmail(normalizedEmail);
     if (existing.length > 0) {
       return res
         .status(400)
@@ -74,7 +76,7 @@ async function register(req, res) {
     const hashedPw = await bcrypt.hash(password, salt);
     const result = await authService.createUser({
       name,
-      email,
+      email: normalizedEmail,
       hashedPw,
       fitness_goal: fitness_goal || null,
     });
@@ -127,6 +129,11 @@ async function register(req, res) {
       .status(201)
       .json({ success: true, message: "Identity created.", bmi: bmiData });
   } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      return res
+        .status(400)
+        .json({ error: "Email already registered in Vitalis labs." });
+    }
     res.status(500).json({ error: "Database rejection: " + err.message });
   }
 }
@@ -134,8 +141,9 @@ async function register(req, res) {
 // ─── POST /api/auth/login ───
 async function login(req, res) {
   const { email, password } = req.body;
+  const normalizedEmail = email.trim().toLowerCase();
 
-  const lockStatus = authService.checkRateLimit(email);
+  const lockStatus = authService.checkRateLimit(normalizedEmail);
   if (lockStatus) {
     return res.status(429).json({
       message: lockStatus.message,
@@ -144,10 +152,10 @@ async function login(req, res) {
   }
 
   try {
-    const users = await authService.findFullUserByEmail(email);
+    const users = await authService.findFullUserByEmail(normalizedEmail);
 
     if (users.length === 0) {
-      authService.recordFailedAttempt(email);
+      authService.recordFailedAttempt(normalizedEmail);
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
@@ -155,7 +163,7 @@ async function login(req, res) {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      const attempts = authService.recordFailedAttempt(email);
+      const attempts = authService.recordFailedAttempt(normalizedEmail);
 
       let hint = "Invalid credentials";
       if (attempts >= 20)
@@ -166,7 +174,7 @@ async function login(req, res) {
       return res.status(401).json({ message: hint });
     }
 
-    authService.clearAttempts(email);
+    authService.clearAttempts(normalizedEmail);
     await authService.setUserOnline(user.id);
 
     const avatarFromProfile = await authService.getLatestAvatar(user.id);
@@ -222,8 +230,10 @@ async function googleLogin(req, res) {
       return res.status(401).json({ message: "Google account has no email" });
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     // Check if user exists
-    const users = await authService.findFullUserByEmail(email);
+    const users = await authService.findFullUserByEmail(normalizedEmail);
 
     let user;
 
@@ -238,7 +248,7 @@ async function googleLogin(req, res) {
 
       const [insertResult] = await authService.createGoogleUser({
         name,
-        email,
+        email: normalizedEmail,
         hashedPw: randomHashedPw,
         fitness_goal: defaultGoal,
         picture,
