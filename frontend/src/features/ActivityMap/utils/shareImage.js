@@ -1,18 +1,45 @@
 import { toPng } from 'html-to-image';
 
 // ─── Share-card image generation + Web Share / download ─────────────────────
-// Captures a hidden ShareCard DOM node (Leaflet map + stats) to a PNG, then
-// hands it to the native share sheet (WhatsApp / Facebook / Email / save) or
-// falls back to a direct download when the Web Share API / files aren't
-// available (e.g. desktop Safari, insecure contexts).
+// Captures a ShareCard DOM node (Leaflet map + stats) to a PNG, then hands it
+// to the native share sheet (WhatsApp / Facebook / Email / save) or falls back
+// to a direct download when the Web Share API / files aren't available (e.g.
+// desktop Safari, insecure contexts).
+
+// Waits until every Leaflet tile inside `node` has fully loaded (or a timeout
+// elapses). Capturing too early yields a black/blank map, so we poll for the
+// `.leaflet-tile-loaded` class instead of relying on a fixed delay.
+export async function waitForMapTiles(node, { timeout = 12000, interval = 200 } = {}) {
+  if (!node) return false;
+
+  const tiles = () => Array.from(node.querySelectorAll('img.leaflet-tile'));
+  const done = () => {
+    const all = tiles();
+    if (all.length === 0) return false; // no tiles yet — keep waiting
+    return all.every((t) => t.classList.contains('leaflet-tile-loaded'));
+  };
+
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    if (done()) return true;
+    await new Promise((r) => setTimeout(r, interval));
+  }
+  return done();
+}
 
 export async function captureShareImage(node, { pixelRatio = 2 } = {}) {
   if (!node) throw new Error('Share card not rendered');
 
+  // Give the map a real chance to paint its tiles before capturing.
+  await waitForMapTiles(node);
+
   const dataUrl = await toPng(node, {
     pixelRatio,
-    cacheBust: true,
+    cacheBust: false,
     backgroundColor: '#121212',
+    // Retry cross-origin tile inlining (CARTO CDN). Skipping the default
+    // placeholder means failed images still render (not black-on-black).
+    imageTimeout: 15000,
   });
 
   // dataURL -> Blob so we can build a File for the share API

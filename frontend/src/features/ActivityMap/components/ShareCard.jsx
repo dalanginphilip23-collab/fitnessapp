@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
-import { MAP_ICONS } from './mapIcons';
+import { MapContainer, TileLayer, Polyline } from 'react-leaflet';
 import FitRoute from './fitRoute';
 import { getActivityType } from '../utils/activityTypes';
 import { buildElevationProfile } from '../utils/elevation';
@@ -131,11 +130,13 @@ const ShareCard = React.forwardRef(function ShareCard(
             doubleClickZoom={false}
             style={{ height: '100%', width: '100%' }}
           >
-            <TileLayer url={TILE_URL} attribution={TILE_ATTRIBUTION} />
+            <TileLayer
+              url={TILE_URL}
+              attribution={TILE_ATTRIBUTION}
+              crossOrigin={true}
+            />
             <FitRoute path={route} />
             <Polyline positions={route} pathOptions={{ color: '#8BC34A', weight: 6, opacity: 0.95 }} />
-            <Marker position={route[0]} icon={MAP_ICONS.start} />
-            <Marker position={route[route.length - 1]} icon={MAP_ICONS.finish} />
           </MapContainer>
         ) : (
           <div
@@ -173,8 +174,7 @@ const ShareCard = React.forwardRef(function ShareCard(
             display: 'flex',
             alignItems: 'center',
             gap: 10,
-            background: 'rgba(0,0,0,0.5)',
-            backdropFilter: 'blur(10px)',
+            background: 'rgba(0,0,0,0.55)',
             padding: '10px 18px',
             borderRadius: 999,
           }}
@@ -256,9 +256,8 @@ const ShareCard = React.forwardRef(function ShareCard(
               <div
                 key={s.label}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
+                  background: 'rgba(22,22,22,0.72)',
                   border: '1px solid rgba(255,255,255,0.09)',
-                  backdropFilter: 'blur(6px)',
                   borderRadius: 16,
                   padding: isStory ? '16px 6px' : '12px 6px',
                   textAlign: 'center',
