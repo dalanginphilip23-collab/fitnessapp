@@ -195,6 +195,7 @@ export const useActivityApi = ({ userId, activeTab, showToast, setRunAnalysis, o
         placeName,
         createdAt: new Date().toISOString(),
         metrics: { ...m },
+        splits: finishedSplitsRef.current,
         route: finishedPathRef.current,
         isPublic,
       });

@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../../../config/port';
 import { MAP_ICONS } from '../components';
 import FitRoute from '../components/fitRoute';
 import { getActivityType } from '../utils/activityTypes';
+import { buildElevationProfile } from '../utils/elevation';
 
 // Public, read-only activity viewer — no auth required. Opened via the
 // shareable link `/activity/:token`. Shows the route on a map + the stats
@@ -43,6 +44,12 @@ const SharedActivity = () => {
     })();
     return () => { mounted = false; };
   }, [token]);
+
+  // Computed before any conditional return so hook order is stable.
+  const elevation = React.useMemo(
+    () => buildElevationProfile(activity?.route || []),
+    [activity]
+  );
 
   if (loading) {
     return (
@@ -83,6 +90,39 @@ const SharedActivity = () => {
       <p className="text-[8px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)] mt-1">{label}</p>
     </div>
   );
+
+  const ElevationChart = () => {
+    if (!elevation) return null;
+    const { points, minAlt, maxAlt, gain } = elevation;
+    const W = 640;
+    const H = 140;
+    const pad = 10;
+    const maxKm = points[points.length - 1].km || 1;
+    const coords = points.map((p) => [
+      pad + (p.km / maxKm) * (W - pad * 2),
+      pad + (1 - (p.alt - minAlt) / (maxAlt - minAlt || 1)) * (H - pad * 2),
+    ]);
+    const line = coords.map((c, i) => `${i === 0 ? 'M' : 'L'}${c[0].toFixed(1)},${c[1].toFixed(1)}`).join(' ');
+    const area = `${line} L${W - pad},${H} L${pad},${H} Z`;
+    return (
+      <div className="mt-4 bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-2xl p-3">
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-[8px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)]">Elevation</p>
+          {gain && <p className="text-[10px] font-black text-[#8BC34A]">▲ {gain} m gain</p>}
+        </div>
+        <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="elevFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#8BC34A" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#8BC34A" stopOpacity="0.02" />
+            </linearGradient>
+          </defs>
+          <path d={area} fill="url(#elevFill)" />
+          <path d={line} fill="none" stroke="#8BC34A" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+        </svg>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#121212] flex flex-col" style={{ fontFamily: "'Poppins', sans-serif" }}>
@@ -147,6 +187,8 @@ const SharedActivity = () => {
           <Stat label="Pace" value={activity.pace || '–'} unit="/km" />
           <Stat label="Calories" value={activity.calories || 0} unit="kcal" />
         </div>
+
+        <ElevationChart />
 
         {/* Author */}
         <div className="flex items-center gap-3 mt-6 p-3 rounded-2xl bg-[#1e1e1e] border border-[rgba(255,255,255,0.07)]">

@@ -10,7 +10,7 @@ import {
   RecenterMap, FitRoute, GpsBadge, HistoryTab, RouteReplay,
   RunAnalysisOverlay, RunControls, StatsPanel, StatsTab, FeedTab, Toast,
   SavedPinsLayer, ActivityCard, ActivityPanel, ActivityBottomSheet,
-  ShareSheet, ShareCard, MAP_ICONS,
+  ShareSheet, MAP_ICONS,
 } from '../components';
 
 import { useToast }       from './../hooks/useToast';
@@ -312,17 +312,17 @@ const ActivityMap = () => {
     setShareOpen(true);
   }, []);
 
-  const handleShareImage = useCallback(async () => {
+  const handleShareImage = useCallback(async (format = 'grid') => {
     if (!shareTarget) return;
     setIsSharing(true);
     try {
       const { captureShareImage, shareOrDownload } = await import('../utils/shareImage');
-      // Give the hidden card a moment to render its map tiles
+      // Give the card a moment to render its map tiles
       await new Promise((r) => setTimeout(r, 500));
       const node = shareCardRef.current;
       if (!node) throw new Error('Share card not ready');
       const { blob } = await captureShareImage(node);
-      const filename = `vitalis-${shareTarget.type || 'activity'}.png`;
+      const filename = `vitalis-${format}-${shareTarget.type || 'activity'}.png`;
       await shareOrDownload({
         blob,
         filename,
@@ -812,22 +812,10 @@ const ActivityMap = () => {
         caption={caption}
         setCaption={setCaption}
         onDone={handleShareDone}
+        cardRef={shareCardRef}
+        authorName={user?.name}
+        splits={shareTarget?.splits || []}
       />
-
-      {/* Hidden offscreen share card (captured to PNG when sharing) */}
-      {shareTarget && (
-        <ShareCard
-          ref={shareCardRef}
-          type={shareTarget.type}
-          title={shareTarget.title}
-          placeName={shareTarget.placeName}
-          createdAt={shareTarget.createdAt}
-          metrics={shareTarget.metrics}
-          splits={shareTarget.splits || []}
-          route={shareTarget.route}
-          authorName={user?.name}
-        />
-      )}
     </div>
   );
 };

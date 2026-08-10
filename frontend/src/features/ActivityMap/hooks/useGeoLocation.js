@@ -20,7 +20,8 @@ export const useGeolocation = (isRecording) => {
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const c = [pos.coords.latitude, pos.coords.longitude];
+        // [lat, lng, altitude] — altitude is null on devices that don't report it
+        const c = [pos.coords.latitude, pos.coords.longitude, pos.coords.altitude];
         setUserLocation(c);
         setStartCoords(c);
         setMapCenter(c);
@@ -37,7 +38,7 @@ export const useGeolocation = (isRecording) => {
     if (isRecording && navigator.geolocation) {
       watchIdRef.current = navigator.geolocation.watchPosition(
         (pos) => {
-          const c = [pos.coords.latitude, pos.coords.longitude];
+          const c = [pos.coords.latitude, pos.coords.longitude, pos.coords.altitude];
           setPath((prev) => [...prev, c]);
           setUserLocation(c);
           setLocationStatus("granted");
