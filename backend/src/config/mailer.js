@@ -7,9 +7,9 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
   tls: { rejectUnauthorized: false },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 15000,
+  connectionTimeout: 1000,
+  greetingTimeout: 1000,
+  socketTimeout: 5000,
 });
 
 // ─── MEAL SUMMARY EMAIL ──────────────────────────────────────────────────────
