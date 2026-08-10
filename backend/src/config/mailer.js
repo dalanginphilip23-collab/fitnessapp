@@ -1,21 +1,22 @@
-const FormData = require('form-data');
-const Mailgun = require('mailgun.js');
+const nodemailer = require('nodemailer');
 
-const mailgun = new Mailgun(FormData);
-const mg = mailgun.client({
-  username: 'api',
-  key: process.env.MAILGUN_API_KEY,
-
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: { rejectUnauthorized: false },
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 15000,
 });
-
-const MAILGUN_DOMAIN = process.env.MAILGUN_DOMAIN;
-const FROM_ADDRESS = `Vitalis <postmaster@${MAILGUN_DOMAIN}>`;
 
 // ─── MEAL SUMMARY EMAIL ──────────────────────────────────────────────────────
 async function sendMealSummaryEmail(to, summary) {
-  return mg.messages.create(MAILGUN_DOMAIN, {
-    from: FROM_ADDRESS,
-    to: [to],
+  const mailOptions = {
+    from:    `"Vitalis" <${process.env.EMAIL_USER}>`,
+    to,
     subject: '🥗 Your Daily Nutrition Summary — Vitalis',
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;background:#0f0f0f;padding:32px;border-radius:12px;">
@@ -62,14 +63,16 @@ async function sendMealSummaryEmail(to, summary) {
         </p>
       </div>
     `,
-  });
+  };
+
+  return transporter.sendMail(mailOptions);
 }
 
 // ─── PASSWORD RESET EMAIL ─────────────────────────────────────────────────────
 async function sendPasswordResetEmail(to, resetLink) {
-  return mg.messages.create(MAILGUN_DOMAIN, {
-    from: FROM_ADDRESS,
-    to: [to],
+  const mailOptions = {
+    from:    `"Vitalis" <${process.env.EMAIL_USER}>`,
+    to,
     subject: '🔐 Reset Your Vitalis Password',
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;background:#0f0f0f;padding:32px;border-radius:12px;">
@@ -102,14 +105,16 @@ async function sendPasswordResetEmail(to, resetLink) {
         </p>
       </div>
     `,
-  });
+  };
+
+  return transporter.sendMail(mailOptions);
 }
 
 // ─── WELCOME EMAIL ────────────────────────────────────────────────────────────
 async function sendWelcomeEmail(to, name) {
-  return mg.messages.create(MAILGUN_DOMAIN, {
-    from: FROM_ADDRESS,
-    to: [to],
+  const mailOptions = {
+    from:    `"Vitalis" <${process.env.EMAIL_USER}>`,
+    to,
     subject: '⚡ Welcome to Vitalis Performance OS',
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;background:#0f0f0f;padding:32px;border-radius:12px;">
@@ -120,7 +125,7 @@ async function sendWelcomeEmail(to, name) {
 
         <h2 style="color:#fff;font-size:18px;margin:0 0 8px;">Welcome, ${name}! 👋</h2>
         <p style="color:#aaa;font-size:14px;margin:0 0 24px;">
-          Your Vitalis account is ready. Start tracking your nutrition, workouts,
+          Your Vitalis account is ready. Start tracking your nutrition, workouts, 
           sleep, and recovery — all in one place.
         </p>
 
@@ -138,14 +143,16 @@ async function sendWelcomeEmail(to, name) {
         </p>
       </div>
     `,
-  });
+  };
+
+  return transporter.sendMail(mailOptions);
 }
 
 // ─── EMAIL VERIFICATION ───────────────────────────────────────────────────────
 async function sendVerificationEmail(to, verifyLink) {
-  return mg.messages.create(MAILGUN_DOMAIN, {
-    from: FROM_ADDRESS,
-    to: [to],
+  const mailOptions = {
+    from:    `"Vitalis" <${process.env.EMAIL_USER}>`,
+    to,
     subject: '✅ Verify Your Vitalis Account',
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;background:#0f0f0f;padding:32px;border-radius:12px;">
@@ -178,7 +185,9 @@ async function sendVerificationEmail(to, verifyLink) {
         </p>
       </div>
     `,
-  });
+  };
+
+  return transporter.sendMail(mailOptions);
 }
 
 module.exports = {
