@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, Marker, Circle } from 'react-leaflet';
 import { Topbar } from '../../../components';
 import SidebarAnalytics from '../../../components/SidebarAnalytics';
 import { useAuth } from '../../../hooks/useAuth';
@@ -114,7 +114,7 @@ const ActivityMap = () => {
   const { isDark }           = useTheme();
   const tileUrl = isDark ? TILE_URL_DARK : TILE_URL_LIGHT;
 
-  const { userLocation, startCoords, locationStatus, mapCenter, path, setPath } =
+  const { userLocation, startCoords, accuracy, locationStatus, mapCenter, path, setPath } =
     useGeolocation(isRecordingState);
 
   const { metrics, splits, resetMetrics } =
@@ -538,7 +538,7 @@ const ActivityMap = () => {
             )}
           </MapContainer>
 
-          <GpsBadge locationStatus={locationStatus} />
+          <GpsBadge locationStatus={locationStatus} accuracy={accuracy} />
 
           {!isLargeScreen && (
             <ActivityBottomSheet open label="Activity">
@@ -564,7 +564,7 @@ const ActivityMap = () => {
             <RouteReplay fullPath={finishedRun.path} />
           </MapContainer>
 
-          <GpsBadge locationStatus={locationStatus} />
+          <GpsBadge locationStatus={locationStatus} accuracy={accuracy} />
 
           {!isLargeScreen && (
             <ActivityBottomSheet open label="Activity">
@@ -592,7 +592,26 @@ const ActivityMap = () => {
               pathOptions={{ color: 'var(--accent)', weight: 5, opacity: 0.85 }}
             />
           )}
-          {userLocation && <Marker position={userLocation} icon={MAP_ICONS.location} />}
+          {userLocation && (
+            <>
+              {/* Accuracy confidence circle — shows the GPS uncertainty radius */}
+              {accuracy != null && accuracy > 0 && (
+                <Circle
+                  center={userLocation}
+                  radius={Math.max(accuracy, 15)}
+                  pathOptions={{
+                    color: 'var(--accent)',
+                    weight: 1.5,
+                    opacity: 0.4,
+                    fillColor: 'var(--accent)',
+                    fillOpacity: 0.12,
+                    dashArray: '4 6',
+                  }}
+                />
+              )}
+              <Marker position={userLocation} icon={MAP_ICONS.location} />
+            </>
+          )}
           <SavedPinsLayer
             pins={pins}
             addMode={addPinMode}
@@ -606,7 +625,7 @@ const ActivityMap = () => {
           />
         </MapContainer>
 
-        <GpsBadge locationStatus={locationStatus} />
+        <GpsBadge locationStatus={locationStatus} accuracy={accuracy} />
 
         {locationStatus === 'denied' && (
           <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-[1000] bg-(--error-bg) border border-(--error) px-3 py-2 rounded-xl max-w-45">
