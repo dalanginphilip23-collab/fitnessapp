@@ -18,6 +18,7 @@ const VirtualClinic = lazy(() => import("./features/Coach/pages/virtual-clinic")
 const LiveCoaching = lazy(() => import("./features/LiveCoaching/pages/LiveCoaching"));
 const Profile = lazy(() => import("./features/Profile/pages/Profile"));
 const ActivityMap = lazy(() => import("./features/ActivityMap/pages/ActivityMap"));
+const SharedActivity = lazy(() => import("./features/ActivityMap/pages/SharedActivity"));
 const Register = lazy(() => import("./features/Auth/Register/pages/Register"));
 const Login = lazy(() => import("./features/Auth/Login/pages/Login"));
 const ClinicalMessenger = lazy(() => import("./features/Social/pages/Social"));
@@ -189,6 +190,8 @@ function RoutesHandler() {
         />
         <Route path="/reset-password" element={<ForgotPassword />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        {/* Public read-only share link for activities */}
+        <Route path="/activity/:token" element={<SharedActivity />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
