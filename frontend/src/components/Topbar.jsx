@@ -403,7 +403,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
             <Icon name={mobileMenuOpen ? 'close' : 'menu'} className="text-[22px] sm:text-[24px]" />
           </button>
 
-          <span className="flex items-center gap-1.5 md:pl-6">
+          <span className="md:hidden flex items-center gap-1.5">
             <img src={logo} alt="Vitalis" className="h-[19px] sm:h-[22px] w-auto" />
             <span className="font-[Manrope] text-[15px] sm:text-[18px] font-extrabold tracking-tight text-(--text-primary)">
               Vitalis
@@ -411,7 +411,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
           </span>
 
           {/* ── Desktop Nav ── */}
-          <nav className="hidden md:flex gap-7 items-center">
+          <nav className="hidden md:flex gap-7 items-center md:pl-6">
             {NAV_LINKS.map((item, i) => (
               <button
                 key={i}
