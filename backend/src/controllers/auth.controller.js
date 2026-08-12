@@ -15,10 +15,6 @@ const {
   syncUserProfile,
 } = require("../services/bmi.service");
 
-if (process.env.NODE_ENV !== "production") {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-}
-
 // ─── GET /api/auth/me ───
 async function getMe(req, res) {
   const token = req.cookies?.[COOKIE_NAME];
@@ -69,7 +65,7 @@ async function register(req, res) {
     if (existing.length > 0) {
       return res
         .status(400)
-        .json({ error: "Email already registered in Vitalis labs." });
+        .json({ error: "If this email is not already registered, a verification link has been sent." });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -150,9 +146,9 @@ async function register(req, res) {
     if (err.code === "ER_DUP_ENTRY") {
       return res
         .status(400)
-        .json({ error: "Email already registered in Vitalis labs." });
+        .json({ error: "If this email is not already registered, a verification link has been sent." });
     }
-    res.status(500).json({ error: "Database rejection: " + err.message });
+    res.status(500).json({ error: "Registration failed. Please try again." });
   }
 }
 
@@ -224,7 +220,10 @@ async function resendVerification(req, res) {
     const users = await authService.findFullUserByEmail(normalizedEmail);
 
     if (users.length === 0) {
-      return res.status(404).json({ message: "No account found for that email." });
+      return res.json({
+        success: true,
+        message: "If this email is registered and unverified, a verification link has been sent.",
+      });
     }
 
     const user = users[0];
@@ -232,7 +231,7 @@ async function resendVerification(req, res) {
     if (Number(user.email_verified) === 1) {
       return res.json({
         success: true,
-        message: "This email is already verified. You can log in now.",
+        message: "If this email is registered and unverified, a verification link has been sent.",
       });
     }
 
@@ -240,7 +239,7 @@ async function resendVerification(req, res) {
 
     res.json({
       success: true,
-      message: "Verification email sent. Please check your inbox.",
+      message: "If this email is registered and unverified, a verification link has been sent.",
     });
   } catch (err) {
     console.error("Resend verification error:", err);
@@ -285,10 +284,7 @@ async function login(req, res) {
     }
 
     if (Number(user.email_verified) !== 1) {
-      return res.status(403).json({
-        message: "Please verify your email before logging in.",
-        error: "email_not_verified",
-      });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     authService.clearAttempts(normalizedEmail);

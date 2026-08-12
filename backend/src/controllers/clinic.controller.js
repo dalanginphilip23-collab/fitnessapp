@@ -16,7 +16,7 @@ async function createOrGetSession(req, res) {
 
   } catch (err) {
     console.error("Session error:", err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to create session' });
   }
 }
 
@@ -64,7 +64,7 @@ async function sendMessage(req, res) {
 
   } catch (err) {
     console.error("Message error:", err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to send message' });
   }
 }
 
@@ -76,7 +76,7 @@ async function getMessages(req, res) {
     res.json(rows);
   } catch (err) {
     console.error("Fetch messages error:", err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to fetch messages' });
   }
 }
 
@@ -88,7 +88,7 @@ async function resetChat(req, res) {
     res.json({ success: true, message: 'Consultation reset successfully.' });
   } catch (err) {
     console.error('Reset error:', err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to reset consultation' });
   }
 }
 
@@ -100,7 +100,7 @@ async function getDoctors(req, res) {
     res.json(rows);
   } catch (err) {
     console.error("Fetch doctors error:", err.message);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to fetch doctors' });
   }
 }
 

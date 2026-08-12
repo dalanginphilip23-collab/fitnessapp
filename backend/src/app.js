@@ -3,6 +3,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const helmet = require("helmet");
 
 const app = express();
 const server = http.createServer(app);
@@ -10,15 +11,27 @@ const server = http.createServer(app);
 // Trust Render/Railway proxy
 app.set("trust proxy", 1);
 
+// Security headers (X-Content-Type-Options, X-Frame-Options, referrer-policy,
+// etc.). The frontend is a separate origin, so these protect any HTML/JSON
+// served from the API and set useful browser-safety defaults.
+app.use(helmet());
+
 // ============================
 // Allowed Origins
 // ============================
 
+// Normalized (no trailing slash) allowlist. The `cors` package sends/compares
+// the raw Origin header, which never carries a trailing slash, so entries with
+// one would silently never match.
+const normalizeOrigin = (origin) => (origin || "").replace(/\/+$/, "");
+
 const ALLOWED_ORIGINS = [
   process.env.CLIENT_URL,
-  "https://fitness-app1-chi.vercel.app/",
+  "https://fitness-app1-chi.vercel.app",
   "https://fitnessapp-0cgj.onrender.com",
-];
+]
+  .filter(Boolean)
+  .map(normalizeOrigin);
 
 // ============================
 // CORS
@@ -26,13 +39,12 @@ const ALLOWED_ORIGINS = [
 
 const corsOptions = {
   origin(origin, callback) {
+    // No Origin header = non-browser/same-origin request (curl, mobile app,
+    // server-to-server). Browsers always attach Origin for cross-origin
+    // requests, so leaving these open doesn't widen the CORS surface.
     if (!origin) return callback(null, true);
 
     if (ALLOWED_ORIGINS.includes(origin)) {
-      return callback(null, true);
-    }
-
-    if (origin.endsWith(".devtunnels.ms")) {
       return callback(null, true);
     }
 

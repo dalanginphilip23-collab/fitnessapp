@@ -52,8 +52,8 @@ function pushToClient(userId, message, type) {
   }
 }
 
-async function markAsRead(id) {
-  return db.execute('UPDATE notifications SET is_read = TRUE WHERE id = ?', [id]);
+async function markAsRead(id, userId) {
+  return db.execute('UPDATE notifications SET is_read = TRUE WHERE id = ? AND user_id = ?', [id, userId]);
 }
 
 async function markAllAsRead(userId) {

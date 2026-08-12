@@ -45,7 +45,7 @@ async function getDetail(req, res) {
   const { id } = req.params;
 
   try {
-    const activity = await activityService.getActivityDetail(id);
+    const activity = await activityService.getActivityDetail(id, req.user.id);
 
     if (!activity) {
       return res.status(404).json({
@@ -92,7 +92,14 @@ async function remove(req, res) {
   const { id } = req.params;
 
   try {
-    await activityService.deleteActivity(id);
+    const [result] = await activityService.deleteActivity(id, req.user.id);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Activity not found'
+      });
+    }
 
     res.json({
       success: true,

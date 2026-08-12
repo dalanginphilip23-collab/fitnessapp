@@ -9,6 +9,14 @@ async function findSession(userId, doctorName) {
   return existing;
 }
 
+async function getSessionOwner(sessionId) {
+  const [rows] = await db.execute(
+    'SELECT user_id FROM chat_sessions WHERE id = ?',
+    [sessionId]
+  );
+  return rows[0] ? rows[0].user_id : null;
+}
+
 async function createSession(userId, doctorName) {
   const [result] = await db.execute(
     'INSERT INTO chat_sessions (user_id, doctor_name) VALUES (?, ?)',
@@ -75,6 +83,7 @@ async function getAiReply(prompt) {
 module.exports = {
   findSession,
   createSession,
+  getSessionOwner,
   saveUserMessage,
   saveAiMessage,
   getRecentHistory,

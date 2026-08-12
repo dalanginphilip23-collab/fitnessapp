@@ -1,5 +1,16 @@
 const nodemailer = require('nodemailer');
 
+// Escape user-supplied fields before embedding them in the HTML email so a
+// visitor can't inject markup/scripts that the recipient's mail client renders.
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 async function sendFeedbackEmail({ name, email, message }) {
   // TRANSPORTER
   const transporter = nodemailer.createTransport({
@@ -25,11 +36,11 @@ async function sendFeedbackEmail({ name, email, message }) {
                     <h2>New Feedback</h2>
 
                     <p>
-                        <strong>Name:</strong> ${name}
+                        <strong>Name:</strong> ${escapeHtml(name)}
                     </p>
 
                     <p>
-                        <strong>Email:</strong> ${email}
+                        <strong>Email:</strong> ${escapeHtml(email)}
                     </p>
 
                     <p>
@@ -41,7 +52,7 @@ async function sendFeedbackEmail({ name, email, message }) {
                         padding: 15px;
                         border-radius: 8px;
                     ">
-                        ${message}
+                        ${escapeHtml(message)}
                     </div>
 
                 </div>

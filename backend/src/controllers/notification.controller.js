@@ -67,7 +67,7 @@ async function create(req, res) {
 async function markRead(req, res) {
   const { id } = req.params;
   try {
-    await notificationService.markAsRead(id);
+    await notificationService.markAsRead(id, req.user.id);
     res.json({ success: true });
   } catch (err) {
     console.error('PUT /api/notifications/:id/read failed:', err);

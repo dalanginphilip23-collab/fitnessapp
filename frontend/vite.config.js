@@ -49,18 +49,10 @@ export default defineConfig({
               },
             },
           },
-          {
-            urlPattern: /\/api\/.*/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24,
-              },
-              networkTimeoutSeconds: 5,
-            },
-          },
+          // NOTE: /api/* caches were intentionally REMOVED. Authenticated API
+          // responses (dashboard, profile, messages, etc.) must never be
+          // cached by the service worker — on a shared device the stale cache
+          // can leak one user's data to the next user who logs in.
         ],
       },
     }),

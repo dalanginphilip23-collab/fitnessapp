@@ -1,6 +1,25 @@
 const forgotPasswordService = require('../services/forgotPassword.service');
 const { bcrypt, crypto } = forgotPasswordService;
 
+// ─── RATE LIMITERS (IN-MEMORY, PER EMAIL) ───
+// Guards the OTP flow against brute-force (6-digit codes) and email flooding.
+// Keyed per email so attackers can't hammer one account. Same caveat as the
+// login limiter: in-memory, so it resets on restart — swap for Redis at scale.
+const otpSendBuckets = new Map();
+const otpTryBuckets = new Map();
+const resetBuckets = new Map();
+
+function allowWithin(buckets, key, max, windowMs) {
+  const now = Date.now();
+  const rec = buckets.get(key);
+  if (!rec || now - rec.startedAt >= windowMs) {
+    buckets.set(key, { startedAt: now, count: 1 });
+    return true;
+  }
+  rec.count += 1;
+  return rec.count <= max;
+}
+
 async function sendOtp(req, res) {
   const { email } = req.body;
 
@@ -8,8 +27,14 @@ async function sendOtp(req, res) {
     return res.status(400).json({ message: 'Email is required.' });
   }
 
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (!allowWithin(otpSendBuckets, normalizedEmail, 5, 10 * 60 * 1000)) {
+    return res.status(429).json({ message: 'Too many OTP requests. Try again in 10 minutes.' });
+  }
+
   try {
-    const users = await forgotPasswordService.findUserByEmail(email);
+    const users = await forgotPasswordService.findUserByEmail(normalizedEmail);
 
     // Always return success
     if (users.length === 0) {
@@ -29,7 +54,7 @@ async function sendOtp(req, res) {
     await forgotPasswordService.insertOtp(user.id, otpHash, expiresAt);
 
     // Send email
-    await forgotPasswordService.sendOtpEmail(email, user.name, otp);
+    await forgotPasswordService.sendOtpEmail(normalizedEmail, user.name, otp);
 
     res.json({ success: true, message: 'If that email exists, a code was sent.' });
 
@@ -46,8 +71,16 @@ async function verifyOtp(req, res) {
     return res.status(400).json({ message: 'Email and code are required.' });
   }
 
+  const normalizedEmail = email.trim().toLowerCase();
+
+  // Rate-limit BEFORE any DB work — 6-digit codes are brute-forceable without
+  // this, and every bad guess otherwise costs a DB round-trip.
+  if (!allowWithin(otpTryBuckets, normalizedEmail, 5, 10 * 60 * 1000)) {
+    return res.status(429).json({ message: 'Too many attempts. Request a new code and try again later.' });
+  }
+
   try {
-    const users = await forgotPasswordService.findUserIdByEmail(email);
+    const users = await forgotPasswordService.findUserIdByEmail(normalizedEmail);
 
     if (users.length === 0) {
       return res.status(400).json({ message: 'Invalid code.' });
@@ -69,6 +102,8 @@ async function verifyOtp(req, res) {
 
     await forgotPasswordService.swapOtpForResetToken(otps[0].id, resetTokenHash, resetExpiry);
 
+    otpTryBuckets.delete(normalizedEmail);
+
     res.json({ success: true, resetToken });
 
   } catch (err) {
@@ -88,8 +123,14 @@ async function resetPassword(req, res) {
     return res.status(400).json({ message: 'Password must be at least 8 characters.' });
   }
 
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (!allowWithin(resetBuckets, normalizedEmail, 10, 10 * 60 * 1000)) {
+    return res.status(429).json({ message: 'Too many reset attempts. Try again later.' });
+  }
+
   try {
-    const users = await forgotPasswordService.findUserIdByEmail(email);
+    const users = await forgotPasswordService.findUserIdByEmail(normalizedEmail);
 
     if (users.length === 0) {
       return res.status(400).json({ message: 'Invalid request.' });

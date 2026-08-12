@@ -39,10 +39,10 @@ async function getUserStats(userId) {
   return rows[0];
 }
 
-async function getActivityDetail(id) {
+async function getActivityDetail(id, userId) {
   const [rows] = await db.execute(
-    `SELECT * FROM activity_logs WHERE id = ?`,
-    [id]
+    `SELECT * FROM activity_logs WHERE id = ? AND user_id = ?`,
+    [id, userId]
   );
   return rows[0];
 }
@@ -57,11 +57,12 @@ async function getUserActivities(userId) {
   return rows;
 }
 
-async function deleteActivity(id) {
-  return db.execute(
-    `DELETE FROM activity_logs WHERE id = ?`,
-    [id]
+async function deleteActivity(id, userId) {
+  const [result] = await db.execute(
+    `DELETE FROM activity_logs WHERE id = ? AND user_id = ?`,
+    [id, userId]
   );
+  return result;
 }
 
 // ─── Public share link ────────────────────────────────────────────────────────

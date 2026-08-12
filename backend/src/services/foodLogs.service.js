@@ -106,10 +106,12 @@ function pushMealNotification(userId, msg) {
 }
 
 async function getFoodLogs(userId, limit, offset) {
+  const safeLimit = Math.min(Math.max(1, Math.floor(Number(limit) || 200)), 500);
+  const safeOffset = Math.max(0, Math.floor(Number(offset) || 0));
   const [rows] = await db.execute(
     `SELECT id, food_name, calories, protein, carbs, fat, image_url,
             DATE_FORMAT(logged_at, '%Y-%m-%d %H:%i') AS logged_at
-     FROM food_logs WHERE user_id = ? ORDER BY logged_at DESC LIMIT ${limit} OFFSET ${offset}`,
+     FROM food_logs WHERE user_id = ? ORDER BY logged_at DESC LIMIT ${safeLimit} OFFSET ${safeOffset}`,
     [userId]
   );
   const [[{ total }]] = await db.execute(

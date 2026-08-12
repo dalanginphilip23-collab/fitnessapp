@@ -119,7 +119,7 @@ async function createLog(req, res) {
 
   } catch (err) {
     console.error('[food-log POST] ERROR:', err.message);
-    res.status(500).json({ error: 'Database error', details: err.message });
+    res.status(500).json({ error: 'Database error' });
   }
 }
 
@@ -133,7 +133,7 @@ async function getLogs(req, res) {
     res.json({ records: rows, total });
   } catch (err) {
     console.error('[food-log GET] ERROR:', err.message);
-    res.status(500).json({ error: 'Database error', details: err.message });
+    res.status(500).json({ error: 'Database error' });
   }
 }
 
@@ -149,7 +149,7 @@ async function deleteLog(req, res) {
     res.json({ success: true, message: 'Meal deleted' });
   } catch (err) {
     console.error('[food-log DELETE] ERROR:', err.message);
-    res.status(500).json({ error: 'Database error', details: err.message });
+    res.status(500).json({ error: 'Database error' });
   }
 }
 

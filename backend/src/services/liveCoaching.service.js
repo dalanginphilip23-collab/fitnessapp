@@ -8,6 +8,14 @@ async function startSession(userId, exercise_type, started_at) {
   );
 }
 
+async function getSessionOwner(sessionId) {
+  const [rows] = await db.execute(
+    'SELECT user_id FROM coaching_sessions WHERE id = ?',
+    [sessionId]
+  );
+  return rows[0] ? rows[0].user_id : null;
+}
+
 async function endSession(sessionId, { ended_at, total_reps, avg_alignment, avg_velocity, avg_symmetry }) {
   return db.execute(
     `UPDATE coaching_sessions
@@ -108,4 +116,4 @@ async function getDailySummary(userId, date) {
   return rows[0];
 }
 
-module.exports = { startSession, endSession, logRep, getSessionsForUser, getRepsForSession, getDailySummary };
+module.exports = { startSession, getSessionOwner, endSession, logRep, getSessionsForUser, getRepsForSession, getDailySummary };
