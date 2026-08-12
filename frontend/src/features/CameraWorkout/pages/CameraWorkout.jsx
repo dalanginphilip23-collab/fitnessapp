@@ -529,7 +529,14 @@ const CameraWorkout = () => {
               repCount={repCount}
               onCameraToggle={handleCameraToggle}
             />
-            <RightPanel biometrics={biometrics} logs={logs} />
+            <RightPanel
+              biometrics={biometrics}
+              logs={logs}
+              repCount={repCount}
+              elapsedSecs={elapsedSecs}
+              poseReady={poseReady}
+              loadError={loadError}
+            />
           </div>
         </main>
 

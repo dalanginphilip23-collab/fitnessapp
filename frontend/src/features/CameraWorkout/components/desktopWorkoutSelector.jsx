@@ -4,13 +4,13 @@ import { WORKOUT_OPTIONS } from "../constants/workout";
 export default function DesktopWorkoutSelector({ workoutType, onSelect }) {
   return (
     <div className="hidden sm:flex flex-wrap bg-[var(--bg-secondary)] border-b border-[var(--border-light)] px-6 py-3 items-center gap-4">
-      <div className="flex items-center gap-2.5 pr-4 border-r border-[var(--border-light)]">
-        <Icon name="exercise" className="text-[var(--accent)] text-xs opacity-80" />
+      <div className="flex items-center gap-2 pr-4 border-r border-[var(--border-light)]">
+        <Icon name="exercise" className="text-[var(--accent)] text-sm" />
         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)]">Exercise</span>
       </div>
 
       <div className="relative group flex-1 sm:flex-none max-w-full">
-        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none gap-3">
+        <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none gap-2.5">
           <Icon
             name={WORKOUT_OPTIONS.find(o => o.id === workoutType)?.icon ?? 'fitness_center'}
             className="text-[var(--accent)] text-sm"
@@ -23,7 +23,7 @@ export default function DesktopWorkoutSelector({ workoutType, onSelect }) {
             const opt = WORKOUT_OPTIONS.find(o => o.id === e.target.value);
             if (opt) onSelect(opt);
           }}
-          className="appearance-none w-full bg-[var(--bg-hover)] border border-[var(--border-medium)] text-[var(--text-primary)] text-[10px] font-black uppercase tracking-[0.15em] pl-14 pr-12 py-2.5 rounded-xl cursor-pointer outline-none transition-all duration-300 hover:bg-[var(--surface-hover)] hover:border-[var(--border-heavy)] focus:border-[var(--accent-border)] focus:ring-1 focus:ring-[var(--accent-border)] min-w-0 sm:min-w-[240px] truncate"
+          className="appearance-none w-full bg-[var(--bg-hover)] border border-[var(--border-medium)] text-[var(--text-primary)] text-[10px] font-black uppercase tracking-[0.12em] pl-12 pr-10 py-2.5 rounded-full cursor-pointer outline-none transition-all duration-300 hover:bg-[var(--surface-hover)] hover:border-[var(--border-heavy)] focus:border-[var(--accent-border)] focus:ring-1 focus:ring-[var(--accent-border)] min-w-0 sm:min-w-[220px] truncate"
         >
           {WORKOUT_OPTIONS.map((opt) => (
             <option key={opt.id} value={opt.id} className="bg-[var(--bg-secondary)] text-[var(--text-primary)]">
@@ -31,13 +31,13 @@ export default function DesktopWorkoutSelector({ workoutType, onSelect }) {
             </option>
           ))}
         </select>
-        <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 flex items-center">
-          <Icon name="expand_more" className="text-[var(--accent)] text-xs group-hover:translate-y-0.5 transition-transform" />
+        <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center">
+          <Icon name="expand_more" className="text-[var(--accent)] text-sm group-hover:translate-y-0.5 transition-transform" />
         </div>
       </div>
 
-      <div className="ml-auto flex items-center gap-2 bg-[var(--accent-bg)] px-3 py-1.5 rounded-full border border-[var(--accent-border)]">
-        <div className="w-1 h-1 rounded-full bg-[var(--accent)] animate-pulse shadow-[0_0_8px_var(--accent)]" />
+      <div className="ml-auto flex items-center gap-1.5 bg-[var(--accent-bg)] px-3 py-1.5 rounded-full border border-[var(--accent-border)]">
+        <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse" />
         <span className="text-[8px] font-black text-[var(--accent)] uppercase tracking-widest">Live</span>
       </div>
     </div>

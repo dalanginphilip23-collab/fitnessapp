@@ -119,7 +119,7 @@ export default function WebcamFeed({
         'border border-(--border-light) shadow-(--shadow-lg)',
         isFullscreen
           ? 'rounded-none w-screen h-screen'
-          : 'rounded-2xl sm:rounded-4xl md:rounded-[3rem] aspect-3/4 sm:aspect-4/5 md:aspect-video w-full',
+          : 'rounded-2xl sm:rounded-3xl aspect-3/4 sm:aspect-4/5 md:aspect-video w-full',
       ].join(' ')}
     >
       <ScanLineOverlay isRecording={isRecording} cameraOn={cameraOn} />
@@ -134,7 +134,6 @@ export default function WebcamFeed({
           className="absolute inset-0 w-full h-full object-cover grayscale-[0.2]"
         />
       )}
-
 
       {cameraOn && (
         <canvas
@@ -159,7 +158,7 @@ export default function WebcamFeed({
       {isMobile && (
         <button
           onClick={toggleFullscreen}
-          className="absolute top-3 right-3 z-40 flex items-center justify-center w-9 h-9 rounded-xl bg-(--bg-overlay) border border-(--border-medium) backdrop-blur-sm active:scale-95 transition-transform touch-manipulation"
+          className="absolute top-3 right-3 z-40 flex items-center justify-center w-9 h-9 rounded-full bg-(--bg-overlay) border border-(--border-medium) backdrop-blur-sm active:scale-95 transition-transform touch-manipulation"
           aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
         >
           <Icon
