@@ -35,6 +35,14 @@ export const ACTIVITY_TYPES = {
     color: '#CE93D8',
     defaultTitle: 'Weekend Hike',
   },
+  workout: {
+    key: 'workout',
+    label: 'Workout',
+    icon: 'fitness_center',
+    met: 6,
+    color: '#F062A0',
+    defaultTitle: 'Manual Workout',
+  },
 };
 
 export const ACTIVITY_TYPE_KEYS = Object.keys(ACTIVITY_TYPES);

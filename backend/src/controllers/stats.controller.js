@@ -7,10 +7,15 @@ async function getDaily(req, res) {
     return res.status(400).json({ error: 'Invalid user ID' });
   }
 
-  const today = new Date().toISOString().slice(0, 10);
+  // Optional ?date=YYYY-MM-DD (used by the meal tracker to show a day's
+  // burned calories). Defaults to today (UTC) to preserve prior behaviour.
+  const dateParam = req.query.date || new Date().toISOString().slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+    return res.status(400).json({ error: 'Invalid date format' });
+  }
 
   try {
-    const stats = await statsService.getDailyStats(userId, today);
+    const stats = await statsService.getDailyStats(userId, dateParam);
 
     if (stats.length === 0) {
       return res.json({

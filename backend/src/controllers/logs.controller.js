@@ -1,16 +1,33 @@
 const logsService = require('../services/logs.service');
+const plansService = require('../services/plans.service');
 
 async function logActivity(req, res) {
   const { userId } = req.params;
   const { calories, steps, minutes } = req.body;
 
-  console.log(`[LOGS] Received — userId:${userId} calories:${calories} steps:${steps} minutes:${minutes}`);
+  const cal = parseInt(calories) || 0;
+  const stp = parseInt(steps) || 0;
+  const min = parseInt(minutes) || 0;
+
+  console.log(`[LOGS] Received — userId:${userId} calories:${cal} steps:${stp} minutes:${min}`);
 
   try {
-    const [result] = await logsService.upsertDailyStats(
-      userId, parseInt(calories) || 0, parseInt(steps) || 0, parseInt(minutes) || 0
-    );
-    console.log(`[LOGS] OK — affectedRows:${result.affectedRows}`);
+    await logsService.logDailyActivity(userId, cal, stp, min);
+    console.log(`[LOGS] OK — userId:${userId}`);
+
+    // Best-effort: if the logged duration covers the plan's current day,
+    // mark it complete. A failure here must never break the log save.
+    if (min > 0) {
+      try {
+        const completed = await plansService.autoCompleteDayForWorkout(userId, min);
+        if (completed.completed) {
+          console.log(`[LOGS] Plan day auto-completed — plan:${completed.planId} day:${completed.dayNumber}`);
+        }
+      } catch (err) {
+        console.error("[LOGS] Plan auto-complete skipped:", err.message);
+      }
+    }
+
     res.status(200).json({ message: "Activity logged successfully" });
   } catch (err) {
     console.error("[LOGS] DB Error:", err.message);

@@ -9,6 +9,7 @@ import React from 'react';
 const ActivityRow = ({ activity, formatTime, onView, onShare, onDelete, compact = false }) => {
   const d = new Date(activity.created_at || Date.now());
   const typeLabel = (activity.type || 'run').toUpperCase();
+  const isManual  = activity.type === 'workout';
 
   return (
     <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl p-4 hover:border-[var(--accent-border)] transition-all duration-300">
@@ -51,8 +52,8 @@ const ActivityRow = ({ activity, formatTime, onView, onShare, onDelete, compact 
         <div>
           <p className="text-[8px] text-[var(--text-muted)] uppercase tracking-wider">Distance</p>
           <p className="text-sm sm:text-lg font-black text-[var(--text-primary)]">
-            {parseFloat(activity.distance || 0).toFixed(2)}
-            <span className="text-[9px] text-[var(--text-muted)] ml-0.5">km</span>
+            {isManual ? '–' : parseFloat(activity.distance || 0).toFixed(2)}
+            <span className="text-[9px] text-[var(--text-muted)] ml-0.5">{isManual ? '' : 'km'}</span>
           </p>
         </div>
         <div>

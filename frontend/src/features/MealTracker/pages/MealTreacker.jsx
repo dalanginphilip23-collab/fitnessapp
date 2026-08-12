@@ -1172,6 +1172,9 @@ function ResultCard({ result, onLog, isLogging }) {
 function DailySummary({ userId, refreshSeed, selectedDate }) {
   const ZERO = { total_calories: 0, total_protein: 0, total_carbs: 0, total_fat: 0 };
   const [summary, setSummary] = useState(ZERO);
+  const [burned, setBurned]   = useState(0);
+  const [steps, setSteps]     = useState(0);
+  const [durationMins, setDurationMins] = useState(0);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -1182,9 +1185,12 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
     (async () => {
       setLoading(true);
       try {
-        const res  = await fetch(`${API_BASE_URL}/api/food-logs/${userId}`);
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Could not fetch logs");
+        const [foodRes, statsRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/api/food-logs/${userId}`),
+          fetch(`${API_BASE_URL}/api/stats/daily/${userId}?date=${selectedDate}`).catch(() => null),
+        ]);
+        const data = await foodRes.json();
+        if (!foodRes.ok) throw new Error(data.error || "Could not fetch logs");
 
         const filtered = (data.records || []).filter(
           (meal) => meal.logged_at && meal.logged_at.startsWith(selectedDate)
@@ -1197,7 +1203,15 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
           total_fat:      acc.total_fat      + (Number(meal.fat)      || 0),
         }), { ...ZERO });
 
-        if (!cancelled) setSummary(totals);
+        let burnedStats = { calories_burned: 0, steps: 0, workout_duration_mins: 0 };
+        if (statsRes && statsRes.ok) burnedStats = await statsRes.json();
+
+        if (!cancelled) {
+          setSummary(totals);
+          setBurned(Number(burnedStats.calories_burned) || 0);
+          setSteps(Number(burnedStats.steps) || 0);
+          setDurationMins(Number(burnedStats.workout_duration_mins) || 0);
+        }
       } catch (err) {
         console.error("DailySummary fetch error:", err);
       } finally {
@@ -1209,7 +1223,7 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
   }, [userId, refreshSeed, selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const consumed  = summary.total_calories;
-  const remaining = Math.max(Math.round(CALORIE_GOAL - consumed), 0);
+  const remaining = Math.max(Math.round(CALORIE_GOAL - consumed + burned), 0);
 
   return (
     <div className="flex flex-col gap-3 sm:gap-4">
@@ -1230,9 +1244,36 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
               <p className="text-[11px] text-(--text-muted)">kcal</p>
             </div>
             <div>
+              <p className="text-xs text-(--text-muted) mb-1">Burned</p>
+              <p className="text-2xl sm:text-3xl font-black text-(--text-primary)">+{burned.toLocaleString()}</p>
+              <p className="text-[11px] text-(--text-muted)">kcal</p>
+            </div>
+            <div>
               <p className="text-xs text-(--text-muted) mb-1">Daily Goal</p>
               <p className="text-sm sm:text-base font-bold text-(--text-primary)">{CALORIE_GOAL.toLocaleString()} kcal</p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Activity burned today (from manual dashboard log) */}
+      <div className="bg-(--bg-card) rounded-2xl p-4 sm:p-5 border border-(--border-light) shadow-sm">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-[10px] sm:text-xs font-semibold text-(--text-muted) uppercase tracking-widest">Activity today</p>
+          <Icon name="directions_run" className="text-(--accent) text-base" fill={1} />
+        </div>
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center">
+          <div>
+            <p className="text-lg sm:text-xl font-black text-(--text-primary)">{burned.toLocaleString()}</p>
+            <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-(--text-muted) mt-0.5">kcal burned</p>
+          </div>
+          <div>
+            <p className="text-lg sm:text-xl font-black text-(--text-primary)">{steps.toLocaleString()}</p>
+            <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-(--text-muted) mt-0.5">steps</p>
+          </div>
+          <div>
+            <p className="text-lg sm:text-xl font-black text-(--text-primary)">{durationMins}</p>
+            <p className="text-[9px] sm:text-[10px] uppercase tracking-wider text-(--text-muted) mt-0.5">minutes</p>
           </div>
         </div>
       </div>

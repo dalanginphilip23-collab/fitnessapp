@@ -120,7 +120,11 @@ const ActivityCard = ({
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
-        <StatTile label="Distance" value={(metrics.distance || 0).toFixed(2)} unit="km" />
+        {type === 'workout' ? (
+          <StatTile label="Distance" value="–" unit="manual" />
+        ) : (
+          <StatTile label="Distance" value={(metrics.distance || 0).toFixed(2)} unit="km" />
+        )}
         <StatTile label="Time" value={formatTime ? formatTime(metrics.time || 0) : metrics.time} />
         <StatTile label="Pace" value={metrics.pace || '–'} unit="/km" accent />
         <StatTile label="Calories" value={metrics.calories || 0} unit="kcal" />
