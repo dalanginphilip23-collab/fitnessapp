@@ -397,6 +397,7 @@ function AISuggestion({ meal, onClose, userId }) {
     fetch(`${API_BASE_URL}/api/food-logs/${userId}/suggest-plan`, {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: 'include',
       body: JSON.stringify({
         food_name: meal.food_name,
         calories:  meal.calories || 0,
@@ -1186,8 +1187,8 @@ function DailySummary({ userId, refreshSeed, selectedDate }) {
       setLoading(true);
       try {
         const [foodRes, statsRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/api/food-logs/${userId}`),
-          fetch(`${API_BASE_URL}/api/stats/daily/${userId}?date=${selectedDate}`).catch(() => null),
+          fetch(`${API_BASE_URL}/api/food-logs/${userId}`, { credentials: 'include' }),
+          fetch(`${API_BASE_URL}/api/stats/daily/${userId}?date=${selectedDate}`, { credentials: 'include' }).catch(() => null),
         ]);
         const data = await foodRes.json();
         if (!foodRes.ok) throw new Error(data.error || "Could not fetch logs");
