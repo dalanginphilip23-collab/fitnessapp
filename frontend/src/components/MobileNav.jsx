@@ -44,13 +44,13 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback, onFABClick }) => {
       <button
         key={key}
         onClick={() => handleNavClick(item.path)}
-        className={`relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-200 outline-none h-full flex-1 min-w-12 ${
+        className={`relative flex flex-col items-center justify-center bg-transparent border-none cursor-pointer transition-all duration-200 outline-none h-full flex-1 min-w-12 ${
           isActive ? 'text-(--accent)' : 'text-(--text-muted)'
         }`}
       >
         <div
           className={`relative flex items-center justify-center transition-all duration-200 ${
-            isActive ? 'scale-110 -translate-y-0.5' : 'scale-100'
+            isActive ? 'scale-110' : 'scale-100'
           }`}
         >
           {isActive && (
@@ -61,13 +61,10 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback, onFABClick }) => {
           )}
           <Icon
             name={item.icon}
-            className="relative text-[20px] min-w-5 shrink-0"
+            className="relative text-[22px] min-w-5 shrink-0"
             fill={isActive ? 1 : 0}
           />
         </div>
-        <span className={`text-[9px] font-bold leading-none truncate max-w-14 ${isActive ? 'font-black' : ''}`}>
-          {item.label}
-        </span>
         {isActive && (
           <span className="absolute top-0 w-6 h-0.5 rounded-full bg-(--accent) shadow-[0_0_8px_var(--accent)]" />
         )}
@@ -89,12 +86,12 @@ const MobileNav = ({ items = NAV_ITEMS, onFeedback, onFABClick }) => {
         {onFeedback && (
           <button
             onClick={onFeedback}
-            className="relative flex flex-col items-center justify-center gap-1 bg-transparent border-none cursor-pointer transition-all duration-200 outline-none h-full flex-1 min-w-12 text-(--text-muted) hover:text-(--accent-warm)"
+            className="relative flex flex-col items-center justify-center bg-transparent border-none cursor-pointer transition-all duration-200 outline-none h-full flex-1 min-w-12 text-(--text-muted) hover:text-(--accent-warm)"
           >
             <div className="relative flex items-center justify-center transition-transform duration-200 scale-100">
               <Icon
                 name="feedback"
-                className="text-[20px] min-w-5 shrink-0"
+                className="text-[22px] min-w-5 shrink-0"
                 fill={0}
               />
             </div>
