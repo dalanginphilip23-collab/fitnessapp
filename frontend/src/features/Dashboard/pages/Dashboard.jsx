@@ -78,6 +78,7 @@ const Dashboard = () => {
     [data.profile?.avatar_url, user?.avatar]
   );
   const activeProgramCount = data.stats?.active_program_count ?? 0;
+  const activePlan         = data.active_plan || null;
 
   const readiness = useMemo(
     () => computeReadiness({
@@ -143,6 +144,7 @@ const Dashboard = () => {
 
               <ProgramSummaryCard
                 activeProgramCount={activeProgramCount}
+                activePlan={activePlan}
                 onChangeProgram={() => navigate('/dashboard/plans')}
               />
 

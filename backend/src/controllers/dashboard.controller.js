@@ -6,9 +6,14 @@ async function getDashboard(req, res) {
     const stats = await dashboardService.getTodayStats(userId);
     const user = await dashboardService.getUserProfile(userId);
     const sleepData = await dashboardService.getSleepGraphData(userId);
+    const plans = await dashboardService.getActivePlan(userId);
 
     res.json({
-      stats: stats[0] || { calories_burned: 0, steps: 0, workout_duration_mins: 0, water_intake_ml: 0 },
+      stats: {
+        ...(stats[0] || { calories_burned: 0, steps: 0, workout_duration_mins: 0, water_intake_ml: 0 }),
+        active_program_count: plans.count,
+      },
+      active_plan: plans.plan,
       profile: user[0] || { name: "Guest" },
       hrv_data: sleepData || []
     });
