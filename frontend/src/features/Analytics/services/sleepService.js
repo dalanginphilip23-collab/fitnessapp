@@ -22,7 +22,8 @@ export const DEFAULT_ZONES = [
 // -------------------------
 export async function fetchZonesFromAPI(userId, timeframe) {
   const res = await fetch(
-    `${API_BASE_URL}/api/analytics/zones/${userId}?timeframe=${timeframe.toLowerCase()}`
+    `${API_BASE_URL}/api/analytics/zones/${userId}?timeframe=${timeframe.toLowerCase()}`,
+    { credentials: 'include' }
   );
 
   if (!res.ok) throw new Error(`Zones fetch failed: ${res.status}`);
@@ -45,7 +46,8 @@ export async function fetchZonesFromAPI(userId, timeframe) {
 // -------------------------
 export async function fetchScatterData(userId, timeframe) {
   const res = await fetch(
-    `${API_BASE_URL}/api/sleep/${userId}/scatter?timeframe=${timeframe.toLowerCase()}`
+    `${API_BASE_URL}/api/sleep/${userId}/scatter?timeframe=${timeframe.toLowerCase()}`,
+    { credentials: 'include' }
   );
 
   if (!res.ok) throw new Error(`Scatter fetch failed: ${res.status}`);
@@ -58,7 +60,7 @@ export async function fetchScatterData(userId, timeframe) {
 // TODAY SLEEP
 // -------------------------
 export async function fetchTodaySleep(userId) {
-  const res = await fetch(`${API_BASE_URL}/api/sleep/${userId}/today`);
+  const res = await fetch(`${API_BASE_URL}/api/sleep/${userId}/today`, { credentials: 'include' });
 
   if (!res.ok) throw new Error(`Today sleep fetch failed: ${res.status}`);
 
@@ -72,6 +74,7 @@ export async function saveSleepData(userId, payload) {
   const res = await fetch(`${API_BASE_URL}/api/sleep/${userId}`, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body:    JSON.stringify(payload),
   });
 

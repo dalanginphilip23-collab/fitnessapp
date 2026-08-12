@@ -101,7 +101,7 @@ export const SleepHoursGraph = ({ userId = null, onExpand }) => {
           ? `${API_BASE_URL}/api/sleep/${userId}/analysis?range=${activeTab}&metric=${activeMetric}`
           : `${API_BASE_URL}/api/sleep/${userId}?range=${activeTab}&metric=${activeMetric}`;
 
-      const res = await fetch(endpoint);
+      const res = await fetch(endpoint, { credentials: 'include' });
 
       if (!res.ok) {
         throw new Error(`Server responded with ${res.status}`);
