@@ -170,18 +170,20 @@ async function sendViaResend({ to, subject, html }) {
 
 // ─── BREVO FALLBACK (HTTP API on port 443) ────────────────────────────────────
 // Preferred HTTP sender. Brevo delivers to ANY recipient once the FROM address
-// (BREVO_FROM) is a verified sender in the Brevo dashboard (Settings > Senders
-// & IP). Note: Brevo does NOT accept free-email senders like @gmail.com — the
-// sender needs a domain you control (a free subdomain such as is-a.dev works).
-// Requires BREVO_API_KEY (xkeysib-...) from app.brevo.com/settings/keys/api.
+// (BREVO_SENDER_EMAIL or BREVO_FROM) is a verified sender in the Brevo dashboard
+// (Settings > Senders & IP). Note: Brevo does NOT accept free-email senders like
+// @gmail.com — the sender needs a domain you control (a free subdomain such as
+// is-a.dev works). Requires BREVO_API_KEY (xkeysib-...) from
+// app.brevo.com/settings/keys/api. Both naming conventions are accepted so the
+// configured Render env names don't matter.
 async function sendViaBrevo({ to, subject, html }) {
   const apiKey = process.env.BREVO_API_KEY;
   if (!apiKey) throw new Error("BREVO_API_KEY is not configured");
 
-  const fromEmail = process.env.BREVO_FROM;
-  if (!fromEmail) throw new Error("BREVO_FROM (a verified Brevo sender) is not configured");
+  const fromEmail = process.env.BREVO_SENDER_EMAIL || process.env.BREVO_FROM;
+  if (!fromEmail) throw new Error("BREVO_FROM / BREVO_SENDER_EMAIL (a verified Brevo sender) is not configured");
 
-  const fromName = process.env.BREVO_FROM_NAME || "Vitalis";
+  const fromName = process.env.BREVO_SENDER_NAME || process.env.BREVO_FROM_NAME || "Vitalis";
   const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
