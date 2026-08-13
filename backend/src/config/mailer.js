@@ -104,12 +104,22 @@ const transporter = new Proxy(
 // CONNECTION CHECK
 // Verifies the SMTP credentials once at boot so a bad/expired Gmail App Password
 // fails loudly instead of all verification emails silently going nowhere.
-// If SMTP is unreachable (e.g. Render blocks outbound SMTP) but a Resend API
-// key is configured, we report the system as healthy and rely on Resend.
+// If EMAIL_USER/EMAIL_PASS are not configured, SMTP is skipped entirely and the
+// system relies on the HTTP providers (Brevo then Resend).
 async function verifyTransport() {
+  const httpConfigured = Boolean(
+    process.env.BREVO_API_KEY || process.env.RESEND_API_KEY,
+  );
+
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    if (httpConfigured) {
+      console.log(
+        "[MAILER] Gmail SMTP not configured — using HTTP email API (Brevo/Resend).",
+      );
+      return true;
+    }
     console.warn(
-      "[MAILER] EMAIL_USER / EMAIL_PASS are not set. Email sending is disabled.",
+      "[MAILER] No email provider configured (set EMAIL_USER/EMAIL_PASS for SMTP, or BREVO_API_KEY / RESEND_API_KEY). Email sending is disabled.",
     );
     return false;
   }
@@ -121,7 +131,7 @@ async function verifyTransport() {
     );
     return true;
   } catch (err) {
-    if (process.env.RESEND_API_KEY || process.env.BREVO_API_KEY) {
+    if (httpConfigured) {
       console.warn(
         "[MAILER] SMTP unavailable (host may block outbound SMTP); will use HTTP email API (Brevo/Resend) instead.",
         err.code || err.message,
@@ -206,34 +216,39 @@ async function sendViaBrevo({ to, subject, html }) {
 }
 
 // ─── UNIFIED SENDER ───────────────────────────────────────────────────────────
-// Tries SMTP first; if the transport is unreachable/blocked (e.g. Render blocks
-// all outbound SMTP), falls back first to Brevo (if configured) then to Resend.
-// All mail-sending functions below route through here.
+// Uses Gmail SMTP only when EMAIL_USER/EMAIL_PASS are configured; otherwise it
+// skips SMTP entirely and sends via the HTTP API providers: Brevo first (if
+// configured) then Resend. This allows a pure-Brevo deployment with no Gmail
+// configuration at all.
 async function sendEmail(mailOptions) {
-  try {
-    return await transporter.sendMail(mailOptions);
-  } catch (smtpErr) {
-    const mail = {
-      to: mailOptions.to,
-      subject: mailOptions.subject,
-      html: mailOptions.html,
-    };
-    if (process.env.BREVO_API_KEY) {
+  const mail = {
+    to: mailOptions.to,
+    subject: mailOptions.subject,
+    html: mailOptions.html,
+  };
+
+  if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    try {
+      return await transporter.sendMail(mailOptions);
+    } catch (smtpErr) {
       console.warn(
-        "[MAILER] SMTP failed, falling back to Brevo:",
+        "[MAILER] SMTP failed, falling back to HTTP API:",
         smtpErr.code || smtpErr.message,
       );
-      return sendViaBrevo(mail);
     }
-    if (process.env.RESEND_API_KEY) {
-      console.warn(
-        "[MAILER] SMTP failed, falling back to Resend:",
-        smtpErr.code || smtpErr.message,
-      );
-      return sendViaResend(mail);
-    }
-    throw smtpErr;
+  } else {
+    console.log("[MAILER] No Gmail SMTP configured — using HTTP email API.");
   }
+
+  if (process.env.BREVO_API_KEY) {
+    return sendViaBrevo(mail);
+  }
+  if (process.env.RESEND_API_KEY) {
+    return sendViaResend(mail);
+  }
+  throw new Error(
+    "No email provider configured (set EMAIL_USER/EMAIL_PASS for SMTP, or BREVO_API_KEY / RESEND_API_KEY).",
+  );
 }
 
 // ─── MEAL SUMMARY EMAIL ──────────────────────────────────────────────────────
