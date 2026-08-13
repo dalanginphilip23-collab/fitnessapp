@@ -29,6 +29,13 @@ async function getMe(req, res) {
       return res.status(200).json({ user: null });
     }
 
+    // Unverified users are not considered logged in — no API/session access
+    // until they confirm their email.
+    if (Number(user.email_verified) !== 1) {
+      res.clearCookie(COOKIE_NAME, getCookieOptions(req));
+      return res.status(200).json({ user: null });
+    }
+
     res.json({
       user: {
         id: user.id,
@@ -58,11 +65,32 @@ async function register(req, res) {
     activity_level,
   } = req.body;
 
+  if (!password || password.length < 8) {
+    return res
+      .status(400)
+      .json({ error: "Password must be at least 8 characters." });
+  }
+  if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+    return res
+      .status(400)
+      .json({ error: "Password must contain at least one letter and one number." });
+  }
+
   try {
     const normalizedEmail = email.trim().toLowerCase();
 
-    const existing = await authService.findUserByEmail(normalizedEmail);
+    const existing = await authService.findFullUserByEmail(normalizedEmail);
     if (existing.length > 0) {
+      // Account already registered. Only re-send a verification link when the
+      // account is still unverified, so the "a link has been sent" message is
+      // honest and never leaves the user stranded without a link.
+      if (Number(existing[0].email_verified) !== 1) {
+        try {
+          await authService.sendEmailVerification(existing[0].id, normalizedEmail);
+        } catch (mailErr) {
+          console.error("Duplicate-register resend failed:", mailErr.message);
+        }
+      }
       return res
         .status(400)
         .json({ error: "If this email is not already registered, a verification link has been sent." });
@@ -121,19 +149,21 @@ async function register(req, res) {
       };
     }
 
-    // Fire the verification email in the background so a slow/failing SMTP
-    // connection can't block the register response. The account is already
-    // created — the user can always re-trigger via resend-verification.
-    authService
-      .sendEmailVerification(userId, normalizedEmail)
-      .catch((mailErr) => {
-        console.error("Verification email failed to send:", mailErr.message);
-      });
+    // Send the verification email and surface real success/failure. A failed
+    // SMTP send no longer pretends the email went out.
+    let verificationEmailSent = true;
+    try {
+      await authService.sendEmailVerification(userId, normalizedEmail);
+    } catch (mailErr) {
+      console.error("Verification email failed to send:", mailErr.message);
+      verificationEmailSent = false;
+    }
 
     res.status(201).json({
       success: true,
       message:
         "Account created. Please check your email to verify your account before logging in.",
+      verificationEmailSent,
       bmi: bmiData,
     });
   } catch (err) {
@@ -284,7 +314,10 @@ async function login(req, res) {
     }
 
     if (Number(user.email_verified) !== 1) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(403).json({
+        error: "email_not_verified",
+        message: "Please verify your email before logging in.",
+      });
     }
 
     authService.clearAttempts(normalizedEmail);

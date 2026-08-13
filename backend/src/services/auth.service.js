@@ -134,6 +134,7 @@ async function getUserFromToken(token) {
       u.name,
       u.email,
       u.fitness_goal,
+      u.email_verified,
       p.avatar_url AS avatar
     FROM users u
     LEFT JOIN user_profiles p ON p.user_id = u.id

@@ -11,6 +11,32 @@ const transporter = nodemailer.createTransport({
   socketTimeout: 15000,
 });
 
+// ─── CONNECTION CHECK ─────────────────────────────────────────────────────────
+// Verifies the SMTP credentials once at boot so a bad/expired Gmail App Password
+// fails loudly instead of all verification emails silently going nowhere.
+async function verifyTransport() {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn(
+      "[MAILER] EMAIL_USER / EMAIL_PASS are not set. Email sending is disabled.",
+    );
+    return false;
+  }
+
+  try {
+    await transporter.verify();
+    console.log(
+      `[MAILER] SMTP connection verified (${process.env.EMAIL_USER}).`,
+    );
+    return true;
+  } catch (err) {
+    console.error(
+      "[MAILER] SMTP connection FAILED — check EMAIL_PASS (Gmail requires a 16-char App Password with 2-Step Verification enabled):",
+      err.message,
+    );
+    return false;
+  }
+}
+
 // ─── MEAL SUMMARY EMAIL ──────────────────────────────────────────────────────
 async function sendMealSummaryEmail(to, summary) {
   const mailOptions = {
@@ -190,6 +216,8 @@ async function sendVerificationEmail(to, verifyLink) {
 }
 
 module.exports = {
+  transporter,
+  verifyTransport,
   sendMealSummaryEmail,
   sendPasswordResetEmail,
   sendWelcomeEmail,

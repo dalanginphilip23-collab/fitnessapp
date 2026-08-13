@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useRegister } from '../hooks/useRegister';
 import { ACTIVITY_LEVELS } from '../../../BMI/constants/bmiConstants';
+import { getPasswordStrength } from '../../Forgot-password/utils/passwordStrength';
 
 const ACCENT        = '#8BC34A';
 const ACCENT_HOVER  = '#9CCC65';
@@ -49,12 +50,26 @@ const Register = () => {
   const [focused, setFocused] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const { loading, error, showSuccessModal, handleRegister, handleModalConfirm } = useRegister();
+  const { loading, error, showSuccessModal, emailSendFailed, handleRegister, handleModalConfirm } = useRegister();
 
   const filledFields = [formData.name, formData.email, formData.password].filter(Boolean).length;
   const progressPct  = Math.round((filledFields / 3) * 100);
 
+  const passwordStrength = getPasswordStrength(formData.password);
+  const [localError, setLocalError] = useState('');
+
   const update = (field) => (e) => setFormData({ ...formData, [field]: e.target.value });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setLocalError('');
+    if (!formData.password) return;
+    if (formData.password.length < 8 || !/[A-Za-z]/.test(formData.password) || !/[0-9]/.test(formData.password)) {
+      setLocalError('Password must be at least 8 characters and include at least one letter and one number.');
+      return;
+    }
+    handleRegister(e, formData);
+  };
 
   return (
     <div
@@ -189,6 +204,12 @@ const Register = () => {
             <p className="text-[11px] sm:text-[12px] text-[#c4c9b0]/60 tracking-wider mb-6 sm:mb-8 leading-relaxed uppercase">
               We sent a verification link to your email. Verify your account to unlock your fitness journey.
             </p>
+            {emailSendFailed && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[11px] font-semibold tracking-wider uppercase p-2.5 mb-4 leading-relaxed">
+                The verification email failed to send. On the login page, sign in and click
+                "Resend verification email" to try again.
+              </div>
+            )}
             <button
               onClick={handleModalConfirm}
               className="w-full text-[#161f00] font-bold text-[11px] tracking-[0.2em] uppercase p-3.5 sm:p-4 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95"
@@ -269,10 +290,10 @@ const Register = () => {
             <h2 className="v-card-title font-['Bebas_Neue'] text-[26px] sm:text-[32px] tracking-wider leading-none mb-1.5 text-[#e5e2e1]">Create Your Account</h2>
             <p className="v-card-sub text-xs text-[#c4c9b0]/55 tracking-wide mb-6 sm:mb-8">Start your fitness journey today.</p>
 
-            <form onSubmit={(e) => handleRegister(e, formData)} className="space-y-4 sm:space-y-5">
-              {error && (
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+              {(error || localError) && (
                 <div className="bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[10px] font-semibold tracking-widest uppercase p-2.5 text-center">
-                  {error}
+                  {error || localError}
                 </div>
               )}
 
@@ -364,6 +385,23 @@ const Register = () => {
                     )}
                   </button>
                 </div>
+
+                {/* Password strength meter */}
+                {passwordStrength && (
+                  <div className="mt-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-[3px] bg-white/5 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{ width: passwordStrength.pct, backgroundColor: passwordStrength.color }}
+                        />
+                      </div>
+                      <span className="text-[9px] font-semibold tracking-[0.2em] uppercase" style={{ color: passwordStrength.color }}>
+                        {passwordStrength.label}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* ── Body Metrics (Optional) ── */}

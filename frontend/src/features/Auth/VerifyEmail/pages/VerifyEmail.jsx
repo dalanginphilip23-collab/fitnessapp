@@ -1,15 +1,53 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useVerifyEmail } from '../hooks/useVerifyEmail';
+import { API_BASE_URL } from '../../../../config/port';
 
 const ACCENT        = '#8BC34A';
 const ACCENT_BORDER = 'rgba(139, 195, 74, 0.22)';
 const ACCENT_TINT   = 'rgba(139, 195, 74, 0.06)';
 
+function emailFromJwt(token) {
+  try {
+    const payload = token.split('.')[1];
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+    const decoded = JSON.parse(decodeURIComponent(escape(atob(padded))));
+    return decoded.email || '';
+  } catch {
+    return '';
+  }
+}
+
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const { status, message, retry } = useVerifyEmail(token);
+
+  const [resend, setResend] = useState({
+    email: emailFromJwt(token),
+    sending: false,
+    sent: false,
+    error: '',
+  });
+
+  const handleResend = async (e) => {
+    e.preventDefault();
+    if (!resend.email) return;
+    setResend((s) => ({ ...s, sending: true, sent: false, error: '' }));
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/resend-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resend.email }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Could not resend verification email.');
+      setResend((s) => ({ ...s, sending: false, sent: true }));
+    } catch (err) {
+      setResend((s) => ({ ...s, sending: false, error: err.message }));
+    }
+  };
 
   return (
     <div
@@ -150,6 +188,42 @@ const VerifyEmail = () => {
                 </Link>
               </>
             )}
+
+            {/* Resend verification email */}
+            <div className="mt-7 pt-6 border-t border-white/5">
+              {resend.sent ? (
+                <p className="text-[11px] text-[#8BC34A] tracking-wider leading-relaxed">
+                  ✓ Verification email sent to {resend.email}. Please check your inbox.
+                </p>
+              ) : (
+                <form onSubmit={handleResend} className="space-y-2.5">
+                  <p className="text-[10px] text-[#c4c9b0]/40 font-semibold tracking-[0.2em] uppercase">
+                    Didn't get a link?
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="email"
+                      className="flex-1 min-w-0 bg-white/5 border border-white/10 rounded-xl text-sm p-3 outline-none transition-all placeholder:text-white/10 text-[#e5e2e1]"
+                      placeholder="you@email.com"
+                      required
+                      value={resend.email}
+                      onChange={(e) => setResend((s) => ({ ...s, email: e.target.value, sent: false, error: '' }))}
+                    />
+                    <button
+                      type="submit"
+                      disabled={resend.sending}
+                      className="shrink-0 text-[#161f00] font-bold text-[10px] tracking-[0.15em] uppercase px-4 rounded-xl transition-all active:scale-95 disabled:opacity-50"
+                      style={{ backgroundColor: ACCENT }}
+                    >
+                      {resend.sending ? 'Sending...' : 'Resend'}
+                    </button>
+                  </div>
+                  {resend.error && (
+                    <p className="text-[10px] text-red-400 tracking-wider">{resend.error}</p>
+                  )}
+                </form>
+              )}
+            </div>
           </div>
         </div>
       </div>
