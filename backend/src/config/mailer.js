@@ -432,6 +432,7 @@ async function sendVerificationEmail(to, verifyLink) {
 module.exports = {
   transporter,
   verifyTransport,
+  sendEmail,
   sendMealSummaryEmail,
   sendPasswordResetEmail,
   sendWelcomeEmail,

@@ -1,4 +1,4 @@
-const { transporter } = require("../config/mailer");
+const { sendEmail } = require("../config/mailer");
 
 function escapeHtml(value) {
   return String(value)
@@ -10,9 +10,13 @@ function escapeHtml(value) {
 }
 
 async function sendFeedbackEmail({ name, email, message }) {
-  // EMAIL
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+  const from =
+    process.env.EMAIL_USER ||
+    process.env.BREVO_SENDER_EMAIL ||
+    process.env.BREVO_FROM;
+
+  await sendEmail({
+    from,
     to: process.env.RECEIVER_EMAIL,
     subject: "New Feedback Message",
     html: `
