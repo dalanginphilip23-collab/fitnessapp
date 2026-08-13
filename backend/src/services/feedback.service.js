@@ -10,13 +10,7 @@ function escapeHtml(value) {
 }
 
 async function sendFeedbackEmail({ name, email, message }) {
-  const from =
-    process.env.EMAIL_USER ||
-    process.env.BREVO_SENDER_EMAIL ||
-    process.env.BREVO_FROM;
-
   await sendEmail({
-    from,
     to: process.env.RECEIVER_EMAIL,
     subject: "New Feedback Message",
     html: `

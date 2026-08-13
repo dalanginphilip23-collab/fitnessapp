@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const db = require("../config/db");
-const { transporter } = require("../config/mailer");
+const { sendEmail } = require("../config/mailer");
 
 async function findUserByEmail(email) {
   const [users] = await db.execute(
@@ -33,8 +33,7 @@ async function insertOtp(userId, otpHash, expiresAt) {
 }
 
 async function sendOtpEmail(email, name, otp) {
-  return transporter.sendMail({
-    from: `"Vitalis" <${process.env.EMAIL_USER}>`,
+  return sendEmail({
     to: email,
     subject: "Your Vitalis Password Reset Code",
     html: `

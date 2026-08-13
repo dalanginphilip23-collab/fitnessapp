@@ -1,149 +1,29 @@
-const nodemailer = require("nodemailer");
 const dns = require("dns");
-const tls = require("tls");
 
 // Force Node to prefer IPv4 for DNS lookups globally (safe fix for Render)
 dns.setDefaultResultOrder("ipv4first");
 
-// ─── TRANSPORTER (LAZY + IPv4-PINNED + MULTI-ENDPOINT FALLBACK) ──────────────
-// smtp.gmail.com has AAAA (IPv6) records. On hosts like Render the IPv6 route
-// is unreachable, so nodemailer fails with "connect ENETUNREACH <ipv6>:465".
-// We fix that by pinning a literal IPv4 address (the real hostname is still
-// used for EHLO/SNI/cert validation via `name`, `servername` and
-// checkServerIdentity). We also try several endpoints in order (587 STARTTLS
-// then 465 SSL, IPv4-pinned then hostname) because some networks block one
-// port or one Google IP. The first endpoint that fully handshakes (`verify()`)
-// becomes the active transporter, so every send uses a proven-working
-// connection. A Proxy keeps the `transporter` API identical for callers.
-let initPromise = null;
-let lastFailure = null;
-let lastFailureAt = 0;
-
-async function resolveIPv4(host) {
-  try {
-    const { address } = await dns.promises.lookup(host, { family: 4 });
-    return address;
-  } catch {
-    return host; // fall back to the hostname if resolution fails
-  }
-}
-
-function candidateConfigs(ip) {
-  return [
-    { host: ip, name: "smtp.gmail.com", port: 587, secure: false, requireTLS: true },
-    { host: ip, name: "smtp.gmail.com", port: 465, secure: true },
-    { host: "smtp.gmail.com", name: "smtp.gmail.com", port: 587, secure: false, requireTLS: true },
-    { host: "smtp.gmail.com", name: "smtp.gmail.com", port: 465, secure: true },
-  ];
-}
-
-function buildTransport(cfg) {
-  return nodemailer.createTransport({
-    ...cfg,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    // Because `host` is a literal IPv4 address, TLS must identify itself with
-    // the real hostname (SNI + cert validation against smtp.gmail.com).
-    tls: {
-      servername: "smtp.gmail.com",
-      checkServerIdentity: (servername, cert) =>
-        tls.checkServerIdentity("smtp.gmail.com", cert),
-    },
-    connectionTimeout: 15000,
-    greetingTimeout: 15000,
-    socketTimeout: 20000,
-  });
-}
-
-async function getTransporter() {
-  const ip = await resolveIPv4("smtp.gmail.com");
-  console.log(`[MAILER] smtp.gmail.com resolved to IPv4 ${ip}`);
-
-  let lastErr = null;
-  for (const cfg of candidateConfigs(ip)) {
-    try {
-      const t = buildTransport(cfg);
-      await t.verify();
-      console.log(`[MAILER] connected OK via ${cfg.name}:${cfg.port} (host=${cfg.host})`);
-      return t;
-    } catch (err) {
-      lastErr = err;
-      console.error(`[MAILER] endpoint ${cfg.name}:${cfg.port} (host=${cfg.host}) failed: ${err.code || err.message}`);
-    }
-  }
-  throw new Error(`Gmail SMTP unreachable (tried 587/465): ${lastErr.code || lastErr.message}`);
-}
-
-function ensureTransporter() {
-  // After a failed scan, fail fast for 60s instead of rescanning every request.
-  if (Date.now() - lastFailureAt < 60000 && lastFailure) {
-    return Promise.reject(lastFailure);
-  }
-  if (!initPromise) {
-    initPromise = getTransporter().catch((err) => {
-      initPromise = null; // allow a later call to retry after a transient failure
-      lastFailure = err;
-      lastFailureAt = Date.now();
-      throw err;
-    });
-  }
-  return initPromise;
-}
-
-const transporter = new Proxy(
-  {},
-  {
-    get(_, prop) {
-      return (...args) => ensureTransporter().then((t) => t[prop](...args));
-    },
-  },
-);
+// ─── MAIL PROVIDERS (HTTP API ONLY) ──────────────────────────────────────────
+// Render blocks ALL outbound SMTP (ports 25/465/587 drop every provider), so we
+// send email over HTTPS instead. No SMTP/Gmail configuration is needed:
+//   Brevo first (preferred — delivers to any recipient, requires BREVO_API_KEY),
+//   then Resend (requires RESEND_API_KEY, sandbox only sends to your account).
 
 // CONNECTION CHECK
-// Verifies the SMTP credentials once at boot so a bad/expired Gmail App Password
-// fails loudly instead of all verification emails silently going nowhere.
-// If EMAIL_USER/EMAIL_PASS are not configured, SMTP is skipped entirely and the
-// system relies on the HTTP providers (Brevo then Resend).
+// Confirms at least one HTTP provider is configured before the server starts.
 async function verifyTransport() {
-  const httpConfigured = Boolean(
-    process.env.BREVO_API_KEY || process.env.RESEND_API_KEY,
-  );
-
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    if (httpConfigured) {
-      console.log(
-        "[MAILER] Gmail SMTP not configured — using HTTP email API (Brevo/Resend).",
-      );
-      return true;
-    }
-    console.warn(
-      "[MAILER] No email provider configured (set EMAIL_USER/EMAIL_PASS for SMTP, or BREVO_API_KEY / RESEND_API_KEY). Email sending is disabled.",
-    );
-    return false;
-  }
-
-  try {
-    await transporter.verify();
-    console.log(
-      `[MAILER] SMTP connection verified (${process.env.EMAIL_USER}).`,
-    );
+  if (process.env.BREVO_API_KEY) {
+    console.log("[MAILER] Email provider ready: Brevo (HTTP API).");
     return true;
-  } catch (err) {
-    if (httpConfigured) {
-      console.warn(
-        "[MAILER] SMTP unavailable (host may block outbound SMTP); will use HTTP email API (Brevo/Resend) instead.",
-        err.code || err.message,
-      );
-      return true;
-    }
-    console.error(
-      "[MAILER] SMTP connection FAILED — check EMAIL_PASS (Gmail requires a 16-char App Password with 2-Step Verification enabled):",
-      err.message,
-    );
-    return false;
   }
+  if (process.env.RESEND_API_KEY) {
+    console.log("[MAILER] Email provider ready: Resend (HTTP API).");
+    return true;
+  }
+  console.warn(
+    "[MAILER] No email provider configured (set BREVO_API_KEY or RESEND_API_KEY). Email sending is disabled.",
+  );
+  return false;
 }
 
 // ─── RESEND FALLBACK (HTTP API on port 443) ───────────────────────────────────
@@ -216,29 +96,15 @@ async function sendViaBrevo({ to, subject, html }) {
 }
 
 // ─── UNIFIED SENDER ───────────────────────────────────────────────────────────
-// Uses Gmail SMTP only when EMAIL_USER/EMAIL_PASS are configured; otherwise it
-// skips SMTP entirely and sends via the HTTP API providers: Brevo first (if
-// configured) then Resend. This allows a pure-Brevo deployment with no Gmail
-// configuration at all.
+// Sends via Brevo (preferred) or Resend over HTTPS. The FROM address is set by
+// the provider config (BREVO_SENDER_EMAIL / RESEND_FROM), so mailOptions.from
+// is not used.
 async function sendEmail(mailOptions) {
   const mail = {
     to: mailOptions.to,
     subject: mailOptions.subject,
     html: mailOptions.html,
   };
-
-  if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-    try {
-      return await transporter.sendMail(mailOptions);
-    } catch (smtpErr) {
-      console.warn(
-        "[MAILER] SMTP failed, falling back to HTTP API:",
-        smtpErr.code || smtpErr.message,
-      );
-    }
-  } else {
-    console.log("[MAILER] No Gmail SMTP configured — using HTTP email API.");
-  }
 
   if (process.env.BREVO_API_KEY) {
     return sendViaBrevo(mail);
@@ -247,14 +113,13 @@ async function sendEmail(mailOptions) {
     return sendViaResend(mail);
   }
   throw new Error(
-    "No email provider configured (set EMAIL_USER/EMAIL_PASS for SMTP, or BREVO_API_KEY / RESEND_API_KEY).",
+    "No email provider configured (set BREVO_API_KEY or RESEND_API_KEY).",
   );
 }
 
 // ─── MEAL SUMMARY EMAIL ──────────────────────────────────────────────────────
 async function sendMealSummaryEmail(to, summary) {
   const mailOptions = {
-    from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
     subject: "🥗 Your Daily Nutrition Summary — Vitalis",
     html: `
@@ -310,7 +175,6 @@ async function sendMealSummaryEmail(to, summary) {
 // ─── PASSWORD RESET EMAIL ─────────────────────────────────────────────────────
 async function sendPasswordResetEmail(to, resetLink) {
   const mailOptions = {
-    from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
     subject: "🔐 Reset Your Vitalis Password",
     html: `
@@ -352,7 +216,6 @@ async function sendPasswordResetEmail(to, resetLink) {
 // ─── WELCOME EMAIL ────────────────────────────────────────────────────────────
 async function sendWelcomeEmail(to, name) {
   const mailOptions = {
-    from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
     subject: "⚡ Welcome to Vitalis Performance OS",
     html: `
@@ -384,13 +247,12 @@ async function sendWelcomeEmail(to, name) {
     `,
   };
 
-  return transporter.sendMail(mailOptions);
+  return sendEmail(mailOptions);
 }
 
 // ─── EMAIL VERIFICATION ───────────────────────────────────────────────────────
 async function sendVerificationEmail(to, verifyLink) {
   const mailOptions = {
-    from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
     subject: "✅ Verify Your Vitalis Account",
     html: `
@@ -430,7 +292,6 @@ async function sendVerificationEmail(to, verifyLink) {
 }
 
 module.exports = {
-  transporter,
   verifyTransport,
   sendEmail,
   sendMealSummaryEmail,
