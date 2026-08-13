@@ -104,6 +104,8 @@ const transporter = new Proxy(
 // CONNECTION CHECK
 // Verifies the SMTP credentials once at boot so a bad/expired Gmail App Password
 // fails loudly instead of all verification emails silently going nowhere.
+// If SMTP is unreachable (e.g. Render blocks outbound SMTP) but a Resend API
+// key is configured, we report the system as healthy and rely on Resend.
 async function verifyTransport() {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.warn(
@@ -119,11 +121,71 @@ async function verifyTransport() {
     );
     return true;
   } catch (err) {
+    if (process.env.RESEND_API_KEY) {
+      console.warn(
+        "[MAILER] SMTP unavailable (host may block outbound SMTP); will use Resend API instead.",
+        err.code || err.message,
+      );
+      return true;
+    }
     console.error(
       "[MAILER] SMTP connection FAILED — check EMAIL_PASS (Gmail requires a 16-char App Password with 2-Step Verification enabled):",
       err.message,
     );
     return false;
+  }
+}
+
+// ─── RESEND FALLBACK (HTTP API on port 443) ───────────────────────────────────
+// Render's network blocks ALL outbound SMTP (ports 25/465/587 drop every
+// provider). HTTPS still works, so when SMTP fails we re-send the same email
+// through Resend's REST API. Requires RESEND_API_KEY (from resend.com/api-keys).
+// For testing without a custom domain, Resend allows sending from
+// "onboarding@resend.dev"; set RESEND_FROM once you verify a domain.
+async function sendViaResend({ to, subject, html }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) throw new Error("RESEND_API_KEY is not configured");
+
+  const from = process.env.RESEND_FROM || "onboarding@resend.dev";
+  const resp = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: `Vitalis <${from}>`,
+      to: [to],
+      subject,
+      html,
+    }),
+  });
+
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    throw new Error(`Resend API error ${resp.status}: ${JSON.stringify(data)}`);
+  }
+  return { messageId: data.id };
+}
+
+// ─── UNIFIED SENDER ───────────────────────────────────────────────────────────
+// Tries SMTP first; if the transport is unreachable/blocked and RESEND_API_KEY
+// exists, transparently falls back to the Resend HTTP API. All mail-sending
+// functions below route through here.
+async function sendEmail(mailOptions) {
+  try {
+    return await transporter.sendMail(mailOptions);
+  } catch (smtpErr) {
+    if (!process.env.RESEND_API_KEY) throw smtpErr;
+    console.warn(
+      "[MAILER] SMTP failed, falling back to Resend:",
+      smtpErr.code || smtpErr.message,
+    );
+    return sendViaResend({
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+    });
   }
 }
 
@@ -180,7 +242,7 @@ async function sendMealSummaryEmail(to, summary) {
     `,
   };
 
-  return transporter.sendMail(mailOptions);
+  return sendEmail(mailOptions);
 }
 
 // ─── PASSWORD RESET EMAIL ─────────────────────────────────────────────────────
@@ -222,7 +284,7 @@ async function sendPasswordResetEmail(to, resetLink) {
     `,
   };
 
-  return transporter.sendMail(mailOptions);
+  return sendEmail(mailOptions);
 }
 
 // ─── WELCOME EMAIL ────────────────────────────────────────────────────────────
@@ -302,7 +364,7 @@ async function sendVerificationEmail(to, verifyLink) {
     `,
   };
 
-  return transporter.sendMail(mailOptions);
+  return sendEmail(mailOptions);
 }
 
 module.exports = {
