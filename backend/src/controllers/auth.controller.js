@@ -172,11 +172,12 @@ async function register(req, res) {
       bmi: bmiData,
     };
 
-    // Demo/testing override: when sandboxed email delivery is blocked (e.g.
-    // Resend 403 without a verified domain), echo the verification link so a
-    // demo or test can still verify the account. Gated behind an env flag on
-    // purpose - never enabled by default because it exposes a valid token.
-    if (process.env.ALLOW_VERIFY_TOKEN_IN_RESPONSE === "1" && verificationLink) {
+    // Demo/testing override: when email delivery is sandboxed (e.g. Resend 403
+    // with no verified domain / RESEND_FROM unset), echo the verification link
+    // in the JSON response so a demo or test can still verify the account.
+    // Auto-enabled while RESEND_FROM is missing (sandbox mode), otherwise gated
+    // behind ALLOW_VERIFY_TOKEN_IN_RESPONSE. Never echo in real sends.
+    if (verificationLink && (!process.env.RESEND_FROM || process.env.ALLOW_VERIFY_TOKEN_IN_RESPONSE === "1")) {
       response.verificationLink = verificationLink;
     }
 
@@ -295,7 +296,7 @@ async function resendVerification(req, res) {
       success: true,
       message: "If this email is registered and unverified, a verification link has been sent.",
     };
-    if (process.env.ALLOW_VERIFY_TOKEN_IN_RESPONSE === "1" && verificationLink) {
+    if (verificationLink && (!process.env.RESEND_FROM || process.env.ALLOW_VERIFY_TOKEN_IN_RESPONSE === "1")) {
       response.verificationLink = verificationLink;
     }
 
