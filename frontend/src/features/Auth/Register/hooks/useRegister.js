@@ -7,6 +7,7 @@ export const useRegister = () => {
   const [error,            setError]            = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [emailSendFailed,  setEmailSendFailed]  = useState(false);
+  const [emailError,       setEmailError]       = useState('');
   const navigate = useNavigate();
 
   const handleRegister = async (e, formData) => {
@@ -15,6 +16,7 @@ export const useRegister = () => {
     setError('');
     setShowSuccessModal(false);
     setEmailSendFailed(false);
+    setEmailError('');
     try {
       const body = {
         name:         formData.name,
@@ -37,6 +39,7 @@ export const useRegister = () => {
       if (!response.ok) throw new Error(data.error || 'Initialization failed. System conflict.');
       if (data.success) {
         setEmailSendFailed(data.verificationEmailSent === false);
+        setEmailError(data.verificationEmailError || '');
         setShowSuccessModal(true);
       }
     } catch (err) {
@@ -48,5 +51,5 @@ export const useRegister = () => {
 
   const handleModalConfirm = () => navigate('/login');
 
-  return { loading, error, showSuccessModal, emailSendFailed, handleRegister, handleModalConfirm };
+  return { loading, error, showSuccessModal, emailSendFailed, emailError, handleRegister, handleModalConfirm };
 };

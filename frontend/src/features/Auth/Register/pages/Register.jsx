@@ -50,7 +50,7 @@ const Register = () => {
   const [focused, setFocused] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const { loading, error, showSuccessModal, emailSendFailed, handleRegister, handleModalConfirm } = useRegister();
+  const { loading, error, showSuccessModal, emailSendFailed, emailError, handleRegister, handleModalConfirm } = useRegister();
 
   const filledFields = [formData.name, formData.email, formData.password].filter(Boolean).length;
   const progressPct  = Math.round((filledFields / 3) * 100);
@@ -206,8 +206,12 @@ const Register = () => {
             </p>
             {emailSendFailed && (
               <div className="bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[11px] font-semibold tracking-wider uppercase p-2.5 mb-4 leading-relaxed">
-                The verification email failed to send. On the login page, sign in and click
-                "Resend verification email" to try again.
+                The verification email failed to send.{emailError && (
+                  <span className="block mt-1 normal-case tracking-normal text-[10px] opacity-80">Reason: {emailError}</span>
+                )}
+                <span className="block mt-1 normal-case tracking-normal">
+                  Go to login and click "Resend verification email" to try again.
+                </span>
               </div>
             )}
             <button

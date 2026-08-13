@@ -150,13 +150,16 @@ async function register(req, res) {
     }
 
     // Send the verification email and surface real success/failure. A failed
-    // SMTP send no longer pretends the email went out.
+    // SMTP send no longer pretends the email went out, and the actual SMTP
+    // error is returned so the deployed cause is visible instead of generic.
     let verificationEmailSent = true;
+    let verificationEmailError = null;
     try {
       await authService.sendEmailVerification(userId, normalizedEmail);
     } catch (mailErr) {
       console.error("Verification email failed to send:", mailErr.message);
       verificationEmailSent = false;
+      verificationEmailError = mailErr.message;
     }
 
     res.status(201).json({
@@ -164,6 +167,7 @@ async function register(req, res) {
       message:
         "Account created. Please check your email to verify your account before logging in.",
       verificationEmailSent,
+      verificationEmailError,
       bmi: bmiData,
     });
   } catch (err) {
@@ -265,7 +269,15 @@ async function resendVerification(req, res) {
       });
     }
 
-    await authService.sendEmailVerification(user.id, normalizedEmail);
+    try {
+      await authService.sendEmailVerification(user.id, normalizedEmail);
+    } catch (mailErr) {
+      console.error("Resend verification email failed to send:", mailErr.message);
+      return res.status(500).json({
+        message:
+          "The verification email could not be sent right now. " + mailErr.message,
+      });
+    }
 
     res.json({
       success: true,
