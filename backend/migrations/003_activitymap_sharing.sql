@@ -1,4 +1,4 @@
--- Migration 002 — ActivityMap sharing & pins
+-- Migration 003 — ActivityMap sharing & pins
 --
 -- Date: 2026-08-10
 -- Purpose: Support the Strava-style ActivityMap redesign:

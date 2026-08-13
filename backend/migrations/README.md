@@ -52,23 +52,27 @@ Example: `002_add_notifications_read_index.sql`
 
 | # | File | Date | Description | Applied to prod? |
 |---|------|------|-------------|-------------------|
-| 000 | 000_baseline_schema.sql | 2026-06-17 (updated 2026-08-01) | Full **current** schema — all 26 tables (users, workouts, social, coaching, plans, etc.), indexes, foreign keys, and seed data for the workout plans catalog. Now includes the `age`/`activity_level`/`bmr`/`tdee` columns on `bmi_records` (migration 001 folded in). Running this on an empty database recreates the full current schema in one step — no follow-up ALTER needed. | N/A — already live; use to set up a fresh/local database |
+| 000 | 000_baseline_schema.sql | 2026-06-17 (updated 2026-08-14) | Full **current** schema — all 30 tables (users, workouts, social, coaching, plans, activity sharing, etc.), indexes, foreign keys, and seed data for the workout plans catalog. Includes `email_verified` (migration 002) and the activitymap changes (migration 003) folded in. Uses the `fitnessapp` database name to match `DB_NAME` in `backend/.env`. Running this on an empty database recreates the full current schema in one step — no follow-up ALTER needed. | N/A — already live; use to set up a fresh/local database |
 | 001 | 001_add_tdee_columns_to_bmi_records.sql | 2026-07-27 | **Historical/superseded** — added `age`, `activity_level`, `bmr`, `tdee` to `bmi_records`. Now folded into 000; do not run on a database already set up from the updated 000. | ✅ Yes (already live in production) |
+| 002 | 002_add_email_verified_to_users.sql | 2026-08-10 | Added `email_verified tinyint(1) DEFAULT 0` to `users` for email verification; existing users backfilled to 1. Now folded into 000. | ✅ Yes (already live in production) |
+| 003 | 003_activitymap_sharing.sql | 2026-08-10 | ActivityMap redesign: new `activity_logs` columns (`type`, `title`, `place_name`, `is_public`, `share_token` + unique index) and two new tables `saved_pins` and `activity_feed_posts`. Now folded into 000. | ✅ Yes (already live in production) |
 
-### What's covered in 000 (all 26 tables)
+### What's covered in 000 (all 30 tables)
 
-`users`, `doctors`, `plans`, `activity_logs`, `ai_insight_cache`,
-`biometric_logs`, `bmi_records`, `chat_sessions`, `daily_stats`,
-`food_logs`, `friendships`, `messages`, `notifications`,
-`password_reset_otps`, `plan_contents`, `sleep_logs`, `user_plans`,
-`user_plan_progress`, `user_profiles`, `user_sessions`, `workout_logs`,
-`workout_sessions`, `coaching_sessions`, `clinic_messages`,
-`coaching_reps`, `plan_exercises`
+`activity_feed_posts`, `activity_logs`, `ai_insight_cache`, `biometric_logs`,
+`bmi_records`, `chat_sessions`, `clinic_messages`, `coaching_reps`,
+`coaching_sessions`, `daily_stats`, `doctors`, `feedback`, `food_logs`,
+`friendships`, `messages`, `notifications`, `password_reset_otps`,
+`plan_contents`, `plan_exercises`, `plans`, `posture_alerts`, `saved_pins`,
+`sleep_logs`, `user_plan_progress`, `user_plans`, `user_profiles`,
+`user_sessions`, `users`, `workout_logs`, `workout_sessions`
 
 Seed/reference data included: the 6 workout plans and their day-by-day
 content and exercises (this is catalog data the app needs to function,
 not user-generated data — no real user rows, logs, or messages are
-included).
+included). The baseline drops the legacy unused `is_verified` column
+that existed in the old production dump — the app only uses
+`email_verified`.
 
 ---
 
