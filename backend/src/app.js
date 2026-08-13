@@ -27,6 +27,8 @@ const normalizeOrigin = (origin) => (origin || "").replace(/\/+$/, "");
 
 const ALLOWED_ORIGINS = [
   process.env.CLIENT_URL,
+  process.env.FRONTEND_URL,
+  "https://fitness-app-pied-tau.vercel.app",
   "https://fitness-app1-chi.vercel.app",
   "https://fitnessapp-0cgj.onrender.com",
 ]
