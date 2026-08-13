@@ -5,14 +5,19 @@ const tls = require("tls");
 // Force Node to prefer IPv4 for DNS lookups globally (safe fix for Render)
 dns.setDefaultResultOrder("ipv4first");
 
-// ─── TRANSPORTER (LAZY + IPv4-PINNED) ─────────────────────────────────────────
+// ─── TRANSPORTER (LAZY + IPv4-PINNED + MULTI-ENDPOINT FALLBACK) ──────────────
 // smtp.gmail.com has AAAA (IPv6) records. On hosts like Render the IPv6 route
-// is unreachable, so nodemailer fails with "connect ENETUNREACH <ipv6>:465"
-// when Node happens to pick the IPv6 address. We solve this definitively by
-// resolving smtp.gmail.com to a literal IPv4 address at startup and pinning it
-// as the connection host (the real hostname is still used for EHLO/SNI via the
-// `name` option). A Proxy keeps the `transporter` API identical for callers.
+// is unreachable, so nodemailer fails with "connect ENETUNREACH <ipv6>:465".
+// We fix that by pinning a literal IPv4 address (the real hostname is still
+// used for EHLO/SNI/cert validation via `name`, `servername` and
+// checkServerIdentity). We also try several endpoints in order (587 STARTTLS
+// then 465 SSL, IPv4-pinned then hostname) because some networks block one
+// port or one Google IP. The first endpoint that fully handshakes (`verify()`)
+// becomes the active transporter, so every send uses a proven-working
+// connection. A Proxy keeps the `transporter` API identical for callers.
 let initPromise = null;
+let lastFailure = null;
+let lastFailureAt = 0;
 
 async function resolveIPv4(host) {
   try {
@@ -23,16 +28,18 @@ async function resolveIPv4(host) {
   }
 }
 
-async function getTransporter() {
-  const host = await resolveIPv4("smtp.gmail.com");
-  console.log(`[MAILER] smtp.gmail.com resolved to IPv4 ${host}`);
+function candidateConfigs(ip) {
+  return [
+    { host: ip, name: "smtp.gmail.com", port: 587, secure: false, requireTLS: true },
+    { host: ip, name: "smtp.gmail.com", port: 465, secure: true },
+    { host: "smtp.gmail.com", name: "smtp.gmail.com", port: 587, secure: false, requireTLS: true },
+    { host: "smtp.gmail.com", name: "smtp.gmail.com", port: 465, secure: true },
+  ];
+}
 
+function buildTransport(cfg) {
   return nodemailer.createTransport({
-    host,
-    name: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    requireTLS: true,
+    ...cfg,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
@@ -44,16 +51,41 @@ async function getTransporter() {
       checkServerIdentity: (servername, cert) =>
         tls.checkServerIdentity("smtp.gmail.com", cert),
     },
-    connectionTimeout: 20000,
-    greetingTimeout: 20000,
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
     socketTimeout: 20000,
   });
 }
 
+async function getTransporter() {
+  const ip = await resolveIPv4("smtp.gmail.com");
+  console.log(`[MAILER] smtp.gmail.com resolved to IPv4 ${ip}`);
+
+  let lastErr = null;
+  for (const cfg of candidateConfigs(ip)) {
+    try {
+      const t = buildTransport(cfg);
+      await t.verify();
+      console.log(`[MAILER] connected OK via ${cfg.name}:${cfg.port} (host=${cfg.host})`);
+      return t;
+    } catch (err) {
+      lastErr = err;
+      console.error(`[MAILER] endpoint ${cfg.name}:${cfg.port} (host=${cfg.host}) failed: ${err.code || err.message}`);
+    }
+  }
+  throw new Error(`Gmail SMTP unreachable (tried 587/465): ${lastErr.code || lastErr.message}`);
+}
+
 function ensureTransporter() {
+  // After a failed scan, fail fast for 60s instead of rescanning every request.
+  if (Date.now() - lastFailureAt < 60000 && lastFailure) {
+    return Promise.reject(lastFailure);
+  }
   if (!initPromise) {
     initPromise = getTransporter().catch((err) => {
       initPromise = null; // allow a later call to retry after a transient failure
+      lastFailure = err;
+      lastFailureAt = Date.now();
       throw err;
     });
   }
