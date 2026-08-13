@@ -154,22 +154,33 @@ async function register(req, res) {
     // error is returned so the deployed cause is visible instead of generic.
     let verificationEmailSent = true;
     let verificationEmailError = null;
+    let verificationLink = null;
     try {
-      await authService.sendEmailVerification(userId, normalizedEmail);
+      verificationLink = await authService.sendEmailVerification(userId, normalizedEmail);
     } catch (mailErr) {
       console.error("Verification email failed to send:", mailErr.message);
       verificationEmailSent = false;
       verificationEmailError = mailErr.message;
     }
 
-    res.status(201).json({
+    const response = {
       success: true,
       message:
         "Account created. Please check your email to verify your account before logging in.",
       verificationEmailSent,
       verificationEmailError,
       bmi: bmiData,
-    });
+    };
+
+    // Demo/testing override: when sandboxed email delivery is blocked (e.g.
+    // Resend 403 without a verified domain), echo the verification link so a
+    // demo or test can still verify the account. Gated behind an env flag on
+    // purpose - never enabled by default because it exposes a valid token.
+    if (process.env.ALLOW_VERIFY_TOKEN_IN_RESPONSE === "1" && verificationLink) {
+      response.verificationLink = verificationLink;
+    }
+
+    res.status(201).json(response);
   } catch (err) {
     // Safety net: if two register requests for the same email land at
     // almost the same time, both can pass the findUserByEmail check
@@ -269,8 +280,9 @@ async function resendVerification(req, res) {
       });
     }
 
+    let verificationLink = null;
     try {
-      await authService.sendEmailVerification(user.id, normalizedEmail);
+      verificationLink = await authService.sendEmailVerification(user.id, normalizedEmail);
     } catch (mailErr) {
       console.error("Resend verification email failed to send:", mailErr.message);
       return res.status(500).json({
@@ -279,10 +291,15 @@ async function resendVerification(req, res) {
       });
     }
 
-    res.json({
+    const response = {
       success: true,
       message: "If this email is registered and unverified, a verification link has been sent.",
-    });
+    };
+    if (process.env.ALLOW_VERIFY_TOKEN_IN_RESPONSE === "1" && verificationLink) {
+      response.verificationLink = verificationLink;
+    }
+
+    res.json(response);
   } catch (err) {
     console.error("Resend verification error:", err);
     res.status(500).json({ message: "Could not resend verification email." });
