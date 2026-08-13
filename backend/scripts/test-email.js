@@ -5,8 +5,8 @@
 //   node scripts/test-email.js you@example.com
 //
 // It sends a simple verification-style email through the HTTP API provider
-// (Brevo first, then Resend) and reports the result. No SMTP/Gmail config is
-// needed — just BREVO_API_KEY (or RESEND_API_KEY) in backend/.env.
+// (Brevo) and reports the result. No SMTP/Gmail config is needed — just
+// BREVO_API_KEY in backend/.env.
 // ─────────────────────────────────────────────────────────────────────────────
 require('dotenv').config();
 
@@ -19,16 +19,14 @@ async function main() {
     process.exit(1);
   }
 
-  if (!process.env.BREVO_API_KEY && !process.env.RESEND_API_KEY) {
+  if (!process.env.BREVO_API_KEY) {
     console.error(
-      '[TEST-EMAIL] No provider configured — set BREVO_API_KEY or RESEND_API_KEY in backend/.env',
+      '[TEST-EMAIL] No provider configured — set BREVO_API_KEY in backend/.env',
     );
     process.exit(1);
   }
 
-  console.log(
-    `[TEST-EMAIL] Sending via ${process.env.BREVO_API_KEY ? 'Brevo' : 'Resend'} to ${to}...`,
-  );
+  console.log(`[TEST-EMAIL] Sending via Brevo to ${to}...`);
 
   try {
     const info = await sendEmail({

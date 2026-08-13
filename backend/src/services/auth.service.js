@@ -213,8 +213,7 @@ async function markEmailVerified(userId) {
 // ─── EMAIL VERIFICATION ───
 // Builds a signed 24h token and sends the verification email. Shared by
 // register and resend-verification so the token/link format stays identical.
-// Returns { ok, error, verifyLink } so callers can still surface the link for
-// demo/testing when delivery fails (see ALLOW_VERIFY_TOKEN_IN_RESPONSE).
+// Returns { ok, error } so callers can surface real delivery success/failure.
 async function sendEmailVerification(userId, email) {
   const verifyToken = jwt.sign(
     { id: userId, email, purpose: 'verify-email' },
@@ -227,9 +226,9 @@ async function sendEmailVerification(userId, email) {
 
   try {
     await sendVerificationEmail(email, verifyLink);
-    return { ok: true, error: null, verifyLink };
+    return { ok: true, error: null };
   } catch (error) {
-    return { ok: false, error, verifyLink };
+    return { ok: false, error };
   }
 }
 

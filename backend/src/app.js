@@ -117,7 +117,6 @@ const forgotPasswordRoutes = require("./routes/forgotPassword.routes");
 const feedbackRoutes = require("./routes/feedback.routes");
 const statsRoutes = require("./routes/stats.routes");
 const publicRoutes = require("./routes/public.routes");
-const { smtpProbe } = require("./controllers/smtpDebug.controller");
 
 app.use("/api/bmi", bmiRoutes);
 app.use("/api/auth", authRoutes);
@@ -143,9 +142,6 @@ app.use("/api/forgot-password", forgotPasswordRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/public", publicRoutes);
-
-// TEMPORARY debug route — SMTP outbound connectivity from this host's network.
-app.get("/api/debug/smtp-probe", smtpProbe);
 
 // ============================
 // Socket Handler

@@ -15,15 +15,6 @@ const {
   syncUserProfile,
 } = require("../services/bmi.service");
 
-// Recognizes Resend's sandbox restriction (no verified domain yet) and turns
-// the noisy 403 JSON into one clear log line so Render logs stay readable.
-function describeMailError(rawMessage) {
-  if (typeof rawMessage === "string" && rawMessage.includes("You can only send testing emails")) {
-    return "email delivery is sandboxed by Resend (no verified domain). A demo verify-link was returned instead. Verify a domain at resend.com/domains to send real emails to any recipient.";
-  }
-  return rawMessage;
-}
-
 // ─── GET /api/auth/me ───
 async function getMe(req, res) {
   const token = req.cookies?.[COOKIE_NAME];
@@ -159,17 +150,15 @@ async function register(req, res) {
     }
 
     // Send the verification email and surface real success/failure. A failed
-    // SMTP send no longer pretends the email went out, and the actual SMTP
-    // error is returned so the deployed cause is visible instead of generic.
+    // send no longer pretends the email went out — the real error is returned
+    // so the deployed cause is visible instead of generic.
     let verificationEmailSent = true;
     let verificationEmailError = null;
-    let verificationLink = null;
     const emailResult = await authService.sendEmailVerification(userId, normalizedEmail);
-    verificationLink = emailResult.verifyLink;
     if (emailResult.ok) {
       verificationEmailSent = true;
     } else {
-      console.error("Verification email failed to send:", describeMailError(emailResult.error.message));
+      console.error("Verification email failed to send:", emailResult.error.message);
       verificationEmailSent = false;
       verificationEmailError = emailResult.error.message;
     }
@@ -182,16 +171,6 @@ async function register(req, res) {
       verificationEmailError,
       bmi: bmiData,
     };
-
-    // Demo/testing override: if the verification email could NOT be delivered
-    // (e.g. Resend sandbox 403 without a verified domain, or any other send
-    // failure), echo the verification link in the JSON response so a demo or
-    // test can still verify the account. Also forceable via the
-    // ALLOW_VERIFY_TOKEN_IN_RESPONSE flag. Self-disables the moment emails
-    // actually go out, since verificationEmailSent becomes true.
-    if (verificationLink && (!verificationEmailSent || process.env.ALLOW_VERIFY_TOKEN_IN_RESPONSE === "1")) {
-      response.verificationLink = verificationLink;
-    }
 
     res.status(201).json(response);
   } catch (err) {
@@ -295,22 +274,17 @@ async function resendVerification(req, res) {
 
     const emailResult = await authService.sendEmailVerification(user.id, normalizedEmail);
     if (!emailResult.ok) {
-      console.error("Resend verification email failed to send:", describeMailError(emailResult.error.message));
+      console.error("Resend verification email failed to send:", emailResult.error.message);
       return res.status(500).json({
         message:
           "The verification email could not be sent right now. " + emailResult.error.message,
       });
     }
 
-    const response = {
+    res.json({
       success: true,
       message: "If this email is registered and unverified, a verification link has been sent.",
-    };
-    if (emailResult.verifyLink && (!process.env.RESEND_FROM || process.env.ALLOW_VERIFY_TOKEN_IN_RESPONSE === "1")) {
-      response.verificationLink = emailResult.verifyLink;
-    }
-
-    res.json(response);
+    });
   } catch (err) {
     console.error("Resend verification error:", err);
     res.status(500).json({ message: "Could not resend verification email." });

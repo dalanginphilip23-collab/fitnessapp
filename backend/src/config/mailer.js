@@ -3,69 +3,32 @@ const dns = require("dns");
 // Force Node to prefer IPv4 for DNS lookups globally (safe fix for Render)
 dns.setDefaultResultOrder("ipv4first");
 
-// ─── MAIL PROVIDERS (HTTP API ONLY) ──────────────────────────────────────────
+// ─── EMAIL PROVIDER (HTTP API ONLY) ──────────────────────────────────────────
 // Render blocks ALL outbound SMTP (ports 25/465/587 drop every provider), so we
-// send email over HTTPS instead. No SMTP/Gmail configuration is needed:
-//   Brevo first (preferred — delivers to any recipient, requires BREVO_API_KEY),
-//   then Resend (requires RESEND_API_KEY, sandbox only sends to your account).
+// send email over HTTPS via Brevo. No SMTP/Gmail configuration is needed.
+// Requires BREVO_API_KEY and a verified sender (BREVO_SENDER_EMAIL).
 
 // CONNECTION CHECK
-// Confirms at least one HTTP provider is configured before the server starts.
+// Confirms Brevo is configured before the server starts.
 async function verifyTransport() {
-  if (process.env.BREVO_API_KEY) {
-    console.log("[MAILER] Email provider ready: Brevo (HTTP API).");
-    return true;
+  if (!process.env.BREVO_API_KEY) {
+    console.warn(
+      "[MAILER] BREVO_API_KEY is not set. Email sending is disabled.",
+    );
+    return false;
   }
-  if (process.env.RESEND_API_KEY) {
-    console.log("[MAILER] Email provider ready: Resend (HTTP API).");
-    return true;
-  }
-  console.warn(
-    "[MAILER] No email provider configured (set BREVO_API_KEY or RESEND_API_KEY). Email sending is disabled.",
-  );
-  return false;
+  console.log("[MAILER] Email provider ready: Brevo (HTTP API).");
+  return true;
 }
 
-// ─── RESEND FALLBACK (HTTP API on port 443) ───────────────────────────────────
-// Render's network blocks ALL outbound SMTP (ports 25/465/587 drop every
-// provider). HTTPS still works, so when SMTP fails we re-send the same email
-// through Resend's REST API. Requires RESEND_API_KEY (from resend.com/api-keys).
-// For testing without a custom domain, Resend allows sending from
-// "onboarding@resend.dev"; set RESEND_FROM once you verify a domain.
-async function sendViaResend({ to, subject, html }) {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) throw new Error("RESEND_API_KEY is not configured");
-
-  const from = process.env.RESEND_FROM || "onboarding@resend.dev";
-  const resp = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: `Vitalis <${from}>`,
-      to: [to],
-      subject,
-      html,
-    }),
-  });
-
-  const data = await resp.json().catch(() => ({}));
-  if (!resp.ok) {
-    throw new Error(`Resend API error ${resp.status}: ${JSON.stringify(data)}`);
-  }
-  return { messageId: data.id };
-}
-
-// ─── BREVO FALLBACK (HTTP API on port 443) ────────────────────────────────────
-// Preferred HTTP sender. Brevo delivers to ANY recipient once the FROM address
-// (BREVO_SENDER_EMAIL or BREVO_FROM) is a verified sender in the Brevo dashboard
-// (Settings > Senders & IP). Note: Brevo does NOT accept free-email senders like
-// @gmail.com — the sender needs a domain you control (a free subdomain such as
-// is-a.dev works). Requires BREVO_API_KEY (xkeysib-...) from
-// app.brevo.com/settings/keys/api. Both naming conventions are accepted so the
-// configured Render env names don't matter.
+// ─── BREVO SENDER (HTTP API on port 443) ─────────────────────────────────────
+// Brevo delivers to ANY recipient once the FROM address (BREVO_SENDER_EMAIL or
+// BREVO_FROM) is a verified sender in the Brevo dashboard (Settings > Senders &
+// IP). Note: Brevo does NOT accept free-email senders like @gmail.com — the
+// sender needs a domain you control (a free subdomain such as is-a.dev works).
+// Requires BREVO_API_KEY (xkeysib-...) from app.brevo.com/settings/keys/api.
+// Both naming conventions are accepted so the configured Render env names don't
+// matter.
 async function sendViaBrevo({ to, subject, html }) {
   const apiKey = process.env.BREVO_API_KEY;
   if (!apiKey) throw new Error("BREVO_API_KEY is not configured");
@@ -96,25 +59,22 @@ async function sendViaBrevo({ to, subject, html }) {
 }
 
 // ─── UNIFIED SENDER ───────────────────────────────────────────────────────────
-// Sends via Brevo (preferred) or Resend over HTTPS. The FROM address is set by
-// the provider config (BREVO_SENDER_EMAIL / RESEND_FROM), so mailOptions.from
-// is not used.
+// Sends via Brevo over HTTPS. The FROM address is set by the Brevo config
+// (BREVO_SENDER_EMAIL / BREVO_FROM), so mailOptions.from is not used.
 async function sendEmail(mailOptions) {
+  if (!process.env.BREVO_API_KEY) {
+    throw new Error(
+      "No email provider configured (set BREVO_API_KEY).",
+    );
+  }
+
   const mail = {
     to: mailOptions.to,
     subject: mailOptions.subject,
     html: mailOptions.html,
   };
 
-  if (process.env.BREVO_API_KEY) {
-    return sendViaBrevo(mail);
-  }
-  if (process.env.RESEND_API_KEY) {
-    return sendViaResend(mail);
-  }
-  throw new Error(
-    "No email provider configured (set BREVO_API_KEY or RESEND_API_KEY).",
-  );
+  return sendViaBrevo(mail);
 }
 
 // ─── MEAL SUMMARY EMAIL ──────────────────────────────────────────────────────

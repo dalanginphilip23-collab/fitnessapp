@@ -8,7 +8,6 @@ export const useRegister = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [emailSendFailed,  setEmailSendFailed]  = useState(false);
   const [emailError,       setEmailError]       = useState('');
-  const [verificationLink, setVerificationLink] = useState('');
   const navigate = useNavigate();
 
   const handleRegister = async (e, formData) => {
@@ -18,7 +17,6 @@ export const useRegister = () => {
     setShowSuccessModal(false);
     setEmailSendFailed(false);
     setEmailError('');
-    setVerificationLink('');
     try {
       const body = {
         name:         formData.name,
@@ -42,7 +40,6 @@ export const useRegister = () => {
       if (data.success) {
         setEmailSendFailed(data.verificationEmailSent === false);
         setEmailError(data.verificationEmailError || '');
-        setVerificationLink(data.verificationLink || '');
         setShowSuccessModal(true);
       }
     } catch (err) {
@@ -54,5 +51,5 @@ export const useRegister = () => {
 
   const handleModalConfirm = () => navigate('/login');
 
-  return { loading, error, showSuccessModal, emailSendFailed, emailError, verificationLink, handleRegister, handleModalConfirm };
+  return { loading, error, showSuccessModal, emailSendFailed, emailError, handleRegister, handleModalConfirm };
 };
