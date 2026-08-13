@@ -50,7 +50,7 @@ const Register = () => {
   const [focused, setFocused] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const { loading, error, showSuccessModal, emailSendFailed, emailError, handleRegister, handleModalConfirm } = useRegister();
+  const { loading, error, showSuccessModal, emailSendFailed, emailError, verificationLink, handleRegister, handleModalConfirm } = useRegister();
 
   const filledFields = [formData.name, formData.email, formData.password].filter(Boolean).length;
   const progressPct  = Math.round((filledFields / 3) * 100);
@@ -204,7 +204,21 @@ const Register = () => {
             <p className="text-[11px] sm:text-[12px] text-[#c4c9b0]/60 tracking-wider mb-6 sm:mb-8 leading-relaxed uppercase">
               We sent a verification link to your email. Verify your account to unlock your fitness journey.
             </p>
-            {emailSendFailed && (
+            {emailSendFailed && verificationLink && (
+              <div className="bg-[#8BC34A]/10 border border-[#8BC34A]/25 rounded-lg text-[#8BC34A] text-[11px] font-semibold tracking-wider uppercase p-2.5 mb-4 text-left">
+                <span className="block mb-2">Email delivery is sandboxed, but here's your personal verification link:</span>
+                <a
+                  href={verificationLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block bg-[#8BC34A] text-[#161f00] text-[11px] font-bold tracking-[0.12em] uppercase p-2.5 rounded-lg text-center break-all"
+                  style={{ textDecoration: 'none' }}
+                >
+                  Verify my email →
+                </a>
+              </div>
+            )}
+            {emailSendFailed && !verificationLink && (
               <div className="bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[11px] font-semibold tracking-wider uppercase p-2.5 mb-4 leading-relaxed">
                 The verification email failed to send.{emailError && (
                   <span className="block mt-1 normal-case tracking-normal text-[10px] opacity-80">Reason: {emailError}</span>
