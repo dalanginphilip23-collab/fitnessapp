@@ -121,9 +121,9 @@ async function verifyTransport() {
     );
     return true;
   } catch (err) {
-    if (process.env.RESEND_API_KEY) {
+    if (process.env.RESEND_API_KEY || process.env.BREVO_API_KEY) {
       console.warn(
-        "[MAILER] SMTP unavailable (host may block outbound SMTP); will use Resend API instead.",
+        "[MAILER] SMTP unavailable (host may block outbound SMTP); will use HTTP email API (Brevo/Resend) instead.",
         err.code || err.message,
       );
       return true;
@@ -168,24 +168,69 @@ async function sendViaResend({ to, subject, html }) {
   return { messageId: data.id };
 }
 
+// ─── BREVO FALLBACK (HTTP API on port 443) ────────────────────────────────────
+// Preferred HTTP sender. Brevo delivers to ANY recipient once the FROM address
+// (BREVO_FROM) is a verified sender in the Brevo dashboard (Settings > Senders
+// & IP). Note: Brevo does NOT accept free-email senders like @gmail.com — the
+// sender needs a domain you control (a free subdomain such as is-a.dev works).
+// Requires BREVO_API_KEY (xkeysib-...) from app.brevo.com/settings/keys/api.
+async function sendViaBrevo({ to, subject, html }) {
+  const apiKey = process.env.BREVO_API_KEY;
+  if (!apiKey) throw new Error("BREVO_API_KEY is not configured");
+
+  const fromEmail = process.env.BREVO_FROM;
+  if (!fromEmail) throw new Error("BREVO_FROM (a verified Brevo sender) is not configured");
+
+  const fromName = process.env.BREVO_FROM_NAME || "Vitalis";
+  const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "api-key": apiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      sender: { email: fromEmail, name: fromName },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+  });
+
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    throw new Error(`Brevo API error ${resp.status}: ${JSON.stringify(data)}`);
+  }
+  return { messageId: data.messageId };
+}
+
 // ─── UNIFIED SENDER ───────────────────────────────────────────────────────────
-// Tries SMTP first; if the transport is unreachable/blocked and RESEND_API_KEY
-// exists, transparently falls back to the Resend HTTP API. All mail-sending
-// functions below route through here.
+// Tries SMTP first; if the transport is unreachable/blocked (e.g. Render blocks
+// all outbound SMTP), falls back first to Brevo (if configured) then to Resend.
+// All mail-sending functions below route through here.
 async function sendEmail(mailOptions) {
   try {
     return await transporter.sendMail(mailOptions);
   } catch (smtpErr) {
-    if (!process.env.RESEND_API_KEY) throw smtpErr;
-    console.warn(
-      "[MAILER] SMTP failed, falling back to Resend:",
-      smtpErr.code || smtpErr.message,
-    );
-    return sendViaResend({
+    const mail = {
       to: mailOptions.to,
       subject: mailOptions.subject,
       html: mailOptions.html,
-    });
+    };
+    if (process.env.BREVO_API_KEY) {
+      console.warn(
+        "[MAILER] SMTP failed, falling back to Brevo:",
+        smtpErr.code || smtpErr.message,
+      );
+      return sendViaBrevo(mail);
+    }
+    if (process.env.RESEND_API_KEY) {
+      console.warn(
+        "[MAILER] SMTP failed, falling back to Resend:",
+        smtpErr.code || smtpErr.message,
+      );
+      return sendViaResend(mail);
+    }
+    throw smtpErr;
   }
 }
 
