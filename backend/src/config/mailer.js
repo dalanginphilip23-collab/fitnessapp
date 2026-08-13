@@ -1,22 +1,73 @@
 const nodemailer = require("nodemailer");
 const dns = require("dns");
+const tls = require("tls");
 
 // Force Node to prefer IPv4 for DNS lookups globally (safe fix for Render)
 dns.setDefaultResultOrder("ipv4first");
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  family: 4,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+// ─── TRANSPORTER (LAZY + IPv4-PINNED) ─────────────────────────────────────────
+// smtp.gmail.com has AAAA (IPv6) records. On hosts like Render the IPv6 route
+// is unreachable, so nodemailer fails with "connect ENETUNREACH <ipv6>:465"
+// when Node happens to pick the IPv6 address. We solve this definitively by
+// resolving smtp.gmail.com to a literal IPv4 address at startup and pinning it
+// as the connection host (the real hostname is still used for EHLO/SNI via the
+// `name` option). A Proxy keeps the `transporter` API identical for callers.
+let initPromise = null;
+
+async function resolveIPv4(host) {
+  try {
+    const { address } = await dns.promises.lookup(host, { family: 4 });
+    return address;
+  } catch {
+    return host; // fall back to the hostname if resolution fails
+  }
+}
+
+async function getTransporter() {
+  const host = await resolveIPv4("smtp.gmail.com");
+  console.log(`[MAILER] smtp.gmail.com resolved to IPv4 ${host}`);
+
+  return nodemailer.createTransport({
+    host,
+    name: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    requireTLS: true,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+    // Because `host` is a literal IPv4 address, TLS must identify itself with
+    // the real hostname (SNI + cert validation against smtp.gmail.com).
+    tls: {
+      servername: "smtp.gmail.com",
+      checkServerIdentity: (servername, cert) =>
+        tls.checkServerIdentity("smtp.gmail.com", cert),
+    },
+    connectionTimeout: 20000,
+    greetingTimeout: 20000,
+    socketTimeout: 20000,
+  });
+}
+
+function ensureTransporter() {
+  if (!initPromise) {
+    initPromise = getTransporter().catch((err) => {
+      initPromise = null; // allow a later call to retry after a transient failure
+      throw err;
+    });
+  }
+  return initPromise;
+}
+
+const transporter = new Proxy(
+  {},
+  {
+    get(_, prop) {
+      return (...args) => ensureTransporter().then((t) => t[prop](...args));
+    },
   },
-  connectionTimeout: 20000,
-  greetingTimeout: 20000,
-  socketTimeout: 20000,
-});
+);
 
 // CONNECTION CHECK
 // Verifies the SMTP credentials once at boot so a bad/expired Gmail App Password
