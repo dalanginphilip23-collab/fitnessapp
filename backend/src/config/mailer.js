@@ -1,14 +1,22 @@
 const nodemailer = require('nodemailer');
+const dns = require('dns');
+
+// Force IPv4-first resolution so smtp.gmail.com never binds to an unreachable
+// IPv6 address on hosts like Render (causes ENETUNREACH on port 587/465).
+dns.setDefaultResultOrder('ipv4first');
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
+  requireTLS: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 15000,
+  connectionTimeout: 20000,
+  greetingTimeout: 20000,
+  socketTimeout: 20000,
 });
 
 // ─── CONNECTION CHECK ─────────────────────────────────────────────────────────
