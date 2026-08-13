@@ -15,6 +15,15 @@ const {
   syncUserProfile,
 } = require("../services/bmi.service");
 
+// Recognizes Resend's sandbox restriction (no verified domain yet) and turns
+// the noisy 403 JSON into one clear log line so Render logs stay readable.
+function describeMailError(rawMessage) {
+  if (typeof rawMessage === "string" && rawMessage.includes("You can only send testing emails")) {
+    return "email delivery is sandboxed by Resend (no verified domain). A demo verify-link was returned instead. Verify a domain at resend.com/domains to send real emails to any recipient.";
+  }
+  return rawMessage;
+}
+
 // ─── GET /api/auth/me ───
 async function getMe(req, res) {
   const token = req.cookies?.[COOKIE_NAME];
@@ -160,7 +169,7 @@ async function register(req, res) {
     if (emailResult.ok) {
       verificationEmailSent = true;
     } else {
-      console.error("Verification email failed to send:", emailResult.error.message);
+      console.error("Verification email failed to send:", describeMailError(emailResult.error.message));
       verificationEmailSent = false;
       verificationEmailError = emailResult.error.message;
     }
@@ -286,7 +295,7 @@ async function resendVerification(req, res) {
 
     const emailResult = await authService.sendEmailVerification(user.id, normalizedEmail);
     if (!emailResult.ok) {
-      console.error("Resend verification email failed to send:", emailResult.error.message);
+      console.error("Resend verification email failed to send:", describeMailError(emailResult.error.message));
       return res.status(500).json({
         message:
           "The verification email could not be sent right now. " + emailResult.error.message,
