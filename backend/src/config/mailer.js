@@ -1,15 +1,13 @@
 const nodemailer = require('nodemailer');
 const dns = require('dns');
 
-// Force IPv4-first resolution so smtp.gmail.com never binds to an unreachable
-// IPv6 address on hosts like Render (causes ENETUNREACH on port 587/465).
+// Force Node to prefer IPv4 for DNS lookups globally (safe fix for Render)
 dns.setDefaultResultOrder('ipv4first');
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  requireTLS: true,
+  port: 465,
+  secure: true, // true for 465, false for 587
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -19,7 +17,7 @@ const transporter = nodemailer.createTransport({
   socketTimeout: 20000,
 });
 
-// ─── CONNECTION CHECK ─────────────────────────────────────────────────────────
+// CONNECTION CHECK 
 // Verifies the SMTP credentials once at boot so a bad/expired Gmail App Password
 // fails loudly instead of all verification emails silently going nowhere.
 async function verifyTransport() {
