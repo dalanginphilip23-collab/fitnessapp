@@ -155,12 +155,14 @@ async function register(req, res) {
     let verificationEmailSent = true;
     let verificationEmailError = null;
     let verificationLink = null;
-    try {
-      verificationLink = await authService.sendEmailVerification(userId, normalizedEmail);
-    } catch (mailErr) {
-      console.error("Verification email failed to send:", mailErr.message);
+    const emailResult = await authService.sendEmailVerification(userId, normalizedEmail);
+    verificationLink = emailResult.verifyLink;
+    if (emailResult.ok) {
+      verificationEmailSent = true;
+    } else {
+      console.error("Verification email failed to send:", emailResult.error.message);
       verificationEmailSent = false;
-      verificationEmailError = mailErr.message;
+      verificationEmailError = emailResult.error.message;
     }
 
     const response = {
@@ -282,14 +284,12 @@ async function resendVerification(req, res) {
       });
     }
 
-    let verificationLink = null;
-    try {
-      verificationLink = await authService.sendEmailVerification(user.id, normalizedEmail);
-    } catch (mailErr) {
-      console.error("Resend verification email failed to send:", mailErr.message);
+    const emailResult = await authService.sendEmailVerification(user.id, normalizedEmail);
+    if (!emailResult.ok) {
+      console.error("Resend verification email failed to send:", emailResult.error.message);
       return res.status(500).json({
         message:
-          "The verification email could not be sent right now. " + mailErr.message,
+          "The verification email could not be sent right now. " + emailResult.error.message,
       });
     }
 
@@ -297,8 +297,8 @@ async function resendVerification(req, res) {
       success: true,
       message: "If this email is registered and unverified, a verification link has been sent.",
     };
-    if (verificationLink && (!process.env.RESEND_FROM || process.env.ALLOW_VERIFY_TOKEN_IN_RESPONSE === "1")) {
-      response.verificationLink = verificationLink;
+    if (emailResult.verifyLink && (!process.env.RESEND_FROM || process.env.ALLOW_VERIFY_TOKEN_IN_RESPONSE === "1")) {
+      response.verificationLink = emailResult.verifyLink;
     }
 
     res.json(response);
