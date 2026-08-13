@@ -1,13 +1,14 @@
-const nodemailer = require('nodemailer');
-const dns = require('dns');
+const nodemailer = require("nodemailer");
+const dns = require("dns");
 
 // Force Node to prefer IPv4 for DNS lookups globally (safe fix for Render)
-dns.setDefaultResultOrder('ipv4first');
+dns.setDefaultResultOrder("ipv4first");
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
+  host: "smtp.gmail.com",
   port: 465,
-  secure: true, // true for 465, false for 587
+  secure: true,
+  family: 4,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -17,7 +18,7 @@ const transporter = nodemailer.createTransport({
   socketTimeout: 20000,
 });
 
-// CONNECTION CHECK 
+// CONNECTION CHECK
 // Verifies the SMTP credentials once at boot so a bad/expired Gmail App Password
 // fails loudly instead of all verification emails silently going nowhere.
 async function verifyTransport() {
@@ -46,9 +47,9 @@ async function verifyTransport() {
 // ─── MEAL SUMMARY EMAIL ──────────────────────────────────────────────────────
 async function sendMealSummaryEmail(to, summary) {
   const mailOptions = {
-    from:    `"Vitalis" <${process.env.EMAIL_USER}>`,
+    from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
-    subject: '🥗 Your Daily Nutrition Summary — Vitalis',
+    subject: "🥗 Your Daily Nutrition Summary — Vitalis",
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;background:#0f0f0f;padding:32px;border-radius:12px;">
         <div style="text-align:center;margin-bottom:24px;">
@@ -102,9 +103,9 @@ async function sendMealSummaryEmail(to, summary) {
 // ─── PASSWORD RESET EMAIL ─────────────────────────────────────────────────────
 async function sendPasswordResetEmail(to, resetLink) {
   const mailOptions = {
-    from:    `"Vitalis" <${process.env.EMAIL_USER}>`,
+    from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
-    subject: '🔐 Reset Your Vitalis Password',
+    subject: "🔐 Reset Your Vitalis Password",
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;background:#0f0f0f;padding:32px;border-radius:12px;">
         <div style="text-align:center;margin-bottom:24px;">
@@ -144,9 +145,9 @@ async function sendPasswordResetEmail(to, resetLink) {
 // ─── WELCOME EMAIL ────────────────────────────────────────────────────────────
 async function sendWelcomeEmail(to, name) {
   const mailOptions = {
-    from:    `"Vitalis" <${process.env.EMAIL_USER}>`,
+    from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
-    subject: '⚡ Welcome to Vitalis Performance OS',
+    subject: "⚡ Welcome to Vitalis Performance OS",
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;background:#0f0f0f;padding:32px;border-radius:12px;">
         <div style="text-align:center;margin-bottom:24px;">
@@ -182,9 +183,9 @@ async function sendWelcomeEmail(to, name) {
 // ─── EMAIL VERIFICATION ───────────────────────────────────────────────────────
 async function sendVerificationEmail(to, verifyLink) {
   const mailOptions = {
-    from:    `"Vitalis" <${process.env.EMAIL_USER}>`,
+    from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
-    subject: '✅ Verify Your Vitalis Account',
+    subject: "✅ Verify Your Vitalis Account",
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;background:#0f0f0f;padding:32px;border-radius:12px;">
         <div style="text-align:center;margin-bottom:24px;">
