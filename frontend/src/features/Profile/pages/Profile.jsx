@@ -154,7 +154,7 @@ const Profile = () => {
       <div className={`flex-1 flex flex-col min-w-0 transition-all duration-400 ease-in-out ${expanded ? 'md:ml-60' : 'md:ml-18'}`}>
         <Topbar sidebarExpanded={expanded} userId={USER_ID} />
 
-        <main className="w-full max-w-164 mx-auto px-3.5 sm:px-6 lg:px-10 pt-6 sm:pt-8 mt-14 sm:mt-15 pb-28 md:pb-16">
+        <main className="w-full max-w-[1400px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pt-6 sm:pt-8 mt-14 sm:mt-15 pb-28 md:pb-16">
 
           {/* ── Header card: avatar / name / badges / email / edit + tabs ── */}
           <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl overflow-hidden">
@@ -243,7 +243,7 @@ const Profile = () => {
             </div>
 
             {/* Tabs */}
-            <div className="flex border-t border-(--border-light)">
+            <div className="flex border-t border-(--border-light) px-3 sm:px-5 pt-1.5 gap-1">
               {[
                 { id: 'profile',  label: 'Overview', icon: 'grid_view' },
                 { id: 'security', label: 'Security',  icon: 'shield'   },
@@ -251,7 +251,7 @@ const Profile = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 pt-2 pb-2.5 text-[10px] font-black uppercase tracking-wider border-b-2 transition-all ${
+                  className={`flex items-center gap-1.5 px-3 pt-1 pb-2 text-[10px] font-black uppercase tracking-wider border-b-2 transition-all ${
                     activeTab === tab.id
                       ? 'text-[#62aa1a] border-[#62aa1a]'
                       : 'text-(--text-disabled) border-transparent hover:text-(--text-muted)'
@@ -311,7 +311,8 @@ const Profile = () => {
 
           {/* ── Overview tab ── */}
           {activeTab === 'profile' && (
-            <div className="flex flex-col gap-3 mt-3">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-3 mt-3 items-start">
+              <div className="xl:col-span-2 flex flex-col gap-3 min-w-0">
 
               {/* Health overview */}
               <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-4">
@@ -539,7 +540,9 @@ const Profile = () => {
                   </div>
                 )}
               </div>
+              </div>
 
+              <div className="flex flex-col gap-3 min-w-0">
               {/* Patient information */}
               <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-4">
                 <SectionHeader
@@ -629,12 +632,14 @@ const Profile = () => {
                   <span className="material-symbols-outlined text-[14px] opacity-40">chevron_right</span>
                 </button>
               </div>
+              </div>
             </div>
           )}
 
           {/* ── Security tab ── */}
           {activeTab === 'security' && (
-            <div className="flex flex-col gap-3 mt-3">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-3 mt-3 items-start">
+              <div className="xl:col-span-2 flex flex-col gap-3 min-w-0">
               <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-4 sm:p-5">
                 <SectionHeader icon="devices" title="This Device" />
                 {currentSession ? (
@@ -678,7 +683,9 @@ const Profile = () => {
                   </div>
                 )}
               </div>
+              </div>
 
+              <div className="flex flex-col gap-3 min-w-0">
               <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-4 sm:p-5">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-(--bg-hover) flex items-center justify-center shrink-0">
@@ -696,6 +703,7 @@ const Profile = () => {
                     Change
                   </button>
                 </div>
+              </div>
               </div>
             </div>
           )}
