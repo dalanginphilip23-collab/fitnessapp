@@ -189,27 +189,17 @@ const Profile = () => {
                   </button>
                 </div>
 
-                {/* Name / badges / email / edit button */}
+                {/* Name / ID / email / edit button */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-3 flex-wrap">
-                    <div className="min-w-0">
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       <h1 className="text-xl sm:text-2xl font-['Manrope'] font-black text-(--text-primary) tracking-tight truncate">
                         {formData.fullName || 'Your Name'}
                       </h1>
-                      <p className="flex items-center gap-1.5 mt-1.5 text-[11px] text-(--text-muted) font-medium truncate">
-                        <span className="material-symbols-outlined text-[13px]">mail</span>
-                        {formData.email}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-2 mt-2.5">
-                        <span className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#62aa1a]/10 text-[#62aa1a] border border-[#62aa1a]/20">
-                          <span className="material-symbols-outlined text-[11px]">workspace_premium</span>
-                          Pro Member
-                        </span>
-                        <span className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-(--bg-hover) text-(--text-muted) border border-(--border-light)">
-                          <span className="material-symbols-outlined text-[11px]">badge</span>
-                          ID {recordId}
-                        </span>
-                      </div>
+                      <span className="flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-(--bg-hover) text-(--text-muted) border border-(--border-light) shrink-0">
+                        <span className="material-symbols-outlined text-[11px]">badge</span>
+                        ID {recordId}
+                      </span>
                     </div>
 
                     <button
@@ -224,6 +214,11 @@ const Profile = () => {
                       {isEditing ? 'Cancel' : 'Edit Profile'}
                     </button>
                   </div>
+
+                  <p className="flex items-center gap-1.5 mt-2 text-[11px] text-(--text-muted) font-medium truncate">
+                    <span className="material-symbols-outlined text-[13px]">mail</span>
+                    {formData.email}
+                  </p>
                 </div>
               </div>
 
@@ -314,8 +309,8 @@ const Profile = () => {
 
           {/* ── Overview tab ── */}
           {activeTab === 'profile' && (
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-3 mt-3 items-start">
-              <div className="xl:col-span-2 flex flex-col gap-3 min-w-0">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 mt-3 items-start">
+              <div className="flex flex-col gap-3 min-w-0">
 
               {/* Health overview */}
               <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5">
@@ -641,8 +636,8 @@ const Profile = () => {
 
           {/* ── Security tab ── */}
           {activeTab === 'security' && (
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-3 mt-3 items-start">
-              <div className="xl:col-span-2 flex flex-col gap-3 min-w-0">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 mt-3 items-start">
+              <div className="flex flex-col gap-3 min-w-0">
               <div className="bg-(--bg-card) border border-(--border-light) rounded-2xl p-5">
                 <SectionHeader icon="devices" title="This Device" />
                 {currentSession ? (
