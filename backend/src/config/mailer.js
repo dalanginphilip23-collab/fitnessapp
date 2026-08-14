@@ -1,34 +1,159 @@
+const nodemailer = require("nodemailer");
 const dns = require("dns");
+const tls = require("tls");
 
-// Force Node to prefer IPv4 for DNS lookups globally (safe fix for Render)
 dns.setDefaultResultOrder("ipv4first");
 
-// ─── EMAIL PROVIDER (HTTP API ONLY) ──────────────────────────────────────────
-// Render blocks ALL outbound SMTP (ports 25/465/587 drop every provider), so we
-// send email over HTTPS via Brevo. No SMTP/Gmail configuration is needed.
-// Requires BREVO_API_KEY and a verified sender (BREVO_SENDER_EMAIL).
+let initPromise = null;
+let lastFailure = null;
+let lastFailureAt = 0;
 
-// CONNECTION CHECK
-// Confirms Brevo is configured before the server starts.
+async function resolveIPv4(host) {
+  try {
+    const { address } = await dns.promises.lookup(host, { family: 4 });
+    return address;
+  } catch {
+    return host; // fall back to the hostname if resolution fails
+  }
+}
+
+function candidateConfigs(ip) {
+  return [
+    { host: ip, name: "smtp.gmail.com", port: 587, secure: false, requireTLS: true },
+    { host: ip, name: "smtp.gmail.com", port: 465, secure: true },
+    { host: "smtp.gmail.com", name: "smtp.gmail.com", port: 587, secure: false, requireTLS: true },
+    { host: "smtp.gmail.com", name: "smtp.gmail.com", port: 465, secure: true },
+  ];
+}
+
+function buildTransport(cfg) {
+  return nodemailer.createTransport({
+    ...cfg,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+    // Because `host` is a literal IPv4 address, TLS must identify itself with
+    // the real hostname (SNI + cert validation against smtp.gmail.com).
+    tls: {
+      servername: "smtp.gmail.com",
+      checkServerIdentity: (servername, cert) =>
+        tls.checkServerIdentity("smtp.gmail.com", cert),
+    },
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 20000,
+  });
+}
+
+async function getTransporter() {
+  const ip = await resolveIPv4("smtp.gmail.com");
+  console.log(`[MAILER] smtp.gmail.com resolved to IPv4 ${ip}`);
+
+  let lastErr = null;
+  for (const cfg of candidateConfigs(ip)) {
+    try {
+      const t = buildTransport(cfg);
+      await t.verify();
+      console.log(`[MAILER] connected OK via ${cfg.name}:${cfg.port} (host=${cfg.host})`);
+      return t;
+    } catch (err) {
+      lastErr = err;
+      console.error(`[MAILER] endpoint ${cfg.name}:${cfg.port} (host=${cfg.host}) failed: ${err.code || err.message}`);
+    }
+  }
+  throw new Error(`Gmail SMTP unreachable (tried 587/465): ${lastErr.code || lastErr.message}`);
+}
+
+function ensureTransporter() {
+  // After a failed scan, fail fast for 60s instead of rescanning every request.
+  if (Date.now() - lastFailureAt < 60000 && lastFailure) {
+    return Promise.reject(lastFailure);
+  }
+  if (!initPromise) {
+    initPromise = getTransporter().catch((err) => {
+      initPromise = null; // allow a later call to retry after a transient failure
+      lastFailure = err;
+      lastFailureAt = Date.now();
+      throw err;
+    });
+  }
+  return initPromise;
+}
+
+const transporter = new Proxy(
+  {},
+  {
+    get(_, prop) {
+      return (...args) => ensureTransporter().then((t) => t[prop](...args));
+    },
+  },
+);
+
 async function verifyTransport() {
-  if (!process.env.BREVO_API_KEY) {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.warn(
-      "[MAILER] BREVO_API_KEY is not set. Email sending is disabled.",
+      "[MAILER] EMAIL_USER / EMAIL_PASS are not set. Email sending is disabled.",
     );
     return false;
   }
-  console.log("[MAILER] Email provider ready: Brevo (HTTP API).");
-  return true;
+
+  try {
+    await transporter.verify();
+    console.log(
+      `[MAILER] SMTP connection verified (${process.env.EMAIL_USER}).`,
+    );
+    return true;
+  } catch (err) {
+    if (process.env.RESEND_API_KEY || process.env.BREVO_API_KEY) {
+      console.warn(
+        "[MAILER] SMTP unavailable (host may block outbound SMTP); will use HTTP email API (Brevo/Resend) instead.",
+        err.code || err.message,
+      );
+      return true;
+    }
+    console.error(
+      "[MAILER] SMTP connection FAILED — check EMAIL_PASS (Gmail requires a 16-char App Password with 2-Step Verification enabled):",
+      err.message,
+    );
+    return false;
+  }
 }
 
-// ─── BREVO SENDER (HTTP API on port 443) ─────────────────────────────────────
-// Brevo delivers to ANY recipient once the FROM address (BREVO_SENDER_EMAIL or
-// BREVO_FROM) is a verified sender in the Brevo dashboard (Settings > Senders &
-// IP). Note: Brevo does NOT accept free-email senders like @gmail.com — the
-// sender needs a domain you control (a free subdomain such as is-a.dev works).
-// Requires BREVO_API_KEY (xkeysib-...) from app.brevo.com/settings/keys/api.
-// Both naming conventions are accepted so the configured Render env names don't
-// matter.
+async function sendViaResend({ to, subject, html }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) throw new Error("RESEND_API_KEY is not configured");
+
+  const from = process.env.RESEND_FROM || "onboarding@resend.dev";
+  const resp = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: `Vitalis <${from}>`,
+      to: [to],
+      subject,
+      html,
+    }),
+  });
+
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    throw new Error(`Resend API error ${resp.status}: ${JSON.stringify(data)}`);
+  }
+  return { messageId: data.id };
+}
+
+// ─── BREVO FALLBACK (HTTP API on port 443) ────────────────────────────────────
+// Preferred HTTP sender. Brevo delivers to ANY recipient once the FROM address
+// (BREVO_SENDER_EMAIL or BREVO_FROM) is a verified sender in the Brevo dashboard
+// (Settings > Senders & IP). Note: Brevo does NOT accept free-email senders like
+// @gmail.com — the sender needs a domain you control (a free subdomain such as
+// is-a.dev works). Requires BREVO_API_KEY (xkeysib-...) from
+// app.brevo.com/settings/keys/api. Both naming conventions are accepted so the
+// configured Render env names don't matter.
 async function sendViaBrevo({ to, subject, html }) {
   const apiKey = process.env.BREVO_API_KEY;
   if (!apiKey) throw new Error("BREVO_API_KEY is not configured");
@@ -59,27 +184,40 @@ async function sendViaBrevo({ to, subject, html }) {
 }
 
 // ─── UNIFIED SENDER ───────────────────────────────────────────────────────────
-// Sends via Brevo over HTTPS. The FROM address is set by the Brevo config
-// (BREVO_SENDER_EMAIL / BREVO_FROM), so mailOptions.from is not used.
+// Tries SMTP first; if the transport is unreachable/blocked (e.g. Render blocks
+// all outbound SMTP), falls back first to Brevo (if configured) then to Resend.
+// All mail-sending functions below route through here.
 async function sendEmail(mailOptions) {
-  if (!process.env.BREVO_API_KEY) {
-    throw new Error(
-      "No email provider configured (set BREVO_API_KEY).",
-    );
+  try {
+    return await transporter.sendMail(mailOptions);
+  } catch (smtpErr) {
+    const mail = {
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      html: mailOptions.html,
+    };
+    if (process.env.BREVO_API_KEY) {
+      console.warn(
+        "[MAILER] SMTP failed, falling back to Brevo:",
+        smtpErr.code || smtpErr.message,
+      );
+      return sendViaBrevo(mail);
+    }
+    if (process.env.RESEND_API_KEY) {
+      console.warn(
+        "[MAILER] SMTP failed, falling back to Resend:",
+        smtpErr.code || smtpErr.message,
+      );
+      return sendViaResend(mail);
+    }
+    throw smtpErr;
   }
-
-  const mail = {
-    to: mailOptions.to,
-    subject: mailOptions.subject,
-    html: mailOptions.html,
-  };
-
-  return sendViaBrevo(mail);
 }
 
 // ─── MEAL SUMMARY EMAIL ──────────────────────────────────────────────────────
 async function sendMealSummaryEmail(to, summary) {
   const mailOptions = {
+    from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
     subject: "🥗 Your Daily Nutrition Summary — Vitalis",
     html: `
@@ -135,6 +273,7 @@ async function sendMealSummaryEmail(to, summary) {
 // ─── PASSWORD RESET EMAIL ─────────────────────────────────────────────────────
 async function sendPasswordResetEmail(to, resetLink) {
   const mailOptions = {
+    from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
     subject: "🔐 Reset Your Vitalis Password",
     html: `
@@ -176,6 +315,7 @@ async function sendPasswordResetEmail(to, resetLink) {
 // ─── WELCOME EMAIL ────────────────────────────────────────────────────────────
 async function sendWelcomeEmail(to, name) {
   const mailOptions = {
+    from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
     subject: "⚡ Welcome to Vitalis Performance OS",
     html: `
@@ -207,12 +347,13 @@ async function sendWelcomeEmail(to, name) {
     `,
   };
 
-  return sendEmail(mailOptions);
+  return transporter.sendMail(mailOptions);
 }
 
 // ─── EMAIL VERIFICATION ───────────────────────────────────────────────────────
 async function sendVerificationEmail(to, verifyLink) {
   const mailOptions = {
+    from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
     subject: "✅ Verify Your Vitalis Account",
     html: `
@@ -252,8 +393,8 @@ async function sendVerificationEmail(to, verifyLink) {
 }
 
 module.exports = {
+  transporter,
   verifyTransport,
-  sendEmail,
   sendMealSummaryEmail,
   sendPasswordResetEmail,
   sendWelcomeEmail,
