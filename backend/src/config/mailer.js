@@ -13,15 +13,27 @@ async function resolveIPv4(host) {
     const { address } = await dns.promises.lookup(host, { family: 4 });
     return address;
   } catch {
-    return host; // fall back to the hostname if resolution fails
+    return host;
   }
 }
 
 function candidateConfigs(ip) {
   return [
-    { host: ip, name: "smtp.gmail.com", port: 587, secure: false, requireTLS: true },
+    {
+      host: ip,
+      name: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      requireTLS: true,
+    },
     { host: ip, name: "smtp.gmail.com", port: 465, secure: true },
-    { host: "smtp.gmail.com", name: "smtp.gmail.com", port: 587, secure: false, requireTLS: true },
+    {
+      host: "smtp.gmail.com",
+      name: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      requireTLS: true,
+    },
     { host: "smtp.gmail.com", name: "smtp.gmail.com", port: 465, secure: true },
   ];
 }
@@ -33,8 +45,6 @@ function buildTransport(cfg) {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    // Because `host` is a literal IPv4 address, TLS must identify itself with
-    // the real hostname (SNI + cert validation against smtp.gmail.com).
     tls: {
       servername: "smtp.gmail.com",
       checkServerIdentity: (servername, cert) =>
@@ -55,14 +65,20 @@ async function getTransporter() {
     try {
       const t = buildTransport(cfg);
       await t.verify();
-      console.log(`[MAILER] connected OK via ${cfg.name}:${cfg.port} (host=${cfg.host})`);
+      console.log(
+        `[MAILER] connected OK via ${cfg.name}:${cfg.port} (host=${cfg.host})`,
+      );
       return t;
     } catch (err) {
       lastErr = err;
-      console.error(`[MAILER] endpoint ${cfg.name}:${cfg.port} (host=${cfg.host}) failed: ${err.code || err.message}`);
+      console.error(
+        `[MAILER] endpoint ${cfg.name}:${cfg.port} (host=${cfg.host}) failed: ${err.code || err.message}`,
+      );
     }
   }
-  throw new Error(`Gmail SMTP unreachable (tried 587/465): ${lastErr.code || lastErr.message}`);
+  throw new Error(
+    `Gmail SMTP unreachable (tried 587/465): ${lastErr.code || lastErr.message}`,
+  );
 }
 
 function ensureTransporter() {
@@ -159,9 +175,13 @@ async function sendViaBrevo({ to, subject, html }) {
   if (!apiKey) throw new Error("BREVO_API_KEY is not configured");
 
   const fromEmail = process.env.BREVO_SENDER_EMAIL || process.env.BREVO_FROM;
-  if (!fromEmail) throw new Error("BREVO_FROM / BREVO_SENDER_EMAIL (a verified Brevo sender) is not configured");
+  if (!fromEmail)
+    throw new Error(
+      "BREVO_FROM / BREVO_SENDER_EMAIL (a verified Brevo sender) is not configured",
+    );
 
-  const fromName = process.env.BREVO_SENDER_NAME || process.env.BREVO_FROM_NAME || "Vitalis";
+  const fromName =
+    process.env.BREVO_SENDER_NAME || process.env.BREVO_FROM_NAME || "Vitalis";
   const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
@@ -183,10 +203,7 @@ async function sendViaBrevo({ to, subject, html }) {
   return { messageId: data.messageId };
 }
 
-// ─── UNIFIED SENDER ───────────────────────────────────────────────────────────
-// Tries SMTP first; if the transport is unreachable/blocked (e.g. Render blocks
-// all outbound SMTP), falls back first to Brevo (if configured) then to Resend.
-// All mail-sending functions below route through here.
+// UNIFIED SENDER
 async function sendEmail(mailOptions) {
   try {
     return await transporter.sendMail(mailOptions);
@@ -214,7 +231,7 @@ async function sendEmail(mailOptions) {
   }
 }
 
-// ─── MEAL SUMMARY EMAIL ──────────────────────────────────────────────────────
+//MEAL SUMMARY EMAIL
 async function sendMealSummaryEmail(to, summary) {
   const mailOptions = {
     from: `"Vitalis" <${process.env.EMAIL_USER}>`,
@@ -270,7 +287,7 @@ async function sendMealSummaryEmail(to, summary) {
   return sendEmail(mailOptions);
 }
 
-// ─── PASSWORD RESET EMAIL ─────────────────────────────────────────────────────
+// PASSWORD RESET EMAIL
 async function sendPasswordResetEmail(to, resetLink) {
   const mailOptions = {
     from: `"Vitalis" <${process.env.EMAIL_USER}>`,
@@ -312,7 +329,7 @@ async function sendPasswordResetEmail(to, resetLink) {
   return sendEmail(mailOptions);
 }
 
-// ─── WELCOME EMAIL ────────────────────────────────────────────────────────────
+// WELCOME EMAIL
 async function sendWelcomeEmail(to, name) {
   const mailOptions = {
     from: `"Vitalis" <${process.env.EMAIL_USER}>`,
@@ -350,7 +367,7 @@ async function sendWelcomeEmail(to, name) {
   return transporter.sendMail(mailOptions);
 }
 
-// ─── EMAIL VERIFICATION ───────────────────────────────────────────────────────
+// EMAIL VERIFICATION
 async function sendVerificationEmail(to, verifyLink) {
   const mailOptions = {
     from: `"Vitalis" <${process.env.EMAIL_USER}>`,
