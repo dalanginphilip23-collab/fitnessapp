@@ -5,6 +5,8 @@ const RadialProgress = ({
   strokeWidth = 7,
   color = 'var(--accent)',
   trackColor = 'var(--bg-hover)',
+  textColor = 'var(--text-primary)',
+  labelColor = 'var(--text-muted)',
   displayValue,
   label,
 }) => {
@@ -43,8 +45,8 @@ const RadialProgress = ({
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
           <span
-            className="stat-digital font-extrabold text-[var(--text-primary)] tracking-tight"
-            style={{ fontSize: size * 0.19 }}
+            className="stat-digital font-extrabold tracking-tight"
+            style={{ fontSize: size * 0.19, color: textColor }}
           >
             {shown}
           </span>
@@ -52,7 +54,10 @@ const RadialProgress = ({
       </div>
 
       {label && (
-        <span className="text-[9px] font-black uppercase tracking-[0.18em] text-[var(--text-muted)]">
+        <span
+          className="text-[9px] font-black uppercase tracking-[0.18em]"
+          style={{ color: labelColor }}
+        >
           {label}
         </span>
       )}

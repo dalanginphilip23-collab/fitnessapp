@@ -9,6 +9,10 @@ const formatSessionLoad = (mins = 0) => {
   return `${h}:${String(m).padStart(2, '0')}`;
 };
 
+const RING_PINK = '#F5379B';
+const RING_GREEN = '#8CE536';
+const RING_CYAN = '#22D3EE';
+
 const PERIODS = ['This week', 'For the month', 'This year'];
 
 /**
@@ -41,12 +45,12 @@ const ProgramOverviewCard = ({
   const pct = (value, goal) => (goal > 0 ? (Number(value || 0) / goal) * 100 : 0);
 
   return (
-    <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[28px] p-4 sm:p-6 flex flex-col gap-5">
+    <div className="bg-[#181C24] border border-white/5 rounded-[28px] p-4 sm:p-6 flex flex-col gap-5">
       {/* Header: active-program pills + Add */}
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[11px] font-bold text-[var(--text-muted)] mb-1.5">Current</p>
-          <p className="text-[15px] font-black text-[var(--text-primary)] truncate">
+          <p className="text-[11px] font-bold text-white/40 mb-1.5">Current</p>
+          <p className="text-[15px] font-black text-white truncate">
             {activeProgramCount > 0
               ? `${activeProgramCount} active program${activeProgramCount !== 1 ? 's' : ''}`
               : 'No active program'}
@@ -58,13 +62,10 @@ const ProgramOverviewCard = ({
             {Array.from({ length: Math.min(activeProgramCount, 3) || 1 }).map((_, i) => (
               <div
                 key={i}
-                className="w-9 h-9 rounded-full flex items-center justify-center border-2 border-[var(--bg-tertiary)]"
+                className="w-9 h-9 rounded-full flex items-center justify-center border-2"
                 style={{
-                  background: [
-                    'color-mix(in srgb, var(--accent) 70%, transparent)',
-                    'color-mix(in srgb, var(--metric-sleep) 70%, transparent)',
-                    'color-mix(in srgb, var(--metric-steps) 70%, transparent)',
-                  ][i % 3],
+                  background: [RING_PINK, RING_GREEN, RING_CYAN][i % 3],
+                  borderColor: '#181C24',
                 }}
               >
                 <Icon name="fitness_center" className="text-white text-[15px]" fill={1} />
@@ -74,7 +75,8 @@ const ProgramOverviewCard = ({
           <button
             type="button"
             onClick={onChangeProgram}
-            className="flex items-center gap-1 text-[11px] font-black text-[var(--accent)] bg-[var(--accent-bg)] border border-[var(--accent-border)] rounded-full px-3 py-1.5 hover:-translate-y-0.5 active:scale-[0.98] transition-all cursor-pointer"
+            className="flex items-center gap-1 text-[11px] font-black rounded-full px-3 py-1.5 hover:-translate-y-0.5 active:scale-[0.98] transition-all cursor-pointer"
+            style={{ color: RING_GREEN, background: `${RING_GREEN}1A`, border: `1px solid ${RING_GREEN}40` }}
           >
             <Icon name="add" className="text-[14px]" />
             Add
@@ -88,18 +90,18 @@ const ProgramOverviewCard = ({
           type="button"
           onClick={() => cyclePeriod(-1)}
           aria-label="Previous period"
-          className="w-7 h-7 rounded-full flex items-center justify-center bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border-none cursor-pointer transition-colors"
+          className="w-7 h-7 rounded-full flex items-center justify-center bg-white/[0.06] text-white/50 hover:text-white border-none cursor-pointer transition-colors"
         >
           <Icon name="chevron_left" className="text-[16px]" />
         </button>
-        <span className="text-[12px] font-bold text-[var(--text-primary)] bg-[var(--bg-hover)] rounded-full px-4 py-1.5 min-w-[130px] text-center">
+        <span className="text-[12px] font-bold text-white bg-white/[0.06] rounded-full px-4 py-1.5 min-w-[130px] text-center">
           {PERIODS[periodIdx]}
         </span>
         <button
           type="button"
           onClick={() => cyclePeriod(1)}
           aria-label="Next period"
-          className="w-7 h-7 rounded-full flex items-center justify-center bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border-none cursor-pointer transition-colors"
+          className="w-7 h-7 rounded-full flex items-center justify-center bg-white/[0.06] text-white/50 hover:text-white border-none cursor-pointer transition-colors"
         >
           <Icon name="chevron_right" className="text-[16px]" />
         </button>
@@ -112,7 +114,10 @@ const ProgramOverviewCard = ({
           goal={sessionLoadMins.goal}
           size={92}
           strokeWidth={8}
-          color="var(--metric-sleep)"
+          color={RING_PINK}
+          trackColor="rgba(255,255,255,0.06)"
+          textColor="#ffffff"
+          labelColor="rgba(255,255,255,0.4)"
           displayValue={formatSessionLoad(sessionLoadMins.value).split(':')[0]}
           label="Sessions"
         />
@@ -121,7 +126,10 @@ const ProgramOverviewCard = ({
           goal={calories.goal}
           size={104}
           strokeWidth={9}
-          color="var(--accent)"
+          color={RING_GREEN}
+          trackColor="rgba(255,255,255,0.06)"
+          textColor="#ffffff"
+          labelColor="rgba(255,255,255,0.4)"
           displayValue={
             calories.value >= 1000
               ? `${(calories.value / 1000).toFixed(1)}k`
@@ -134,7 +142,10 @@ const ProgramOverviewCard = ({
           goal={sessionLoadMins.goal}
           size={92}
           strokeWidth={8}
-          color="var(--metric-steps)"
+          color={RING_CYAN}
+          trackColor="rgba(255,255,255,0.06)"
+          textColor="#ffffff"
+          labelColor="rgba(255,255,255,0.4)"
           displayValue={`${sessionLoadMins.value}m`}
           label="Session"
         />
@@ -145,7 +156,7 @@ const ProgramOverviewCard = ({
         <button
           type="button"
           onClick={() => setPaused((p) => !p)}
-          className="flex-1 flex items-center justify-center gap-2 bg-[var(--bg-hover)] text-[var(--text-primary)] text-[12px] font-bold py-3 rounded-2xl border-none cursor-pointer hover:bg-[var(--bg-active)] transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 bg-white/[0.06] text-white text-[12px] font-bold py-3 rounded-2xl border-none cursor-pointer hover:bg-white/[0.10] transition-colors"
         >
           <Icon name={paused ? 'play_arrow' : 'pause'} className="text-[16px]" fill={1} />
           {paused ? 'Resume program' : 'Pause program'}
@@ -153,7 +164,8 @@ const ProgramOverviewCard = ({
         <button
           type="button"
           onClick={onChangeProgram}
-          className="flex-1 flex items-center justify-center gap-2 text-[var(--accent)] text-[12px] font-bold py-3 rounded-2xl border border-dashed border-[var(--accent-border)] cursor-pointer hover:bg-[var(--accent-bg)] transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 text-[12px] font-bold py-3 rounded-2xl cursor-pointer transition-colors"
+          style={{ color: RING_GREEN, border: `1px dashed ${RING_GREEN}40`, background: 'transparent' }}
         >
           <Icon name="sync_alt" className="text-[16px]" />
           {hasProgram ? 'Change program' : 'Find a program'}
