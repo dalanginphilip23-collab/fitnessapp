@@ -13,3 +13,4 @@ export { default as AnalyticsMobileNav } from './AnalyticsMobileNav';
 export { default as RadialProgress } from './RadialProgress';
 export { default as ProgramSummaryCard } from './ProgramSummaryCard';
 export { default as StatCardsRow } from './StatCardsRow';
+export { default as ProgramOverviewCard } from './ProgramOverviewCard';

@@ -6,8 +6,7 @@ import {
   Sidebar,
   Topbar,
   Hero,
-  ProgramSummaryCard,
-  StatCardsRow,
+  ProgramOverviewCard,
   ClinicalAssistant,
   SleepHoursGraph,
   MobileNav,
@@ -136,15 +135,12 @@ const Dashboard = () => {
             {/* Left Column */}
             <div className="xl:col-span-3 flex flex-col gap-4 sm:gap-5 lg:gap-6 min-w-0">
 
-              <StatCardsRow
+              <ProgramOverviewCard
+                activeProgramCount={activeProgramCount}
+                activePlan={activePlan}
                 calories={{ value: data.stats?.calories_burned || 0, goal: 800 }}
                 steps={{ value: data.stats?.steps || 0, goal: 10000 }}
                 sessionLoadMins={{ value: data.stats?.workout_duration_mins || 0, goal: 120 }}
-              />
-
-              <ProgramSummaryCard
-                activeProgramCount={activeProgramCount}
-                activePlan={activePlan}
                 onChangeProgram={() => navigate('/dashboard/plans')}
               />
 
