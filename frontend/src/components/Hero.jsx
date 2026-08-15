@@ -71,7 +71,8 @@ const Hero = ({ name = 'Athlete', avatar, readiness, onCoachInsight }) => {
       </div>
 
       {/* Daily Readiness card */}
-      <div className="relative overflow-hidden rounded-[24px] p-6 sm:p-7 shadow-lg bg-gradient-to-br from-[var(--accent)] to-[color-mix(in_srgb,var(--accent)_55%,#0f2d10)]">
+      <div className="relative overflow-hidden rounded-[24px] p-6 sm:p-7 shadow-lg bg-gradient-to-br from-[#3f7a1a] to-[#12240a]">
+        <div className="absolute inset-0 opacity-[0.35] bg-[radial-gradient(circle_at_85%_15%,rgba(255,255,255,0.12),transparent_55%)]" />
         <div className="relative flex items-end justify-between gap-4">
           <div className="min-w-0">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mb-1">
