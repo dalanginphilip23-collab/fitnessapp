@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useRegister } from '../hooks/useRegister';
 import { ACTIVITY_LEVELS } from '../../../BMI/constants/bmiConstants';
-import { getPasswordStrength } from '../../Forgot-password/utils/passwordStrength';
+import { getPasswordStrength } from '../../ForgotPassword/utils/passwordStrength';
 
 const ACCENT        = '#8BC34A';
 const ACCENT_HOVER  = '#9CCC65';

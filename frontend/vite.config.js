@@ -58,7 +58,7 @@ export default defineConfig({
     }),
   ],
   optimizeDeps: {
-    exclude: ['@mediapipe/pose'],
+    exclude: [],
   },
   build: {
     rollupOptions: {

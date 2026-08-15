@@ -4,7 +4,7 @@ import { ProtectedRoute, PublicRoute } from "./hooks/useMiddleware";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { NotificationProvider } from "./context/NotificationSystem";
 import { ThemeProvider } from "./context/ThemeContext";
-import Landing from "./pages/Landing/Landing";
+import Landing from "./features/Landing/Landing";
 import IOSInstallBanner from "./components/IOSInstallBanner";
 import SplashScreen from "./components/SplashScreen";
 
@@ -13,8 +13,8 @@ const Plans = lazy(() => import("./features/Plan/pages/Plans"));
 const Analytics = lazy(() => import("./features/Analytics/pages/Analytics"));
 const CameraWorkout = lazy(() => import("./features/CameraWorkout/pages/CameraWorkout"));
 const Log = lazy(() => import("./features/Log/pages/Log"));
-const NutritionTracker = lazy(() => import("./features/MealTracker/pages/MealTreacker"));
-const VirtualClinic = lazy(() => import("./features/Coach/pages/virtual-clinic"));
+const NutritionTracker = lazy(() => import("./features/MealTracker/pages/MealTracker"));
+const VirtualClinic = lazy(() => import("./features/Coach/pages/VirtualClinic"));
 const LiveCoaching = lazy(() => import("./features/LiveCoaching/pages/LiveCoaching"));
 const Profile = lazy(() => import("./features/Profile/pages/Profile"));
 const ActivityMap = lazy(() => import("./features/ActivityMap/pages/ActivityMap"));
@@ -22,7 +22,7 @@ const SharedActivity = lazy(() => import("./features/ActivityMap/pages/SharedAct
 const Register = lazy(() => import("./features/Auth/Register/pages/Register"));
 const Login = lazy(() => import("./features/Auth/Login/pages/Login"));
 const ClinicalMessenger = lazy(() => import("./features/Social/pages/Social"));
-const ForgotPassword = lazy(() => import("./features/Auth/Forgot-password/pages/ForgotPassword"));
+const ForgotPassword = lazy(() => import("./features/Auth/ForgotPassword/pages/ForgotPassword"));
 const VerifyEmail = lazy(() => import("./features/Auth/VerifyEmail/pages/VerifyEmail"));
 
 
