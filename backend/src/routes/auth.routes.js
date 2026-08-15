@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
 const rateLimit = require('../middleware/rateLimit');
+const requireAuth = require('../middleware/requireAuth');
 
 const hour = 60 * 60 * 1000;
 
@@ -11,7 +12,7 @@ router.post('/verify-email', rateLimit({ windowMs: hour, max: 20 }), authControl
 router.post('/resend-verification', rateLimit({ windowMs: hour, max: 5 }), authController.resendVerification);
 router.post('/login', rateLimit({ windowMs: hour, max: 30 }), authController.login);
 router.post('/google-login', rateLimit({ windowMs: hour, max: 30 }), authController.googleLogin);
-router.post('/change-password', authController.changePassword);
+router.post('/change-password', requireAuth, authController.changePassword);
 router.post('/logout', authController.logout);
 
 module.exports = router;

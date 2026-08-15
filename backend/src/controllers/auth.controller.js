@@ -449,19 +449,10 @@ async function googleLogin(req, res) {
 }
 
 // ─── POST /api/auth/change-password ───
+// Requires the `requireAuth` middleware on its route (see auth.routes.js),
+// which populates req.user and also confirms the account still exists and
+// has a verified email — the same guarantee every other protected route gets.
 async function changePassword(req, res) {
-  const token = req.cookies?.[COOKIE_NAME];
-  if (!token) return res.status(401).json({ error: "Not authenticated" });
-
-  let decoded;
-  try {
-    decoded = jwt.verify(token, process.env.JWT_SECRET);
-  } catch (err) {
-    return res
-      .status(401)
-      .json({ error: "Session expired — please log in again." });
-  }
-
   const { currentPassword, newPassword } = req.body;
 
   if (!currentPassword || !newPassword) {
@@ -474,7 +465,7 @@ async function changePassword(req, res) {
   }
 
   try {
-    const rows = await authService.getUserPasswordHash(decoded.id);
+    const rows = await authService.getUserPasswordHash(req.user.id);
     if (rows.length === 0)
       return res.status(404).json({ error: "User not found" });
 
@@ -485,7 +476,7 @@ async function changePassword(req, res) {
 
     const salt = await bcrypt.genSalt(10);
     const newHash = await bcrypt.hash(newPassword, salt);
-    await authService.updateUserPassword(decoded.id, newHash);
+    await authService.updateUserPassword(req.user.id, newHash);
 
     res.json({ success: true, message: "Password updated" });
   } catch (err) {
