@@ -1,10 +1,7 @@
-// NOTE: this feature historically used its own fallback base URL
-// (localhost:8000) distinct from the app-wide config/port.js default
-// (localhost:3000). Preserved as-is to avoid changing runtime behavior.
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '../../../../config/port';
 
 async function post(url, body) {
-  const res = await fetch(`${API}${url}`, {
+  const res = await fetch(`${API_BASE_URL}${url}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',

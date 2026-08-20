@@ -17,7 +17,7 @@ import { API_BASE_URL } from '../../../config/port';
 import { useAnalyticsState } from '../hooks/useAnalyticsState';
 import { useAnalyticsData } from '../hooks/useAnalyticsData';
 import { useSleepActions } from '../hooks/useSleepActions';
-import { SidebarAnalytics, AnalyticsMobileNav, Topbar, RadialProgress } from '../../../components';
+import { SidebarAnalytics, AnalyticsMobileNav, Topbar, RadialProgress, Icon } from '../../../components';
 
 ChartJS.register(
   CategoryScale,
@@ -79,17 +79,6 @@ const DEFAULT_ZONES = [
 // and piece of state passed into these still comes straight from the
 // hooks below; nothing here computes or mutates app data.
 // ─────────────────────────────────────────────
-
-function Icon({ name, className = '', fill = 0 }) {
-  return (
-    <span
-      className={`material-symbols-outlined leading-none select-none ${className}`}
-      style={{ fontVariationSettings: `'FILL' ${fill}, 'wght' 300, 'GRAD' 0, 'opsz' 24` }}
-    >
-      {name}
-    </span>
-  );
-}
 
 function TimeframeToggle({ timeframe, setTimeframe }) {
   return (

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { Sidebar, Topbar } from '../../../components';
-import { handleLogout } from '../../../services/authService';
+import { handleLogout } from '../../../api/authService';
 
 const FEEDBACKS = [
   "Great depth! Keep elbows at 45°",

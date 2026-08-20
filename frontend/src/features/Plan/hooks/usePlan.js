@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { API_BASE_URL } from '../../../config/port';
+import { fetchMe, fetchPlans, enrollInPlan, fetchTracker, completeDay } from '../services/planService';
 
 const usePlans = () => {
   const [userId, setUserId]               = useState(null);
@@ -17,19 +17,15 @@ const usePlans = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
-          credentials: 'include',
-        });
+        const { ok, status, data } = await fetchMe();
 
-        if (!res.ok) {
-          console.warn(`/api/auth/me responded with status ${res.status}`);
-          setAuthError(`Could not verify your session (status ${res.status}).`);
+        if (!ok) {
+          console.warn(`/api/auth/me responded with status ${status}`);
+          setAuthError(`Could not verify your session (status ${status}).`);
           setLoading(false);
           setAuthChecked(true);
           return;
         }
-
-        const data = await res.json();
 
         // The id might come back under a few different shapes depending
         // on how the auth route is implemented - try the common ones
@@ -62,12 +58,7 @@ const usePlans = () => {
     if (!userId) return;
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/api/plans/${userId}`, {
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('Failed to fetch plans');
-      const data = await res.json();
-      setTrainingPlans(data);
+      setTrainingPlans(await fetchPlans(userId));
       setAuthError(null);
     } catch (err) {
       console.error('Marketplace Sync Error:', err);
@@ -84,17 +75,7 @@ const usePlans = () => {
   // ── Enroll in a plan ───────────────────────────────────────────
   const handleEnroll = async (planId) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/plans/enroll`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ userId, planId }),
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        console.warn('Enroll warning:', err.error);
-        return;
-      }
+      await enrollInPlan(userId, planId);
       await fetchMarketplace();
     } catch (err) {
       console.error('Enrollment failed:', err);
@@ -105,16 +86,7 @@ const usePlans = () => {
   const startTracker = async (plan) => {
     setDetailPlan(null);
     try {
-      const [contentRes, progressRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/api/plans/content/${plan.id}`, {
-          credentials: 'include',
-        }),
-        fetch(`${API_BASE_URL}/api/plans/progress/${userId}/${plan.id}`, {
-          credentials: 'include',
-        }),
-      ]);
-      const content  = await contentRes.json();
-      const progress = await progressRes.json();
+      const [content, progress] = await fetchTracker(plan.id, userId);
       setTrackerContent(content);
       setTrackerProgress(progress);
       setTrackerPlan(plan);
@@ -137,12 +109,7 @@ const usePlans = () => {
     });
 
     try {
-      await fetch(`${API_BASE_URL}/api/plans/progress/complete`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ userId, planId: trackerPlan.id, dayNumber }),
-      });
+      await completeDay(userId, trackerPlan.id, dayNumber);
     } catch (err) {
       console.error('Complete day error:', err);
       // Rollback optimistic update on failure

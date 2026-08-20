@@ -1,5 +1,3 @@
-import { handleLogout } from '../utils/logout';
-
 export const navList = [
   { name: "Dashboard",   icon: "speed",          path: "/dashboard" },
   { name: "Sleep Stats", icon: "monitoring",      path: "/dashboard/analytics" },

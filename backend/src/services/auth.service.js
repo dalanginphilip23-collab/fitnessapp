@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 const UAParser = require('ua-parser-js');
 const { OAuth2Client } = require('google-auth-library');
-const { sendVerificationEmail } = require('../config/mailer');
+const { sendVerificationEmail } = require('../services/mail');
 
 // ─── Google OAuth Client ───
 const googleClient = new OAuth2Client({

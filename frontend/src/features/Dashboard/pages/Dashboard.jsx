@@ -2,18 +2,17 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 
+import { Sidebar, Topbar, MobileNav } from '../../../components';
+
 import {
-  Sidebar,
-  Topbar,
   Hero,
   ProgramOverviewCard,
   ClinicalAssistant,
   SleepHoursGraph,
-  MobileNav,
   FAB,
-} from '../../../components';
+} from '../components';
 
-import FeedbackModal from '../../../components/FeedbackModal';
+import FeedbackModal from '../../../components/ui/FeedbackModal';
 
 import { useClinicalAI }     from '../hooks/useClinicalAI';
 import { useActivityLogger } from '../hooks/useActivityLogger';

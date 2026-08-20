@@ -1,0 +1,244 @@
+import { useState, useEffect } from 'react';
+import Icon from '../../../components/ui/Icon';
+import { API_BASE_URL } from '../../../config/port';
+
+const trendIcon = (trend) => {
+  if (trend === 'up')   return { icon: 'trending_up',   color: '#4ade80' };
+  if (trend === 'down') return { icon: 'trending_down', color: '#f87171' };
+  return                       { icon: 'trending_flat', color: '#facc15' };
+};
+
+// Used to keep the default "Recent Insights" view scoped to today only.
+// "Show All History" intentionally bypasses this and shows everything.
+// Prefers the raw ISO `created_at` the backend now sends; falls back to
+// the display `timestamp`. A locale string like "7/31/2026, 6:56:37 PM"
+// fails `new Date()` in many locales, which silently hid today's insights.
+const isToday = (item) => {
+  const source = item?.created_at ?? item?.timestamp;
+  if (!source) return false;
+  const d = new Date(source);
+  if (Number.isNaN(d.getTime())) return false;
+  const now = new Date();
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
+};
+
+const categoryColor = (category) => {
+  switch (category) {
+    case 'Recovery Alert':    return '#f87171';
+    case 'Hydration Warning': return '#60a5fa';
+    case 'Performance Tip':   return 'var(--accent)';
+    case 'Rest Advisory':     return '#c084fc';
+    default:                  return 'var(--accent)';
+  }
+};
+
+const InsightCard = ({ item }) => {
+  const accent = categoryColor(item.category);
+  const { icon, color } = trendIcon(item.trend);
+  return (
+    <div
+      className="rounded-xl p-4 border-l-[3px] bg-[var(--bg-hover)] transition-all hover:bg-[var(--bg-active)] hover:shadow-sm flex-shrink-0"
+      style={{ borderColor: accent }}
+    >
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: accent }}>
+          {item.category}
+        </span>
+        <Icon name={icon} className="text-[14px]" style={{ color }} />
+      </div>
+      <p className="text-[12px] text-[var(--text-secondary)] leading-relaxed font-medium">
+        {item.message}
+      </p>
+      {item.timestamp && (
+        <div className="flex items-center gap-1 mt-3 opacity-40">
+          <Icon name="schedule" className="text-[10px]" />
+          <span className="text-[9px] font-bold uppercase tracking-tighter">
+            {item.timestamp}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, userId = null }) => {
+  const [barWidth,     setBarWidth]     = useState(0);
+  const [showHistory,  setShowHistory]  = useState(false);
+  const [history,      setHistory]      = useState([]);
+  const [historyLoad,  setHistoryLoad]  = useState(false);
+  const [historyError, setHistoryError] = useState(false);
+
+  const goal = 5000;
+
+  useEffect(() => {
+    if (isAnalyzing && showHistory) setShowHistory(false);
+  }, [isAnalyzing, showHistory]);
+
+  useEffect(() => {
+    const numericWater = Number(water) || 0;
+    const calculated   = Math.min((numericWater / goal) * 100, 100);
+    const timer = setTimeout(() => setBarWidth(calculated), 100);
+    return () => clearTimeout(timer);
+  }, [water]);
+
+  useEffect(() => {
+    if (!userId || insights.length > 0) return;
+    const fetchLatestIfEmpty = async () => {
+      setHistoryLoad(true);
+      try {
+        const res  = await fetch(`${API_BASE_URL}/api/ai/history/${userId}`, { credentials: 'include' });
+        if (!res.ok) throw new Error(`History request failed: HTTP ${res.status}`);
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) setHistory(data);
+      } catch (err) {
+        console.error('Initial fetch error:', err);
+      } finally {
+        setHistoryLoad(false);
+      }
+    };
+    fetchLatestIfEmpty();
+  }, [userId, insights.length]);
+
+  useEffect(() => {
+    if (!showHistory || !userId) return;
+    const fetchHistory = async () => {
+      setHistoryLoad(true);
+      setHistoryError(false);
+      try {
+        const res  = await fetch(`${API_BASE_URL}/api/ai/history/${userId}`, { credentials: 'include' });
+        if (!res.ok) throw new Error(`History request failed: HTTP ${res.status}`);
+        const data = await res.json();
+        setHistory(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error('History fetch error:', err);
+        setHistoryError(true);
+      } finally {
+        setHistoryLoad(false);
+      }
+    };
+    fetchHistory();
+  }, [showHistory, userId]);
+
+  const activeInsights = showHistory
+    ? history
+    : (insights.length > 0 ? insights : history.filter(item => isToday(item)).slice(0, 5));
+
+  return (
+    <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[20px] p-[22px] flex flex-col overflow-hidden card-glow">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-5 flex-shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-[var(--accent-bg)] flex items-center justify-center">
+            <Icon name="auto_awesome" className="text-[var(--accent)] text-[16px]" />
+          </div>
+          <span className="font-bold text-[13px] text-[var(--text-primary)]">Clinical Assistant</span>
+        </div>
+
+        {isAnalyzing && (
+          <div className="flex items-center gap-1.5 bg-[var(--accent-bg)] px-2.5 py-1 rounded-full border border-[var(--accent-border)]">
+            <div className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full animate-ping" />
+            <span className="text-[8px] font-black text-[var(--accent)] uppercase tracking-widest">Scanning</span>
+          </div>
+        )}
+      </div>
+
+      {/* Hydration */}
+      <div className="mb-5 flex-shrink-0">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-bold">Hydration</span>
+          <span className={`text-[10px] font-black ${Number(water) < 1000 ? 'text-[#ef5350]' : 'text-(--metric-water)'}`}>
+            {water} / {goal} ml
+          </span>
+        </div>
+        <div className="h-1.5 bg-[var(--bg-hover)] rounded-full w-full relative overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-1000 ease-in-out ${Number(water) < 1000 ? 'bg-[#ef5350]' : 'bg-(--metric-water)'}`}
+            style={{ width: `${barWidth}%`, minWidth: barWidth > 0 ? '4px' : '0px' }}
+          />
+        </div>
+      </div>
+
+      {/* History toggle */}
+      <div className="mb-4 flex-shrink-0">
+        <button
+          onClick={() => setShowHistory(prev => !prev)}
+          disabled={!userId || isAnalyzing}
+          className={`
+            w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg
+            text-[10px] font-black uppercase tracking-widest
+            border transition-all duration-200 cursor-pointer
+            ${showHistory
+              ? 'bg-[var(--accent-bg)] border-[var(--accent-border)] text-[var(--accent)]'
+              : 'bg-[var(--bg-hover)] border-[var(--border-light)] text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:border-[var(--border-medium)]'
+            }
+            disabled:opacity-30 disabled:cursor-not-allowed
+          `}
+        >
+          <Icon
+            name={showHistory ? 'history_toggle_off' : 'manage_history'}
+            className="text-[13px]"
+          />
+          {showHistory ? 'Show Recent' : 'Show All History'}
+        </button>
+      </div>
+
+      {/* Section label */}
+      <div className="flex items-center gap-2 mb-3 flex-shrink-0">
+        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)]">
+          {showHistory ? 'Full AI History' : 'Recent Insights'}
+        </span>
+        {showHistory && !historyLoad && history.length > 0 && (
+          <span className="text-[9px] font-black text-[var(--accent)]/50">({history.length})</span>
+        )}
+        <div className="flex-1 h-px bg-[var(--border-light)]" />
+      </div>
+
+      {/* Insights list */}
+      <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3">
+        {historyLoad && (
+          <div className="h-full flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full animate-ping" />
+              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-widest">Loading history...</span>
+            </div>
+          </div>
+        )}
+
+        {historyError && !historyLoad && (
+          <div className="h-full flex items-center justify-center border-2 border-dashed border-red-500/10 rounded-xl">
+            <p className="text-[11px] text-red-400/50 italic text-center px-4">
+              Failed to load history. Check your connection.
+            </p>
+          </div>
+        )}
+
+        {!historyLoad && !historyError && activeInsights.length === 0 && (
+          <div className="h-full flex items-center justify-center border-2 border-dashed border-[var(--border-light)] rounded-xl">
+            <p className="text-[11px] text-[var(--text-muted)] italic text-center px-4">
+              {showHistory
+                ? 'No history found. Your AI insights will appear here after analysis.'
+                : 'Log a workout and sync your sleep data to unlock your clinical analysis.'}
+            </p>
+          </div>
+        )}
+
+        {!historyLoad && !historyError && activeInsights.map((item, idx) => (
+          <InsightCard key={item.id || idx} item={item} />
+        ))}
+      </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+      `}} />
+    </div>
+  );
+};
+
+export default ClinicalAssistant;

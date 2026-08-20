@@ -4,9 +4,9 @@ import { ProtectedRoute, PublicRoute } from "./hooks/useMiddleware";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { NotificationProvider } from "./context/NotificationSystem";
 import { ThemeProvider } from "./context/ThemeContext";
-import Landing from "./features/Landing/Landing";
-import IOSInstallBanner from "./components/IOSInstallBanner";
-import SplashScreen from "./components/SplashScreen";
+import Landing from "./features/Landing/pages/Landing";
+import IOSInstallBanner from "./components/layout/IOSInstallBanner";
+import SplashScreen from "./components/layout/SplashScreen";
 
 const Dashboard = lazy(() => import("./features/Dashboard/pages/Dashboard"));
 const Plans = lazy(() => import("./features/Plan/pages/Plans"));

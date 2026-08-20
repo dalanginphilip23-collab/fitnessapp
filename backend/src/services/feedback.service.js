@@ -1,4 +1,4 @@
-const { sendEmail } = require("../config/mailer");
+const { sendEmail } = require("../services/mail");
 
 function escapeHtml(value) {
   return String(value)

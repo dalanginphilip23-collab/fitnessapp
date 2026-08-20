@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const db = require('../config/db');
 const { analyzeFoodImage, suggestPlanForMeal } = require('../config/gemini');
-const { sendMealSummaryEmail } = require('../config/mailer');
+const { sendMealSummaryEmail } = require('../services/mail');
 const clients = require('./sseClients');
 
 // IMAGE ANALYSIS CACHE

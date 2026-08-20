@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Polyline, Marker, Circle } from 'react-leaflet';
 import { Topbar } from '../../../components';
-import SidebarAnalytics from '../../../components/SidebarAnalytics';
+import SidebarAnalytics from '../../../components/layout/SidebarAnalytics';
 import { useAuth } from '../../../hooks/useAuth';
 import { useTheme } from '../../../hooks/useTheme';
 import { API_BASE_URL } from '../../../config/port';

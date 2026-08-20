@@ -1,20 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { io } from 'socket.io-client';
-import { MobileNav, Sidebar, Topbar } from '../../../components';
+import { MobileNav, Sidebar, Topbar, Icon } from '../../../components';
 import { useAuth } from '../../../hooks/useAuth';
 import { useContacts } from '../hooks/useContact';
 import { useMessages } from '../hooks/useMessages';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:8000';
-
-const Icon = ({ name, className = '', fill = 0, weight = 300 }) => (
-  <span
-    className={`material-symbols-outlined leading-none select-none ${className}`}
-    style={{ fontVariationSettings: `'FILL' ${fill}, 'wght' ${weight}` }}
-  >
-    {name}
-  </span>
-);
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000';
 
 const AI_CONTACT = {
   id: 'ai-bot',

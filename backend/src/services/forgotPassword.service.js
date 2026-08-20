@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const db = require("../config/db");
-const { sendEmail } = require("../config/mailer");
+const { sendEmail } = require("../services/mail");
 
 async function findUserByEmail(email) {
   const [users] = await db.execute(

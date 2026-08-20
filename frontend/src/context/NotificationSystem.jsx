@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import Icon from '../components/Icon';
+import Icon from '../components/ui/Icon';
 
 // ── Context ──────────────────────────────────────────────────────────────
 const NotificationContext = createContext(null);

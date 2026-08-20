@@ -4,7 +4,7 @@ dns.setDefaultResultOrder("ipv4first");
 require("dotenv").config();
 
 const { server } = require("./src/app");
-const { verifyTransport } = require("./src/config/mailer");
+const { verifyTransport } = require("./src/services/mail");
 
 
 // Start Server

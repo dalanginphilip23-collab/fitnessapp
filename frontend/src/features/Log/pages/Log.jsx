@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
-import SidebarAnalytics from "../../../components/SidebarAnalytics";
-import Icon from "../../../components/Icon";
+import SidebarAnalytics from "../../../components/layout/SidebarAnalytics";
+import Icon from "../../../components/ui/Icon";
 import { API_BASE_URL } from "../../../config/port";
 import { AnalyticsMobileNav } from "../../../components";
 import { useNavigate } from "react-router-dom";
