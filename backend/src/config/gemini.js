@@ -312,19 +312,42 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
   throw lastErr;
 }
 
+// ─── TIMEOUT GUARD ───────────────────────────────────────────────────────────
+// A hung AI request used to block the whole analysis indefinitely (no deadline
+// existed anywhere in this path). This caps each provider attempt so a stalled
+// call bails to the next provider instead of freezing the user's upload.
+const PROVIDER_TIMEOUT_MS = 25000;
+
+function withTimeout(promiseFactory, ms, label) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`${label} timed out after ${ms}ms`)),
+      ms
+    );
+  });
+  return Promise.race([promiseFactory(), timeout]).finally(
+    () => clearTimeout(timer)
+  );
+}
+
 // ─── MAIN EXPORT ──────────────────────────────────────────────────────────────
 
 async function analyzeFoodImage(base64Data, mimeType = "image/jpeg") {
   // Gemini first — its flash models are markedly better at portion-size
   // estimation from photos. Groq vision remains as the availability fallback.
   const providers = [
-    () => analyzeWithGeminiVision(base64Data, mimeType),
-    () => analyzeWithGroqVision(base64Data, mimeType),
+    ["gemini", () => analyzeWithGeminiVision(base64Data, mimeType)],
+    ["groq",   () => analyzeWithGroqVision(base64Data, mimeType)],
   ];
 
-  for (const provider of providers) {
+  const startedAt = Date.now();
+
+  for (const [name, provider] of providers) {
     try {
-      const raw    = await provider();
+      const t0 = Date.now();
+      const raw = await withTimeout(provider, PROVIDER_TIMEOUT_MS, name);
+      console.log(`[VITALIS IMAGE] ${name} responded in ${Date.now() - t0}ms`);
       const parsed = parseNutritionJSON(raw);
 
       if (!parsed) {
@@ -333,7 +356,10 @@ async function analyzeFoodImage(base64Data, mimeType = "image/jpeg") {
       }
 
       const corrected = validateAndCorrectMacros(parsed);
-      console.log("[VITALIS IMAGE] ✅ Final result:", JSON.stringify(corrected));
+      console.log(
+        `[VITALIS IMAGE] ✅ Final result in ${Date.now() - startedAt}ms total:`,
+        JSON.stringify(corrected)
+      );
       return JSON.stringify(corrected);
     } catch (err) {
       console.error("[VITALIS IMAGE] ❌ Provider failed:", err.message);
