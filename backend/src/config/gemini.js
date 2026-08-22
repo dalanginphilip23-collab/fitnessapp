@@ -21,7 +21,7 @@ async function callGeminiWithFallback(prompt) {
         model: modelName,
         generationConfig: {
           maxOutputTokens: 1000,
-          thinkingConfig: { thinkingBudget: 0 },
+          thinkingConfig: { thinkingLevel: "low" },
         },
       });
       const result = await model.generateContent(prompt);
@@ -247,7 +247,7 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
         generationConfig: {
           temperature: 0,
           maxOutputTokens: 500,
-          thinkingConfig: { thinkingBudget: 0 },
+          thinkingConfig: { thinkingLevel: "low" },
         },
       });
 
