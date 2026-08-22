@@ -211,9 +211,10 @@ function parseNutritionJSON(raw) {
 async function analyzeWithGroqVision(base64Data, mimeType) {
   console.log("[VITALIS IMAGE] Trying Groq Qwen3.6 vision...");
   const resp = await groq.chat.completions.create({
-    model:       "qwen/qwen3.6-27b",
-    max_tokens:  300,
-    temperature: 0,
+    model:            "qwen/qwen3.6-27b",
+    max_tokens:       500,
+    temperature:      0,
+    reasoning_effort: "none",
     messages: [
       {
         role:    "user",
