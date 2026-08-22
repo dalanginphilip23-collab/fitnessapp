@@ -3,7 +3,7 @@ const { genAI, callGeminiWithFallback } = require('../config/gemini');
 
 // ─── POSE ANALYSIS ───
 async function analyzePoseImage(image, metadata) {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
   const prompt = `
             Context: The user is exercising. 
             Skeletal Data: ${metadata}
@@ -91,7 +91,7 @@ async function callGemini(prompt) {
 
 // ─── REAL-TIME COACHING ───
 async function getCoachTip(landmarks, workoutType) {
-  const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite-preview" });
+  const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
   const prompt = `
             You are a real-time gym coach. Analyze these landmarks for a ${workoutType.toUpperCase()} set.
             Landmarks: ${JSON.stringify(landmarks)}

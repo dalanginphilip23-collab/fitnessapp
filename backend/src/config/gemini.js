@@ -10,9 +10,8 @@ const groq  = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 async function callGeminiWithFallback(prompt) {
   const models = [
-    "gemini-2.0-flash-lite",
-    "gemini-1.5-flash-8b",
-    "gemini-2.5-flash-preview-05-20",
+    "gemini-3.5-flash-lite",
+    "gemini-3.7-flash",
   ];
 
   for (const modelName of models) {
@@ -40,14 +39,14 @@ async function callGeminiWithFallback(prompt) {
   console.warn("[VITALIS AI] All Gemini text models failed → Groq fallback");
   try {
     const resp = await groq.chat.completions.create({
-      model:       "llama-3.3-70b-versatile",
+      model:       "openai/gpt-oss-120b",
       max_tokens:  1000,
       temperature: 0.3,
       messages:    [{ role: "user", content: prompt }],
     });
     const text = resp.choices[0]?.message?.content;
     if (text) {
-      console.log("[VITALIS AI] ✅ Success with Groq llama-3.3-70b-versatile");
+      console.log("[VITALIS AI] ✅ Success with Groq openai/gpt-oss-120b");
       return text;
     }
   } catch (groqErr) {
@@ -233,9 +232,9 @@ async function analyzeWithGroqVision(base64Data, mimeType) {
 }
 
 const GEMINI_VISION_MODELS = [
-  "gemini-2.5-flash",
-  "gemini-2.0-flash-lite",
-  "gemini-2.0-flash",
+  "gemini-3.7-flash",
+  "gemini-3.6-flash",
+  "gemini-3.5-flash-lite",
 ];
 
 async function analyzeWithGeminiVision(base64Data, mimeType) {
