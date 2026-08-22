@@ -27,6 +27,24 @@ single biggest source of error, especially for stacked items (burgers), items pa
 by packaging or other food (fries in front of a burger), and breaded/fried items where
 breading obscures true meat volume.
 
+STEP 1B — ESTIMATE WEIGHT FIRST, THEN ENERGY
+Before outputting numbers: estimate the food's WEIGHT IN GRAMS using visible reference
+objects (plate ≈ 25cm, fork ≈ 19cm, soda can ≈ 330ml, smartphone). Then compute energy
+from your per-100g knowledge of that dish scaled to YOUR estimated weight. Do NOT assume
+a "typical restaurant serving" that is bigger than what is actually visible.
+
+ANTI-INFLATION RULES (non-negotiable)
+A. Many foods are genuinely light. A medium banana ≈ 105 kcal, one boiled egg ≈ 73,
+   a slice of plain toast ≈ 67, a garden salad without dressing ≈ 35, black coffee ≈ 2.
+   If the photo shows food like this, the answer MUST be in that range — never inflate
+   light foods toward "meal-sized" numbers.
+B. When torn between two plausible portion sizes, choose the SMALLER one. Vision models
+   overestimate more often than they underestimate — bias low.
+C. A snack-sized serving (fits in one hand) is almost always under 250 kcal total.
+D. Count only what is VISIBLE. Never assume off-screen extras, sauces, or drinks.
+E. Plain preparations (steamed, boiled, grilled without oil, fresh fruit) are far lighter
+   than fried/breaded ones — do not apply frying penalties to visibly plain food.
+
 PORTION ESTIMATION RULES (for non-chain / home-style food)
 1. Estimate ONLY what is VISIBLE in the image. Do not assume extras off-screen.
 2. Count pieces when applicable and include the count in food_name.
@@ -130,9 +148,43 @@ FILIPINO DESSERTS:
   Leche flan 1 slice (~100g):                    280 kcal | P: 6g  | C: 42g | F: 10g
   Biko 1 piece (~100g):                          240 kcal | P: 3g  | C: 48g | F: 4g
 
+─── CALIBRATION ANCHORS: LIGHT / SMALL ITEMS ───────────────────────────────────
+Single-item snacks, fruits, and light meals. These are the items most often
+overestimated — a photo of ONE of these must land near its anchor value, not near
+a full-meal number. For multi-item light plates, sum the relevant rows.
+
+FRUITS (1 medium piece unless noted):
+  Banana (~118g):                                105 kcal | P: 1g  | C: 26g | F: 0g
+  Apple (~182g):                                  95 kcal | P: 0g  | C: 24g | F: 0g
+  Orange (~131g):                                 62 kcal | P: 1g  | C: 15g | F: 0g
+  Mango, half (~165g):                            99 kcal | P: 1g  | C: 24g | F: 0g
+  Watermelon wedge (~280g):                       85 kcal | P: 2g  | C: 20g | F: 0g
+
+EGGS & BREAKFAST BASICS:
+  Boiled egg, 1 large (~50g):                     75 kcal | P: 6g  | C: 1g  | F: 5g
+  Fried egg, 1 (~46g):                            90 kcal | P: 6g  | C: 1g  | F: 7g
+  Plain white toast, 1 slice (~25g):              67 kcal | P: 2g  | C: 13g | F: 1g
+  Toast with butter, 1 slice (~30g):             110 kcal | P: 3g  | C: 14g | F: 5g
+  Oatmeal cooked in water, 1 bowl (~230g):       150 kcal | P: 5g  | C: 27g | F: 3g
+
+SALADS & VEGETABLES:
+  Garden salad, no dressing (~150g):              35 kcal | P: 2g  | C: 7g  | F: 0g
+  Garden salad with vinaigrette (~170g):          90 kcal | P: 2g  | C: 8g  | F: 6g
+  Steamed vegetables, 1 cup (~150g):              60 kcal | P: 3g  | C: 12g | F: 0g
+
+DAIRY & DRINKS:
+  Plain yogurt, small cup (~170g):               100 kcal | P: 17g | C: 6g  | F: 1g
+  Black coffee or tea, no sugar (240ml):           2 kcal | P: 0g  | C: 0g  | F: 0g
+  Coffee with milk & sugar (240ml):               80 kcal | P: 2g  | C: 13g | F: 2g
+  Soft drink, 1 can (~330ml):                    140 kcal | P: 0g  | C: 35g | F: 0g
+  Orange juice, 1 glass (~250ml):                110 kcal | P: 2g  | C: 26g | F: 0g
+
 ─── END OF CALIBRATION ANCHORS ────────────────────────────────────────────────
 
 CRITICAL MISTAKES TO AVOID
+- Never inflate a light food (fruit, egg, salad, toast, plain drink) toward meal-sized
+  numbers — check the LIGHT / SMALL ITEMS anchors first (Anti-inflation rule A).
+- When torn between two portion sizes, pick the smaller one (rule B).
 - Never guess a chain/branded item from visual volume when you can recognize what it is —
   use its known standard nutrition facts instead (Step 1).
 - Never output 0g carbs for fried, breaded, sauced, sweet, or starchy foods

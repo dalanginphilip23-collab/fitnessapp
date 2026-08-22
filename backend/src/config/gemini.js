@@ -76,11 +76,14 @@ const ZERO_CARB_ALLOWED = [
   'grilled chicken breast', 'plain grilled', 'boiled egg', 'hard boiled',
   'steamed fish', 'grilled fish', 'tuna steak', 'salmon fillet',
   'beef steak', 'pork chop grilled', 'shrimp grilled', 'bacon',
+  'black coffee', 'coffee', 'tea', 'water', 'diet soda', 'sugar-free',
 ];
 
 const ZERO_FAT_ALLOWED = [
   'steamed white rice', 'plain rice', 'fruit', 'watermelon', 'banana',
   'apple', 'mango', 'papaya', 'grapes', 'black coffee',
+  'garden salad', 'green salad', 'vegetable salad', 'steamed vegetables',
+  'tea', 'coffee',
 ];
 
 function isBreadedFood(foodName = '') {
@@ -113,17 +116,23 @@ function validateAndCorrectMacros(parsed) {
   carbs    = Math.max(0, Math.round(Number(carbs)    || 0));
   fat      = Math.max(0, Math.round(Number(fat)      || 0));
   calories = Math.max(1, Math.round(Number(calories) || 0));
+  const statedCalories = calories; // model's direct portion-based estimate
+
+  let injectedCarbs = false;
+  let injectedFat = false;
 
   // Enforce carbs for breaded/starchy/sweet foods
   if (carbs === 0 && !isZeroCarbAllowed(food_name)) {
     console.warn(`[VITALIS IMAGE] Zero carb correction for "${food_name}"`);
-    carbs = Math.max(5, Math.round(calories * 0.10 / 4));
+    carbs = Math.max(5, Math.round(statedCalories * 0.10 / 4));
+    injectedCarbs = true;
   }
 
   // Enforce fat for fried/oily foods
   if (fat === 0 && !isZeroFatAllowed(food_name)) {
     console.warn(`[VITALIS IMAGE] Zero fat correction for "${food_name}"`);
-    fat = Math.max(3, Math.round(calories * 0.08 / 9));
+    fat = Math.max(3, Math.round(statedCalories * 0.08 / 9));
+    injectedFat = true;
   }
 
   // Protein cap for fried chicken by piece count
@@ -139,20 +148,45 @@ function validateAndCorrectMacros(parsed) {
 
     // Minimum carbs for breaded foods
     if (carbs < 10) {
-      carbs = Math.max(15, Math.round(calories * 0.12 / 4));
+      carbs = Math.max(15, Math.round(statedCalories * 0.12 / 4));
+      injectedCarbs = true;
     }
   }
 
-  // Always recalculate calories from macros — macros are source of truth
+  // ─── Calorie reconciliation ────────────────────────────────────────────────
+  // Vision models estimate TOTAL energy from visible portions far more reliably
+  // than they guess each macro independently — per-macro guesses skew high and
+  // the old "macros always win" rule inflated light meals (~100 kcal snack came
+  // back as 400+ once its guessed macros were summed). Policy:
+  //   ≤5% off                          → keep the model's numbers untouched
+  //   >5% off, ratio within [0.85,1.15] → snap to macro-derived (mild cleanup)
+  //   otherwise / any phantom injection → trust the STATED calories and
+  //                                       rescale the macros to fit them.
   const macroCalories = protein * 4 + carbs * 4 + fat * 9;
 
-  if (macroCalories > 0) {
-    const diff = Math.abs(macroCalories - calories) / Math.max(calories, 1);
-    if (diff > 0.05) {
+  if (macroCalories <= 0) {
+    calories = statedCalories;
+  } else {
+    const ratio = macroCalories / statedCalories;
+    const drift = Math.abs(macroCalories - statedCalories) / statedCalories;
+    const injected = injectedCarbs || injectedFat;
+
+    if (!injected && drift <= 0.05) {
+      calories = statedCalories;
+    } else if (!injected && ratio >= 0.85 && ratio <= 1.15) {
       console.warn(
-        `[VITALIS IMAGE] Calorie mismatch: stated=${calories}, macro-derived=${macroCalories} — using macro-derived`
+        `[VITALIS IMAGE] Calorie mismatch: stated=${statedCalories}, macro-derived=${macroCalories} — using macro-derived`
       );
       calories = macroCalories;
+    } else {
+      console.warn(
+        `[VITALIS IMAGE] Macro/energy divergence (stated=${statedCalories}, macros=${macroCalories}) — keeping stated calories, rescaling macros`
+      );
+      const scale = statedCalories / macroCalories;
+      protein = Math.max(0, Math.round(protein * scale));
+      carbs   = Math.max(0, Math.round(carbs   * scale));
+      fat     = Math.max(0, Math.round(fat     * scale));
+      calories = statedCalories;
     }
   }
 
@@ -281,9 +315,11 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
 // ─── MAIN EXPORT ──────────────────────────────────────────────────────────────
 
 async function analyzeFoodImage(base64Data, mimeType = "image/jpeg") {
+  // Gemini first — its flash models are markedly better at portion-size
+  // estimation from photos. Groq vision remains as the availability fallback.
   const providers = [
-    () => analyzeWithGroqVision(base64Data, mimeType),
     () => analyzeWithGeminiVision(base64Data, mimeType),
+    () => analyzeWithGroqVision(base64Data, mimeType),
   ];
 
   for (const provider of providers) {
@@ -379,4 +415,5 @@ module.exports = {
   callGeminiWithFallback,
   analyzeFoodImage,
   suggestPlanForMeal,
+  validateAndCorrectMacros,
 };
