@@ -1,24 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const DISMISS_KEY = "ios-install-banner-dismissed";
 
+// Detection runs once via the lazy useState initializer — same logic as the
+// previous mount effect, minus the extra render pass.
+function detectShouldShow() {
+  const ua = window.navigator.userAgent;
+
+  const isIOS = /iphone|ipad|ipod/i.test(ua) && !window.MSStream;
+  const isOtherIOSBrowser = /crios|fxios|edgios/i.test(ua);
+  const isSafari = isIOS && !isOtherIOSBrowser;
+  const isStandalone =
+    window.navigator.standalone === true ||
+    window.matchMedia("(display-mode: standalone)").matches;
+
+  const alreadyDismissed = localStorage.getItem(DISMISS_KEY) === "true";
+
+  return isSafari && !isStandalone && !alreadyDismissed;
+}
+
 function useShouldShowIOSInstallBanner() {
-  const [shouldShow, setShouldShow] = useState(false);
-
-  useEffect(() => {
-    const ua = window.navigator.userAgent;
-
-    const isIOS = /iphone|ipad|ipod/i.test(ua) && !window.MSStream;
-    const isOtherIOSBrowser = /crios|fxios|edgios/i.test(ua);
-    const isSafari = isIOS && !isOtherIOSBrowser;
-    const isStandalone =
-      window.navigator.standalone === true ||
-      window.matchMedia("(display-mode: standalone)").matches;
-
-    const alreadyDismissed = localStorage.getItem(DISMISS_KEY) === "true";
-
-    setShouldShow(isSafari && !isStandalone && !alreadyDismissed);
-  }, []);
+  const [shouldShow, setShouldShow] = useState(detectShouldShow);
 
   const dismiss = () => {
     localStorage.setItem(DISMISS_KEY, "true");

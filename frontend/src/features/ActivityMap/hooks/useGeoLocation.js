@@ -19,7 +19,9 @@ export const useGeolocation = (isRecording) => {
   const [userLocation, setUserLocation] = useState(null);
   const [accuracy, setAccuracy] = useState(null); // meters, best known fix
   const [startCoords, setStartCoords] = useState(FALLBACK_COORDS);
-  const [locationStatus, setLocationStatus] = useState("pending");
+  const [locationStatus, setLocationStatus] = useState(
+    () => (navigator.geolocation ? "pending" : "denied")
+  );
   const [mapCenter, setMapCenter] = useState(FALLBACK_COORDS);
   const [path, setPath] = useState([FALLBACK_COORDS]);
 
@@ -32,12 +34,10 @@ export const useGeolocation = (isRecording) => {
   }, [isRecording]);
 
   // Continuously watch position so the dot keeps refining to the true spot.
-  // The path is only appended to while recording.
+  // The path is only appended to while recording. Unsupported browsers were
+  // already marked "denied" by the lazy initializer above.
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setLocationStatus("denied");
-      return;
-    }
+    if (!navigator.geolocation) return undefined;
 
     watchIdRef.current = navigator.geolocation.watchPosition(
       (pos) => {

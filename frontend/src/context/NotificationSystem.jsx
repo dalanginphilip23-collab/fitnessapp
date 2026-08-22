@@ -3,6 +3,9 @@ import Icon from '../components/ui/Icon';
 
 // ── Context ──────────────────────────────────────────────────────────────
 const NotificationContext = createContext(null);
+// Standard context + hook pairing; splitting files would churn imports
+// across every consumer for no runtime benefit.
+// eslint-disable-next-line react-refresh/only-export-components
 export const useNotification = () => useContext(NotificationContext);
 
 // ── Toast Component ───────────────────────────────────────────────────────

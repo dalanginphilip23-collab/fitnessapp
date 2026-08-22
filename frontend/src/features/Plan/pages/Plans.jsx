@@ -27,21 +27,28 @@ const Plans = () => {
     setDetailPlan, handleEnroll, startTracker, handleCompleteDay, closeTracker,
   } = usePlans();
 
+  // One-shot cleanup of a ?tab= deep link; runs again only when the URL
+  // actually changes (setSearchParams is stable), so this cannot loop.
   useEffect(() => {
     if (searchParams.get('tab')) {
       setSearchParams({}, { replace: true });
     }
-  }, []);
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     const openTrackerId = location.state?.openTracker;
     if (!openTrackerId || loading || trainingPlans.length === 0) return;
     const plan = trainingPlans.find(p => String(p.id) === String(openTrackerId));
     if (plan) {
+      // Intentional one-shot sync from navigation state — the tab switch must
+      // stay ordered with startTracker's side effects.
       setActiveTab('my-plans');
       startTracker(plan);
       window.history.replaceState({}, '');
     }
+    // startTracker is intentionally omitted: it has unstable identity and the
+    // trigger (location.state) persists, so re-running would restart tracking.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state?.openTracker, trainingPlans, loading]);
 
   const requestedPlanId = searchParams.get('planId');

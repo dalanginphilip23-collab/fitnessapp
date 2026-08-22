@@ -11,13 +11,13 @@ export default function MacroGrid({ goals }) {
   const [activeGoal, setActiveGoal] = useState("maintenance");
   const [activeSplit, setActiveSplit] = useState(MACRO_SPLITS[0]);
 
-  if (!goals) return null;
-
-  const goalCalories = goals[activeGoal];
+  const goalCalories = goals?.[activeGoal] ?? 0;
   const macros = useMemo(
     () => calcMacros(goalCalories, activeSplit),
     [goalCalories, activeSplit],
   );
+
+  if (!goals) return null;
 
   return (
     <div className="bg-(--bg-tertiary) border border-(--border-medium) rounded-4xl p-6">

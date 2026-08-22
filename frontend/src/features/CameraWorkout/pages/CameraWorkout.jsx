@@ -225,6 +225,10 @@ const CameraWorkout = () => {
       clearInterval(timerRef.current);
     }
     return () => clearInterval(timerRef.current);
+    // elapsedSecs is intentionally read only on the isRecording transition to
+    // preserve elapsed time across pause/resume; adding it would restart the
+    // interval every tick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRecording]);
 
   const elapsedMins = Math.floor(elapsedSecs / 60);

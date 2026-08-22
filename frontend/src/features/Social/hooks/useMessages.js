@@ -60,7 +60,10 @@ export const useMessages = (userId, activeContact, user, socketRef) => {
     socket.on('receive-chat', handleNewMessage);
     return () => socket.off('receive-chat', handleNewMessage);
 
-  }, [activeContact, userId]);
+    // `user` intentionally excluded: re-keying would reset the AI greeting
+    // (wiping the conversation) whenever the auth context refreshes the name.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeContact, userId, socketRef]);
 
   // ── Send message ──────────────────────────────────────────────────────────
   const handleSendMessage = useCallback(async () => {
@@ -137,7 +140,7 @@ export const useMessages = (userId, activeContact, user, socketRef) => {
         prev.map(m => (m._temp && m.content === content) ? { ...m, failed: true } : m)
       );
     }
-  }, [inputValue, activeContact, userId]);
+  }, [inputValue, activeContact, userId, socketRef]);
 
   return {
     messages,

@@ -150,7 +150,7 @@ export function usePoseEngine({
       poseRef.current = null;
       setPoseReady(false);
     };
-  }, []);
+  }, [canvasRef, webcamRef]);
 
   useEffect(() => {
     if (!cameraOn) return;

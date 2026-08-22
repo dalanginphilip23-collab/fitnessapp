@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useScroll, useTransform } from 'framer-motion';
 import { PlayCircle } from 'lucide-react';
 import Icon from '../../../components/ui/Icon';
 import { HorizontalSlider, Marquee, CursorGlow, StatCounter, MobileMenu, FeatureCard, PricingCard } from '../components';

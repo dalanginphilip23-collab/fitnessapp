@@ -60,7 +60,7 @@ export const useSleepActions = ({
   sleepStatus,
   setSaveStatus,
   loadSleepAndScatter,
-  saveTimer
+  saveTimer: saveTimerRef,
 }) => {
 
   const handleSaveSleep = async () => {
@@ -78,18 +78,18 @@ export const useSleepActions = ({
 
       refreshClinicalInsight(USER_ID, sleepHours, sleepQuality, waterIntake);
 
-      saveTimer.current = setTimeout(() => setSaveStatus('idle'), 3000);
+      saveTimerRef.current = setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (err) {
       console.error('Sleep save error:', err);
       setSaveStatus('error');
 
-      saveTimer.current = setTimeout(() => setSaveStatus('idle'), 3000);
+      saveTimerRef.current = setTimeout(() => setSaveStatus('idle'), 3000);
     }
   };
 
   useEffect(() => {
-    return () => clearTimeout(saveTimer.current);
-  }, []);
+    return () => clearTimeout(saveTimerRef.current);
+  }, [saveTimerRef]);
 
   return { handleSaveSleep };
 };

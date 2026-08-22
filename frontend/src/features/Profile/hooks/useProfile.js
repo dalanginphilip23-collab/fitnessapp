@@ -236,7 +236,6 @@ export const useProfile = () => {
       if (!res.ok) throw new Error(`Profile save failed: HTTP ${res.status}`);
 
       // Save BMI data — use POST response directly
-      let bmiSaved = true;
       if (formData.height_cm && formData.weight_kg) {
         const bmiRes = await fetch(`${API_BASE_URL}/api/bmi/${USER_ID}`, {
           method: 'POST',
@@ -261,7 +260,6 @@ export const useProfile = () => {
           });
         } else {
           console.error('BMI save failed:', await bmiRes.text());
-          bmiSaved = false;
         }
       }
 

@@ -25,7 +25,6 @@ const ProgramOverviewCard = ({
   activeProgramCount = 0,
   activePlan = null,
   calories = { value: 0, goal: 800 },
-  steps = { value: 0, goal: 10000 },
   sessionLoadMins = { value: 0, goal: 120 },
   onChangeProgram,
 }) => {

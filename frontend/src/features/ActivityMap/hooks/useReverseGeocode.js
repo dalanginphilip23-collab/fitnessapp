@@ -63,7 +63,13 @@ export const useReverseGeocode = (coords) => {
   useEffect(() => {
     const key = coordsKey(coords);
     if (!key || key === lastKeyRef.current) return;
-    resolve(coords);
+    // Deferred off the effect body (microtasks flush before paint) so state
+    // updates never run synchronously inside the effect.
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) resolve(coords);
+    });
+    return () => { cancelled = true; };
   }, [coords, resolve]);
 
   return { placeName, status, resolve };

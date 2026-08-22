@@ -11,9 +11,16 @@ export default function QuickAccessSheet({ open, onClose }) {
   const closeTimer = useRef(null);
   const navTimer = useRef(null);
 
+  // Reset closing state when a fresh sheet opens — render-time adjustment
+  // instead of synchronous setState inside the effect body.
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open) setClosing(false);
+  }
+
   useEffect(() => {
     if (open) {
-      setClosing(false);
       clearTimeout(closeTimer.current);
       clearTimeout(navTimer.current);
     }

@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { useMap } from "react-leaflet";
 import { Polyline, Marker } from "react-leaflet";
 import L from "leaflet";
 
@@ -49,10 +48,17 @@ const RouteReplay = ({ fullPath }) => {
   const indexRef = useRef(1);
   const PPF = Math.max(1, Math.ceil(fullPath.length / 120));
 
-  useEffect(() => {
-    indexRef.current = 1;
+  // Reset replay progress when a new route arrives — render-time state
+  // adjustment instead of synchronous setState inside the effect body.
+  const [prevPath, setPrevPath] = useState(fullPath);
+  if (fullPath !== prevPath) {
+    setPrevPath(fullPath);
     setDrawnPath([fullPath[0]]);
     setIsDone(false);
+  }
+
+  useEffect(() => {
+    indexRef.current = 1;
 
     const tick = () => {
       if (indexRef.current >= fullPath.length) {

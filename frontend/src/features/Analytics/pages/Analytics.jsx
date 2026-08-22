@@ -410,7 +410,7 @@ function AnalyticsInner({ USER_ID }) {
   } = useAnalyticsState();
 
 
-  const { loadZones, loadSleepAndScatter } = useAnalyticsData({
+  const { loadSleepAndScatter } = useAnalyticsData({
     USER_ID, timeframe,
     setZones, setZonesLoading,
     setScatterData, setSleepHours,

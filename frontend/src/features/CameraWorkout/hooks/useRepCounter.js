@@ -92,24 +92,25 @@ export function speak(text, rate = 1.05, pitch = 1.0) {
   window.speechSynthesis.speak(u);
 }
 
-export function useRepCounter({ workoutType, voiceEnabled }) {
+export function useRepCounter({ voiceEnabled }) {
   const [repCount,      setRepCount]      = useState(0);
-  const [lastSpokenRep, setLastSpokenRep] = useState(0);
 
   const repCountRef   = useRef(0);
   const repCounterRef = useRef(buildRepCounter());
+  // Ref (not state): only used to dedupe speech inside the effect, never rendered.
+  const lastSpokenRef = useRef(0);
 
   useEffect(() => { repCountRef.current = repCount; }, [repCount]);
 
   useEffect(() => {
-    if (!voiceEnabled || repCount === 0 || repCount === lastSpokenRep) return;
+    if (!voiceEnabled || repCount === 0 || repCount === lastSpokenRef.current) return;
     if (repCount % 10 === 0) {
       speak(`${repCount} reps! Great work, keep going!`, 1.1, 1.05);
     } else if (repCount % 5 === 0) {
       speak(`${repCount}!`);
     }
-    setLastSpokenRep(repCount);
-  }, [repCount, voiceEnabled, lastSpokenRep]);
+    lastSpokenRef.current = repCount;
+  }, [repCount, voiceEnabled]);
 
   const countRep = useCallback((landmarks, type) => {
     const didRep = repCounterRef.current(landmarks, type);
@@ -125,7 +126,7 @@ export function useRepCounter({ workoutType, voiceEnabled }) {
   const resetReps = useCallback(() => {
     repCounterRef.current = buildRepCounter();
     setRepCount(0);
-    setLastSpokenRep(0);
+    lastSpokenRef.current = 0;
     repCountRef.current = 0;
   }, []);
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { API_BASE_URL } from '../../../config/port';
 
@@ -13,7 +13,7 @@ export const useDashboardData = (USER_ID) => {
   const authOverrideRef = useRef({ name: null, avatar: null });
   const insightsDayRef = useRef(getTodayKey());
 
-  const setAuthOverride = (name, avatar) => {
+  const setAuthOverride = useCallback((name, avatar) => {
     authOverrideRef.current = { name, avatar };
     setData(prev => ({
       ...prev,
@@ -23,7 +23,7 @@ export const useDashboardData = (USER_ID) => {
         ...(avatar && { avatar_url: avatar }),
       },
     }));
-  };
+  }, []);
 
   const mergeData = (apiResult) => ({
     ...apiResult,

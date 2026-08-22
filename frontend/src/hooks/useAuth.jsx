@@ -87,4 +87,7 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// Standard context + hook pairing; kept in one file so consumer imports
+// stay unchanged.
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);

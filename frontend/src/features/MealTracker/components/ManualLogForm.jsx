@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import Icon from "../../../components/ui/Icon";
 import Modal from "../../../components/ui/Modal";
 import InputField from "./InputField";
@@ -9,14 +9,14 @@ export default function ManualLogForm({ onLog, shouldOpen = 0, onClose }) {
   const [open,      setOpen]      = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [errors,    setErrors]    = useState({});
-  const prevTrigger = useRef(shouldOpen);
 
-  useEffect(() => {
-    if (shouldOpen !== prevTrigger.current) {
-      prevTrigger.current = shouldOpen;
-      setOpen(true);
-    }
-  }, [shouldOpen]);
+  // Open whenever the parent bumps the shouldOpen counter — render-time
+  // state adjustment instead of an effect + ref tracker.
+  const [prevShouldOpen, setPrevShouldOpen] = useState(shouldOpen);
+  if (shouldOpen !== prevShouldOpen) {
+    setPrevShouldOpen(shouldOpen);
+    setOpen(true);
+  }
 
   const close = () => {
     setOpen(false);

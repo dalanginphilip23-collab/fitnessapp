@@ -54,7 +54,10 @@ const Dashboard = () => {
   useEffect(() => {
     if (!user) return;
     setAuthOverride(user.name || null, user.avatar || null);
-  }, [user?.name, user?.avatar]);
+    // Keyed on primitives only: the `user` object identity changes on every
+    // auth refresh and would re-fire this override needlessly.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.name, user?.avatar, setAuthOverride]);
 
   const { isAnalyzing, generateClinicalInsight } =
     useClinicalAI(USER_ID, setInsights);

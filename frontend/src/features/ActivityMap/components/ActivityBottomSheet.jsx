@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 // Mobile bottom sheet for the Strava-style layout. Holds the finished-run
 // summary / activity detail. Toggles between a compact peek and an expanded
 // panel via the drag handle. Content scrolls when expanded.
 
-const ActivityBottomSheet = ({ open, onClose, children, label = 'Activity' }) => {
+const ActivityBottomSheet = ({ open, children, label = 'Activity' }) => {
   const [expanded, setExpanded] = useState(false);
 
-  // Reset to collapsed whenever a new activity opens
-  useEffect(() => {
+  // Reset to collapsed whenever a new activity opens — render-time state
+  // adjustment (React's recommended alternative to an effect).
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (open !== prevOpen) {
+    setPrevOpen(open);
     if (open) setExpanded(false);
-  }, [open]);
+  }
 
   if (!open) return null;
 

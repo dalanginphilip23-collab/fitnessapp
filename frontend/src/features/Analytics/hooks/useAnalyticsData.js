@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { fetchZonesFromAPI, fetchScatterData, fetchTodaySleep, DEFAULT_ZONES } from '../services/sleepService';
 
 export const useAnalyticsData = ({
@@ -12,7 +12,7 @@ export const useAnalyticsData = ({
   setWaterIntake
 }) => {
 
-  const loadZones = async () => {
+  const loadZones = useCallback(async () => {
     setZonesLoading(true);
     try {
       const data = await fetchZonesFromAPI(USER_ID, timeframe);
@@ -23,9 +23,9 @@ export const useAnalyticsData = ({
     } finally {
       setZonesLoading(false);
     }
-  };
+  }, [USER_ID, timeframe, setZones, setZonesLoading]);
 
-  const loadSleepAndScatter = async () => {
+  const loadSleepAndScatter = useCallback(async () => {
     try {
       const [scatterRaw, todayData] = await Promise.all([
         fetchScatterData(USER_ID, timeframe),
@@ -44,13 +44,13 @@ export const useAnalyticsData = ({
     } catch (err) {
       console.error('Fetch error:', err);
     }
-  };
+  }, [USER_ID, timeframe, setScatterData, setSleepHours, setSleepQuality, setWaterIntake]);
 
   useEffect(() => {
     if (!USER_ID) return;
     loadSleepAndScatter();
     loadZones();
-  }, [timeframe, USER_ID]);
+  }, [timeframe, USER_ID, loadSleepAndScatter, loadZones]);
 
   // FIX: expose these so callers (e.g. the Sync button) can trigger a
   // manual refresh after a save, instead of only refetching on mount/timeframe change.

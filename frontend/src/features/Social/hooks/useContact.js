@@ -22,25 +22,25 @@ export const useContacts = (userId) => {
   }, [userId]);
 
   // ── Debounced user search ─────────────────────────────────────────────────
+  // Emptying the term clears results explicitly in handleAddFriend, so the
+  // effect only needs to handle the debounced fetch itself.
   useEffect(() => {
-    if (!searchTerm.trim()) { setSearchResults([]); return; }
+    const term = searchTerm.trim();
+    if (!term) return;
     const timer = setTimeout(async () => {
       try {
         const res  = await fetch(
-          `${API_BASE_URL}/api/users/search?query=${encodeURIComponent(searchTerm)}&excludeId=${userId}`,
+          `${API_BASE_URL}/api/users/search?query=${encodeURIComponent(term)}&excludeId=${userId}`,
           { credentials: 'include' }
         );
         const data = await res.json();
-      setSearchResults(Array.isArray(data) ? data : []);
-console.log('search raw data:', data);          // what the backend returned
-console.log('current contacts:', contacts);     // what contacts look like
-        
+        setSearchResults(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Search error:', err);
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [searchTerm, userId, contacts]);
+  }, [searchTerm, userId]);
 
   // ── Add friend ────────────────────────────────────────────────────────────
   const handleAddFriend = async (friendUser, setActiveContact) => {

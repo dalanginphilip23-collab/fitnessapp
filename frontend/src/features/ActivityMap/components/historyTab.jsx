@@ -6,8 +6,24 @@ import React from 'react';
 // onView(activity) opens the route on the map; onShare(activity) opens the
 // share sheet. onDelete removes the activity.
 
+// Pure date parse — renders null for missing/invalid timestamps instead of
+// fabricating one from Date.now() during render.
+const parseDate = (value) => {
+  if (!value) return null;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+};
+
+const Empty = () => (
+  <div className="text-center py-10 bg-[var(--bg-tertiary)] rounded-2xl border border-[var(--border-light)]">
+    <div className="text-3xl mb-2">🏃</div>
+    <p className="text-[var(--text-secondary)] text-xs font-medium">No activities yet</p>
+    <p className="text-[var(--text-muted)] text-[10px] mt-1">Go to the map and start your first activity!</p>
+  </div>
+);
+
 const ActivityRow = ({ activity, formatTime, onView, onShare, onDelete, compact = false }) => {
-  const d = new Date(activity.created_at || Date.now());
+  const d = parseDate(activity.created_at);
   const typeLabel = (activity.type || 'run').toUpperCase();
   const isManual  = activity.type === 'workout';
 
@@ -15,12 +31,14 @@ const ActivityRow = ({ activity, formatTime, onView, onShare, onDelete, compact 
     <div className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-2xl p-4 hover:border-[var(--accent-border)] transition-all duration-300">
       <div className="flex items-start justify-between mb-3 flex-wrap gap-2">
         <div>
-          <p className="text-[11px] font-semibold text-[var(--text-muted)]">
-            {compact
-              ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
-              : d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </p>
-          {!compact && (
+          {d && (
+            <p className="text-[11px] font-semibold text-[var(--text-muted)]">
+              {compact
+                ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+                : d.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </p>
+          )}
+          {!compact && d && (
             <p className="text-[9px] text-[var(--text-disabled)] mt-0.5">
               {d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
             </p>
@@ -104,14 +122,6 @@ const HistoryTab = ({
   history, historyLoading, historyError, formatTime,
   onRefresh, onDelete, onView, onShare, isOverlay = false,
 }) => {
-  const Empty = () => (
-    <div className="text-center py-10 bg-[var(--bg-tertiary)] rounded-2xl border border-[var(--border-light)]">
-      <div className="text-3xl mb-2">🏃</div>
-      <p className="text-[var(--text-secondary)] text-xs font-medium">No activities yet</p>
-      <p className="text-[var(--text-muted)] text-[10px] mt-1">Go to the map and start your first activity!</p>
-    </div>
-  );
-
   if (isOverlay) {
     return (
       <div className="p-3">
