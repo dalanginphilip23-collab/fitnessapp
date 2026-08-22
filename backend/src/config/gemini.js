@@ -84,6 +84,9 @@ const ZERO_FAT_ALLOWED = [
   'apple', 'mango', 'papaya', 'grapes', 'black coffee',
   'garden salad', 'green salad', 'vegetable salad', 'steamed vegetables',
   'tea', 'coffee',
+  // Plain cooked rice variants (bare 'rice' deliberately excluded — it would
+  // substring-match 'fried rice', which does carry fat)
+  'white rice', 'brown rice', 'steamed rice', 'jasmine rice', 'sinangag-free',
 ];
 
 function isBreadedFood(foodName = '') {
@@ -230,8 +233,12 @@ function parseNutritionJSON(raw) {
   const calories  = extract('calories');
   if (!food_name || !calories) return null;
 
+  const gramsRaw = Number(extract('estimated_grams'));
   return {
     food_name:  food_name,
+    ...(Number.isFinite(gramsRaw) && gramsRaw > 0
+          ? { estimated_grams: Math.round(gramsRaw) }
+          : {}),
     calories:   Number(calories)           || 0,
     protein:    Number(extract('protein')) || 0,
     carbs:      Number(extract('carbs'))   || 0,
