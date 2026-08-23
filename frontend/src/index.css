@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DSEG7+Classic:wght@400&family=JetBrains+Mono:wght@500;700&display=swap');
 @import "tailwindcss";
 @import "./style/themes.css";
 
@@ -53,6 +54,14 @@
   --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
   --shadow-glow: 0 4px 20px rgba(139, 195, 74, 0.2);
   --shadow-glow-amber: 0 4px 20px rgba(255, 183, 77, 0.15);
+
+  /* Motion — smooth ease for capstone polish */
+  --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 150ms;
+  --duration-med: 240ms;
+  --radius-card: 16px;
+  --radius-pill: 999px;
   
   /* Input */
   --input-bg: rgba(255, 255, 255, 0.05);
@@ -139,26 +148,30 @@
   --info-bg: rgba(66, 165, 245, 0.08);
 }
 
-/* Smooth transitions for theme switching */
-*,
-*::before,
-*::after {
-  transition: 
-    background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    fill 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    stroke 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.2s ease,
-    transform 0.2s ease;
+/* Smooth theme transitions — scoped to .theme-transition to avoid jank on transforms/drawers */
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition:
+    background-color 150ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    border-color 150ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    color 150ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    fill 150ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    stroke 150ms cubic-bezier(0.25, 0.1, 0.25, 1),
+    box-shadow 150ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
+
+/* Smooth scrolling for premium feel */
+html { scroll-behavior: smooth; }
 
 /* Apply theme variables to body */
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: "Poppins", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Scrollbar styling */
@@ -718,4 +731,26 @@ input::placeholder {
   background: var(--accent-bg);
   color: var(--accent);
   border: 1px solid var(--accent-border);
+}
+
+/* ── Capstone polish: page & card motion (framer-motion friendly, CSS fallback) ── */
+.page-enter {
+  animation: pageIn 240ms var(--ease-out) both;
+}
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.card-lift {
+  transition: transform var(--duration-med) var(--ease-smooth), box-shadow var(--duration-med) var(--ease-smooth);
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-enter, .card-enter, .vitalis-card-animate, .animate-breathe, .animate-pulse-ring {
+    animation: none !important;
+  }
+  .card-lift, .fitness-card, .fx-card { transition: none !important; }
 }

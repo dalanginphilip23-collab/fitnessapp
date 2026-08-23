@@ -7,6 +7,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import Landing from "./features/Landing/pages/Landing";
 import IOSInstallBanner from "./components/layout/IOSInstallBanner";
 import SplashScreen from "./components/layout/SplashScreen";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const Dashboard = lazy(() => import("./features/Dashboard/pages/Dashboard"));
 const Plans = lazy(() => import("./features/Plan/pages/Plans"));
@@ -51,16 +52,18 @@ const RouteFallback = () => (
 
 export default function App() {
   return (
-    <div className="w-auto min-h-screen">
-      <ThemeProvider>
-        <AuthProvider>
-          <NotificationProvider>
-            <RoutesHandler />
-            <IOSInstallBanner />
-          </NotificationProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </div>
+    <ErrorBoundary>
+      <div className="w-auto min-h-screen">
+        <ThemeProvider>
+          <AuthProvider>
+            <NotificationProvider>
+              <RoutesHandler />
+              <IOSInstallBanner />
+            </NotificationProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </div>
+    </ErrorBoundary>
   );
 }
 
@@ -70,8 +73,9 @@ function RoutesHandler() {
   if (loading) return <SplashScreen />;
 
   return (
-    <Suspense fallback={<RouteFallback />}>
-      <Routes>
+    <ErrorBoundary>
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
         <Route
           path="/"
           element={user ? <Navigate to="/dashboard" replace /> : <Landing />}
@@ -193,7 +197,8 @@ function RoutesHandler() {
         {/* Public read-only share link for activities */}
         <Route path="/activity/:token" element={<SharedActivity />} />
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   );
 }

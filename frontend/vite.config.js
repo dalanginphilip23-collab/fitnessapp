@@ -75,6 +75,18 @@ export default defineConfig({
             if (id.includes('framer-motion')) {
               return 'motion-vendor';
             }
+            if (id.includes('chart.js') || id.includes('react-chartjs-2')) {
+              return 'chart-vendor';
+            }
+            if (id.includes('leaflet') || id.includes('react-leaflet')) {
+              return 'leaflet-vendor';
+            }
+            if (id.includes('socket.io-client')) {
+              return 'socket-vendor';
+            }
+            if (id.includes('react-webcam') || id.includes('@react-oauth/google')) {
+              return 'media-vendor';
+            }
           }
         },
       },
@@ -83,7 +95,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://fitnessapp-0cgj.onrender.com',
+        target: 'http://localhost:3000',
         changeOrigin: true,
       }
     }

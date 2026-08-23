@@ -36,9 +36,13 @@ export const ThemeProvider = ({ children }) => {
 
   useLayoutEffect(() => {
     const root = document.documentElement;
+    // Scoped smooth transition: add class briefly so only theme colors animate, not transforms
+    root.classList.add('theme-transition');
     root.classList.remove('light-theme', 'dark-theme');
     root.classList.add(`${theme}-theme`);
     localStorage.setItem(THEME_STORAGE_KEY, theme);
+    const t = window.setTimeout(() => root.classList.remove('theme-transition'), 300);
+    return () => window.clearTimeout(t);
   }, [theme]);
 
   useEffect(() => {

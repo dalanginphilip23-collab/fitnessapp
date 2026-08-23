@@ -47,7 +47,7 @@ const NutritionTracker = () => {
   return (
     <div className="min-h-screen bg-(--bg-primary) text-(--text-primary)" style={{ fontFamily: "Poppins, sans-serif" }}>
       <div className="hidden md:block">
-        <Sidebar onClick={() => { localStorage.clear(); navigate("/login"); }} expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
+        <Sidebar onClick={() => { localStorage.removeItem('vitalis_user'); localStorage.removeItem('vitalis_session'); navigate("/login"); }} expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
       </div>
 
       <Topbar sidebarExpanded={sidebarExpanded} userId={USER_ID} />

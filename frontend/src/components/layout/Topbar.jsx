@@ -448,7 +448,11 @@ const Topbar = ({ sidebarExpanded, userId }) => {
           {/* Notification Bell */}
           <div className="relative flex items-center justify-center" ref={notifRef}>
             <button
-              className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl cursor-pointer group bg-transparent border-none transition-all duration-200 hover:bg-(--bg-hover)"
+              type="button"
+              aria-label={`Notifications${notifCount ? `, ${notifCount} unread` : ""}`}
+              aria-expanded={notifOpen}
+              aria-haspopup="dialog"
+              className="relative w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl cursor-pointer group bg-transparent border-none transition-all duration-200 hover:bg-(--bg-hover) active:scale-[0.97]"
               onClick={() => {
                 if (mobileMenuOpen) setMobileMenuOpen(false);
                 setNotifOpen(prev => !prev);
@@ -478,6 +482,10 @@ const Topbar = ({ sidebarExpanded, userId }) => {
           {/* Settings */}
           <div className="relative hidden md:flex items-center justify-center" ref={settingsRef}>
             <button
+              type="button"
+              aria-label="Settings"
+              aria-expanded={settingsOpen}
+              aria-haspopup="menu"
               onClick={(e) => {
                 e.stopPropagation();
                 // Close mobile menu when opening settings
@@ -485,7 +493,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                 setSettingsOpen(prev => !prev);
               }}
               className={
-                'w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer border-none ' +
+                'w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer border-none active:scale-[0.97] ' +
                 (settingsOpen ? 'bg-(--accent) text-[#131313]' : 'text-(--text-muted) hover:text-(--accent) hover:bg-(--bg-hover) bg-transparent')
               }
             >
