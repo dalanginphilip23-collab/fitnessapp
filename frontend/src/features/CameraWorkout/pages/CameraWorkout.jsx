@@ -3,7 +3,9 @@ import Webcam from "react-webcam";
 import {
   AnalyticsMobileNav,
   Icon,
+  Sidebar,
   SidebarAnalytics,
+  Topbar,
 } from "../../../components";
 import { useAuth } from "../../../hooks/useAuth";
 import { WORKOUT_OPTIONS } from "../constants/workout";
@@ -483,8 +485,13 @@ const CameraWorkout = () => {
     return `${m}:${s}`;
   };
 
+  const USER_ID = user?.id || null;
+  const handleLogout = () => {
+    // handled by Topbar via context; kept for Sidebar prop
+  };
+
   return (
-    <div className="flex flex-row h-screen bg-(--bg-primary) text-(--text-primary) font-['Poppins'] overflow-hidden">
+    <div className="flex flex-row min-h-screen bg-(--bg-primary) text-(--text-primary) font-['Poppins'] overflow-hidden">
       {showEarlyExit && (
         <EarlyExitDialog
           reps={earlyExitReps}
@@ -496,58 +503,65 @@ const CameraWorkout = () => {
         />
       )}
 
-      <div className="hidden md:block">
-        <SidebarAnalytics
-          expanded={sidebarExpanded}
-          setExpanded={setSidebarExpanded}
-        />
-      </div>
+      {/* Normal topbar+sidebar on catalog, workout MODE header only on camera */}
+      {showCatalog ? (
+        <>
+          <div className="hidden md:block">
+            <Sidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} onClick={handleLogout} />
+          </div>
+          <Topbar sidebarExpanded={sidebarExpanded} userId={USER_ID} />
+        </>
+      ) : (
+        <div className="hidden md:block">
+          <SidebarAnalytics expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
+        </div>
+      )}
 
       <div
-        className={`flex-1 flex flex-col min-w-0 overflow-y-auto overflow-x-hidden transition-all duration-300
-          ${sidebarExpanded ? "md:ml-60" : "md:ml-18"}`}
+        className={`flex-1 flex flex-col min-w-0 overflow-y-auto overflow-x-hidden transition-all duration-300 ${
+          showCatalog ? (sidebarExpanded ? "md:ml-60" : "md:ml-18") : (sidebarExpanded ? "md:ml-60" : "md:ml-18")
+        }`}
       >
-        {fromPlan && (
-          <div className="bg-(--accent-bg) border-b border-(--accent-border) px-4 py-2 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-black uppercase tracking-widest text-(--accent)">
-                {fromPlan.planTitle}
-              </span>
-              <span className="text-[10px] text-(--text-muted) uppercase tracking-widest">
-                · Day {fromPlan.dayNumber}: {fromPlan.dayTitle}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              {isRecording && (
-                <span className="text-[10px] font-black tabular-nums text-(--accent)">
-                  {formatTime(elapsedSecs)}
-                </span>
-              )}
-              {requiredMins > 0 && (
-                <span className="text-[10px] text-(--text-muted) uppercase tracking-widest">
-                  Goal: {Math.ceil(requiredMins * 0.5)} min
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        <SessionHeader
-          workoutType={workoutType}
-          isRecording={isRecording}
-          cameraOn={cameraOn}
-          voiceEnabled={voiceEnabled}
-          onStartStop={handleStartStop}
-          onCameraToggle={handleCameraToggle}
-          onVoiceToggle={handleVoiceToggle}
-        />
-
         {showCatalog ? (
-          <main className="p-3 pb-24 sm:p-4 md:p-8 md:pb-8 max-w-[1100px] mx-auto w-full">
+          <main className="pt-[64px] sm:pt-[72px] md:pt-[80px] p-3 pb-24 sm:p-4 md:p-8 md:pb-8 max-w-[1100px] mx-auto w-full">
             <ExerciseCatalog onSelectExercise={handleSelectExercise} />
           </main>
         ) : (
           <>
+            {fromPlan && (
+              <div className="bg-(--accent-bg) border-b border-(--accent-border) px-4 py-2 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-(--accent)">
+                    {fromPlan.planTitle}
+                  </span>
+                  <span className="text-[10px] text-(--text-muted) uppercase tracking-widest">
+                    · Day {fromPlan.dayNumber}: {fromPlan.dayTitle}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  {isRecording && (
+                    <span className="text-[10px] font-black tabular-nums text-(--accent)">
+                      {formatTime(elapsedSecs)}
+                    </span>
+                  )}
+                  {requiredMins > 0 && (
+                    <span className="text-[10px] text-(--text-muted) uppercase tracking-widest">
+                      Goal: {Math.ceil(requiredMins * 0.5)} min
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <SessionHeader
+              workoutType={workoutType}
+              isRecording={isRecording}
+              cameraOn={cameraOn}
+              voiceEnabled={voiceEnabled}
+              onStartStop={handleStartStop}
+              onCameraToggle={handleCameraToggle}
+              onVoiceToggle={handleVoiceToggle}
+            />
             {!catalogExercise && (
               <>
                 <MobileWorkoutPills workoutType={workoutType} onSelect={handleWorkoutChange} />
