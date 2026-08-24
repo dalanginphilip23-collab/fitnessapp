@@ -95,11 +95,13 @@ export default function ExerciseCatalog({ onSelectExercise }) {
                     src={img}
                     alt={ex.name}
                     loading="lazy"
-                    className="w-full h-full object-contain invert brightness-110 contrast-110 group-hover:scale-105 transition-transform"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; const fb = e.currentTarget.nextElementSibling; if (fb) fb.style.display = 'flex'; }}
+                    className="w-full h-full object-contain brightness-110 contrast-110 group-hover:scale-105 transition-transform"
                   />
-                ) : (
+                ) : null}
+                <div style={{ display: img ? 'none' : 'flex' }} className="absolute inset-0 items-center justify-center pointer-events-none">
                   <Icon name="fitness_center" className="text-white text-[56px] opacity-90" />
-                )}
+                </div>
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-[var(--accent)]/5 transition-opacity" />
               </div>
               <div className="px-1 pb-1">
