@@ -568,14 +568,25 @@ const Topbar = ({ sidebarExpanded, userId }) => {
               setSettingsOpen(false);
             }}
           />
-          {/* Drawer panel — z-[1501]: one level above the backdrop, still below header */}
+          {/* Drawer panel — z-[1501]: above backdrop, full height with header */}
           <div 
-            className="fixed top-14 sm:top-15 left-0 w-64 h-[calc(100vh-56px)] sm:h-[calc(100vh-60px)] bg-[#121212] border-r border-[var(--border-light)] z-[1501] md:hidden overflow-y-auto"
+            className="fixed top-0 left-0 w-64 h-full bg-[#121212] border-r border-[var(--border-light)] z-[1501] md:hidden overflow-y-auto flex flex-col"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-label="Navigation menu"
           >
-            <nav className="flex flex-col p-3 gap-1">
+            <div className="flex items-center justify-between px-4 py-4 border-b border-white/10 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--accent)' }}>
+                  <span className="material-symbols-outlined text-[16px] text-[#0a1000]">pulse_alert</span>
+                </div>
+                <span className="font-black tracking-[0.2em] text-[13px] text-[var(--accent)]">VITALIS</span>
+              </div>
+              <button onClick={() => setMobileMenuOpen(false)} className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/60 hover:text-white border-none cursor-pointer" aria-label="Close menu">
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+            <nav className="flex flex-col p-3 gap-1 flex-1 overflow-y-auto">
 
               {/* Section: Menu */}
               <p className="px-3 pt-1 pb-2 text-[9px] font-bold uppercase tracking-[0.15em] text-[#6A6A6A]">
