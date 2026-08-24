@@ -112,13 +112,14 @@ function PlantArt({ icon }) {
 
 export default function GoGreenOnboarding({ onComplete, onSkip, onLogin }) {
   const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
   const prefersReducedMotion = usePrefersReducedMotion();
   const touchStart = useRef(null);
   const total = SLIDES.length;
 
-  const goNext = useCallback(() => setIndex((i) => Math.min(i + 1, total - 1)), [total]);
-  const goPrev = useCallback(() => setIndex((i) => Math.max(i - 1, 0)), []);
-  const goTo = useCallback((i) => setIndex(i), []);
+  const goNext = useCallback(() => { setDirection(1); setIndex((i) => Math.min(i + 1, total - 1)); }, [total]);
+  const goPrev = useCallback(() => { setDirection(-1); setIndex((i) => Math.max(i - 1, 0)); }, []);
+  const goTo = useCallback((i) => { setDirection(i > index ? 1 : -1); setIndex(i); }, [index]);
 
   // Keyboard arrows
   useEffect(() => {
@@ -192,20 +193,29 @@ export default function GoGreenOnboarding({ onComplete, onSkip, onLogin }) {
         aria-roledescription="carousel"
         aria-label={`Onboarding slide ${index + 1} of ${total}`}
       >
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="wait" initial={false} custom={direction}>
           <Motion.div
             key={index}
-            initial={prefersReducedMotion ? false : { opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -24 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="flex-1 flex flex-col p-6 sm:p-7"
+            custom={direction}
+            variants={{
+              enter: (dir) => ({ x: dir > 0 ? 280 : -280, opacity: 0, scale: 0.98 }),
+              center: { x: 0, opacity: 1, scale: 1 },
+              exit: (dir) => ({ x: dir > 0 ? -280 : 280, opacity: 0, scale: 0.98 }),
+            }}
+            initial={prefersReducedMotion ? false : 'enter'}
+            animate="center"
+            exit={prefersReducedMotion ? { opacity: 0 } : 'exit'}
+            transition={{ x: { type: 'spring', stiffness: 340, damping: 32 }, opacity: { duration: 0.22 }, scale: { duration: 0.22 } }}
+            className="flex-1 flex flex-col p-6 sm:p-7 will-change-transform"
             drag={!prefersReducedMotion ? 'x' : false}
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.18}
+            dragElastic={0.22}
+            dragMomentum={false}
             onDragEnd={(_, info) => {
-              if (info.offset.x < -60) goNext();
-              if (info.offset.x > 60) goPrev();
+              const threshold = 60;
+              const velocity = info.velocity.x;
+              if (info.offset.x < -threshold || velocity < -400) goNext();
+              else if (info.offset.x > threshold || velocity > 400) goPrev();
             }}
           >
             <>
