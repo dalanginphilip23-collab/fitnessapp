@@ -8,34 +8,35 @@ const helmet = require("helmet");
 const app = express();
 const server = http.createServer(app);
 
-// Trust Render/Railway proxy
 app.set("trust proxy", 1);
-
-// Security headers (X-Content-Type-Options, X-Frame-Options, referrer-policy,
-// etc.). The frontend is a separate origin, so these protect any HTML/JSON
-// served from the API and set useful browser-safety defaults.
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://accounts.google.com", "https://cdn.jsdelivr.net"],
-      connectSrc: ["'self'", "https://accounts.google.com"],
-      imgSrc: ["'self'", "data:", "blob:", "https:", "https://cdn.jsdelivr.net"],
-      fontSrc: ["'self'", "https:", "data:"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https:"],
-      frameSrc: ["'self'", "https://accounts.google.com"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "https://accounts.google.com",
+          "https://cdn.jsdelivr.net",
+        ],
+        connectSrc: ["'self'", "https://accounts.google.com"],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "blob:",
+          "https:",
+          "https://cdn.jsdelivr.net",
+        ],
+        fontSrc: ["'self'", "https:", "data:"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+        frameSrc: ["'self'", "https://accounts.google.com"],
+      },
     },
-  },
-  crossOriginEmbedderPolicy: false,
-}));
+    crossOriginEmbedderPolicy: false,
+  }),
+);
 
-// ============================
 // Allowed Origins
-// ============================
-
-// Normalized (no trailing slash) allowlist. The `cors` package sends/compares
-// the raw Origin header, which never carries a trailing slash, so entries with
-// one would silently never match.
 const normalizeOrigin = (origin) => (origin || "").replace(/\/+$/, "");
 
 const ALLOWED_ORIGINS = [
@@ -48,10 +49,7 @@ const ALLOWED_ORIGINS = [
   .filter(Boolean)
   .map(normalizeOrigin);
 
-// ============================
 // CORS
-// ============================
-
 const corsOptions = {
   origin(origin, callback) {
     // No Origin header = non-browser/same-origin request (curl, mobile app,
@@ -80,19 +78,14 @@ app.use(cookieParser());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// ============================
 // Socket.IO
-// ============================
-
 const io = new Server(server, {
   cors: corsOptions,
 });
 
 app.set("io", io);
 
-// ============================
 // Health Check
-// ============================
 
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -102,9 +95,7 @@ app.get("/", (req, res) => {
   });
 });
 
-// ============================
 // Routes
-// ============================
 
 const authRoutes = require("./routes/auth.routes");
 const messengerRoutes = require("./routes/messenger.routes");
