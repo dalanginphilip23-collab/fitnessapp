@@ -55,6 +55,27 @@ function Dots({ total, active, onDot }) {
   );
 }
 
+function FullscreenSplash({ onNext }) {
+  return (
+    <div
+      className="fixed inset-0 w-screen h-[100dvh] flex flex-col items-center justify-center p-8 z-20 cursor-pointer select-none"
+      style={{ background: 'var(--accent)' }}
+      onClick={onNext}
+      role="button"
+      tabIndex={0}
+      aria-label="Continue to onboarding"
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onNext()}
+    >
+      <div className="flex flex-col items-center gap-1">
+        <span className="text-[#0A1000] text-[22px] font-black tracking-[0.22em] leading-none">VITALIS</span>
+        <span className="text-[#0A1000]/70 text-[10px] font-bold tracking-[0.28em] uppercase">Fitness OS</span>
+      </div>
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-32 h-1 rounded-full bg-white/90" />
+      <p className="absolute bottom-14 text-[#0A1000]/60 text-[10px] font-bold tracking-[0.14em] uppercase">Tap or swipe to continue</p>
+    </div>
+  );
+}
+
 function SolidSplash({ onNext }) {
   return (
     <div
@@ -128,6 +149,26 @@ export default function GoGreenOnboarding({ onComplete, onSkip, onLogin }) {
     onSkip?.();
   };
 
+  // Fullscreen splash for index 0 — green full-bleed with centered logo
+  if (index === 0) {
+    return (
+      <div className="min-h-[100dvh] w-screen relative overflow-hidden selection:bg-[var(--accent)] selection:text-black">
+        <FullscreenSplash onNext={goNext} />
+        {/* Invisible swipe layer to catch swipe even on fullscreen */}
+        <div
+          className="fixed inset-0 z-30"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          aria-hidden="true"
+        />
+        {/* Dots overlayed on green fullscreen — subtle */}
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3">
+          <Dots total={total} active={index} onDot={goTo} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-[100dvh] w-screen bg-[var(--bg-primary)] flex flex-col items-center justify-center px-4 py-6 relative overflow-hidden selection:bg-[var(--accent)] selection:text-black">
       {/* subtle mesh like Landing */}
@@ -135,7 +176,7 @@ export default function GoGreenOnboarding({ onComplete, onSkip, onLogin }) {
         <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 90% 70% at 50% 0%, var(--accent) 0%, transparent 55%)', opacity: 0.06 }} />
       </div>
 
-      {/* Top Skip — hidden on solid splash */}
+      {/* Top Skip — visible on cards 1-3 */}
       <div className="relative z-10 w-full max-w-[360px] flex justify-end h-6 shrink-0">
         {index > 0 && index < total - 1 && (
           <button
@@ -182,72 +223,61 @@ export default function GoGreenOnboarding({ onComplete, onSkip, onLogin }) {
               if (info.offset.x > 60) goPrev();
             }}
           >
-            {SLIDES[index].variant === 'solid' ? (
-              <SolidSplash onNext={goNext} />
-            ) : (
-              <>
-                {/* Art top */}
-                <div className="flex-1 flex flex-col items-center justify-center text-center gap-4 pt-2">
-                  <PlantArt icon={SLIDES[index].icon} />
-                  <div className="flex flex-col items-center gap-2 max-w-[260px]">
-                    <h2
-                      className="text-[22px] sm:text-[24px] font-black leading-tight text-[var(--text-primary)] whitespace-pre-line"
-                      style={{ letterSpacing: '-0.01em' }}
-                    >
-                      {SLIDES[index].title}
-                    </h2>
-                    <p className="text-[12px] font-bold tracking-[0.08em] uppercase text-[var(--accent)] leading-[1.4]">
-                      {SLIDES[index].subtitle}
-                    </p>
-                    <p className="text-[13px] leading-relaxed text-[var(--text-secondary)] mt-1">
-                      {SLIDES[index].desc}
-                    </p>
-                  </div>
+            <>
+              {/* Art top */}
+              <div className="flex-1 flex flex-col items-center justify-center text-center gap-4 pt-2">
+                <PlantArt icon={SLIDES[index].icon} />
+                <div className="flex flex-col items-center gap-2 max-w-[260px]">
+                  <h2
+                    className="text-[22px] sm:text-[24px] font-black leading-tight text-[var(--text-primary)] whitespace-pre-line"
+                    style={{ letterSpacing: '-0.01em' }}
+                  >
+                    {SLIDES[index].title}
+                  </h2>
+                  <p className="text-[12px] font-bold tracking-[0.08em] uppercase text-[var(--accent)] leading-[1.4]">
+                    {SLIDES[index].subtitle}
+                  </p>
+                  <p className="text-[13px] leading-relaxed text-[var(--text-secondary)] mt-1">
+                    {SLIDES[index].desc}
+                  </p>
                 </div>
+              </div>
 
-                {/* CTA */}
-                <div className="shrink-0 flex flex-col items-center gap-3 pt-4">
+              {/* CTA */}
+              <div className="shrink-0 flex flex-col items-center gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={handleCTA}
+                  className="w-full h-11 rounded-full font-black text-[12px] tracking-[0.10em] uppercase transition-all active:scale-[0.98] shadow-lg border-none cursor-pointer"
+                  style={{
+                    background: 'var(--accent)',
+                    color: '#0A1000',
+                    boxShadow: '0 8px 24px rgba(139,195,74,0.28)',
+                  }}
+                >
+                  {SLIDES[index].cta}
+                </button>
+                {SLIDES[index].ctaSecondary && onLogin && (
                   <button
                     type="button"
-                    onClick={handleCTA}
-                    className="w-full h-11 rounded-full font-black text-[12px] tracking-[0.10em] uppercase transition-all active:scale-[0.98] shadow-lg border-none cursor-pointer"
-                    style={{
-                      background: 'var(--accent)',
-                      color: '#0A1000',
-                      boxShadow: '0 8px 24px rgba(139,195,74,0.28)',
-                    }}
+                    onClick={onLogin}
+                    className="text-[12px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-transparent border-none cursor-pointer transition-colors"
                   >
-                    {SLIDES[index].cta}
+                    I already have an account
                   </button>
-                  {SLIDES[index].ctaSecondary && onLogin && (
-                    <button
-                      type="button"
-                      onClick={onLogin}
-                      className="text-[12px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-transparent border-none cursor-pointer transition-colors"
-                    >
-                      I already have an account
-                    </button>
-                  )}
-                  {index !== total - 1 && (
-                    <div className="h-5" />
-                  )}
-                </div>
-              </>
-            )}
+                )}
+                {index !== total - 1 && <div className="h-5" />}
+              </div>
+            </>
           </Motion.div>
         </AnimatePresence>
 
-        {/* Dots + indicator — hidden on solid? show like image */}
+        {/* Dots + indicator */}
         <div className="shrink-0 flex flex-col items-center gap-3 pb-5 pt-2">
           <Dots total={total} active={index} onDot={goTo} />
           <div className="w-32 h-1 rounded-full bg-[var(--text-muted)] opacity-40" />
         </div>
       </div>
-
-      {/* Tap hint for splash */}
-      {index === 0 && (
-        <p className="relative z-10 mt-3 text-[10px] tracking-[0.12em] uppercase font-semibold text-[var(--text-muted)]">Tap or swipe to continue</p>
-      )}
     </div>
   );
 }

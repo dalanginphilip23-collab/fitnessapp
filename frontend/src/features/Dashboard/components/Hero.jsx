@@ -7,7 +7,7 @@ const getGreeting = () => {
   return 'Good evening';
 };
 
-const ReadinessRing = ({ pct = 0, size = 92, strokeWidth = 8 }) => {
+const ReadinessRing = ({ pct = 0, size = 68, strokeWidth = 6 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (Math.min(Math.max(pct, 0), 100) / 100) * circumference;
@@ -15,7 +15,7 @@ const ReadinessRing = ({ pct = 0, size = 92, strokeWidth = 8 }) => {
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth={strokeWidth} />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth={strokeWidth} />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -30,7 +30,7 @@ const ReadinessRing = ({ pct = 0, size = 92, strokeWidth = 8 }) => {
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <Icon name="monitor_heart" className="text-white text-[30px]" fill={1} />
+        <Icon name="monitor_heart" className="text-white text-[22px]" fill={1} />
       </div>
     </div>
   );
@@ -70,22 +70,22 @@ const Hero = ({ name = 'Athlete', avatar, readiness, onCoachInsight }) => {
         </div>
       </div>
 
-      {/* Daily Readiness card — theme-aware: dark hero keeps white text in both themes */}
-      <div className="relative overflow-hidden rounded-[24px] p-6 sm:p-6 shadow-lg border border-white/10 bg-gradient-to-br from-[#2d5a12] to-[#0f1f08]" style={{ backgroundImage: `linear-gradient(135deg, #2d5a12 0%, #12240a 100%), var(--hero-glow)` }}>
+      {/* Daily Readiness card — compact: ring moved aside (right) and smaller */}
+      <div className="relative overflow-hidden rounded-[24px] p-5 sm:p-6 shadow-lg border border-white/10 bg-gradient-to-br from-[#2d5a12] to-[#0f1f08]" style={{ backgroundImage: `linear-gradient(135deg, #2d5a12 0%, #12240a 100%), var(--hero-glow)` }}>
         <div className="absolute inset-0 opacity-[0.32] bg-[radial-gradient(circle_at_85%_15%,rgba(255,255,255,0.14),transparent_55%)]" />
-        <div className="relative flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6">
+        <div className="relative flex flex-row items-center justify-between gap-4 sm:gap-6">
           <div className="min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] leading-[1.4] text-white/80 mb-1">
               Daily Readiness
             </p>
             <div className="flex items-baseline gap-1">
-              <span className="stat-digital text-[46px] sm:text-[52px] font-extrabold text-white leading-none tracking-tight">
+              <span className="stat-digital text-[36px] sm:text-[42px] font-extrabold text-white leading-none tracking-tight">
                 {pct}
               </span>
-              <span className="text-[20px] font-bold text-white/80">%</span>
+              <span className="text-[16px] font-bold text-white/80">%</span>
             </div>
-            <p className="text-[14px] font-bold text-white mt-2">{label}!</p>
-            <p className="text-[13px] text-white/75 mt-1 leading-relaxed">{message}</p>
+            <p className="text-[13px] font-bold text-white mt-1.5">{label}!</p>
+            <p className="text-[12px] text-white/70 mt-0.5 leading-relaxed line-clamp-2">{message}</p>
 
             <button
               type="button"
