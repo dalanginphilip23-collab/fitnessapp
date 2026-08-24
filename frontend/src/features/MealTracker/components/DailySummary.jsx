@@ -64,31 +64,26 @@ export default function DailySummary({ userId, refreshSeed, selectedDate }) {
 
   return (
     <div className="flex flex-col gap-3 sm:gap-4">
-      {/* Big calorie ring card */}
-      <div className="bg-(--bg-card) rounded-2xl p-4 sm:p-6 border border-(--border-light) shadow-sm">
+      {/* Big calorie ring card — centered like reference */}
+      <div className="bg-(--bg-card) rounded-2xl p-6 sm:p-8 border border-(--border-light) shadow-sm flex flex-col items-center gap-6">
         {loading && (
-          <div className="flex justify-end mb-1"><Spinner /></div>
+          <div className="self-end -mb-2"><Spinner /></div>
         )}
-        <div className="flex items-center justify-center sm:justify-between gap-6 flex-wrap">
-          <CalorieRing consumed={consumed} goal={CALORIE_GOAL} />
-
-          <div className="hidden sm:block w-px self-stretch bg-(--border-light)" />
-
-          <div className="flex sm:flex-col gap-6 sm:gap-4 items-center sm:items-start justify-center">
-            <div>
-              <p className="text-xs text-(--text-muted) mb-1">Remaining</p>
-              <p className="text-2xl sm:text-3xl font-black text-(--accent)">{remaining.toLocaleString()}</p>
-              <p className="text-[11px] text-(--text-muted)">kcal</p>
-            </div>
-            <div>
-              <p className="text-xs text-(--text-muted) mb-1">Burned</p>
-              <p className="text-2xl sm:text-3xl font-black text-(--text-primary)">+{burned.toLocaleString()}</p>
-              <p className="text-[11px] text-(--text-muted)">kcal</p>
-            </div>
-            <div>
-              <p className="text-xs text-(--text-muted) mb-1">Daily Goal</p>
-              <p className="text-sm sm:text-base font-bold text-(--text-primary)">{CALORIE_GOAL.toLocaleString()} kcal</p>
-            </div>
+        <CalorieRing consumed={consumed} goal={CALORIE_GOAL} />
+        <div className="w-full grid grid-cols-3 gap-4 text-center">
+          <div>
+            <p className="text-[11px] text-(--text-muted) mb-1">Remaining</p>
+            <p className="text-xl sm:text-2xl font-black text-(--accent)">{remaining.toLocaleString()}</p>
+            <p className="text-[10px] text-(--text-muted)">kcal</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-(--text-muted) mb-1">Burned</p>
+            <p className="text-xl sm:text-2xl font-black text-(--text-primary)">+{burned.toLocaleString()}</p>
+            <p className="text-[10px] text-(--text-muted)">kcal</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-(--text-muted) mb-1">Daily Goal</p>
+            <p className="text-[13px] sm:text-sm font-bold text-(--text-primary) mt-2">{CALORIE_GOAL.toLocaleString()} kcal</p>
           </div>
         </div>
       </div>
