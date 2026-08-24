@@ -57,13 +57,9 @@ async function callGeminiWithFallback(prompt) {
   return "I'm currently experiencing high demand. Please try again in a moment.";
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SECTION 2 — FOOD IMAGE ANALYSIS (vision)
-// ─────────────────────────────────────────────────────────────────────────────
-// FOOD_ANALYSIS_PROMPT is imported from ../constants/foodAnalysisPrompt.js —
-// see that file for what it contains and why.
 
-// ─── FOOD CATEGORY DETECTION ──────────────────────────────────────────────────
+// SECTION 2 — FOOD IMAGE ANALYSIS (vision)
+// ─── FOOD CATEGORY DETECTION
 
 const BREADED_FOOD_KEYWORDS = [
   'fried', 'breaded', 'battered', 'crispy', 'nugget', 'tempura',
@@ -156,15 +152,6 @@ function validateAndCorrectMacros(parsed) {
     }
   }
 
-  // ─── Calorie reconciliation ────────────────────────────────────────────────
-  // Vision models estimate TOTAL energy from visible portions far more reliably
-  // than they guess each macro independently — per-macro guesses skew high and
-  // the old "macros always win" rule inflated light meals (~100 kcal snack came
-  // back as 400+ once its guessed macros were summed). Policy:
-  //   ≤5% off                          → keep the model's numbers untouched
-  //   >5% off, ratio within [0.85,1.15] → snap to macro-derived (mild cleanup)
-  //   otherwise / any phantom injection → trust the STATED calories and
-  //                                       rescale the macros to fit them.
   const macroCalories = protein * 4 + carbs * 4 + fat * 9;
 
   if (macroCalories <= 0) {
@@ -253,14 +240,14 @@ async function analyzeWithGroqVision(base64Data, mimeType) {
   console.log("[VITALIS IMAGE] Trying Groq Qwen3.6 vision...");
   const resp = await groq.chat.completions.create({
     model:            "qwen/qwen3.6-27b",
-    max_tokens:       500,
+    max_tokens:       400,
     temperature:      0,
     reasoning_effort: "none",
     messages: [
       {
         role:    "user",
         content: [
-          { type: "text",      text:      FOOD_ANALYSIS_PROMPT },
+          { type: "text",      text:      FOOD_ANALYSIS_PROMPT.CONDENSED },
           { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Data}` } },
         ],
       },
@@ -319,10 +306,7 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
   throw lastErr;
 }
 
-// ─── TIMEOUT GUARD ───────────────────────────────────────────────────────────
-// A hung AI request used to block the whole analysis indefinitely (no deadline
-// existed anywhere in this path). This caps each provider attempt so a stalled
-// call bails to the next provider instead of freezing the user's upload.
+// ─── TIMEOUT GUARD 
 const PROVIDER_TIMEOUT_MS = 25000;
 
 function withTimeout(promiseFactory, ms, label) {
