@@ -66,8 +66,9 @@ function FullscreenSplash({ onNext }) {
       aria-label="Continue to onboarding"
       onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onNext()}
     >
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-[#0A1000] text-[22px] font-black tracking-[0.22em] leading-none">VITALIS</span>
+      <div className="flex flex-col items-center gap-3">
+        <img src="/pwa-192x192.png" alt="Vitalis logo" className="w-20 h-20 rounded-2xl object-cover shadow-lg border border-white/20" />
+        <span className="text-[#0A1000] text-[22px] font-black tracking-[0.22em] leading-none mt-1">VITALIS</span>
         <span className="text-[#0A1000]/70 text-[10px] font-bold tracking-[0.28em] uppercase">Fitness OS</span>
       </div>
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-32 h-1 rounded-full bg-white/90" />
