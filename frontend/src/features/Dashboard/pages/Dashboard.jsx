@@ -120,8 +120,8 @@ const Dashboard = () => {
           ${sidebarExpanded ? 'md:ml-[240px]' : 'md:ml-[72px] ml-0'}
         `}
       >
-        <div className="w-full max-w-[1400px] mx-auto">
-          {/* Daily Readiness Hero — kept exact */}
+        <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-4">
+          {/* Daily Readiness Hero — same on all devices */}
           <Hero
             name={heroName}
             avatar={heroAvatar}
@@ -129,88 +129,40 @@ const Dashboard = () => {
             onCoachInsight={() => navigate('/dashboard/analytics')}
           />
 
-          {/* ── GoGreen compact mobile layout — mirrors image, no data flow change ── */}
-          <div className="md:hidden flex flex-col gap-3">
-            <DateStrip />
-            <div>
-              <p className="text-[13px] font-black text-[var(--text-primary)] mb-2 px-1">Daily Activity</p>
-              <DailyActivityCard
-                steps={{ value: data.stats?.steps || 0, goal: 10000 }}
-                onExpand={() => navigate('/dashboard/analytics')}
-              />
-            </div>
-            <div className="flex gap-3">
-              <CaloriesCard calories={{ value: data.stats?.calories_burned || 0, goal: 800 }} onClick={() => navigate('/dashboard/analytics')} />
-              <WorkoutCard sessionLoadMins={{ value: data.stats?.workout_duration_mins || 0, goal: 120 }} onClick={() => navigate('/dashboard/analytics')} />
-            </div>
-            <TodaysPlanCard
-              activePlan={activePlan}
-              activeProgramCount={activeProgramCount}
-              onView={() => navigate('/dashboard/plans')}
+          {/* Unified GoGreen layout — identical on mobile & desktop, responsive grid */}
+          <DateStrip />
+          <div>
+            <p className="text-[13px] font-black text-[var(--text-primary)] mb-2 px-1">Daily Activity</p>
+            <DailyActivityCard
+              steps={{ value: data.stats?.steps || 0, goal: 10000 }}
+              onExpand={() => navigate('/dashboard/analytics')}
             />
-            {/* Keep Sleep + Clinical below compact cards on mobile — same data, just re-ordered */}
-            <div className="flex flex-col gap-3 pt-1">
-              <div className="w-full min-w-0 relative">
-                {isAnalyzing && (
-                  <div className="absolute top-2 right-2 z-10 flex items-center gap-1.5 bg-[var(--accent-bg)] px-2 py-0.5 rounded-full border border-[var(--accent-border)] shadow-lg">
-                    <div className="w-1.5 h-1.5 shrink-0 bg-[var(--accent)] rounded-full animate-ping" />
-                    <span className="text-[8px] font-black text-[var(--accent)] uppercase tracking-widest">AI Analyzing</span>
-                  </div>
-                )}
-                <SleepHoursGraph biometrics={biometrics} userId={USER_ID} onExpand={() => navigate('/dashboard/analytics')} />
-              </div>
-              <ClinicalAssistant insights={insights} water={data.stats?.water_intake_ml || 0} sleep={data.stats?.sleep_duration || 0} quality={data.stats?.sleep_quality || 0} isAnalyzing={isAnalyzing} userId={USER_ID} />
-            </div>
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <CaloriesCard calories={{ value: data.stats?.calories_burned || 0, goal: 800 }} onClick={() => navigate('/dashboard/analytics')} />
+            <WorkoutCard sessionLoadMins={{ value: data.stats?.workout_duration_mins || 0, goal: 120 }} onClick={() => navigate('/dashboard/analytics')} />
+          </div>
+          <TodaysPlanCard
+            activePlan={activePlan}
+            activeProgramCount={activeProgramCount}
+            onView={() => navigate('/dashboard/plans')}
+          />
 
-          {/*
-            Desktop / tablet layout — preserved flow, hidden on mobile to avoid duplication
-            - base (phones): handled above
-            - md (tablets 768px): 1 col
-            - xl (1280px): 4 cols 3/1 split
-          */}
-          <div className="hidden md:grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 items-start">
-
-            {/* Left Column */}
-            <div className="xl:col-span-3 flex flex-col gap-4 sm:gap-5 lg:gap-6 min-w-0">
-
-              <ProgramOverviewCard
-                activeProgramCount={activeProgramCount}
-                activePlan={activePlan}
-                calories={{ value: data.stats?.calories_burned || 0, goal: 800 }}
-                steps={{ value: data.stats?.steps || 0, goal: 10000 }}
-                sessionLoadMins={{ value: data.stats?.workout_duration_mins || 0, goal: 120 }}
-                onChangeProgram={() => navigate('/dashboard/plans')}
-              />
-
-              {/* Sleep Graph Section */}
+          {/* Sleep + Clinical — responsive: stacked on mobile, 3/1 split on xl */}
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 items-start">
+            <div className="xl:col-span-3 flex flex-col gap-4 min-w-0">
               <div className="w-full min-w-0 relative">
                 {isAnalyzing && (
                   <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10 flex items-center gap-1.5 sm:gap-2 bg-[var(--accent-bg)] px-2 py-0.5 sm:px-3 sm:py-1 rounded-full border border-[var(--accent-border)] shadow-lg max-w-[calc(100%-1rem)]">
                     <div className="w-1.5 h-1.5 shrink-0 bg-[var(--accent)] rounded-full animate-ping" />
-                    <span className="text-[8px] sm:text-[9px] font-black text-[var(--accent)] uppercase tracking-widest truncate">
-                      AI Analyzing
-                    </span>
+                    <span className="text-[8px] sm:text-[9px] font-black text-[var(--accent)] uppercase tracking-widest truncate">AI Analyzing</span>
                   </div>
                 )}
-                <SleepHoursGraph
-                  biometrics={biometrics}
-                  userId={USER_ID}
-                  onExpand={() => navigate('/dashboard/analytics')}
-                />
+                <SleepHoursGraph biometrics={biometrics} userId={USER_ID} onExpand={() => navigate('/dashboard/analytics')} />
               </div>
             </div>
-
-            {/* Right Column - Clinical Assistant */}
             <div className="xl:col-span-1 min-w-0">
-              <ClinicalAssistant
-                insights={insights}
-                water={data.stats?.water_intake_ml || 0}
-                sleep={data.stats?.sleep_duration || 0}
-                quality={data.stats?.sleep_quality || 0}
-                isAnalyzing={isAnalyzing}
-                userId={USER_ID}
-              />
+              <ClinicalAssistant insights={insights} water={data.stats?.water_intake_ml || 0} sleep={data.stats?.sleep_duration || 0} quality={data.stats?.sleep_quality || 0} isAnalyzing={isAnalyzing} userId={USER_ID} />
             </div>
           </div>
         </div>
