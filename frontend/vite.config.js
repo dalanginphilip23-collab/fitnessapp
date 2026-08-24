@@ -49,6 +49,17 @@ export default defineConfig({
               },
             },
           },
+          {
+            urlPattern: /https:\/\/cdn\.jsdelivr\.net\/npm\/@bryllim\/workout-guide\/.*/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'workout-guide-cdn',
+              expiration: {
+                maxEntries: 400,
+                maxAgeSeconds: 60 * 60 * 24 * 7,
+              },
+            },
+          },
           // NOTE: /api/* caches were intentionally REMOVED. Authenticated API
           // responses (dashboard, profile, messages, etc.) must never be
           // cached by the service worker — on a shared device the stale cache

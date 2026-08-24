@@ -1,6 +1,16 @@
 import { useState, useMemo } from 'react';
 import Icon from '../../../components/ui/Icon';
-import { EXERCISE_CATALOG, EQUIPMENT_OPTIONS, MUSCLE_OPTIONS, TYPE_OPTIONS } from '../constants/exerciseCatalog';
+import { EQUIPMENT_OPTIONS, MUSCLE_OPTIONS, TYPE_OPTIONS } from '../constants/exerciseCatalog';
+import { searchExercises, getAssetUrl } from '@bryllim/workout-guide';
+
+const MUSCLE_MAP = {
+  Chest: ['Chest'],
+  Back: ['Back', 'Upper Back', 'Lats', 'Lower Back'],
+  Shoulders: ['Shoulders', 'Rear Delts'],
+  Arms: ['Biceps', 'Triceps', 'Forearms'],
+  Legs: ['Quads', 'Hamstrings', 'Glutes', 'Calves', 'Adductors', 'Legs', 'Posterior Chain'],
+  Core: ['Core', 'Hips'],
+};
 
 function FilterSelect({ label, value, options, onChange }) {
   return (
@@ -28,14 +38,22 @@ export default function ExerciseCatalog({ onSelectExercise }) {
   const [muscle, setMuscle] = useState('All muscles');
   const [type, setType] = useState('All types');
 
-  const filtered = useMemo(() => EXERCISE_CATALOG.filter((ex) => {
-    const q = query.trim().toLowerCase();
-    const matchQ = !q || ex.label.toLowerCase().includes(q) || ex.muscle.toLowerCase().includes(q) || ex.equipment.toLowerCase().includes(q);
-    const matchEq = equipment === 'All equipment' || ex.equipment === equipment;
-    const matchMu = muscle === 'All muscles' || ex.muscle === muscle;
-    const matchTy = type === 'All types' || ex.type === type;
-    return matchQ && matchEq && matchMu && matchTy;
-  }), [query, equipment, muscle, type]);
+  const filtered = useMemo(() => {
+    const base = searchExercises(query || undefined, {
+      equipment: equipment !== 'All equipment' ? equipment : undefined,
+    });
+    return base.filter((ex) => {
+      if (muscle !== 'All muscles') {
+        const allowed = MUSCLE_MAP[muscle] || [muscle];
+        if (!allowed.includes(ex.primaryMuscle)) return false;
+      }
+      if (type !== 'All types') {
+        if (type === 'Compound' && ex.isStretch) return false;
+        if (type === 'Isolation' && !ex.isStretch && ex.exerciseType !== 'duration') return false;
+      }
+      return true;
+    });
+  }, [query, equipment, muscle, type]);
 
   return (
     <div className="w-full">
@@ -62,24 +80,35 @@ export default function ExerciseCatalog({ onSelectExercise }) {
       <p className="text-[11px] text-[var(--text-muted)] mb-4">Showing all {filtered.length} exercises</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((ex) => (
-          <button
-            key={ex.id}
-            type="button"
-            onClick={() => onSelectExercise?.(ex)}
-            className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[16px] p-2 flex flex-col gap-3 text-left cursor-pointer hover:border-[var(--accent-border)] hover:shadow-[0_4px_20px_rgba(139,195,74,0.12)] hover:-translate-y-0.5 transition-all group"
-          >
-            <div className="bg-[#0A0A0A] rounded-[12px] aspect-[4/3] flex items-center justify-center overflow-hidden relative">
-              {/* line-art style: large icon in white on black */}
-              <Icon name={ex.icon} className="text-white text-[56px] opacity-90 group-hover:scale-105 transition-transform" />
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-[var(--accent)]/5 transition-opacity" />
-            </div>
-            <div className="px-1 pb-1">
-              <div className="text-[13px] font-black leading-tight text-[var(--text-primary)] truncate">{ex.label}</div>
-              <div className="text-[11px] text-[var(--text-muted)] mt-0.5">{ex.muscle} · {ex.equipment}</div>
-            </div>
-          </button>
-        ))}
+        {filtered.map((ex) => {
+          const img = getAssetUrl(ex.slug, 1);
+          return (
+            <button
+              key={ex.slug}
+              type="button"
+              onClick={() => onSelectExercise?.({ id: ex.slug, label: ex.name, slug: ex.slug, name: ex.name })}
+              className="bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[16px] p-2 flex flex-col gap-3 text-left cursor-pointer hover:border-[var(--accent-border)] hover:shadow-[0_4px_20px_rgba(139,195,74,0.12)] hover:-translate-y-0.5 transition-all group"
+            >
+              <div className="bg-[#0A0A0A] rounded-[12px] aspect-[4/3] flex items-center justify-center overflow-hidden relative p-2">
+                {img ? (
+                  <img
+                    src={img}
+                    alt={ex.name}
+                    loading="lazy"
+                    className="w-full h-full object-contain invert brightness-110 contrast-110 group-hover:scale-105 transition-transform"
+                  />
+                ) : (
+                  <Icon name="fitness_center" className="text-white text-[56px] opacity-90" />
+                )}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-[var(--accent)]/5 transition-opacity" />
+              </div>
+              <div className="px-1 pb-1">
+                <div className="text-[13px] font-black leading-tight text-[var(--text-primary)] truncate">{ex.name}</div>
+                <div className="text-[11px] text-[var(--text-muted)] mt-0.5">{ex.primaryMuscle} · {ex.equipment}</div>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {filtered.length === 0 && (
@@ -87,6 +116,9 @@ export default function ExerciseCatalog({ onSelectExercise }) {
           <p className="text-[13px] text-[var(--text-muted)]">No exercises match your filters.</p>
         </div>
       )}
+      <p className="text-[10px] text-[var(--text-disabled)] text-center mt-6">
+        Artwork by Everkinetic, expanded by Bryl Lim — CC BY-SA 4.0
+      </p>
     </div>
   );
 }

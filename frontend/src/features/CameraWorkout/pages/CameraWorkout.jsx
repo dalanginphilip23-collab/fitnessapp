@@ -188,17 +188,21 @@ const CameraWorkout = () => {
 
   useEffect(() => {
     if (queryExercise) {
-      const m = WORKOUT_OPTIONS.find((o) => o.id === queryExercise);
+      const norm = queryExercise.replace(/-/g, '');
+      const m = WORKOUT_OPTIONS.find((o) => o.id === queryExercise || o.id === norm);
       if (m) setWorkoutType(m.id);
+      else setWorkoutType(queryExercise);
       setCatalogExercise(queryExercise);
     }
   }, [queryExercise]);
 
   const handleSelectExercise = useCallback((ex) => {
-    setCatalogExercise(ex.id);
-    const m = WORKOUT_OPTIONS.find((o) => o.id === ex.id);
-    setWorkoutType(m ? m.id : ex.id);
-    navigate(`/dashboard/workouts?exercise=${ex.id}`, { replace: false });
+    const slug = ex.slug || ex.id;
+    setCatalogExercise(slug);
+    const norm = slug.replace(/-/g, '');
+    const m = WORKOUT_OPTIONS.find((o) => o.id === slug || o.id === norm);
+    setWorkoutType(m ? m.id : slug);
+    navigate(`/dashboard/workouts?exercise=${slug}`, { replace: false });
   }, [navigate]);
 
   const handleBackToCatalog = useCallback(() => {
