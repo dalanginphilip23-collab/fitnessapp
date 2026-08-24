@@ -14,7 +14,20 @@ app.set("trust proxy", 1);
 // Security headers (X-Content-Type-Options, X-Frame-Options, referrer-policy,
 // etc.). The frontend is a separate origin, so these protect any HTML/JSON
 // served from the API and set useful browser-safety defaults.
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://accounts.google.com", "https://cdn.jsdelivr.net"],
+      connectSrc: ["'self'", "https://accounts.google.com"],
+      imgSrc: ["'self'", "data:", "blob:", "https:", "https://cdn.jsdelivr.net"],
+      fontSrc: ["'self'", "https:", "data:"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+      frameSrc: ["'self'", "https://accounts.google.com"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
 
 // ============================
 // Allowed Origins

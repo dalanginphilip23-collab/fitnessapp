@@ -231,12 +231,12 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
         ))}
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
-      `}} />
+      `}</style>
     </div>
   );
 };
