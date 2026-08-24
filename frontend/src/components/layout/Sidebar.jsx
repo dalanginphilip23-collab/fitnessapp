@@ -151,7 +151,7 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
             className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-72 bg-(--bg-secondary) border-r border-(--border-light) animate-slide-in-right shadow-2xl flex flex-col py-6 mesh-gradient-warm">
+          <aside className="absolute left-0 top-0 h-full w-64 bg-[#121212] border-r border-[var(--border-light)] animate-slide-in-right shadow-2xl flex flex-col py-6">
             <div className="flex items-center justify-between px-4 mb-8">
               <div className="flex items-center gap-3.5">
                 <img

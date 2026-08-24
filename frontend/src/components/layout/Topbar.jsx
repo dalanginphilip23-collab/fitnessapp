@@ -570,34 +570,37 @@ const Topbar = ({ sidebarExpanded, userId }) => {
           />
           {/* Drawer panel — z-[1501]: one level above the backdrop, still below header */}
           <div 
-            className="fixed top-14 sm:top-15 left-0 w-60 sm:w-64 h-[calc(100vh-56px)] sm:h-[calc(100vh-60px)] bg-(--bg-secondary) border-r border-(--border-light) z-[1501] md:hidden overflow-y-auto"
+            className="fixed top-14 sm:top-15 left-0 w-64 h-[calc(100vh-56px)] sm:h-[calc(100vh-60px)] bg-[#121212] border-r border-[var(--border-light)] z-[1501] md:hidden overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-label="Navigation menu"
           >
-            <nav className="flex flex-col p-3 sm:p-4 gap-1 sm:gap-1.5">
+            <nav className="flex flex-col p-3 gap-1">
 
               {/* Section: Menu */}
-              <p className="px-3 sm:px-4 pt-1 pb-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-(--text-disabled)">
+              <p className="px-3 pt-1 pb-2 text-[9px] font-bold uppercase tracking-[0.15em] text-[#6A6A6A]">
                 Menu
               </p>
               {NAV_LINKS.map((item, i) => (
                 <button
                   key={i}
                   onClick={() => handleNavClick(item.path)}
-                  className={`flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 rounded-xl text-[13px] sm:text-[14px] font-medium transition-colors border-none bg-transparent text-left cursor-pointer ${activePath === item.path ? 'bg-(--accent-bg) text-(--accent)' : 'text-(--text-muted) hover:text-(--text-primary) hover:bg-(--bg-hover)'}`}
+                  aria-current={activePath === item.path ? 'page' : undefined}
+                  className={`flex items-center gap-3 px-3 py-3 rounded-xl text-[13px] font-medium transition-colors border-none bg-transparent text-left cursor-pointer ${activePath === item.path ? 'bg-[var(--accent-bg)] text-[var(--accent)]' : 'text-[#A0A0A0] hover:text-white hover:bg-white/5'}`}
                 >
                   <Icon
                     name={item.icon}
-                    className="text-[16px] sm:text-[17px]"
+                    className="text-[18px]"
                     fill={activePath === item.path ? 1 : 0}
                   />
                   {item.name}
                 </button>
               ))}
 
-              <div className="h-px bg-(--border-light) my-3 mx-1" />
+              <div className="h-px bg-white/10 my-3 mx-1" />
 
               {/* Section: Account */}
-              <p className="px-3 sm:px-4 pt-1 pb-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.15em] text-(--text-disabled)">
+              <p className="px-3 pt-4 pb-2 text-[9px] font-bold uppercase tracking-[0.15em] text-[#6A6A6A]">
                 Account
               </p>
               
@@ -606,27 +609,27 @@ const Topbar = ({ sidebarExpanded, userId }) => {
                 <button
                   key={label}
                   onClick={() => { action(); setMobileMenuOpen(false); }}
-                  className="flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-(--text-muted) hover:text-(--text-primary) text-[13px] sm:text-[14px] border-none bg-transparent cursor-pointer rounded-xl hover:bg-(--bg-hover) transition-colors"
+                  className="flex items-center gap-3 px-3 py-3 text-[#A0A0A0] hover:text-white text-[13px] border-none bg-transparent cursor-pointer rounded-xl hover:bg-white/5 transition-colors"
                 >
-                  <Icon name={icon} className="text-[16px] sm:text-[17px]" /> {label}
+                  <Icon name={icon} className="text-[18px]" /> {label}
                 </button>
               ))}
               
               {/* Feedback button */}
               <button
                 onClick={() => { setShowFeedback(true); setMobileMenuOpen(false); }}
-                className="flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-(--text-muted) hover:text-(--accent) text-[13px] sm:text-[14px] border-none bg-transparent cursor-pointer rounded-xl hover:bg-(--accent-bg) transition-colors"
+                className="flex items-center gap-3 px-3 py-3 text-[#A0A0A0] hover:text-white text-[13px] border-none bg-transparent cursor-pointer rounded-xl hover:bg-white/5 transition-colors"
               >
-                <Icon name="feedback" className="text-[16px] sm:text-[17px]" /> Feedback
+                <Icon name="feedback" className="text-[18px]" /> Feedback
               </button>
 
-              <div className="h-px bg-(--border-light) my-3 mx-1" />
+              <div className="h-px bg-white/10 my-6 mx-1" />
 
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-[#e05050] text-[13px] sm:text-[14px] border-none bg-transparent cursor-pointer rounded-xl hover:bg-[#e05050]/10 transition-colors"
+                className="flex items-center gap-3 px-3 py-3 text-[#E05050] text-[13px] font-medium border-none bg-transparent cursor-pointer rounded-xl hover:bg-[#E05050]/10 transition-colors"
               >
-                <Icon name="logout" className="text-[16px] sm:text-[17px]" /> Logout
+                <Icon name="logout" className="text-[18px]" /> Logout
               </button>
             </nav>
           </div>
