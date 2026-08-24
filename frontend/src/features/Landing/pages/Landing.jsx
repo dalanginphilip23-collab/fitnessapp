@@ -36,13 +36,13 @@ const Landing = () => {
   const prefersReducedMotion = usePrefersReducedMotion();
   const canHover = useCanHover();
   const liveStats = useLiveStats();
-  const { seen, markSeen } = useOnboardingSeen();
   const userCount = `${formatCompact(liveStats.users)}+`;
 
   const goRegister = useCallback(() => navigate('/register'), [navigate]);
   const goLogin = useCallback(() => navigate('/login'), [navigate]);
-  const handleOnboardComplete = useCallback(() => { markSeen(); navigate('/register'); }, [markSeen, navigate]);
-  const handleOnboardSkip = useCallback(() => { markSeen(); }, [markSeen]);
+  const [dismissed, setDismissed] = useState(false);
+  const handleOnboardComplete = useCallback(() => { setDismissed(true); navigate('/register'); }, [navigate]);
+  const handleOnboardSkip = useCallback(() => { setDismissed(true); }, []);
 
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 && !canHover : false);
   useEffect(() => {
@@ -52,7 +52,8 @@ const Landing = () => {
     return () => window.removeEventListener('resize', onResize);
   }, [canHover]);
 
-  const showOnboarding = isMobile && !seen;
+  // Phone = always show swipe, Desktop = always hide (no persistent seen)
+  const showOnboarding = isMobile && !dismissed;
 
   const ease = [0.22, 1, 0.36, 1];
 
