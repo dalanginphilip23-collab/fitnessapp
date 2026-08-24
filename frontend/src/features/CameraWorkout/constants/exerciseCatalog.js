@@ -1,0 +1,37 @@
+export const EQUIPMENT_OPTIONS = ['All equipment', 'Barbell', 'Dumbbell', 'Machine', 'Cable', 'Bodyweight'];
+export const MUSCLE_OPTIONS = ['All muscles', 'Chest', 'Back', 'Shoulders', 'Arms', 'Legs', 'Core'];
+export const TYPE_OPTIONS = ['All types', 'Compound', 'Isolation'];
+
+export const EXERCISE_CATALOG = [
+  { id: 'bench_press', label: 'Bench Press', muscle: 'Chest', equipment: 'Barbell', type: 'Compound', icon: 'fitness_center' },
+  { id: 'incline_bench_press', label: 'Incline Bench Press', muscle: 'Chest', equipment: 'Barbell', type: 'Compound', icon: 'fitness_center' },
+  { id: 'incline_dumbbell_press', label: 'Incline Dumbbell Press', muscle: 'Chest', equipment: 'Dumbbell', type: 'Compound', icon: 'fitness_center' },
+  { id: 'dumbbell_bench_press', label: 'Dumbbell Bench Press', muscle: 'Chest', equipment: 'Dumbbell', type: 'Compound', icon: 'fitness_center' },
+  { id: 'decline_bench_press', label: 'Decline Bench Press', muscle: 'Chest', equipment: 'Barbell', type: 'Compound', icon: 'fitness_center' },
+  { id: 'machine_chest_press', label: 'Machine Chest Press', muscle: 'Chest', equipment: 'Machine', type: 'Compound', icon: 'fitness_center' },
+  { id: 'pec_deck', label: 'Pec Deck', muscle: 'Chest', equipment: 'Machine', type: 'Isolation', icon: 'fitness_center' },
+  { id: 'cable_fly', label: 'Cable Fly', muscle: 'Chest', equipment: 'Cable', type: 'Isolation', icon: 'fitness_center' },
+  { id: 'pushup', label: 'Push-up', muscle: 'Chest', equipment: 'Bodyweight', type: 'Compound', icon: 'fitness_center' },
+  { id: 'weighted_pushup', label: 'Weighted Push-up', muscle: 'Chest', equipment: 'Bodyweight', type: 'Compound', icon: 'fitness_center' },
+  { id: 'overhead', label: 'Overhead Press', muscle: 'Shoulders', equipment: 'Barbell', type: 'Compound', icon: 'upload' },
+  { id: 'lateral_raise', label: 'Lateral Raise', muscle: 'Shoulders', equipment: 'Dumbbell', type: 'Isolation', icon: 'open_with' },
+  { id: 'pullup', label: 'Pull-Ups', muscle: 'Back', equipment: 'Bodyweight', type: 'Compound', icon: 'keyboard_arrow_up' },
+  { id: 'deadlift', label: 'Deadlift', muscle: 'Back', equipment: 'Barbell', type: 'Compound', icon: 'arrow_downward' },
+  { id: 'squat', label: 'Squats', muscle: 'Legs', equipment: 'Bodyweight', type: 'Compound', icon: 'accessibility_new' },
+  { id: 'lunge', label: 'Lunges', muscle: 'Legs', equipment: 'Bodyweight', type: 'Compound', icon: 'directions_walk' },
+  { id: 'boxjump', label: 'Box Jumps', muscle: 'Legs', equipment: 'Bodyweight', type: 'Compound', icon: 'upload_file' },
+  { id: 'calfraise', label: 'Calf Raises', muscle: 'Legs', equipment: 'Bodyweight', type: 'Isolation', icon: 'footprint' },
+  { id: 'hip_thrust', label: 'Hip Thrust', muscle: 'Legs', equipment: 'Barbell', type: 'Compound', icon: 'chair' },
+  { id: 'burpee', label: 'Burpees', muscle: 'Core', equipment: 'Bodyweight', type: 'Compound', icon: 'bolt' },
+  { id: 'plank', label: 'Plank', muscle: 'Core', equipment: 'Bodyweight', type: 'Isolation', icon: 'horizontal_rule' },
+  { id: 'sideplank', label: 'Side Plank', muscle: 'Core', equipment: 'Bodyweight', type: 'Isolation', icon: 'rotate_90_degrees_cw' },
+  { id: 'crunch', label: 'Crunches', muscle: 'Core', equipment: 'Bodyweight', type: 'Isolation', icon: 'airline_seat_recline_normal' },
+  { id: 'situp', label: 'Sit-Ups', muscle: 'Core', equipment: 'Bodyweight', type: 'Compound', icon: 'self_improvement' },
+  { id: 'mountainclimb', label: 'Mountain Climbers', muscle: 'Core', equipment: 'Bodyweight', type: 'Compound', icon: 'terrain' },
+  { id: 'highknee', label: 'High Knees', muscle: 'Legs', equipment: 'Bodyweight', type: 'Compound', icon: 'directions_run' },
+  { id: 'jumpingjack', label: 'Jumping Jacks', muscle: 'Core', equipment: 'Bodyweight', type: 'Compound', icon: 'sports_gymnastics' },
+  { id: 'bicep_curl', label: 'Bicep Curls', muscle: 'Arms', equipment: 'Dumbbell', type: 'Isolation', icon: 'sports_mma' },
+  { id: 'tricep_ext', label: 'Tricep Extension', muscle: 'Arms', equipment: 'Cable', type: 'Isolation', icon: 'back_hand' },
+  { id: 'dip', label: 'Dips', muscle: 'Arms', equipment: 'Bodyweight', type: 'Compound', icon: 'unfold_more' },
+  { id: 'glute_bridge', label: 'Glute Bridge', muscle: 'Legs', equipment: 'Bodyweight', type: 'Compound', icon: 'airline_seat_flat' },
+];

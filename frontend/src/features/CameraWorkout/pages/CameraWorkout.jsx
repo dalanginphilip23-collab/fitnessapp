@@ -34,6 +34,7 @@ import {
   StartStopButton,
   VoiceToggleButton,
 } from "../components";
+import ExerciseCatalog from "../components/ExerciseCatalog";
 
 // ── Minimum reps required to count a session as complete ─────────────────────
 const MIN_REPS_DEFAULT = 5;
@@ -164,10 +165,16 @@ const CameraWorkout = () => {
   const location = useLocation();
   const fromPlan = location.state?.fromPlan ?? null;
 
+  const queryExercise = new URLSearchParams(location.search).get('exercise');
+  const [catalogExercise, setCatalogExercise] = useState(() => queryExercise);
+  const showCatalog = !fromPlan && !catalogExercise;
+
   const requiredMins = fromPlan?.durationMins ?? 0;
   const minReps = MIN_REPS_DEFAULT;
 
   const [workoutType, setWorkoutType] = useState(() => {
+    const catalogMatch = queryExercise ? WORKOUT_OPTIONS.find((o) => o.id === queryExercise) : null;
+    if (catalogMatch) return catalogMatch.id;
     if (fromPlan?.activityType) {
       const match = WORKOUT_OPTIONS.find(
         (o) =>
@@ -178,6 +185,27 @@ const CameraWorkout = () => {
     }
     return "pushup";
   });
+
+  useEffect(() => {
+    if (queryExercise) {
+      const m = WORKOUT_OPTIONS.find((o) => o.id === queryExercise);
+      if (m) setWorkoutType(m.id);
+      setCatalogExercise(queryExercise);
+    }
+  }, [queryExercise]);
+
+  const handleSelectExercise = useCallback((ex) => {
+    setCatalogExercise(ex.id);
+    const m = WORKOUT_OPTIONS.find((o) => o.id === ex.id);
+    setWorkoutType(m ? m.id : ex.id);
+    navigate(`/dashboard/workouts?exercise=${ex.id}`, { replace: false });
+  }, [navigate]);
+
+  const handleBackToCatalog = useCallback(() => {
+    setCatalogExercise(null);
+    setIsRecording(false);
+    navigate('/dashboard/workouts', { replace: true });
+  }, [navigate]);
 
   const [isRecording, setIsRecording] = useState(false);
   const [cameraOn, setCameraOn] = useState(
@@ -510,39 +538,55 @@ const CameraWorkout = () => {
           onVoiceToggle={handleVoiceToggle}
         />
 
-        <MobileWorkoutPills
-          workoutType={workoutType}
-          onSelect={handleWorkoutChange}
-        />
-        <DesktopWorkoutSelector
-          workoutType={workoutType}
-          onSelect={handleWorkoutChange}
-        />
-
-        <main className="p-3 pb-24 sm:p-4 md:p-8 md:pb-8 max-w-400 mx-auto w-full">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
-            <WebcamFeed
-              webcamRef={webcamRef}
-              canvasRef={canvasRef}
-              cameraOn={cameraOn}
-              isRecording={isRecording}
-              poseReady={poseReady}
-              loadError={loadError}
-              aiFeedback={aiFeedback}
-              isAnalyzing={isAnalyzing}
-              repCount={repCount}
-              onCameraToggle={handleCameraToggle}
-            />
-            <RightPanel
-              biometrics={biometrics}
-              logs={logs}
-              repCount={repCount}
-              elapsedSecs={elapsedSecs}
-              poseReady={poseReady}
-              loadError={loadError}
-            />
-          </div>
-        </main>
+        {showCatalog ? (
+          <main className="p-3 pb-24 sm:p-4 md:p-8 md:pb-8 max-w-[1100px] mx-auto w-full">
+            <ExerciseCatalog onSelectExercise={handleSelectExercise} />
+          </main>
+        ) : (
+          <>
+            {!catalogExercise && (
+              <>
+                <MobileWorkoutPills workoutType={workoutType} onSelect={handleWorkoutChange} />
+                <DesktopWorkoutSelector workoutType={workoutType} onSelect={handleWorkoutChange} />
+              </>
+            )}
+            {catalogExercise && (
+              <div className="px-3 sm:px-4 md:px-8 max-w-[1100px] mx-auto w-full pt-2">
+                <button
+                  type="button"
+                  onClick={handleBackToCatalog}
+                  className="inline-flex items-center gap-1.5 text-[12px] font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-transparent border-none cursor-pointer"
+                >
+                  <Icon name="arrow_back" className="text-[16px]" /> Back to exercises
+                </button>
+              </div>
+            )}
+            <main className="p-3 pb-24 sm:p-4 md:p-8 md:pb-8 max-w-400 mx-auto w-full">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+                <WebcamFeed
+                  webcamRef={webcamRef}
+                  canvasRef={canvasRef}
+                  cameraOn={cameraOn}
+                  isRecording={isRecording}
+                  poseReady={poseReady}
+                  loadError={loadError}
+                  aiFeedback={aiFeedback}
+                  isAnalyzing={isAnalyzing}
+                  repCount={repCount}
+                  onCameraToggle={handleCameraToggle}
+                />
+                <RightPanel
+                  biometrics={biometrics}
+                  logs={logs}
+                  repCount={repCount}
+                  elapsedSecs={elapsedSecs}
+                  poseReady={poseReady}
+                  loadError={loadError}
+                />
+              </div>
+            </main>
+          </>
+        )}
 
         <AnalyticsMobileNav navigate={navigate} />
       </div>
