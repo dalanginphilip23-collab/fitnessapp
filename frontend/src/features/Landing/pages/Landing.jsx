@@ -69,13 +69,16 @@ const Landing = () => {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full blur-[120px] opacity-20" style={{ background: 'var(--accent)' }} />
       </div>
 
-      {/* Top brand bar — minimal, like native status bar */}
-      <header className="relative z-10 w-full max-w-[480px] mx-auto px-6 pt-6 sm:pt-8 flex items-center justify-between shrink-0">
+      {/* Top brand bar — desktop full-width */}
+      <header className="relative z-10 w-full max-w-[480px] md:max-w-[1100px] mx-auto px-6 md:px-8 pt-6 sm:pt-8 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--accent)' }}>
             <span className="material-symbols-outlined text-[16px] text-[#0a1000]">pulse_alert</span>
           </div>
           <span className="bebas text-[18px] tracking-[0.12em]" style={{ color: 'var(--text-primary)' }}>VITALIS</span>
+        </div>
+        <div className="hidden md:flex items-center gap-8 text-[13px] font-medium text-[var(--text-muted)]">
+          <span>Features</span><span>Pricing</span><span>About</span>
         </div>
         <button
           type="button"
@@ -87,8 +90,9 @@ const Landing = () => {
         </button>
       </header>
 
-      {/* Center splash content */}
-      <main className="relative z-10 flex-1 w-full max-w-[480px] mx-auto px-6 flex flex-col items-center justify-center text-center py-8 sm:py-10">
+      {/* Center splash content — desktop: two-column, mobile: phone frame */}
+      <main className="relative z-10 flex-1 w-full max-w-[480px] md:max-w-[1100px] mx-auto px-6 md:px-8 flex flex-col md:flex-row md:items-center md:justify-between md:gap-16 items-center justify-center text-center md:text-left py-8 sm:py-10">
+        <div className="flex-1 w-full flex flex-col items-center md:items-start text-center md:text-left">
         {/* Logo */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.92 }}
@@ -192,9 +196,9 @@ const Landing = () => {
           initial={prefersReducedMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.62 }}
-          className="mt-8 flex flex-wrap justify-center gap-2 max-w-[340px]"
+          className="mt-8 flex flex-wrap justify-center md:justify-start gap-2 max-w-[340px]"
         >
-          {[
+            {[
             { icon: 'bolt', label: 'Adaptive Coaching' },
             { icon: 'camera', label: 'Vision Meals' },
             { icon: 'analytics', label: 'Biometrics' },
@@ -211,10 +215,17 @@ const Landing = () => {
             </span>
           ))}
         </motion.div>
+        </div>
+        {/* Desktop right visual — hidden on mobile, shows large mark */}
+        <div className="hidden md:flex flex-1 justify-center items-center">
+          <div className="w-[420px] h-[420px] rounded-[32px] bg-[var(--bg-secondary)] border border-[var(--border-light)] flex items-center justify-center shadow-xl">
+            <div className="scale-[1.6]"><LogoMark /></div>
+          </div>
+        </div>
       </main>
 
       {/* Bottom — minimal, safe-area aware */}
-      <footer className="relative z-10 w-full max-w-[480px] mx-auto px-6 pb-6 sm:pb-8 pt-4 flex flex-col items-center gap-3 shrink-0">
+      <footer className="relative z-10 w-full max-w-[480px] md:max-w-[1100px] mx-auto px-6 md:px-8 pb-6 sm:pb-8 pt-4 flex flex-col items-center gap-3 shrink-0">
         <div className="h-px w-full" style={{ background: 'var(--border-light)' }} />
         <p className="text-[10px] font-medium tracking-wide text-center" style={{ color: 'var(--text-muted)' }}>
           © 2026 Vitalis Labs • Privacy • Terms
