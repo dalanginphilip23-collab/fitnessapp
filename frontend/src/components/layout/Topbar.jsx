@@ -382,11 +382,11 @@ const Topbar = ({ sidebarExpanded, userId }) => {
           those map elements to visually poke through the drawer overlay. */}
       <header
         className={
-          'fixed top-0 right-0 h-14 sm:h-15 z-[2001] ' +
+          'fixed top-0 right-0 h-14 sm:h-15 z-[1100] ' +
           'bg-(--bg-secondary)/85 backdrop-blur-xl ' +
           'border-b border-(--border-light) ' +
           'flex items-center justify-between px-3 sm:px-4 md:px-6 ' +
-          'transition-all duration-400 ease-in-out ' +
+          'transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ' +
           'left-0 ' + (sidebarExpanded ? 'md:left-64' : 'md:left-18')
         }
       >
@@ -434,14 +434,14 @@ const Topbar = ({ sidebarExpanded, userId }) => {
 
         {/* ── Right ── */}
         <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3">
-          {/* Search */}
-          <div className="relative hidden sm:flex items-center gap-2 bg-(--bg-hover) border border-(--border-light) rounded-full px-3 sm:px-3.5 py-1.5 focus-within:border-(--accent)/40 focus-within:bg-(--accent-bg) transition-all">
-            <Icon name="search" className="text-(--text-disabled) text-[14px] sm:text-[15px]" />
+          {/* Search — widened for readability, no truncate at 640px */}
+          <div className="relative hidden sm:flex items-center gap-2 bg-(--bg-hover) border border-(--border-light) rounded-full px-3.5 sm:px-4 py-2 focus-within:border-(--accent)/40 focus-within:bg-(--accent-bg) transition-all">
+            <Icon name="search" className="text-(--text-disabled) text-[15px]" />
             <input
               placeholder="Search stats..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-transparent border-none outline-none text-(--text-primary) text-[11px] sm:text-[12px] w-14 sm:w-16 lg:w-36 placeholder-(--text-disabled)"
+              className="bg-transparent border-none outline-none text-(--text-primary) text-[12px] w-20 sm:w-28 lg:w-44 placeholder-(--text-disabled)"
             />
           </div>
 

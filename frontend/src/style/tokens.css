@@ -1,0 +1,106 @@
+/* ── Vitalis Design Tokens — Single Source for z, buttons, spacing ──
+   Import after themes.css; values here layer on top without breaking existing vars. */
+
+:root,
+.dark-theme,
+.light-theme {
+  /* Z-scale — semantic layering (replaces magic z-[2001]/z-[1500]) */
+  --z-header: 1100;
+  --z-drawer-backdrop: 1200;
+  --z-drawer: 1210;
+  --z-overlay: 1300;
+  --z-modal: 1400;
+  --z-toast: 1500;
+
+  /* Button system — unified heights & radii */
+  --btn-height: 44px;
+  --btn-height-sm: 36px;
+  --btn-height-hero: 52px;
+  --btn-radius: 999px;
+  --btn-radius-sm: 12px;
+  --btn-padding-x: 20px;
+  --btn-padding-x-sm: 14px;
+  --btn-font-size: 12.5px;
+  --btn-font-size-sm: 11.5px;
+  --btn-tracking: 0.08em;
+
+  /* Spacing — 8px base */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+}
+
+/* ── Unified button utilities (token-driven, no JS change needed) ── */
+.btn-primary {
+  height: var(--btn-height);
+  padding: 0 var(--btn-padding-x);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  letter-spacing: var(--btn-tracking);
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  cursor: pointer;
+  transition: transform 150ms var(--ease-out), box-shadow 150ms var(--ease-out), background 150ms;
+}
+.btn-primary:hover:not(:disabled) { transform: translateY(-1px); }
+.btn-primary:active:not(:disabled) { transform: scale(0.97); }
+
+.btn-ghost {
+  height: var(--btn-height);
+  padding: 0 var(--btn-padding-x);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  letter-spacing: var(--btn-tracking);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--border-medium);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms, transform 150ms;
+}
+.btn-ghost:hover { background: var(--bg-hover); border-color: var(--border-heavy); }
+.btn-ghost:active { transform: scale(0.97); }
+
+.btn-sm {
+  height: var(--btn-height-sm);
+  padding: 0 var(--btn-padding-x-sm);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size-sm);
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+
+.btn-hero {
+  height: var(--btn-height-hero);
+  padding: 0 24px;
+  border-radius: var(--btn-radius);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+/* ── Readable label utility — replaces scattered text-[11px] tracking-[0.12em] ── */
+.label-readable {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  font-weight: 600;
+}
+.label-readable-sm {
+  font-size: 11px;
+  letter-spacing: 0.10em;
+  line-height: 1.4;
+  font-weight: 700;
+}

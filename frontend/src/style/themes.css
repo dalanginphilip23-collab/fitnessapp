@@ -5,21 +5,21 @@
   --bg-secondary: #181818;
   --bg-tertiary: #1e1e1e;
   --bg-card: #1a1a1a;
-  --bg-hover: rgba(255, 255, 255, 0.05);
-  --bg-active: rgba(139, 195, 74, 0.08);
+  --bg-hover: rgba(255, 255, 255, 0.08);
+  --bg-active: rgba(139, 195, 74, 0.14);
 
   --surface: #181818;
-  --surface-hover: #202020;
+  --surface-hover: #222;
   --surface-active: #282828;
 
   --text-primary: #f0efed;
-  --text-secondary: #b0aeac;
-  --text-muted: #6a6a6a;
-  --text-disabled: #3a3a3a;
+  --text-secondary: #C2C0BE;
+  --text-muted: #8A8A8A;
+  --text-disabled: #5A5A5A;
 
-  --border-light: rgba(255, 255, 255, 0.07);
-  --border-medium: rgba(255, 255, 255, 0.12);
-  --border-heavy: rgba(255, 255, 255, 0.18);
+  --border-light: rgba(255, 255, 255, 0.09);
+  --border-medium: rgba(255, 255, 255, 0.13);
+  --border-heavy: rgba(255, 255, 255, 0.20);
 
   /* ── Fitness-app design tokens ──────────────────────────── */
   /* Card surfaces — warm raised gradient */
@@ -43,17 +43,17 @@
   --bg-secondary: #FFFFFF;
   --bg-tertiary: #FFFFFF;
   --bg-card: #FFFFFF;
-  --bg-hover: #F1EFE7;
-  --bg-active: rgba(98, 170, 26, 0.10);
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-active: rgba(124, 179, 66, 0.12);
 
   --surface: #FFFFFF;
-  --surface-hover: #F5F3EC;
+  --surface-hover: #F8F8F6;
   --surface-active: #EDEAE0;
 
   --text-primary: #1A1A17;
-  --text-secondary: #6E6C63;
-  --text-muted: #9B988D;
-  --text-disabled: #C9C6B9;
+  --text-secondary: #4A4946;
+  --text-muted: #706E65;
+  --text-disabled: #9A9890;
 
   --border-light: rgba(20, 20, 10, 0.07);
   --border-medium: rgba(20, 20, 10, 0.12);

@@ -68,8 +68,8 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
           </div>
         </div>
 
-        {/* Primary nav */}
-        <nav className="flex-1 flex flex-col gap-0.5 px-2">
+        {/* Primary nav — gap 1 for better touch spacing */}
+        <nav className="flex-1 flex flex-col gap-1 px-2">
           {NAV_ITEMS.map((item) => {
             const isActive = location.pathname === item.path;
             const isHovered = hoveredItem === item.label;
@@ -81,7 +81,7 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
                 onMouseLeave={() => setHoveredItem(null)}
                 className={`
                   group flex items-center gap-4 px-3 h-11 rounded-xl whitespace-nowrap overflow-hidden
-                  text-[11px] uppercase tracking-[0.12em] no-underline transition-all duration-200
+                  text-[12px] uppercase tracking-[0.08em] leading-[1.4] no-underline transition-all duration-200
                   ${
                     isActive
                       ? "text-(--accent) bg-(--accent-bg) font-bold shadow-[0_0_12px_var(--accent-bg)]"
@@ -117,7 +117,7 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
         <div className="border-t border-(--border-light) pt-2 px-2">
           <button
             onClick={() => setShowFeedback(true)}
-            className="w-full flex items-center gap-4 px-3 h-10 rounded-xl text-[11px] uppercase tracking-[0.12em] text-(--text-muted) hover:text-(--accent-warm) hover:bg-(--accent-warm-bg) whitespace-nowrap overflow-hidden transition-all duration-200 border-none bg-transparent cursor-pointer font-semibold"
+            className="w-full flex items-center gap-4 px-3 h-10 rounded-xl text-[12px] uppercase tracking-[0.08em] leading-[1.4] text-(--text-muted) hover:text-(--accent-warm) hover:bg-(--accent-warm-bg) whitespace-nowrap overflow-hidden transition-all duration-200 border-none bg-transparent cursor-pointer font-semibold"
           >
             <Icon name="feedback" className="text-[20px] min-w-5 shrink-0" />
             <span
@@ -130,7 +130,7 @@ const Sidebar = ({ onClick, expanded, setExpanded }) => {
           </button>
           <button
             onClick={onClick}
-            className="w-full flex items-center gap-4 px-3 h-10 rounded-xl text-[11px] uppercase tracking-[0.12em] text-(--text-muted) hover:text-(--text-secondary) hover:bg-(--bg-hover) whitespace-nowrap overflow-hidden transition-all duration-200 border-none bg-transparent cursor-pointer font-semibold"
+            className="w-full flex items-center gap-4 px-3 h-10 rounded-xl text-[12px] uppercase tracking-[0.08em] leading-[1.4] text-(--text-muted) hover:text-(--text-secondary) hover:bg-(--bg-hover) whitespace-nowrap overflow-hidden transition-all duration-200 border-none bg-transparent cursor-pointer font-semibold"
           >
             <Icon name="logout" className="text-[20px] min-w-5 shrink-0" />
             <span

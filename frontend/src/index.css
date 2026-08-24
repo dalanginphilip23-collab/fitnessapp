@@ -1,7 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=DSEG7+Classic:wght@400&family=JetBrains+Mono:wght@500;700&display=swap');
 @import "tailwindcss";
 @import "./style/themes.css";
+@import "./style/tokens.css";
 
 /* Theme CSS Variables */
 :root,
@@ -11,10 +12,10 @@
   --bg-secondary: #181818;
   --bg-tertiary: #1e1e1e;
   --bg-card: #1a1a1a;
-  --bg-hover: rgba(255, 255, 255, 0.06);
-  --bg-active: rgba(139, 195, 74, 0.1);
+  --bg-hover: rgba(255, 255, 255, 0.08);
+  --bg-active: rgba(139, 195, 74, 0.14);
   --bg-overlay: rgba(0, 0, 0, 0.8);
-  --bg-warm: rgba(255, 183, 77, 0.06);
+  --bg-warm: rgba(255, 183, 77, 0.07);
   
   /* Surface colors */
   --surface: #181818;
@@ -22,24 +23,24 @@
   --surface-active: #282828;
   --surface-elevated: #222;
   
-  /* Text colors */
+  /* Text colors — improved contrast for readability (4.5:1+) */
   --text-primary: #f0efed;
-  --text-secondary: #b0aeac;
-  --text-muted: #6a6a6a;
-  --text-disabled: #3a3a3a;
+  --text-secondary: #C2C0BE;
+  --text-muted: #8A8A8A;
+  --text-disabled: #5A5A5A;
   --text-inverse: #1a1a1a;
   
-  /* Border colors */
-  --border-light: rgba(255, 255, 255, 0.07);
-  --border-medium: rgba(255, 255, 255, 0.12);
-  --border-heavy: rgba(255, 255, 255, 0.18);
+  /* Border colors — slightly stronger for ghost buttons visibility */
+  --border-light: rgba(255, 255, 255, 0.09);
+  --border-medium: rgba(255, 255, 255, 0.13);
+  --border-heavy: rgba(255, 255, 255, 0.20);
   
   /* Accent colors — vibrant fitness green */
   --accent: #8BC34A;
   --accent-dark: #7CB342;
   --accent-light: #9CCC65;
-  --accent-bg: rgba(139, 195, 74, 0.1);
-  --accent-border: rgba(139, 195, 74, 0.2);
+  --accent-bg: rgba(139, 195, 74, 0.14);
+  --accent-border: rgba(139, 195, 74, 0.26);
   --accent-hover: #9CCC65;
   
   /* Secondary accent — warm amber for energy */
@@ -87,7 +88,7 @@
 
 /* Light theme overrides — warm, energetic, friendly */
 .light-theme {
-  --bg-primary: #f7f7f5;
+  --bg-primary: #F7F5EF;
   --bg-secondary: #ffffff;
   --bg-tertiary: #fafaf8;
   --bg-card: #ffffff;
@@ -101,10 +102,10 @@
   --surface-active: #f0f0ee;
   --surface-elevated: #fafaf8;
   
-  --text-primary: #1a1a1a;
-  --text-secondary: #5a5a5a;
-  --text-muted: #999;
-  --text-disabled: #ccc;
+  --text-primary: #1A1A17;
+  --text-secondary: #4A4946;
+  --text-muted: #706E65;
+  --text-disabled: #9A9890;
   --text-inverse: #ffffff;
   
   --border-light: rgba(0, 0, 0, 0.07);
@@ -114,8 +115,8 @@
   --accent: #7CB342;
   --accent-dark: #689F38;
   --accent-light: #8BC34A;
-  --accent-bg: rgba(124, 179, 66, 0.08);
-  --accent-border: rgba(124, 179, 66, 0.18);
+  --accent-bg: rgba(124, 179, 66, 0.12);
+  --accent-border: rgba(124, 179, 66, 0.22);
   --accent-hover: #8BC34A;
   
   --accent-warm: #FF9800;
@@ -414,6 +415,12 @@ input::placeholder {
 
 .btn-primary {
   box-shadow: var(--shadow-glow);
+  min-height: var(--btn-height);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  letter-spacing: var(--btn-tracking);
+  font-weight: 800;
+  transition: transform 150ms var(--ease-out), box-shadow 150ms var(--ease-out), background 150ms, border-color 150ms;
 }
 
 .btn-primary::after {
@@ -422,16 +429,32 @@ input::placeholder {
   inset: 0;
   background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
   pointer-events: none;
+  border-radius: inherit;
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--accent-hover);
   box-shadow: 0 4px 24px rgba(139, 195, 74, 0.3);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 .btn-primary:active:not(:disabled) { transform: scale(0.97); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Ghost variant — token-driven */
+.btn-ghost {
+  min-height: var(--btn-height);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  letter-spacing: var(--btn-tracking);
+  font-weight: 700;
+  border: 1px solid var(--border-medium);
+  background: transparent;
+  color: var(--text-primary);
+  transition: background 150ms, border-color 150ms, transform 150ms;
+}
+.btn-ghost:hover { background: var(--bg-hover); border-color: var(--border-heavy); }
+.btn-ghost:active { transform: scale(0.97); }
 
 .spinner {
   border: 2px solid rgba(22,31,0,0.3);
@@ -722,12 +745,13 @@ input::placeholder {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 12px;
+  padding: 5px 12px;
   border-radius: 999px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
   background: var(--accent-bg);
   color: var(--accent);
   border: 1px solid var(--accent-border);

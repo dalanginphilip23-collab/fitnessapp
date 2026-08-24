@@ -1,9 +1,12 @@
 /* eslint-disable no-unused-vars */
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion';
+import useCanHover from '../hooks/useCanHover';
 import useLiveStats from '../hooks/useLiveStats';
+import useOnboardingSeen from '../hooks/useOnboardingSeen';
+import GoGreenOnboarding from '../components/GoGreenOnboarding';
 import { formatCompact, HERO_AVATAR_ALPHAS } from '../constants';
 
 // Splash mark — same barbell+heartbeat as SplashScreen, scaled for landing
@@ -31,13 +34,31 @@ const LogoMark = () => (
 const Landing = () => {
   const navigate = useNavigate();
   const prefersReducedMotion = usePrefersReducedMotion();
+  const canHover = useCanHover();
   const liveStats = useLiveStats();
+  const { seen, markSeen } = useOnboardingSeen();
   const userCount = `${formatCompact(liveStats.users)}+`;
 
   const goRegister = useCallback(() => navigate('/register'), [navigate]);
   const goLogin = useCallback(() => navigate('/login'), [navigate]);
+  const handleOnboardComplete = useCallback(() => { markSeen(); navigate('/register'); }, [markSeen, navigate]);
+  const handleOnboardSkip = useCallback(() => { markSeen(); }, [markSeen]);
+
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 768 && !canHover : false);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768 && !window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+    window.addEventListener('resize', onResize);
+    onResize();
+    return () => window.removeEventListener('resize', onResize);
+  }, [canHover]);
+
+  const showOnboarding = isMobile && !seen;
 
   const ease = [0.22, 1, 0.36, 1];
+
+  if (showOnboarding) {
+    return <GoGreenOnboarding onComplete={handleOnboardComplete} onSkip={handleOnboardSkip} onLogin={goLogin} />;
+  }
 
   return (
     <div className="min-h-[100dvh] w-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] overflow-hidden relative selection:bg-[var(--accent)] selection:text-black">
@@ -59,8 +80,8 @@ const Landing = () => {
         <button
           type="button"
           onClick={goLogin}
-          className="text-[11px] font-bold tracking-[0.14em] uppercase px-4 py-2 rounded-full border transition-colors hover:bg-[var(--bg-hover)]"
-          style={{ color: 'var(--text-secondary)', borderColor: 'var(--border-light)', fontFamily: 'Poppins, sans-serif' }}
+          className="text-[12px] font-bold tracking-[0.10em] uppercase px-5 py-2.5 rounded-full border transition-colors hover:bg-[var(--bg-hover)] leading-[1.4]"
+          style={{ color: 'var(--text-secondary)', borderColor: 'var(--border-medium)', fontFamily: 'Poppins, sans-serif' }}
         >
           Sign in
         </button>
@@ -84,10 +105,10 @@ const Landing = () => {
           transition={{ duration: 0.6, delay: 0.12, ease }}
           className="mt-5 flex flex-col items-center gap-1"
         >
-          <span className="text-[11px] font-black tracking-[0.32em] uppercase" style={{ color: 'var(--accent)', fontFamily: 'Poppins, sans-serif' }}>
+          <span className="text-[12px] font-black tracking-[0.20em] uppercase leading-[1.4]" style={{ color: 'var(--accent)', fontFamily: 'Poppins, sans-serif' }}>
             VITALIS
           </span>
-          <span className="text-[10px] font-semibold tracking-[0.18em] uppercase" style={{ color: 'var(--text-muted)' }}>
+          <span className="text-[11px] font-semibold tracking-[0.14em] uppercase leading-[1.4]" style={{ color: 'var(--text-muted)' }}>
             Human Performance OS
           </span>
         </motion.div>
@@ -98,7 +119,7 @@ const Landing = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2, ease }}
           className="mt-8 bebas leading-none"
-          style={{ fontSize: 'clamp(36px, 10vw, 54px)', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}
+          style={{ fontSize: 'clamp(38px, 8.5vw, 56px)', letterSpacing: '-0.02em', color: 'var(--text-primary)', lineHeight: '0.95' }}
         >
           BEYOND
           <br />
@@ -109,7 +130,7 @@ const Landing = () => {
           initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.32, ease }}
-          className="mt-4 text-[13px] leading-relaxed max-w-[320px]"
+          className="mt-4 text-[14px] leading-relaxed max-w-[330px]"
           style={{ color: 'var(--text-secondary)', fontFamily: 'Poppins, sans-serif' }}
         >
           Clinical-grade biometrics, coaching & nutrition — in your pocket.
@@ -133,7 +154,7 @@ const Landing = () => {
               </div>
             ))}
           </div>
-          <span className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
+          <span className="text-[12px] font-medium leading-[1.5]" style={{ color: 'var(--text-muted)' }}>
             Joined by <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{userCount}</span> athletes
           </span>
         </motion.div>
@@ -157,11 +178,11 @@ const Landing = () => {
             type="button"
             onClick={goLogin}
             className="w-full h-[52px] rounded-full font-bold text-[12px] tracking-[0.12em] uppercase border transition-colors hover:bg-[var(--bg-hover)] active:scale-[0.98]"
-            style={{ background: 'transparent', color: 'var(--text-primary)', borderColor: 'var(--border-light)' }}
+            style={{ background: 'transparent', color: 'var(--text-primary)', borderColor: 'var(--border-medium)' }}
           >
             I already have an account
           </button>
-          <p className="text-[10px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+          <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
             No credit card required • Cancel anytime
           </p>
         </motion.div>
@@ -180,7 +201,7 @@ const Landing = () => {
           ].map((f) => (
             <span
               key={f.label}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[10px] font-bold tracking-wide uppercase"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-[11px] font-bold tracking-[0.06em] uppercase leading-[1.4]"
               style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-light)', color: 'var(--text-secondary)' }}
             >
               <span className="material-symbols-outlined text-[14px]" style={{ color: 'var(--accent)' }}>
