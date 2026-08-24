@@ -4,13 +4,13 @@ export default function VoiceToggleButton({ voiceEnabled, onToggle }) {
     <button
       onClick={onToggle}
       title={voiceEnabled ? 'Mute voice' : 'Enable voice'}
-      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border transition-all active:scale-95 touch-manipulation ${
+      className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all active:scale-95 touch-manipulation ${
         voiceEnabled
-          ? 'bg-[var(--bg-hover)] border-[var(--border-medium)] text-[var(--text-primary)]'
-          : 'bg-[var(--bg-tertiary)] border-[var(--border-light)] text-[var(--text-muted)]'
+          ? 'bg-[#EFEFEF] border-black/10 text-black'
+          : 'bg-[#F3F3F3] border-black/5 text-black/40'
       }`}
     >
-      <Icon name={voiceEnabled ? 'volume_up' : 'volume_off'} className="text-base" />
+      <Icon name={voiceEnabled ? 'volume_up' : 'volume_off'} className="text-[16px]" />
     </button>
   );
 }

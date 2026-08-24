@@ -4,13 +4,13 @@ export default function CameraToggleButton({ cameraOn, onToggle }) {
     <button
       onClick={onToggle}
       title={cameraOn ? 'Turn camera off' : 'Turn camera on'}
-      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border transition-all active:scale-95 touch-manipulation ${
+      className={`w-8 h-8 rounded-full flex items-center justify-center border transition-all active:scale-95 touch-manipulation ${
         cameraOn
-          ? 'bg-[var(--bg-hover)] text-[var(--text-primary)] border-[var(--border-medium)] hover:bg-[var(--surface-hover)]'
-          : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)] border-[var(--border-light)]'
+          ? 'bg-[#EFEFEF] border-black/10 text-black'
+          : 'bg-[#F3F3F3] border-black/5 text-black/40'
       }`}
     >
-      <Icon name={cameraOn ? 'videocam' : 'videocam_off'} className="text-base" />
+      <Icon name={cameraOn ? 'videocam' : 'videocam_off'} className="text-[16px]" />
     </button>
   );
 }

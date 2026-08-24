@@ -170,37 +170,21 @@ export default function GoGreenOnboarding({ onComplete, onSkip, onLogin }) {
   }
 
   return (
-    <div className="min-h-[100dvh] w-screen bg-[var(--bg-primary)] flex flex-col items-center justify-center px-4 py-6 relative overflow-hidden selection:bg-[var(--accent)] selection:text-black">
-      {/* subtle mesh like Landing */}
-      <div className="pointer-events-none absolute inset-0 opacity-20">
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 90% 70% at 50% 0%, var(--accent) 0%, transparent 55%)', opacity: 0.06 }} />
-      </div>
-
+    <div className="min-h-[100dvh] w-screen h-[100dvh] bg-[#F7F5EE] flex flex-col relative overflow-hidden selection:bg-[var(--accent)] selection:text-black">
       {/* Top Skip — visible on cards 1-3 */}
-      <div className="relative z-10 w-full max-w-[360px] flex justify-end h-6 shrink-0">
-        {index > 0 && index < total - 1 && (
-          <button
-            type="button"
-            onClick={handleSkip}
-            className="text-[11px] font-bold tracking-[0.10em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-transparent border-none cursor-pointer transition-colors"
-          >
-            Skip
-          </button>
-        )}
-        {index === total - 1 && (
-          <button
-            type="button"
-            onClick={handleSkip}
-            className="text-[11px] font-bold tracking-[0.10em] uppercase text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-transparent border-none cursor-pointer transition-colors"
-          >
-            Skip
-          </button>
-        )}
+      <div className="relative z-10 w-full flex justify-end px-6 pt-6 h-8 shrink-0">
+        <button
+          type="button"
+          onClick={handleSkip}
+          className="text-[11px] font-bold tracking-[0.10em] uppercase text-[#6A6A6A] hover:text-[#1A1A17] bg-transparent border-none cursor-pointer transition-colors"
+        >
+          SKIP
+        </button>
       </div>
 
-      {/* Card */}
+      {/* Fullscreen Card */}
       <div
-        className="relative z-10 w-full max-w-[360px] h-[560px] sm:h-[600px] max-h-[74dvh] rounded-[28px] bg-[var(--bg-secondary)] border border-[var(--border-light)] shadow-xl overflow-hidden flex flex-col"
+        className="relative z-10 flex-1 w-full bg-white rounded-t-[28px] sm:rounded-[28px] mx-0 sm:mx-4 sm:mb-4 shadow-xl overflow-hidden flex flex-col mt-2"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         role="region"
