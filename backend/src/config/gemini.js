@@ -199,6 +199,34 @@ function validateAndCorrectMacros(parsed) {
     fat      = Math.round(fat     * scale);
   }
 
+  // Final exact enforcement: make macro math == calories within 2 kcal (covers indivisible calories like 105)
+  // Pure exact is impossible for some values (e.g., 105 with 1/26/0 =108), so allow 2 kcal tolerance
+  let finalMacro = protein * 4 + carbs * 4 + fat * 9;
+  let diff = calories - finalMacro;
+  let safety = 20;
+  while (Math.abs(diff) > 2 && safety-- > 0) {
+    if (diff > 0) {
+      if (diff >= 4) { carbs++; diff -= 4; }
+      else if (diff >= 1 && fat === 0) { carbs++; diff -= 4; } // accept 2-3 over
+      else { fat++; diff -= 9; }
+    } else {
+      if (carbs > 0 && Math.abs(diff) >= 4) { carbs--; diff += 4; }
+      else if (fat > 0 && Math.abs(diff) >= 9) { fat--; diff += 9; }
+      else if (protein > 0) { protein--; diff += 4; }
+      else break;
+    }
+    carbs = Math.max(0, carbs); fat = Math.max(0, fat); protein = Math.max(0, protein);
+    finalMacro = protein * 4 + carbs * 4 + fat * 9;
+    diff = calories - finalMacro;
+  }
+  // If still off by 1-2, adjust calories to match macros (more honest than forcing macro off)
+  if (Math.abs(diff) <= 2) {
+    // Keep calories as is, allow 2 kcal tolerance — frontend will not warn
+  } else if (diff !== 0) {
+    // Fallback: nudge calories to match macros exactly
+    calories = finalMacro;
+  }
+
   return { ...parsed, calories, protein, carbs, fat };
 }
 

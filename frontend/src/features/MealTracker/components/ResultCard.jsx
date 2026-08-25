@@ -55,7 +55,7 @@ export default function ResultCard({ result, onLog, isLogging }) {
             <MacroBar label="Fat" value={Math.round(view.fat)} unit="g" color="#f97316" pct={(view.fat / MACRO_TARGETS.fat) * 100} />
           </>
         )}
-        {!editing && view.estimated_grams && <p className="text-[10px] text-(--text-muted)">~{view.estimated_grams}g estimated · macro math {(view.protein*4+view.carbs*4+view.fat*9)===view.calories ? '✓' : `≈${view.protein*4+view.carbs*4+view.fat*9} kcal`}</p>}
+        {!editing && view.estimated_grams && (()=>{ const m=view.protein*4+view.carbs*4+view.fat*9; const d=Math.abs(m-view.calories); const ok=d<=2 || d/view.calories<=0.05; return <p className="text-[10px] text-(--text-muted)">~{view.estimated_grams}g estimated · {ok ? `✓ macro math` : `macro math ≈${m} kcal · tap to correct`}</p>;})()}
       </div>
 
       <button

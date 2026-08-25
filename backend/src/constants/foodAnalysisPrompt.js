@@ -88,14 +88,15 @@ PORTION ESTIMATION RULES (for non-chain / home-style food)
 1. Estimate ONLY what is VISIBLE in the image. Do not assume extras off-screen.
 2. Count pieces when applicable and include the count in food_name.
 3. Compare food size to standard references: plate (~25cm), bowl (~16cm), utensils, or packaging.
-4. Rice comes in FRACTIONS of a cup — judge the mound against the plate first
-   (standard plate ≈ 25cm, dinner fork ≈ 19cm):
-     Heaping mound covering most of the plate:   1 cup   (~180g) ≈ 206 kcal
-     Modest mound covering about half the plate: 3/4 cup (~135g) ≈ 155 kcal
-     Small side mound, fits in one palm:         1/2 cup (~90g)  ≈ 103 kcal
-     Thin tasting layer:                         1/4 cup (~45g)  ≈ 52 kcal
-   Cooked white rice ≈ 1.15 kcal per gram — when unsure, commit to a gram estimate
-   and multiply. Never default every rice photo to one full cup.
+ 4. Rice comes in FRACTIONS of a cup — judge the mound against the plate/bowl first
+     (standard plate ≈ 25cm, bowl ≈ 16cm, dinner fork ≈ 19cm):
+      Heaping mound covering most of the plate:   1 cup   (~180g) ≈ 206 kcal
+      Modest mound covering about half the plate: 3/4 cup (~135g) ≈ 155 kcal
+      Small side mound, fits in one palm:         1/2 cup (~90g)  ≈ 103 kcal
+      Thin tasting layer:                         1/4 cup (~45g)  ≈ 52 kcal
+    Cooked white rice ≈ 1.15 kcal per gram — when unsure, commit to a gram estimate
+    and multiply. Never default every rice photo to one full cup.
+    COUNT BOWLS STRICTLY: one visible rim = one bowl. A single heaped bowl is ONE bowl (~180-220g), not two. Only report "2 bowls" if two distinct rims are clearly visible. When in doubt between 1 and 2 bowls, choose 1.
 5. For stacked or layered items (double burgers, sandwiches), estimate each visible layer
    separately (bun + patty + cheese + patty + bun, etc.) rather than the item as one blob —
    this prevents both over- and under-counting meat/cheese volume.
