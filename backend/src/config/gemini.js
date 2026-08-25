@@ -2,6 +2,10 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Groq = require("groq-sdk");
 const FOOD_ANALYSIS_PROMPT = require("../constants/foodAnalysisPrompt");
 
+// Support both legacy string export and new {BASE, CONDENSED} object
+const BASE_PROMPT = FOOD_ANALYSIS_PROMPT.BASE || String(FOOD_ANALYSIS_PROMPT);
+const CONDENSED_PROMPT = FOOD_ANALYSIS_PROMPT.CONDENSED || BASE_PROMPT;
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const groq  = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -247,7 +251,7 @@ async function analyzeWithGroqVision(base64Data, mimeType) {
       {
         role:    "user",
         content: [
-          { type: "text",      text:      FOOD_ANALYSIS_PROMPT.CONDENSED },
+          { type: "text",      text:      CONDENSED_PROMPT },
           { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Data}` } },
         ],
       },
@@ -281,7 +285,7 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
       });
 
       const result = await model.generateContent([
-        FOOD_ANALYSIS_PROMPT,
+        BASE_PROMPT,
         { inlineData: { data: base64Data, mimeType } },
       ]);
 

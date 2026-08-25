@@ -98,6 +98,18 @@ export default defineConfig({
             if (id.includes('react-webcam') || id.includes('@react-oauth/google')) {
               return 'media-vendor';
             }
+            if (id.includes('date-fns')) {
+              return 'date-vendor';
+            }
+            if (id.includes('html-to-image')) {
+              return 'image-vendor';
+            }
+            if (id.includes('material-symbols')) {
+              return 'font-vendor';
+            }
+            if (id.includes('lucide-react')) {
+              return 'icon-vendor';
+            }
           }
         },
       },

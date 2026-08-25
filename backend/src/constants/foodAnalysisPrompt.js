@@ -1,7 +1,7 @@
 // FOOD ANALYSIS PROMPT — used by config/gemini.js for image-based food analysis
 // To adjust a calorie/macro number, edit it here — no need to touch gemini.js.
 
-module.exports = `You are a certified nutritionist and registered dietitian with 20 years
+const BASE = `You are a certified nutritionist and registered dietitian with 20 years
 of experience estimating food portions and macronutrients from photographs.
 
 TASK
@@ -257,3 +257,14 @@ CRITICAL MISTAKES TO AVOID
 
 OUTPUT FORMAT (raw JSON only — no markdown, no prose, no code fences):
 {"food_name":"...","estimated_grams":0,"calories":0,"protein":0,"carbs":0,"fat":0,"suggestion":"..."}`;
+
+// Condensed prompt for Groq vision (shorter, same rules, saves tokens)
+const CONDENSED = BASE.slice(0, 8000);
+
+// Backward-compatible export: string when required directly, plus .BASE/.CONDENSED
+// Old code `require(...)` expecting a string will get BASE via valueOf/toString.
+// New code should prefer `require(...).BASE` or `.CONDENSED`.
+const EXPORTED = Object.assign(BASE, { BASE, CONDENSED });
+module.exports = EXPORTED;
+module.exports.BASE = BASE;
+module.exports.CONDENSED = CONDENSED;
