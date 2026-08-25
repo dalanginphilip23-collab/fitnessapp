@@ -610,6 +610,7 @@ const CameraWorkout = () => {
 
             <SessionHeader
               workoutType={workoutType}
+              label={planQueue[activePlanIdx]?.name}
               isRecording={isRecording}
               cameraOn={cameraOn}
               voiceEnabled={voiceEnabled}

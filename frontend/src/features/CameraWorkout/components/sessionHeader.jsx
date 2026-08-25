@@ -4,7 +4,7 @@ import CameraToggleButton from "./cameraToggleButton";
 import StartStopButton from "./startStopButton";
 import VoiceToggleButton from './voiceToggleButton';
 
-export default function SessionHeader({ workoutType, isRecording, cameraOn, voiceEnabled, onStartStop, onCameraToggle, onVoiceToggle }) {
+export default function SessionHeader({ workoutType, label, isRecording, cameraOn, voiceEnabled, onStartStop, onCameraToggle, onVoiceToggle }) {
   const current = WORKOUT_OPTIONS.find(o => o.id === workoutType);
 
   return (
@@ -16,7 +16,7 @@ export default function SessionHeader({ workoutType, isRecording, cameraOn, voic
         <div className="min-w-0">
           <span className="text-[9px] uppercase font-black tracking-[0.14em] text-black/40 block leading-none">Mode</span>
           <span className="text-[13px] font-black text-black truncate block leading-none mt-0.5">
-            {current?.label ?? workoutType}
+            {label ?? current?.label ?? workoutType}
           </span>
         </div>
         {isRecording && (
