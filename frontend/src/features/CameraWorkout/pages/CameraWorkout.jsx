@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import Webcam from "react-webcam";
 import {
   AnalyticsMobileNav,
@@ -206,6 +206,22 @@ const CameraWorkout = () => {
     }
     return "pushup";
   });
+
+  const planQueue = useMemo(() => {
+    if (!fromPlan?.exercises?.length) return [];
+    return fromPlan.exercises
+      .map(ex => {
+        const slug = ex.slug || getExerciseSlug(ex.name);
+        const meta = slug ? WORKOUT_OPTIONS.find(o=>o.id===slug) : null;
+        return { ...ex, slug, meta };
+      })
+      .filter(x => x.slug && x.meta);
+  }, [fromPlan]);
+
+  const activePlanIdx = useMemo(() => {
+    const idx = planQueue.findIndex(q => q.slug === workoutType);
+    return idx >= 0 ? idx : 0;
+  }, [planQueue, workoutType]);
 
   useEffect(() => {
     if (queryExercise) {
@@ -568,6 +584,26 @@ const CameraWorkout = () => {
                       Goal: {Math.ceil(requiredMins * 0.5)} min
                     </span>
                   )}
+                </div>
+              </div>
+            )}
+            {planQueue.length > 1 && (
+              <div className="bg-[var(--bg-secondary)] border-b border-[var(--border-light)] px-3 sm:px-4 py-2 sm:py-3">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest" style={{color:'var(--text-muted)'}}>Today's Plan · {planQueue.length} exercises</p>
+                  <span className="text-[10px] font-bold" style={{color:'var(--accent)'}}>{activePlanIdx+1}/{planQueue.length}</span>
+                </div>
+                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                  {planQueue.map((item, idx) => {
+                    const active = idx===activePlanIdx;
+                    return (
+                      <button key={idx} type="button" onClick={()=>{setWorkoutType(item.slug); resetReps(); if(isRecording) setIsRecording(false);}} className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-left flex-shrink-0 ${active?'border-[var(--accent)] bg-[var(--accent-bg)]':'border-[var(--border-light)] bg-[var(--bg-hover)]'}`}>
+                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black ${active?'bg-[var(--accent)] text-[#161f00]':'bg-[var(--bg-tertiary)] text-[var(--text-muted)]'}`}>{String(idx+1).padStart(2,'0')}</span>
+                        <Icon name={item.meta?.icon||'fitness_center'} className="text-[14px]" style={{color: active?'var(--accent)':'var(--text-muted)'}} />
+                        <span className="text-xs font-bold whitespace-nowrap" style={{color: active?'var(--text-primary)':'var(--text-muted)'}}>{item.name}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
