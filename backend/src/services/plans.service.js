@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { getExerciseSlug } = require('../utils/exerciseSlug');
 
 async function enroll(userId, planId) {
   return db.execute(
@@ -37,20 +38,34 @@ async function getPlanContent(planId) {
 
   const dayIds = days.map(d => d.id);
   const placeholders = dayIds.map(() => '?').join(',');
-  const [exerciseRows] = await db.execute(
-    `SELECT plan_content_id, exercise_order, exercise_name, sets, reps, duration_seconds, rest_seconds, notes
-     FROM plan_exercises
-     WHERE plan_content_id IN (${placeholders})
-     ORDER BY plan_content_id ASC, exercise_order ASC`,
-    dayIds
-  );
+  let exerciseRows;
+  try {
+    [exerciseRows] = await db.execute(
+      `SELECT plan_content_id, exercise_order, exercise_name, exercise_slug, sets, reps, duration_seconds, rest_seconds, notes
+       FROM plan_exercises
+       WHERE plan_content_id IN (${placeholders})
+       ORDER BY plan_content_id ASC, exercise_order ASC`,
+      dayIds
+    );
+  } catch (e) {
+    // column not yet migrated — fallback to without slug
+    [exerciseRows] = await db.execute(
+      `SELECT plan_content_id, exercise_order, exercise_name, sets, reps, duration_seconds, rest_seconds, notes
+       FROM plan_exercises
+       WHERE plan_content_id IN (${placeholders})
+       ORDER BY plan_content_id ASC, exercise_order ASC`,
+      dayIds
+    );
+  }
 
   const exercisesByDay = {};
   for (const ex of exerciseRows) {
     if (!exercisesByDay[ex.plan_content_id]) exercisesByDay[ex.plan_content_id] = [];
+    const slug = ex.exercise_slug || getExerciseSlug(ex.exercise_name);
     exercisesByDay[ex.plan_content_id].push({
       order: ex.exercise_order,
       name: ex.exercise_name,
+      slug,
       sets: ex.sets,
       reps: ex.reps,
       durationSeconds: ex.duration_seconds,

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Icon from '../../../components/ui/Icon';
 import { REST_ACTIVITY_TYPES } from '../constants';
 import { formatExerciseDetail } from '../utils';
+import { getExerciseSlug, isTrackedExercise, getExerciseMeta } from '../../../constants/exerciseRegistry';
 
 export default function DayTracker({ plan, content, progress, onClose, onCompleteDay }) {
   const navigate = useNavigate();
@@ -75,21 +76,31 @@ export default function DayTracker({ plan, content, progress, onClose, onComplet
     if (nextDay) setTimeout(() => setActiveDay(nextDay.day_number), 400);
   };
 
-  const handleStartWorkout = () => {
+  const handleStartWorkout = (preferredSlug) => {
     if (!activeDayData) return;
-    navigate('/dashboard/workouts', {
-      state: {
-        fromPlan: {
-          planId:       plan.id,
-          planTitle:    plan.title,
-          dayNumber:    activeDayData.day_number,
-          dayTitle:     activeDayData.title,
-          activityType: activeDayData.activity_type,
-          description:  activeDayData.description,
-          durationMins: activeDayData.duration_mins,
-        },
-      },
-    });
+    let slug = preferredSlug || null;
+    if (!slug) {
+      for (const ex of activeDayData.exercises || []) {
+        const s = ex.slug || getExerciseSlug(ex.name);
+        if (s && isTrackedExercise(s)) { slug = s; break; }
+      }
+    }
+    const fromPlan = {
+      planId: plan.id,
+      planTitle: plan.title,
+      dayNumber: activeDayData.day_number,
+      dayTitle: activeDayData.title,
+      activityType: activeDayData.activity_type,
+      description: activeDayData.description,
+      durationMins: activeDayData.duration_mins,
+      exerciseSlug: slug,
+      exercises: activeDayData.exercises,
+    };
+    if (slug) {
+      navigate(`/dashboard/workouts?exercise=${slug}`, { state: { fromPlan } });
+    } else {
+      navigate('/dashboard/workouts', { state: { fromPlan } });
+    }
   };
 
   return (
@@ -302,22 +313,35 @@ export default function DayTracker({ plan, content, progress, onClose, onComplet
 
                 <div className="space-y-2 sm:space-y-3">
                   {activeDayData.exercises && activeDayData.exercises.length > 0 ? (
-                    activeDayData.exercises.map((ex, idx) => (
-                      <div
+                    activeDayData.exercises.map((ex, idx) => {
+                      const slug = ex.slug || getExerciseSlug(ex.name);
+                      const tracked = slug && isTrackedExercise(slug);
+                      const meta = slug ? getExerciseMeta(slug) : null;
+                      return (
+                      <button
                         key={`${activeDayData.day_number}-${idx}`}
-                        className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border"
-                        style={{ background: 'var(--bg-hover)', borderColor: 'var(--border-light)' }}
+                        type="button"
+                        onClick={() => tracked && handleStartWorkout(slug)}
+                        disabled={!tracked}
+                        className={`w-full flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border text-left transition-all ${tracked ? 'cursor-pointer hover:border-[var(--accent-border)] hover:bg-[var(--accent-bg)]' : 'cursor-default opacity-80'}`}
+                        style={{ background: 'var(--bg-hover)', borderColor: tracked ? 'var(--border-light)' : 'var(--border-light)' }}
+                        title={tracked ? `Start ${meta?.label || ex.name} with camera` : 'Mobility / not camera-trackable — Mark Complete'}
                       >
                         <span className="text-[9px] sm:text-[10px] font-black w-5 sm:w-6 flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
                           {String(idx + 1).padStart(2, '0')}
                         </span>
-                        <Icon name="fitness_center" className="text-[14px] sm:text-[16px] flex-shrink-0" style={{ color: 'var(--text-muted)' }} fill={1} />
+                        <Icon name={meta?.icon || 'fitness_center'} className="text-[14px] sm:text-[16px] flex-shrink-0" style={{ color: tracked ? 'var(--accent)' : 'var(--text-muted)' }} fill={1} />
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold truncate" style={{ color: 'var(--text-primary)' }}>{ex.name}</p>
+                          <p className="text-xs font-bold truncate flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                            {ex.name}
+                            {tracked && <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded" style={{ background:'var(--accent)', color:'#161f00' }}>CAM</span>}
+                          </p>
                           <p className="text-[10px] sm:text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>{formatExerciseDetail(ex)}</p>
                         </div>
-                      </div>
-                    ))
+                        {tracked && <Icon name="play_arrow" className="text-[18px] flex-shrink-0" style={{ color:'var(--accent)' }} />}
+                      </button>
+                      );
+                    })
                   ) : (
                     <div
                       className="flex items-start gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border"
@@ -376,7 +400,7 @@ export default function DayTracker({ plan, content, progress, onClose, onComplet
                   </button>
                 ) : (
                   <button
-                    onClick={handleStartWorkout}
+                    onClick={() => handleStartWorkout()}
                     className="flex-1 py-3 sm:py-3.5 rounded-xl font-black text-xs sm:text-sm tracking-wide uppercase transition-all flex items-center justify-center gap-1.5 sm:gap-2 active:scale-[0.98]"
                     style={{ background: 'var(--accent)', color: '#161f00' }}
                   >

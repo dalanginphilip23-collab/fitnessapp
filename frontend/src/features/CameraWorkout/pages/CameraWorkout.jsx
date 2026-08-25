@@ -9,6 +9,7 @@ import {
 } from "../../../components";
 import { useAuth } from "../../../hooks/useAuth";
 import { WORKOUT_OPTIONS } from "../constants/workout";
+import { getExerciseSlug } from "../../../constants/exerciseRegistry";
 import { useRepCounter, speak } from "../hooks/useRepCounter";
 import { useAICoach } from "../hooks/useAiCoach";
 import { usePoseEngine } from "../hooks/usePoseEngine";
@@ -177,7 +178,20 @@ const CameraWorkout = () => {
   const [workoutType, setWorkoutType] = useState(() => {
     const catalogMatch = queryExercise ? WORKOUT_OPTIONS.find((o) => o.id === queryExercise) : null;
     if (catalogMatch) return catalogMatch.id;
+    // Prefer explicit slug from Plans registry
+    if (fromPlan?.exerciseSlug) {
+      const m = WORKOUT_OPTIONS.find(o => o.id === fromPlan.exerciseSlug);
+      if (m) return m.id;
+    }
+    if (fromPlan?.exercises?.length) {
+      for (const ex of fromPlan.exercises) {
+        const slug = ex.slug || getExerciseSlug(ex.name);
+        if (slug && WORKOUT_OPTIONS.find(o => o.id === slug)) return slug;
+      }
+    }
     if (fromPlan?.activityType) {
+      const bySlug = getExerciseSlug(fromPlan.activityType);
+      if (bySlug && WORKOUT_OPTIONS.find(o => o.id === bySlug)) return bySlug;
       const match = WORKOUT_OPTIONS.find(
         (o) =>
           o.label.toLowerCase() === fromPlan.activityType.toLowerCase() ||
