@@ -49,7 +49,6 @@ const ALIAS_MAP_RAW = {
   'flat barbell bench press': 'pushup',
   'barbell bench press': 'pushup',
   'push ups': 'pushup',
-  'push ups': 'pushup',
   'push up': 'pushup',
   'push-ups': 'pushup',
   'push up to renegade row': 'pushup',
@@ -203,8 +202,5 @@ export function isTrackedExercise(nameOrSlug) {
 export function getExerciseMeta(slug) {
   return WORKOUT_OPTIONS_META.find(o => o.id === slug) || null;
 }
-
-// Re-export for components that need full list without circular import
-export const WORKOUT_OPTIONS = WORKOUT_OPTIONS_META;
 
 export const UNTRACKED_LABEL = 'Mobility / Rest';
