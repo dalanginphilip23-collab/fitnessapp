@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "node --test \"tests/*.test.js\"",
-    "start": "node server.js"
+    "start": "node server.js",
+    "migrate": "node scripts/migrate.js",
+    "migrate:004": "node scripts/run-migration-004.js"
   },
   "keywords": [],
   "author": "",
