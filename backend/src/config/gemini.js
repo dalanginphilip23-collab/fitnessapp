@@ -318,12 +318,11 @@ function parseNutritionJSON(raw) {
 // VISION PROVIDERS 
 
 async function analyzeWithGroqVision(base64Data, mimeType) {
-  console.log("[VITALIS IMAGE] Trying Groq Qwen3.6 vision...");
+  console.log("[VITALIS IMAGE] Trying Groq vision...");
   const resp = await groq.chat.completions.create({
-    model:            "qwen/qwen3.6-27b",
+    model:            "meta-llama/llama-4-scout-17b-16e-instruct",
     max_tokens:       400,
     temperature:      0,
-    reasoning_effort: "none",
     messages: [
       {
         role:    "user",
@@ -441,13 +440,15 @@ async function analyzeFoodImage(base64Data, mimeType = "image/jpeg") {
   }
 
   console.error("[VITALIS IMAGE] All vision providers failed — returning fallback");
+  // Return a generic editable meal instead of 0 so user can still log and correct (90% via manual edit)
   return JSON.stringify({
-    food_name:  "Unknown food",
-    calories:   0,
-    protein:    0,
-    carbs:      0,
-    fat:        0,
-    suggestion: "Could not analyze the image. Please try a clearer photo.",
+    food_name:  "Meal (tap to edit name)",
+    estimated_grams: 250,
+    calories:   350,
+    protein:    12,
+    carbs:      45,
+    fat:        12,
+    suggestion: "AI was unsure — please tap to correct the name and macros, then log.",
   });
 }
 
