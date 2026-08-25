@@ -9,7 +9,13 @@ import {
 } from "../../../components";
 import { useAuth } from "../../../hooks/useAuth";
 import { WORKOUT_OPTIONS } from "../constants/workout";
-import { getExerciseSlug, getExerciseMeta } from "../../../constants/exerciseRegistry";
+// local helpers to avoid circular import with exerciseRegistry (was breaking bundle)
+const _alias = {
+  'barbell back squat':'squat','back squat':'squat','bodyweight squats':'squat','flat barbell bench press':'pushup','barbell bench press':'pushup','push ups':'pushup','push up':'pushup','bent over barbell row':'pullup','barbell bent over row':'pullup','plank hold':'plank','weighted plank':'plank','standing overhead press':'overhead','conventional deadlift':'deadlift','weighted dips':'dip','barbell bicep curl':'bicep_curl','walking lunges':'lunge','hip thrust':'hip_thrust','glute bridges':'glute_bridge','box jumps':'boxjump','burpees':'burpee','jumping jacks':'jumpingjack','mountain climbers':'mountainclimb','crunches':'crunch','sit ups':'situp','standing calf raise':'calfraise',
+};
+function _norm(s=''){return String(s).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function getExerciseSlug(n){ if(!n) return null; const k=_norm(n); if(_alias[k]!==undefined) return _alias[k]; const t=WORKOUT_OPTIONS.find(o=>_norm(o.label)===k||_norm(o.id)===k); return t?t.id:null; }
+function getExerciseMeta(slug){ return WORKOUT_OPTIONS.find(o=>o.id===slug)||null; }
 import { useRepCounter, speak } from "../hooks/useRepCounter";
 import { useAICoach } from "../hooks/useAiCoach";
 import { usePoseEngine } from "../hooks/usePoseEngine";
