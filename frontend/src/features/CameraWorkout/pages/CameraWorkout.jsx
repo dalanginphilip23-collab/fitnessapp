@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Webcam from "react-webcam";
 import {
   AnalyticsMobileNav,
@@ -9,13 +9,6 @@ import {
 } from "../../../components";
 import { useAuth } from "../../../hooks/useAuth";
 import { WORKOUT_OPTIONS } from "../constants/workout";
-// local helpers to avoid circular import with exerciseRegistry (was breaking bundle)
-const _alias = {
-  'barbell back squat':'squat','back squat':'squat','bodyweight squats':'squat','flat barbell bench press':'pushup','barbell bench press':'pushup','push ups':'pushup','push up':'pushup','bent over barbell row':'pullup','barbell bent over row':'pullup','plank hold':'plank','weighted plank':'plank','standing overhead press':'overhead','conventional deadlift':'deadlift','weighted dips':'dip','barbell bicep curl':'bicep_curl','walking lunges':'lunge','hip thrust':'hip_thrust','glute bridges':'glute_bridge','box jumps':'boxjump','burpees':'burpee','jumping jacks':'jumpingjack','mountain climbers':'mountainclimb','crunches':'crunch','sit ups':'situp','standing calf raise':'calfraise',
-};
-function _norm(s=''){return String(s).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
-function getExerciseSlug(n){ if(!n) return null; const k=_norm(n); if(_alias[k]!==undefined) return _alias[k]; const t=WORKOUT_OPTIONS.find(o=>_norm(o.label)===k||_norm(o.id)===k); return t?t.id:null; }
-function getExerciseMeta(slug){ return WORKOUT_OPTIONS.find(o=>o.id===slug)||null; }
 import { useRepCounter, speak } from "../hooks/useRepCounter";
 import { useAICoach } from "../hooks/useAiCoach";
 import { usePoseEngine } from "../hooks/usePoseEngine";
@@ -44,6 +37,13 @@ import {
   VoiceToggleButton,
 } from "../components";
 import ExerciseCatalog from "../components/ExerciseCatalog";
+
+// local Plan → camera slug map (no import to avoid circular)
+const _alias = {
+  'barbell back squat':'squat','back squat':'squat','bodyweight squats':'squat','flat barbell bench press':'pushup','barbell bench press':'pushup','push ups':'pushup','push up':'pushup','bent over barbell row':'pullup','barbell bent over row':'pullup','plank hold':'plank','weighted plank':'plank','standing overhead press':'overhead','conventional deadlift':'deadlift','weighted dips':'dip','barbell bicep curl':'bicep_curl','walking lunges':'lunge','hip thrust':'hip_thrust','glute bridges':'glute_bridge','box jumps':'boxjump','burpees':'burpee','jumping jacks':'jumpingjack','mountain climbers':'mountainclimb','crunches':'crunch','sit ups':'situp','standing calf raise':'calfraise',
+};
+function _norm(s=''){return String(s).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');}
+function getExerciseSlug(n){ if(!n) return null; const k=_norm(n); if(_alias[k]!==undefined) return _alias[k]; const t=WORKOUT_OPTIONS.find(o=>_norm(o.label)===k||_norm(o.id)===k); return t?t.id:null; }
 
 // ── Minimum reps required to count a session as complete ─────────────────────
 const MIN_REPS_DEFAULT = 5;
@@ -181,27 +181,9 @@ const CameraWorkout = () => {
   const requiredMins = fromPlan?.durationMins ?? 0;
   const minReps = MIN_REPS_DEFAULT;
 
-  // Plan queue: all trackable exercises for this day, in order
-  const planQueue = useMemo(() => {
-    if (!fromPlan?.exercises?.length) return [];
-    return fromPlan.exercises
-      .map(ex => ({ ...ex, slug: ex.slug || getExerciseSlug(ex.name) }))
-      .filter(x => x.slug && WORKOUT_OPTIONS.find(o => o.id === x.slug))
-      .map(x => ({ ...x, meta: getExerciseMeta(x.slug) }));
-  }, [fromPlan]);
-  const [planIdx, setPlanIdx] = useState(0);
-
-  // Keep planIdx in sync when workoutType changes externally (query or picker)
-  useEffect(() => {
-    if (planQueue.length === 0) return;
-    const idx = planQueue.findIndex(q => q.slug === workoutType);
-    if (idx >= 0) setPlanIdx(idx);
-  }, [workoutType, planQueue]);
-
   const [workoutType, setWorkoutType] = useState(() => {
     const catalogMatch = queryExercise ? WORKOUT_OPTIONS.find((o) => o.id === queryExercise) : null;
     if (catalogMatch) return catalogMatch.id;
-    // Prefer explicit slug from Plans registry
     if (fromPlan?.exerciseSlug) {
       const m = WORKOUT_OPTIONS.find(o => o.id === fromPlan.exerciseSlug);
       if (m) return m.id;
@@ -321,43 +303,6 @@ const CameraWorkout = () => {
 
     const final = repCountRef.current;
     const opt = WORKOUT_OPTIONS.find((o) => o.id === workoutType);
-    // If this is a multi-exercise plan day and not the last exercise, advance to next
-    if (planQueue.length > 1 && planIdx < planQueue.length - 1 && fromPlan) {
-      const next = planQueue[planIdx + 1];
-      setLogs((prev) => [
-        ...prev,
-        {
-          exercise: opt?.label ?? workoutType,
-          reps: final,
-          time: new Date().toLocaleTimeString(),
-        },
-      ]);
-      const msg = `Nice! ${final} reps on ${opt?.label ?? workoutType}. Next: ${next.meta?.label || next.name}.`;
-      setAiFeedback(msg);
-      if (voiceEnabled) speak(msg, 1.0, 1.05);
-      // Advance queue, reset reps, keep elapsed time cumulative, stay on camera page
-      setPlanIdx(planIdx + 1);
-      setWorkoutType(next.slug);
-      resetReps();
-      setIsRecording(false);
-      setBiometrics({ alignment: 0, velocity: 0, symmetry: 0 });
-      // also notify partial progress
-      const resolvedUserId = user?.id ?? user?.userId ?? null;
-      if (resolvedUserId) {
-        fetch(`${API_BASE_URL}/api/notifications`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            user_id: resolvedUserId,
-            message: `Finished ${opt?.label ?? workoutType}: ${final} reps. Next: ${next.meta?.label || next.name}.`,
-            type: "info",
-          }),
-        }).catch(() => {});
-      }
-      return;
-    }
-
     const msg = `Session complete! You did ${final} ${final === 1 ? "rep" : "reps"}. Great work!`;
     setAiFeedback(msg);
     if (voiceEnabled) speak(msg, 1.0, 1.05);
@@ -427,9 +372,6 @@ const CameraWorkout = () => {
     isSessionComplete,
     navigate,
     setAiFeedback,
-    planQueue,
-    planIdx,
-    resetReps,
   ]);
 
   const handleStartStop = async () => {
@@ -549,22 +491,8 @@ const CameraWorkout = () => {
 
   const handleWorkoutChange = (opt) => {
     setWorkoutType(opt.id);
-    const idx = planQueue.findIndex(q => q.slug === opt.id);
-    if (idx >= 0) setPlanIdx(idx);
     resetReps();
     const msg = `Switched to ${opt.label}. ${opt.cue}`;
-    setAiFeedback(msg);
-    if (voiceEnabled) speak(msg, 0.95);
-    if (isRecording) setIsRecording(false);
-  };
-
-  const handlePlanQueueSelect = (idx) => {
-    const item = planQueue[idx];
-    if (!item) return;
-    setPlanIdx(idx);
-    setWorkoutType(item.slug);
-    resetReps();
-    const msg = `Next: ${item.meta?.label || item.name}. ${item.meta?.cue || ''}`;
     setAiFeedback(msg);
     if (voiceEnabled) speak(msg, 0.95);
     if (isRecording) setIsRecording(false);
@@ -641,40 +569,6 @@ const CameraWorkout = () => {
                     </span>
                   )}
                 </div>
-              </div>
-            )}
-            {planQueue.length > 1 && (
-              <div className="bg-[var(--bg-secondary)] border-b border-[var(--border-light)] px-3 sm:px-4 py-3">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
-                    Today's Exercises · {planQueue.length} steps
-                  </p>
-                  <span className="text-[10px] font-bold" style={{ color: 'var(--accent)' }}>{planIdx + 1} / {planQueue.length}</span>
-                </div>
-                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                  {planQueue.map((item, idx) => {
-                    const active = idx === planIdx;
-                    const done = idx < planIdx;
-                    return (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => handlePlanQueueSelect(idx)}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-left flex-shrink-0 transition-all ${active ? 'border-[var(--accent)] bg-[var(--accent-bg)]' : done ? 'border-[var(--success)] bg-[var(--success-bg)] opacity-80' : 'border-[var(--border-light)] bg-[var(--bg-hover)] hover:border-[var(--border-medium)]'}`}
-                      >
-                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0 ${active ? 'bg-[var(--accent)] text-[#161f00]' : done ? 'bg-[var(--success)] text-white' : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)]'}`}>
-                          {done ? <Icon name="check" className="text-[14px]" /> : String(idx + 1).padStart(2, '0')}
-                        </span>
-                        <Icon name={item.meta?.icon || 'fitness_center'} className="text-[16px] flex-shrink-0" style={{ color: active ? 'var(--accent)' : 'var(--text-muted)' }} />
-                        <span className="text-xs font-bold whitespace-nowrap" style={{ color: active ? 'var(--text-primary)' : 'var(--text-muted)' }}>{item.name}</span>
-                        {active && <Icon name="play_arrow" className="text-[14px]" style={{ color: 'var(--accent)' }} />}
-                      </button>
-                    );
-                  })}
-                </div>
-                <p className="text-[10px] mt-2" style={{ color: 'var(--text-muted)' }}>
-                  Tap to switch exercise. Finish reps on each, then continue until day completes.
-                </p>
               </div>
             )}
 
