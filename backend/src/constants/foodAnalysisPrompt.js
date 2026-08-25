@@ -258,8 +258,9 @@ CRITICAL MISTAKES TO AVOID
 OUTPUT FORMAT (raw JSON only — no markdown, no prose, no code fences):
 {"food_name":"...","estimated_grams":0,"calories":0,"protein":0,"carbs":0,"fat":0,"suggestion":"..."}`;
 
-// Condensed prompt for Groq vision (shorter, same rules, saves tokens)
-const CONDENSED = BASE.slice(0, 8000);
+// Condensed prompt for Groq vision — keep all anchors for accuracy, just trim verbose intro
+// 8000 truncated Filipino anchors and output format, hurting Groq accuracy → use 14000 to keep full calibration
+const CONDENSED = BASE.length > 14000 ? BASE.slice(0, 14000) : BASE;
 
 // Backward-compatible export: string when required directly, plus .BASE/.CONDENSED
 // Old code `require(...)` expecting a string will get BASE via valueOf/toString.

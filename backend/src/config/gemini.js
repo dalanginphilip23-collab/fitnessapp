@@ -1,6 +1,7 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Groq = require("groq-sdk");
 const FOOD_ANALYSIS_PROMPT = require("../constants/foodAnalysisPrompt");
+const { findDensityBand, findAnchor, normalize } = require("../constants/nutritionAnchors");
 
 // Support both legacy string export and new {BASE, CONDENSED} object
 const BASE_PROMPT = FOOD_ANALYSIS_PROMPT.BASE || String(FOOD_ANALYSIS_PROMPT);
@@ -201,6 +202,53 @@ function validateAndCorrectMacros(parsed) {
   return { ...parsed, calories, protein, carbs, fat };
 }
 
+// ─── DENSITY & ANCHOR REFINEMENT (for 90% accuracy) ───────────────────────
+function enforceDensityAndAnchor(parsed) {
+  let { calories, protein, carbs, fat, food_name = '', estimated_grams } = parsed;
+  const grams = Math.max(10, Math.round(Number(estimated_grams) || 0));
+  if (!grams || grams < 10) return parsed; // can't validate without grams
+
+  const density = (calories / grams) * 100; // kcal per 100g
+  const band = findDensityBand(food_name);
+  if (band) {
+    if (density < band.min || density > band.max) {
+      const mid = (band.min + band.max) / 2;
+      const expectedCal = Math.round((mid * grams) / 100);
+      const drift = Math.abs(density - mid) / mid;
+      if (drift > 0.15) { // >15% off -> correct
+        console.warn(`[VITALIS IMAGE] Density out of band for "${food_name}": ${density.toFixed(1)} vs ${band.min}-${band.max} (mid ${mid}) — correcting ${calories} → ${expectedCal}`);
+        const scale = expectedCal / Math.max(1, calories);
+        calories = expectedCal;
+        protein = Math.round(protein * scale);
+        carbs = Math.round(carbs * scale);
+        fat = Math.round(fat * scale);
+      }
+    }
+  }
+
+  // Anchor snap: if dish matches known anchor, scale anchor to visible grams
+  const anchor = findAnchor(food_name);
+  if (anchor && grams) {
+    const scale = grams / anchor.grams;
+    const anchorCal = Math.round(anchor.calories * scale);
+    const anchorP = Math.round(anchor.protein * scale);
+    const anchorC = Math.round(anchor.carbs * scale);
+    const anchorF = Math.round(anchor.fat * scale);
+    const calDrift = Math.abs(calories - anchorCal) / Math.max(1, anchorCal);
+    // If model is >20% off anchor-scaled value, snap to anchor (chain items are manufactured)
+    if (calDrift > 0.20) {
+      console.warn(`[VITALIS IMAGE] Anchor snap for "${food_name}" → ${anchor.key}: ${calories}→${anchorCal} (drift ${(calDrift*100).toFixed(1)}%)`);
+      // Blend 70% anchor, 30% model to keep portion nuance but anchor truth
+      calories = Math.round(anchorCal * 0.7 + calories * 0.3);
+      protein = Math.round(anchorP * 0.7 + protein * 0.3);
+      carbs = Math.round(anchorC * 0.7 + carbs * 0.3);
+      fat = Math.round(anchorF * 0.7 + fat * 0.3);
+    }
+  }
+
+  return { ...parsed, calories, protein, carbs, fat, estimated_grams: grams };
+}
+
 // JSON PARSER 
 
 function parseNutritionJSON(raw) {
@@ -353,11 +401,12 @@ async function analyzeFoodImage(base64Data, mimeType = "image/jpeg") {
       }
 
       const corrected = validateAndCorrectMacros(parsed);
+      const refined = enforceDensityAndAnchor(corrected);
       console.log(
         `[VITALIS IMAGE] ✅ Final result in ${Date.now() - startedAt}ms total:`,
-        JSON.stringify(corrected)
+        JSON.stringify(refined)
       );
-      return JSON.stringify(corrected);
+      return JSON.stringify(refined);
     } catch (err) {
       console.error("[VITALIS IMAGE] ❌ Provider failed:", err.message);
     }
@@ -439,4 +488,5 @@ module.exports = {
   analyzeFoodImage,
   suggestPlanForMeal,
   validateAndCorrectMacros,
+  enforceDensityAndAnchor,
 };
