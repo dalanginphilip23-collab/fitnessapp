@@ -1,10 +1,35 @@
 // Unified exercise registry — single source of truth for Plans ↔ Camera Workout
 // Maps DB free-text names (70 variants) to camera-trackable slugs (22).
 // Untracked/mobility items return null.
+// NOTE: Does NOT import WORKOUT_OPTIONS to avoid circular dep with CameraWorkout.
+// Keep WORKOUT_OPTIONS_SLUG list in sync with frontend/src/features/CameraWorkout/constants/workout.js
 
-import { WORKOUT_OPTIONS } from '../features/CameraWorkout/constants/workout';
+const WORKOUT_OPTIONS_META = [
+  { id: 'pushup',        label: 'Push-Ups',        icon: 'fitness_center' },
+  { id: 'squat',         label: 'Squats',          icon: 'accessibility_new' },
+  { id: 'plank',         label: 'Plank',           icon: 'horizontal_rule' },
+  { id: 'lunge',         label: 'Lunges',          icon: 'directions_walk' },
+  { id: 'overhead',      label: 'OH Press',        icon: 'upload' },
+  { id: 'dip',           label: 'Dips',            icon: 'unfold_more' },
+  { id: 'burpee',        label: 'Burpees',         icon: 'bolt' },
+  { id: 'jumpingjack',   label: 'Jumping Jacks',   icon: 'sports_gymnastics' },
+  { id: 'mountainclimb', label: 'Mountain Climbers', icon: 'terrain' },
+  { id: 'highknee',      label: 'High Knees',      icon: 'directions_run' },
+  { id: 'glute_bridge',  label: 'Glute Bridge',    icon: 'airline_seat_flat' },
+  { id: 'crunch',        label: 'Crunches',        icon: 'airline_seat_recline_normal' },
+  { id: 'situp',         label: 'Sit-Ups',         icon: 'self_improvement' },
+  { id: 'bicep_curl',    label: 'Bicep Curls',     icon: 'sports_mma' },
+  { id: 'tricep_ext',    label: 'Tricep Ext.',     icon: 'back_hand' },
+  { id: 'lateral_raise', label: 'Lateral Raise',   icon: 'open_with' },
+  { id: 'deadlift',      label: 'Deadlift',        icon: 'arrow_downward' },
+  { id: 'hip_thrust',    label: 'Hip Thrust',      icon: 'chair' },
+  { id: 'sideplank',     label: 'Side Plank',      icon: 'rotate_90_degrees_cw' },
+  { id: 'boxjump',       label: 'Box Jumps',       icon: 'upload_file' },
+  { id: 'pullup',        label: 'Pull-Ups',        icon: 'keyboard_arrow_up' },
+  { id: 'calfraise',     label: 'Calf Raises',     icon: 'footprint' },
+];
 
-export const TRACKED_SLUGS = new Set(WORKOUT_OPTIONS.map(o => o.id));
+export const TRACKED_SLUGS = new Set(WORKOUT_OPTIONS_META.map(o => o.id));
 
 // Normalized alias → slug (null = not trackable by camera)
 const ALIAS_MAP_RAW = {
@@ -162,9 +187,9 @@ export function getExerciseSlug(name) {
   if (!name) return null;
   const slug = ALIAS_MAP.get(normalize(name));
   if (slug !== undefined) return slug; // may be null (explicit untracked)
-  // fallback: try to match WORKOUT_OPTIONS label or id directly
+  // fallback: try to match label or id directly
   const n = normalize(name);
-  for (const opt of WORKOUT_OPTIONS) {
+  for (const opt of WORKOUT_OPTIONS_META) {
     if (normalize(opt.label) === n || normalize(opt.id) === n) return opt.id;
   }
   return null;
@@ -176,7 +201,10 @@ export function isTrackedExercise(nameOrSlug) {
 }
 
 export function getExerciseMeta(slug) {
-  return WORKOUT_OPTIONS.find(o => o.id === slug) || null;
+  return WORKOUT_OPTIONS_META.find(o => o.id === slug) || null;
 }
+
+// Re-export for components that need full list without circular import
+export const WORKOUT_OPTIONS = WORKOUT_OPTIONS_META;
 
 export const UNTRACKED_LABEL = 'Mobility / Rest';
