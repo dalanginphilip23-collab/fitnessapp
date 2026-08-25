@@ -4,8 +4,11 @@
 --   camera-trackable slugs (22 in WORKOUT_OPTIONS) matching frontend/src/constants/exerciseRegistry.js
 --   and backend/src/utils/exerciseSlug.js. Null = mobility/rest (not trackable).
 
+-- Run each statement SEPARATELY in Railway (it only allows 1 statement per query)
+-- If "Duplicate column name" or "Duplicate key name" -> already applied, skip.
 ALTER TABLE `plan_exercises` ADD COLUMN `exercise_slug` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER `exercise_name`;
-CREATE INDEX `idx_exercise_slug` ON `plan_exercises` (`exercise_slug`);
+-- Next query (run separately):
+-- ALTER TABLE `plan_exercises` ADD INDEX `idx_exercise_slug` (`exercise_slug`);
 
 -- Backfill — tracked slugs
 UPDATE `plan_exercises` SET `exercise_slug`='squat' WHERE exercise_name IN ('Barbell Back Squat','Back Squat','Bodyweight Squats','Goblet Squats','Jump Squats','Front Squat','Bulgarian Split Squat','Leg Press');
