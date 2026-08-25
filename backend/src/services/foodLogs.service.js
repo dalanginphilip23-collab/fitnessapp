@@ -4,42 +4,44 @@ const { analyzeFoodImage, suggestPlanForMeal } = require('../config/gemini');
 const { sendMealSummaryEmail } = require('../services/mail');
 const clients = require('./sseClients');
 
-// IMAGE ANALYSIS CACHE
+// IMAGE ANALYSIS CACHE — full hash + mime, LRU O(1), TTL 15m
 const analysisCache = new Map();
 const CACHE_TTL_MS = 15 * 60 * 1000;
+const CACHE_MAX = 200;
 
-function imageHash(base64Image) {
+function imageHash(base64Image, mimeType = 'image/jpeg') {
   return crypto
     .createHash('sha256')
-    .update(base64Image.slice(0, 2000))
+    .update(`${mimeType}:${base64Image}`)
     .digest('hex');
 }
 
-function getCached(base64Image) {
-  const key = imageHash(base64Image);
+function getCached(base64Image, mimeType) {
+  const key = imageHash(base64Image, mimeType);
   const entry = analysisCache.get(key);
   if (!entry) return null;
   if (Date.now() - entry.ts > CACHE_TTL_MS) {
     analysisCache.delete(key);
     return null;
   }
+  // LRU: move to end on hit
+  analysisCache.delete(key);
+  analysisCache.set(key, entry);
   return entry.result;
 }
 
-function setCache(base64Image, result) {
-  if (analysisCache.size >= 200) {
-    let oldestKey = null;
-    let oldestTs = Infinity;
-    for (const [k, v] of analysisCache) {
-      if (v.ts < oldestTs) { oldestTs = v.ts; oldestKey = k; }
-    }
+function setCache(base64Image, result, mimeType) {
+  const key = imageHash(base64Image, mimeType);
+  if (analysisCache.has(key)) analysisCache.delete(key);
+  if (analysisCache.size >= CACHE_MAX) {
+    const oldestKey = analysisCache.keys().next().value;
     if (oldestKey) analysisCache.delete(oldestKey);
   }
-  analysisCache.set(imageHash(base64Image), { result, ts: Date.now() });
+  analysisCache.set(key, { result, ts: Date.now() });
 }
 
-async function runFoodImageAnalysis(base64Image) {
-  return analyzeFoodImage(base64Image);
+async function runFoodImageAnalysis(base64Image, mimeType) {
+  return analyzeFoodImage(base64Image, mimeType);
 }
 
 async function getPlansForUser(userId) {

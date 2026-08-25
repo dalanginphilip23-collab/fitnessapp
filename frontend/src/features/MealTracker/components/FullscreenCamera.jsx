@@ -63,12 +63,15 @@ export default function FullscreenCamera({ onCapture, onClose }) {
     const video = videoRef.current;
     if (!video) return;
     const canvas = document.createElement("canvas");
-    canvas.width  = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext("2d").drawImage(video, 0, 0);
+    // Scale capture to 600px max before toDataURL to cut ~70% bytes before second compress
+    const MAX_W = 600;
+    const scale = video.videoWidth > MAX_W ? MAX_W / video.videoWidth : 1;
+    canvas.width  = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
+    canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
     setFlash(true);
     setTimeout(() => setFlash(false), 150);
-    setCaptured(canvas.toDataURL("image/jpeg", 0.92));
+    setCaptured(canvas.toDataURL("image/jpeg", 0.75));
     stopStream();
   };
 

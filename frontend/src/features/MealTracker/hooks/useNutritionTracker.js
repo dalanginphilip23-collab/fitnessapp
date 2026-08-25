@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   analyzeFoodImage,
   saveFoodLog,
@@ -16,10 +16,18 @@ export function useNutritionTracker(USER_ID) {
   const [summarySeed,     setSummarySeed]     = useState(0);
   // ↓ NEW: the most recently saved meal (works for both AI-analyzed and manual logs)
   const [lastLoggedMeal,  setLastLoggedMeal]  = useState(null);
+  const toastTimerRef = useRef(null);
+  const analyzeAbortRef = useRef(null);
 
   const showToast = useCallback((msg) => {
     setToast(msg);
-    setTimeout(() => setToast(null), 2500);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToast(null), 2500);
+  }, []);
+
+  useEffect(() => () => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    if (analyzeAbortRef.current) analyzeAbortRef.current.abort();
   }, []);
 
   const loadHistory = useCallback(async () => {
@@ -38,11 +46,15 @@ export function useNutritionTracker(USER_ID) {
   useEffect(() => { loadHistory(); }, [loadHistory]);
 
   const handleAnalyze = async (dataUrl) => {
+    if (analyzeAbortRef.current) analyzeAbortRef.current.abort();
+    const controller = new AbortController();
+    analyzeAbortRef.current = controller;
     setIsAnalyzing(true);
     setResult(null);
     try {
-      setResult(await analyzeFoodImage(dataUrl));
+      setResult(await analyzeFoodImage(dataUrl, { signal: controller.signal }));
     } catch (err) {
+      if (err.name === 'AbortError') return;
       showToast("❌ " + err.message);
     } finally {
       setIsAnalyzing(false);

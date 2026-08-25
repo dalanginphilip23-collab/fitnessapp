@@ -12,10 +12,10 @@ const groq  = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // SECTION 1 — TEXT-ONLY FALLBACK CHAIN
 
-async function callGeminiWithFallback(prompt) {
+async function callGeminiWithFallback(prompt, opts = {}) {
   const models = [
-    "gemini-3.5-flash-lite",
-    "gemini-3.7-flash",
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-8b",
   ];
 
   for (const modelName of models) {
@@ -25,18 +25,19 @@ async function callGeminiWithFallback(prompt) {
         model: modelName,
         generationConfig: {
           maxOutputTokens: 1000,
-          thinkingConfig: { thinkingLevel: "low" },
+          temperature: 0.3,
         },
       });
-      const result = await model.generateContent(prompt);
-      const text   = result.response.text();
+      const run = () => model.generateContent(prompt).then(r => r.response.text());
+      const text = opts.signal ? await withTimeout(run, 10000, `text-${modelName}`) : await run();
       if (text) {
         console.log(`[VITALIS AI] ✅ Success with ${modelName}`);
         return text;
       }
     } catch (err) {
-      console.error(`[VITALIS AI] ❌ ${modelName} failed:`, err.message);
-      await new Promise(r => setTimeout(r, 1000));
+      if (String(err.message).includes('timed out')) console.error(`[VITALIS AI] ⏱ ${err.message}`);
+      else console.error(`[VITALIS AI] ❌ ${modelName} failed:`, err.message);
+      await new Promise(r => setTimeout(r, 500));
     }
   }
 
@@ -265,9 +266,8 @@ async function analyzeWithGroqVision(base64Data, mimeType) {
 }
 
 const GEMINI_VISION_MODELS = [
-  "gemini-3.7-flash",
-  "gemini-3.6-flash",
-  "gemini-3.5-flash-lite",
+  "gemini-1.5-flash",
+  "gemini-2.0-flash",
 ];
 
 async function analyzeWithGeminiVision(base64Data, mimeType) {
@@ -280,7 +280,6 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
         generationConfig: {
           temperature: 0,
           maxOutputTokens: 500,
-          thinkingConfig: { thinkingLevel: "low" },
         },
       });
 
@@ -310,8 +309,9 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
   throw lastErr;
 }
 
-// ─── TIMEOUT GUARD 
-const PROVIDER_TIMEOUT_MS = 25000;
+// ─── TIMEOUT GUARD — tightened from 25s to 12s for UX
+const PROVIDER_TIMEOUT_MS = 12000;
+const TEXT_TIMEOUT_MS = 10000;
 
 function withTimeout(promiseFactory, ms, label) {
   let timer;
@@ -321,7 +321,9 @@ function withTimeout(promiseFactory, ms, label) {
       ms
     );
   });
-  return Promise.race([promiseFactory(), timeout]).finally(
+  // support factory that uses AbortSignal
+  const p = typeof promiseFactory === 'function' ? promiseFactory() : promiseFactory;
+  return Promise.race([p, timeout]).finally(
     () => clearTimeout(timer)
   );
 }

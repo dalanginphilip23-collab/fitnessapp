@@ -2,10 +2,11 @@ const foodLogsService = require('../services/foodLogs.service');
 
 // POST /api/food-logs/analyze-pic
 async function analyzePic(req, res) {
-  const { base64Image } = req.body;
+  const { base64Image, mimeType } = req.body;
   if (!base64Image) return res.status(400).json({ error: 'No image provided' });
+  const mime = (mimeType && String(mimeType).startsWith('image/')) ? mimeType : 'image/jpeg';
 
-  const cached = foodLogsService.getCached(base64Image);
+  const cached = foodLogsService.getCached(base64Image, mime);
   if (cached) {
     console.log('[analyze-pic] ✅ Cache hit — returning stored result');
     return res.json(cached);
@@ -13,7 +14,7 @@ async function analyzePic(req, res) {
 
   try {
     // analyzeFoodImage now returns a JSON string
-    const raw = await foodLogsService.runFoodImageAnalysis(base64Image);
+    const raw = await foodLogsService.runFoodImageAnalysis(base64Image, mime);
 
     let parsed;
     try {
@@ -30,7 +31,7 @@ async function analyzePic(req, res) {
     parsed.carbs = Math.max(0, Math.round(Number(parsed.carbs) || 0));
     parsed.fat = Math.max(0, Math.round(Number(parsed.fat) || 0));
 
-    foodLogsService.setCache(base64Image, parsed);
+    foodLogsService.setCache(base64Image, parsed, mime);
 
     res.json(parsed);
   } catch (err) {

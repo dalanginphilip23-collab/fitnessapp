@@ -19,12 +19,15 @@ export default function UploadSection({ onAnalyze, isAnalyzing }) {
 
   const handleFile = (file) => {
     if (!file || !file.type.startsWith("image/")) return;
-    const reader = new FileReader();
-    reader.onload = (e) => setPreview(e.target.result);
-    reader.readAsDataURL(file);
+    // Use object URL for instant preview without base64 decode cost
+    // Revoke previous if it was a blob URL
+    if (preview && preview.startsWith('blob:')) URL.revokeObjectURL(preview);
+    const url = URL.createObjectURL(file);
+    setPreview(url);
   };
 
   const handleClear = () => {
+    if (preview && preview.startsWith('blob:')) URL.revokeObjectURL(preview);
     setPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (tab === "camera") setIsCameraOpen(true);
