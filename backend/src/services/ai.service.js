@@ -1,9 +1,12 @@
 const db = require('../config/db');
-const { genAI, callGeminiWithFallback, withTimeout, TEXT_TIMEOUT_MS } = require('../config/gemini');
+const { callGeminiWithFallback, withTimeout, TEXT_TIMEOUT_MS } = require('../config/gemini');
+let genAI_new = null;
+try { const { GoogleGenAI } = require("@google/genai"); genAI_new = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }); } catch {}
+let genAI_legacy = null;
+try { const { GoogleGenerativeAI } = require("@google/generative-ai"); genAI_legacy = new GoogleGenerativeAI(process.env.GEMINI_API_KEY); } catch {}
 
 // ─── POSE ANALYSIS ───
 async function analyzePoseImage(image, metadata) {
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
   const prompt = `
             Context: The user is exercising. 
             Skeletal Data: ${metadata}
@@ -11,11 +14,32 @@ async function analyzePoseImage(image, metadata) {
             If the form is perfect, say something encouraging. 
             Be very concise.
         `.trim();
-  const imageParts = [{ inlineData: { data: image.split(',')[1], mimeType: "image/jpeg" } }];
+  const imageB64 = image.split(',')[1];
+  // Try new SDK first (v1, gemini-2.5-flash)
+  if (genAI_new) {
+    try {
+      const res = await withTimeout(
+        () => genAI_new.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: [{ role: "user", parts: [{ text: prompt }, { inlineData: { data: imageB64, mimeType: "image/jpeg" } }] }],
+          config: { maxOutputTokens: 300, temperature: 0.3 },
+        }),
+        TEXT_TIMEOUT_MS,
+        "analyzePose-new",
+      );
+      const txt = res.text || res.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      if (txt) return txt;
+    } catch (e) {
+      console.warn("[pose] new SDK failed:", e.message);
+    }
+  }
+  if (!genAI_legacy) throw new Error("No Gemini SDK available");
+  const model = genAI_legacy.getGenerativeModel({ model: "gemini-1.5-flash-002" });
+  const imageParts = [{ inlineData: { data: imageB64, mimeType: "image/jpeg" } }];
   const result = await withTimeout(
     () => model.generateContent([prompt, ...imageParts]),
     TEXT_TIMEOUT_MS,
-    "analyzePose",
+    "analyzePose-legacy",
   );
   return result.response.text();
 }

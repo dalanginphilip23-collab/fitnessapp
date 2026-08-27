@@ -1,4 +1,3 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Groq = require("groq-sdk");
 const FOOD_ANALYSIS_PROMPT = require("../constants/foodAnalysisPrompt");
 const { findDensityBand, findAnchor, normalize } = require("../constants/nutritionAnchors");
@@ -7,31 +6,76 @@ const { findDensityBand, findAnchor, normalize } = require("../constants/nutriti
 const BASE_PROMPT = FOOD_ANALYSIS_PROMPT.BASE || String(FOOD_ANALYSIS_PROMPT);
 const CONDENSED_PROMPT = FOOD_ANALYSIS_PROMPT.CONDENSED || BASE_PROMPT;
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Dual SDK: new @google/genai (v1 + gemini-2.5/3.x) with fallback to legacy @google/generative-ai (v1beta)
+// New SDK is required since Google sunset v1beta model IDs (gemini-1.5/2.0 on v1beta now 404)
+let genAI_new = null;
+let genAI_legacy = null;
+try {
+  const { GoogleGenAI } = require("@google/genai");
+  genAI_new = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+} catch (e) {
+  console.warn("[VITALIS AI] @google/genai not available, will use legacy SDK only:", e.message);
+}
+try {
+  const { GoogleGenerativeAI } = require("@google/generative-ai");
+  genAI_legacy = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+} catch (e) {
+  console.warn("[VITALIS AI] legacy @google/generative-ai not available:", e.message);
+}
 const groq  = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 
 // SECTION 1 — TEXT-ONLY FALLBACK CHAIN
 
+async function callViaNewSDK(prompt) {
+  // New @google/genai Interactions API - model IDs like gemini-2.5-flash, gemini-3-flash-preview
+  if (!genAI_new) throw new Error("New SDK not initialized");
+  const res = await genAI_new.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+    config: { maxOutputTokens: 1000, temperature: 0.3 },
+  });
+  return res.text || res.candidates?.[0]?.content?.parts?.[0]?.text || "";
+}
+
+async function callViaLegacy(prompt, modelName) {
+  if (!genAI_legacy) throw new Error("Legacy SDK not initialized");
+  const model = genAI_legacy.getGenerativeModel({
+    model: modelName,
+    generationConfig: { maxOutputTokens: 1000, temperature: 0.3 },
+  });
+  const run = () => model.generateContent(prompt).then(r => r.response.text());
+  return withTimeout(run, TEXT_TIMEOUT_MS, `text-${modelName}`);
+}
+
 async function callGeminiWithFallback(prompt, opts = {}) {
-  const models = [
+  // Try new SDK first (v1, gemini-2.5/3.x), then legacy pinned models
+  const legacyModels = [
     "gemini-2.0-flash",
     "gemini-2.0-flash-lite",
-    "gemini-2.5-flash",
+    "gemini-1.5-flash-002",
   ];
 
-  for (const modelName of models) {
+  // 1. New SDK (gemini-2.5-flash on v1)
+  if (genAI_new) {
+    try {
+      console.log("[VITALIS AI] Trying gemini-2.5-flash (new SDK)...");
+      const text = await withTimeout(() => callViaNewSDK(prompt), TEXT_TIMEOUT_MS, "text-gemini-2.5-flash-new");
+      if (text) {
+        console.log("[VITALIS AI] ✅ Success with gemini-2.5-flash (new SDK)");
+        return text;
+      }
+    } catch (err) {
+      if (String(err.message).includes('timed out')) console.error(`[VITALIS AI] ⏱ ${err.message}`);
+      else console.error("[VITALIS AI] ❌ gemini-2.5-flash (new SDK) failed:", err.message);
+      await new Promise(r => setTimeout(r, 500));
+    }
+  }
+
+  for (const modelName of legacyModels) {
     try {
       console.log(`[VITALIS AI] Trying ${modelName}...`);
-      const model  = genAI.getGenerativeModel({
-        model: modelName,
-        generationConfig: {
-          maxOutputTokens: 1000,
-          temperature: 0.3,
-        },
-      });
-      const run = () => model.generateContent(prompt).then(r => r.response.text());
-      const text = await withTimeout(run, TEXT_TIMEOUT_MS, `text-${modelName}`);
+      const text = await callViaLegacy(prompt, modelName);
       if (text) {
         console.log(`[VITALIS AI] ✅ Success with ${modelName}`);
         return text;
@@ -361,14 +405,46 @@ async function analyzeWithGroqVision(base64Data, mimeType) {
 const GEMINI_VISION_MODELS = [
   "gemini-2.0-flash",
   "gemini-2.5-flash",
+  "gemini-1.5-flash-002",
 ];
 
+async function analyzeWithGeminiVisionNew(base64Data, mimeType) {
+  if (!genAI_new) throw new Error("New SDK not initialized");
+  console.log("[VITALIS IMAGE] Trying Gemini vision (gemini-2.5-flash via new SDK)...");
+  const res = await genAI_new.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: [
+      {
+        role: "user",
+        parts: [
+          { text: BASE_PROMPT },
+          { inlineData: { data: base64Data, mimeType } },
+        ],
+      },
+    ],
+    config: { maxOutputTokens: 500, temperature: 0 },
+  });
+  const text = res.text || res.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  if (!text) throw new Error("Gemini (new SDK) returned empty response");
+  console.log("[VITALIS IMAGE] Gemini (new SDK gemini-2.5-flash) raw:", text.slice(0, 200));
+  return text;
+}
+
 async function analyzeWithGeminiVision(base64Data, mimeType) {
+  // Try new SDK first (v1, gemini-2.5-flash), then legacy models
+  if (genAI_new) {
+    try {
+      return await analyzeWithGeminiVisionNew(base64Data, mimeType);
+    } catch (err) {
+      console.error("[VITALIS IMAGE] ❌ Gemini (new SDK) failed:", err.message);
+    }
+  }
   let lastErr;
   for (const modelName of GEMINI_VISION_MODELS) {
+    if (!genAI_legacy) break;
     try {
-      console.log(`[VITALIS IMAGE] Trying Gemini vision (${modelName})...`);
-      const model = genAI.getGenerativeModel({
+      console.log(`[VITALIS IMAGE] Trying Gemini vision (legacy ${modelName})...`);
+      const model = genAI_legacy.getGenerativeModel({
         model: modelName,
         generationConfig: {
           temperature: 0,
@@ -383,7 +459,7 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
 
       const text = result.response.text();
       if (!text) throw new Error("Gemini returned empty response");
-      console.log(`[VITALIS IMAGE] Gemini (${modelName}) raw:`, text.slice(0, 200));
+      console.log(`[VITALIS IMAGE] Gemini (legacy ${modelName}) raw:`, text.slice(0, 200));
 
       const usage = result.response.usageMetadata;
       if (usage) {
@@ -395,11 +471,11 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
 
       return text;
     } catch (err) {
-      console.error(`[VITALIS IMAGE] ❌ Gemini (${modelName}) failed:`, err.message);
+      console.error(`[VITALIS IMAGE] ❌ Gemini (legacy ${modelName}) failed:`, err.message);
       lastErr = err;
     }
   }
-  throw lastErr;
+  throw lastErr || new Error("All Gemini vision providers failed");
 }
 
 // ─── TIMEOUT GUARD — tightened from 25s to 12s for UX
@@ -530,7 +606,9 @@ async function suggestPlanForMeal(meal, plans, dailyContext) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 module.exports = {
-  genAI,
+  genAI: genAI_legacy, // legacy alias for compat
+  genAI_legacy,
+  genAI_new,
   callGeminiWithFallback,
   analyzeFoodImage,
   suggestPlanForMeal,
