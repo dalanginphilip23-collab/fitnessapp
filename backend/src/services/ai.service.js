@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const { genAI, callGeminiWithFallback } = require('../config/gemini');
+const { genAI, callGeminiWithFallback, withTimeout, TEXT_TIMEOUT_MS } = require('../config/gemini');
 
 // ─── POSE ANALYSIS ───
 async function analyzePoseImage(image, metadata) {
@@ -10,9 +10,13 @@ async function analyzePoseImage(image, metadata) {
             Task: Using the image and the skeletal data, give a 1-sentence coach's correction. 
             If the form is perfect, say something encouraging. 
             Be very concise.
-        `;
+        `.trim();
   const imageParts = [{ inlineData: { data: image.split(',')[1], mimeType: "image/jpeg" } }];
-  const result = await model.generateContent([prompt, ...imageParts]);
+  const result = await withTimeout(
+    () => model.generateContent([prompt, ...imageParts]),
+    TEXT_TIMEOUT_MS,
+    "analyzePose",
+  );
   return result.response.text();
 }
 
@@ -91,7 +95,6 @@ async function callGemini(prompt) {
 
 // ─── REAL-TIME COACHING ───
 async function getCoachTip(landmarks, workoutType) {
-  const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
   const prompt = `
             You are a real-time gym coach. Analyze these landmarks for a ${workoutType.toUpperCase()} set.
             Landmarks: ${JSON.stringify(landmarks)}
@@ -100,9 +103,9 @@ async function getCoachTip(landmarks, workoutType) {
             - If SQUAT: focus on "depth" or "weight on heels".
             - If PLANK: focus on "hips height".
             Strict Rule: Only reply with the coaching tip text. No conversational filler.
-            `;
-  const result = await model.generateContent(prompt);
-  return result.response.text().trim();
+            `.trim();
+  const text = await callGeminiWithFallback(prompt);
+  return text.trim();
 }
 
 // ─── AI HISTORY ───

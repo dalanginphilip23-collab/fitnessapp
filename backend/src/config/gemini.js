@@ -30,7 +30,7 @@ async function callGeminiWithFallback(prompt, opts = {}) {
         },
       });
       const run = () => model.generateContent(prompt).then(r => r.response.text());
-      const text = opts.signal ? await withTimeout(run, 10000, `text-${modelName}`) : await run();
+      const text = await withTimeout(run, TEXT_TIMEOUT_MS, `text-${modelName}`);
       if (text) {
         console.log(`[VITALIS AI] ✅ Success with ${modelName}`);
         return text;
@@ -44,12 +44,16 @@ async function callGeminiWithFallback(prompt, opts = {}) {
 
   console.warn("[VITALIS AI] All Gemini text models failed → Groq fallback");
   try {
-    const resp = await groq.chat.completions.create({
-      model:       "openai/gpt-oss-120b",
-      max_tokens:  1000,
-      temperature: 0.3,
-      messages:    [{ role: "user", content: prompt }],
-    });
+    const resp = await withTimeout(
+      () => groq.chat.completions.create({
+        model:       "openai/gpt-oss-120b",
+        max_tokens:  1000,
+        temperature: 0.3,
+        messages:    [{ role: "user", content: prompt }],
+      }),
+      TEXT_TIMEOUT_MS,
+      "groq-fallback",
+    );
     const text = resp.choices[0]?.message?.content;
     if (text) {
       console.log("[VITALIS AI] ✅ Success with Groq openai/gpt-oss-120b");
@@ -518,4 +522,7 @@ module.exports = {
   suggestPlanForMeal,
   validateAndCorrectMacros,
   enforceDensityAndAnchor,
+  withTimeout,
+  TEXT_TIMEOUT_MS,
+  PROVIDER_TIMEOUT_MS,
 };

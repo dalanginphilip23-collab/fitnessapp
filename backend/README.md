@@ -62,15 +62,11 @@ required a real judgment call.
 
 ## Things preserved as-is, but worth your attention
 
-- **`route/liveCoaching.js` and `route/social.js` are never mounted** in `server.js` /
-  `app.js` — this was already true before the refactor. Their code (now
-  `liveCoaching.routes.js` / `social.routes.js`) is carried over faithfully but stays
-  unwired, matching current production behavior. If these are supposed to be live,
-  they need an `app.use(...)` line added.
-- **`social.js` has a broken import**: `require('../db')` instead of
-  `require('../config/db')`. Since the file was never mounted, this was already dead
-  code that never executed. Preserved exactly (including the broken path) per your
-  "don't change logic" instruction.
+- **Dead code removed (2026-08-27):** `liveCoaching.routes.js` / `social.routes.js` and their
+  controllers/services were never mounted in `app.js` and `LiveCoaching.jsx` is fully
+  client-side (Webcam simulation, no API). They were deleted (6 files, 285 lines) after
+  verifying no imports remain and `require('./src/app')` + `vite build` still pass.
+  The frontend route `/dashboard/live-coaching` is kept — it does not need a backend.
 - **`dailyNutrition.js`** is mounted at `/api/nutrition` but its single endpoint
   (`POST /save-session/:userId`) actually writes to `workout_sessions`, not any
   nutrition-related table. Kept exactly as-is, flagged in a code comment in
