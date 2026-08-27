@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from "react";
 import SectionLabel from "./SectionLabel";
 import MacroBar from "./MacroBar";
@@ -5,12 +6,19 @@ import Spinner from "./Spinner";
 import { MACRO_TARGETS } from "../constants";
 
 export default function ResultCard({ result, onLog, isLogging }) {
-  const [editing, setEditing] = useState(false);
+  const isFallback = result?.food_name === "Meal (tap to edit name)";
+  const [editing, setEditing] = useState(isFallback);
   const [draft, setDraft] = useState(result);
-  useEffect(()=>{ setDraft(result); setEditing(false); }, [result]);
+  // Sync draft when a new AI result arrives — auto-open editor for fallback
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(()=>{
+    setDraft(result);
+    setEditing(result?.food_name === "Meal (tap to edit name)");
+  }, [result]);
   if (!result) return null;
   const view = editing ? draft : result;
   const setField = (k, v) => setDraft(d => ({ ...d, [k]: Math.max(0, parseInt(v)||0) }));
+  const setName = (v) => setDraft(d => ({ ...d, food_name: v }));
 
   return (
     <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light) transition-shadow duration-300 hover:shadow-sm">
@@ -21,12 +29,21 @@ export default function ResultCard({ result, onLog, isLogging }) {
         </button>
       </div>
 
+      {isFallback && !editing && (
+        <div className="mb-3 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 text-xs">
+          ⚠️ AI was unsure — tap <b>Edit</b> to fix the name and macros, then log.
+        </div>
+      )}
       <div className="flex items-start gap-3 mb-5 sm:mb-6">
         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-(--bg-hover) flex items-center justify-center text-xl sm:text-2xl shrink-0 border border-(--border-light)">🍽️</div>
         <div className="flex-1 min-w-0">
-          <p className="text-(--text-primary) font-semibold text-sm sm:text-base leading-tight truncate">{result.food_name}</p>
-          {result.suggestion && (
-            <p className="text-(--text-muted) text-[10px] mt-1 italic line-clamp-2">"{result.suggestion}"</p>
+          {editing ? (
+            <input value={draft.food_name} onChange={e=>setName(e.target.value)} placeholder="Food name" className="w-full text-sm font-semibold bg-(--bg-hover) border border-amber-500/30 rounded-lg px-2 py-1 text-(--text-primary)" />
+          ) : (
+            <p className="text-(--text-primary) font-semibold text-sm sm:text-base leading-tight truncate">{view.food_name}</p>
+          )}
+          {view.suggestion && (
+            <p className="text-(--text-muted) text-[10px] mt-1 italic line-clamp-2">"{view.suggestion}"</p>
           )}
         </div>
         <div className="text-right shrink-0">

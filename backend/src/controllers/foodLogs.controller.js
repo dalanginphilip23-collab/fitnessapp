@@ -1,9 +1,10 @@
 const foodLogsService = require('../services/foodLogs.service');
 
-// POST /api/food-logs/analyze-pic
+// POST /api/food-logs/analyze-pic — optimized: size guard, cache, no fallback poison
 async function analyzePic(req, res) {
   const { base64Image, mimeType } = req.body;
   if (!base64Image) return res.status(400).json({ error: 'No image provided' });
+  if (base64Image.length > 2_000_000) return res.status(413).json({ error: 'Image too large (max ~1.5MB). Try a smaller photo.' });
   const mime = (mimeType && String(mimeType).startsWith('image/')) ? mimeType : 'image/jpeg';
 
   const cached = foodLogsService.getCached(base64Image, mime);

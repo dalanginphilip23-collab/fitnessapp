@@ -358,10 +358,11 @@ function parseNutritionJSON(raw) {
   };
 }
 
-// VISION PROVIDERS 
+// VISION PROVIDERS — Groq free-tier vision: llava is stable, scout/maverick need paid tier
 const GROQ_VISION_MODELS = [
-  "qwen/qwen3.6-27b",
-  "qwen/qwen3.8-27b",
+  "llava-v1.5-7b-4096-preview",
+  "meta-llama/llama-4-scout-17b-16e-instruct",
+  "meta-llama/llama-4-maverick-17b-128e-instruct",
 ];
 
 async function analyzeWithGroqVision(base64Data, mimeType) {

@@ -13,14 +13,12 @@ export default function UploadSection({ onAnalyze, isAnalyzing }) {
 
   const [preview,      setPreview]      = useState(null);
   const [dragOver,     setDragOver]     = useState(false);
-  const [compressing,  setCompressing]  = useState(false);
   const [tab,          setTab]          = useState("upload");
   const [isCameraOpen, setIsCameraOpen] = useState(false);
 
   const handleFile = (file) => {
     if (!file || !file.type.startsWith("image/")) return;
-    // Use object URL for instant preview without base64 decode cost
-    // Revoke previous if it was a blob URL
+    if (file.size > 8_000_000) { alert("Image too large (max 8MB)"); return; }
     if (preview && preview.startsWith('blob:')) URL.revokeObjectURL(preview);
     const url = URL.createObjectURL(file);
     setPreview(url);
@@ -34,10 +32,8 @@ export default function UploadSection({ onAnalyze, isAnalyzing }) {
   };
 
   const handleAnalyzeClick = async () => {
-    if (!preview || isAnalyzing || compressing) return;
-    setCompressing(true);
-    try { await onAnalyze(preview); }
-    finally { setCompressing(false); }
+    if (!preview || isAnalyzing) return;
+    await onAnalyze(preview);
   };
 
   const switchTab = (next) => {
@@ -60,7 +56,7 @@ export default function UploadSection({ onAnalyze, isAnalyzing }) {
     setIsCameraOpen(false);
   };
 
-  const busy = isAnalyzing || compressing;
+  const busy = isAnalyzing;
 
   return (
     <div
@@ -124,9 +120,7 @@ export default function UploadSection({ onAnalyze, isAnalyzing }) {
             : "bg-(--bg-hover) hover:bg-(--accent-bg) hover:text-(--accent) text-(--text-primary) active:scale-[0.98]"
         }`}
       >
-        {compressing ? (
-          <span className="flex items-center justify-center gap-2"><Spinner /> Compressing…</span>
-        ) : isAnalyzing ? (
+        {isAnalyzing ? (
           <span className="flex items-center justify-center gap-2"><Spinner /> Analyzing with AI…</span>
         ) : "Analyze Meal"}
       </button>

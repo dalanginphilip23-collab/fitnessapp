@@ -46,8 +46,15 @@ function clearCache() {
   analysisCache.clear();
 }
 
+// In-flight dedup: same image arriving twice concurrently shares one AI call
+const inFlight = new Map();
+
 async function runFoodImageAnalysis(base64Image, mimeType) {
-  return analyzeFoodImage(base64Image, mimeType);
+  const key = imageHash(base64Image, mimeType);
+  if (inFlight.has(key)) return inFlight.get(key);
+  const promise = analyzeFoodImage(base64Image, mimeType).finally(() => inFlight.delete(key));
+  inFlight.set(key, promise);
+  return promise;
 }
 
 async function getPlansForUser(userId) {

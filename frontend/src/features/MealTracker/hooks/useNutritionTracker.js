@@ -52,10 +52,15 @@ export function useNutritionTracker(USER_ID) {
     setIsAnalyzing(true);
     setResult(null);
     try {
-      setResult(await analyzeFoodImage(dataUrl, { signal: controller.signal }));
+      const data = await analyzeFoodImage(dataUrl, { signal: controller.signal });
+      setResult(data);
+      if (data?.food_name === "Meal (tap to edit name)") {
+        showToast("⚠️ AI was unsure — please correct the name/macros");
+      }
     } catch (err) {
       if (err.name === 'AbortError') return;
-      showToast("❌ " + err.message);
+      const msg = err.message?.includes("too large") ? err.message : err.message || "Analysis failed";
+      showToast("❌ " + msg);
     } finally {
       setIsAnalyzing(false);
     }
