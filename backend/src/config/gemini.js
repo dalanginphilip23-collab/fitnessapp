@@ -6,8 +6,6 @@ const { findDensityBand, findAnchor, normalize } = require("../constants/nutriti
 const BASE_PROMPT = FOOD_ANALYSIS_PROMPT.BASE || String(FOOD_ANALYSIS_PROMPT);
 const CONDENSED_PROMPT = FOOD_ANALYSIS_PROMPT.CONDENSED || BASE_PROMPT;
 
-// Dual SDK: new @google/genai (v1 + gemini-2.5/3.x) with fallback to legacy @google/generative-ai (v1beta)
-// New SDK is required since Google sunset v1beta model IDs (gemini-1.5/2.0 on v1beta now 404)
 let genAI_new = null;
 let genAI_legacy = null;
 try {
@@ -248,8 +246,7 @@ function validateAndCorrectMacros(parsed) {
     fat      = Math.round(fat     * scale);
   }
 
-  // Final exact enforcement: make macro math == calories within 2 kcal (covers indivisible calories like 105)
-  // Pure exact is impossible for some values (e.g., 105 with 1/26/0 =108), so allow 2 kcal tolerance
+ 
   let finalMacro = protein * 4 + carbs * 4 + fat * 9;
   let diff = calories - finalMacro;
   let safety = 20;
@@ -268,11 +265,9 @@ function validateAndCorrectMacros(parsed) {
     finalMacro = protein * 4 + carbs * 4 + fat * 9;
     diff = calories - finalMacro;
   }
-  // If still off by 1-2, adjust calories to match macros (more honest than forcing macro off)
+
   if (Math.abs(diff) <= 2) {
-    // Keep calories as is, allow 2 kcal tolerance — frontend will not warn
   } else if (diff !== 0) {
-    // Fallback: nudge calories to match macros exactly
     calories = finalMacro;
   }
 
@@ -312,10 +307,9 @@ function enforceDensityAndAnchor(parsed) {
     const anchorC = Math.round(anchor.carbs * scale);
     const anchorF = Math.round(anchor.fat * scale);
     const calDrift = Math.abs(calories - anchorCal) / Math.max(1, anchorCal);
-    // If model is >20% off anchor-scaled value, snap to anchor (chain items are manufactured)
+
     if (calDrift > 0.20) {
       console.warn(`[VITALIS IMAGE] Anchor snap for "${food_name}" → ${anchor.key}: ${calories}→${anchorCal} (drift ${(calDrift*100).toFixed(1)}%)`);
-      // Blend 70% anchor, 30% model to keep portion nuance but anchor truth
       calories = Math.round(anchorCal * 0.7 + calories * 0.3);
       protein = Math.round(anchorP * 0.7 + protein * 0.3);
       carbs = Math.round(anchorC * 0.7 + carbs * 0.3);
@@ -365,11 +359,9 @@ function parseNutritionJSON(raw) {
 }
 
 // VISION PROVIDERS 
-
 const GROQ_VISION_MODELS = [
-  "llava-v1.5-7b-4096-preview",
-  "meta-llama/llama-4-scout-17b-16e-instruct",
-  "meta-llama/llama-4-maverick-17b-128e-instruct",
+  "qwen/qwen3.6-27b",
+  "qwen/qwen3.8-27b",
 ];
 
 async function analyzeWithGroqVision(base64Data, mimeType) {
