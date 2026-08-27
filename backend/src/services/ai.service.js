@@ -3,7 +3,7 @@ const { genAI, callGeminiWithFallback, withTimeout, TEXT_TIMEOUT_MS } = require(
 
 // ─── POSE ANALYSIS ───
 async function analyzePoseImage(image, metadata) {
-  const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
   const prompt = `
             Context: The user is exercising. 
             Skeletal Data: ${metadata}

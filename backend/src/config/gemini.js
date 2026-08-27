@@ -15,8 +15,9 @@ const groq  = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 async function callGeminiWithFallback(prompt, opts = {}) {
   const models = [
-    "gemini-1.5-flash",
-    "gemini-1.5-flash-8b",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-2.5-flash",
   ];
 
   for (const modelName of models) {
@@ -321,32 +322,45 @@ function parseNutritionJSON(raw) {
 
 // VISION PROVIDERS 
 
-async function analyzeWithGroqVision(base64Data, mimeType) {
-  console.log("[VITALIS IMAGE] Trying Groq vision...");
-  const resp = await groq.chat.completions.create({
-    model:            "meta-llama/llama-4-scout-17b-16e-instruct",
-    max_tokens:       400,
-    temperature:      0,
-    messages: [
-      {
-        role:    "user",
-        content: [
-          { type: "text",      text:      CONDENSED_PROMPT },
-          { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Data}` } },
-        ],
-      },
-    ],
-  });
+const GROQ_VISION_MODELS = [
+  "meta-llama/llama-4-maverick-17b-128e-instruct",
+  "llama-3.2-90b-vision-preview",
+];
 
-  const text = resp.choices[0]?.message?.content;
-  if (!text) throw new Error("Groq returned empty response");
-  console.log("[VITALIS IMAGE] Groq raw:", text.slice(0, 200));
-  return text;
+async function analyzeWithGroqVision(base64Data, mimeType) {
+  let lastErr;
+  for (const groqModel of GROQ_VISION_MODELS) {
+    try {
+      console.log(`[VITALIS IMAGE] Trying Groq vision (${groqModel})...`);
+      const resp = await groq.chat.completions.create({
+        model:            groqModel,
+        max_tokens:       400,
+        temperature:      0,
+        messages: [
+          {
+            role:    "user",
+            content: [
+              { type: "text",      text:      CONDENSED_PROMPT },
+              { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Data}` } },
+            ],
+          },
+        ],
+      });
+      const text = resp.choices[0]?.message?.content;
+      if (!text) throw new Error("Groq returned empty response");
+      console.log(`[VITALIS IMAGE] Groq (${groqModel}) raw:`, text.slice(0, 200));
+      return text;
+    } catch (err) {
+      console.error(`[VITALIS IMAGE] ❌ Groq (${groqModel}) failed:`, err.message);
+      lastErr = err;
+    }
+  }
+  throw lastErr;
 }
 
 const GEMINI_VISION_MODELS = [
-  "gemini-1.5-flash",
   "gemini-2.0-flash",
+  "gemini-2.5-flash",
 ];
 
 async function analyzeWithGeminiVision(base64Data, mimeType) {
