@@ -31,6 +31,8 @@ function getCached(base64Image, mimeType) {
 }
 
 function setCache(base64Image, result, mimeType) {
+  // Don't cache the generic fallback — it would poison the same image for 15m after a key/quota failure.
+  if (result?.food_name === 'Meal (tap to edit name)') return;
   const key = imageHash(base64Image, mimeType);
   if (analysisCache.has(key)) analysisCache.delete(key);
   if (analysisCache.size >= CACHE_MAX) {
@@ -38,6 +40,10 @@ function setCache(base64Image, result, mimeType) {
     if (oldestKey) analysisCache.delete(oldestKey);
   }
   analysisCache.set(key, { result, ts: Date.now() });
+}
+
+function clearCache() {
+  analysisCache.clear();
 }
 
 async function runFoodImageAnalysis(base64Image, mimeType) {
@@ -134,6 +140,7 @@ async function deleteFoodLog(mealId, userId) {
 module.exports = {
   getCached,
   setCache,
+  clearCache,
   runFoodImageAnalysis,
   getPlansForUser,
   getCaloriesSoFar,
