@@ -367,8 +367,9 @@ function parseNutritionJSON(raw) {
 // VISION PROVIDERS 
 
 const GROQ_VISION_MODELS = [
+  "llava-v1.5-7b-4096-preview",
+  "meta-llama/llama-4-scout-17b-16e-instruct",
   "meta-llama/llama-4-maverick-17b-128e-instruct",
-  "llama-3.2-90b-vision-preview",
 ];
 
 async function analyzeWithGroqVision(base64Data, mimeType) {
@@ -478,9 +479,9 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
   throw lastErr || new Error("All Gemini vision providers failed");
 }
 
-// ─── TIMEOUT GUARD — tightened from 25s to 12s for UX
-const PROVIDER_TIMEOUT_MS = 12000;
-const TEXT_TIMEOUT_MS = 10000;
+// ─── TIMEOUT GUARD — raised for Render free + vision payload
+const PROVIDER_TIMEOUT_MS = 25000;
+const TEXT_TIMEOUT_MS = 15000;
 
 function withTimeout(promiseFactory, ms, label) {
   let timer;
