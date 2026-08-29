@@ -11,7 +11,7 @@ const db = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    ...(useSSL ? { ssl: { rejectUnauthorized: true } } : {}),
+    ...(useSSL ? { ssl: { rejectUnauthorized: false } } : {}),
 });
 
 db.on('connection', (connection) => {
