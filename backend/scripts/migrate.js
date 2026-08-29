@@ -36,7 +36,7 @@ async function run() {
   console.log('Applied:', [...applied].join(', ') || '(none)');
 
   const dir = path.join(__dirname, '../migrations');
-  const files = fs.readdirSync(dir).filter(f => f.endsWith('.sql')).sort();
+  const files = fs.readdirSync(dir).filter(f => f.endsWith('.sql') && !f.includes('aiven') && !f.includes('.original')).sort();
   console.log('Found:', files.join(', '));
 
   // Only run migrations that add columns/tables, skip baseline if DB already has tables

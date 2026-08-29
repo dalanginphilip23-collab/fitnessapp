@@ -1,6 +1,7 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
+const useSSL = (process.env.DB_HOST || '').includes('aivencloud.com') || process.env.DB_SSL === 'true';
 const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -10,6 +11,7 @@ const db = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
+    ...(useSSL ? { ssl: { rejectUnauthorized: true } } : {}),
 });
 
 db.on('connection', (connection) => {

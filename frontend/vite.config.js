@@ -68,9 +68,6 @@ export default defineConfig({
       },
     }),
   ],
-  optimizeDeps: {
-    exclude: [],
-  },
   build: {
     rollupOptions: {
       output: {
@@ -106,9 +103,6 @@ export default defineConfig({
             }
             if (id.includes('material-symbols')) {
               return 'font-vendor';
-            }
-            if (id.includes('lucide-react')) {
-              return 'icon-vendor';
             }
           }
         },
