@@ -1,6 +1,7 @@
+import { useMemo } from 'react';
 import Icon from '../../../components/ui/Icon';
 
-export default function DailyActivityCard({ steps = { value: 0, goal: 10000 }, onExpand }) {
+export default function DailyActivityCard({ steps = { value: 0, goal: 10000 }, weeklyMap = null, onExpand }) {
   const pct = Math.min(100, Math.round((Number(steps.value) || 0) / (steps.goal || 10000) * 100));
   const size = 52;
   const sw = 5;
@@ -8,9 +9,30 @@ export default function DailyActivityCard({ steps = { value: 0, goal: 10000 }, o
   const circ = 2 * Math.PI * r;
   const off = circ - (pct / 100) * circ;
 
-  // Bar heights Mon-Sun, Fri peak like reference (lime), relative to steps
-  const pattern = [0.62, 0.42, 0.55, 0.58, 0.92, 0.68, 0.74];
   const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  // Real-time: highlight today, not hardcoded Fri
+  const todayIdx = useMemo(() => {
+    const js = new Date().getDay(); // 0 Sun .. 6 Sat
+    return js === 0 ? 6 : js - 1;    // Mon=0 .. Sun=6
+  }, []);
+
+  // Build Mon-Sun dates for current week to lookup steps from weeklyMap if available
+  const weekKeys = useMemo(() => {
+    const now = new Date();
+    const js = now.getDay();
+    const monOffset = js === 0 ? -6 : 1 - js; // offset to Monday
+    const mon = new Date(now);
+    mon.setDate(now.getDate() + monOffset);
+    mon.setHours(0,0,0,0);
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(mon);
+      d.setDate(mon.getDate() + i);
+      return d.toISOString().slice(0,10);
+    });
+  }, []);
+
+  // Fallback pattern when no weeklyMap (keeps visual similar to old)
+  const pattern = [0.62, 0.42, 0.55, 0.58, 0.92, 0.68, 0.74];
 
   return (
     <div className="bg-[var(--bg-tertiary)] rounded-[20px] p-4 flex flex-col gap-3 border border-[var(--border-light)] shadow-lg">
@@ -40,13 +62,21 @@ export default function DailyActivityCard({ steps = { value: 0, goal: 10000 }, o
       </div>
 
       <div className="flex items-end justify-between gap-2 h-[64px] pt-2">
-        {pattern.map((p, i) => {
-          const isPeak = i === 4;
-          const h = Math.round(p * 52) + 8;
+        {days.map((day, i) => {
+          const isToday = i === todayIdx;
+          const key = weekKeys[i];
+          const hasWeekly = weeklyMap && typeof weeklyMap[key] !== 'undefined';
+          const weekSteps = hasWeekly ? Number(weeklyMap[key]) || 0 : null;
+          // Today uses live pct; other days use weeklyMap or fallback pattern
+          const p = hasWeekly
+            ? (isToday ? pct / 100 : Math.min(1, weekSteps / (steps.goal || 10000)))
+            : (isToday ? pct / 100 : pattern[i]);
+          // Ensure visible bar even at 0
+          const h = isToday && pct === 0 ? 12 : Math.round(Math.max(0.08, Math.min(1, p)) * 52) + 8;
           return (
-            <div key={days[i]} className="flex-1 flex flex-col items-center gap-1.5">
-              <div className={`w-full max-w-[28px] rounded-full transition-all ${isPeak ? 'bg-[var(--accent)]' : 'bg-[var(--border-light)]'}`} style={{ height: h }} />
-              <span className={`text-[10px] leading-none ${isPeak ? 'text-[var(--text-primary)] font-bold' : 'text-[var(--text-muted)] font-medium'}`}>{days[i]}</span>
+            <div key={day} className="flex-1 flex flex-col items-center gap-1.5">
+              <div className={`w-full max-w-[28px] rounded-full transition-all ${isToday ? 'bg-[var(--accent)]' : 'bg-[var(--border-light)]'}`} style={{ height: h }} title={hasWeekly ? `${weekSteps} steps` : undefined} />
+              <span className={`text-[10px] leading-none ${isToday ? 'text-[var(--text-primary)] font-bold' : 'text-[var(--text-muted)] font-medium'}`}>{day}</span>
             </div>
           );
         })}

@@ -72,6 +72,18 @@ async function getActivePlan(userId) {
   };
 }
 
+async function getWeeklySteps(userId) {
+  // Mon-Sun of current week (real time)
+  const [rows] = await db.execute(
+    `SELECT stat_date, steps FROM daily_stats
+     WHERE user_id = ? AND stat_date >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
+       AND stat_date <= DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 6 DAY)
+     ORDER BY stat_date ASC`,
+    [userId]
+  );
+  return rows;
+}
+
 async function searchUsers(q) {
   const [results] = await db.execute(
     'SELECT name, avatar_url FROM users WHERE name LIKE ? LIMIT 5',
@@ -80,4 +92,4 @@ async function searchUsers(q) {
   return results;
 }
 
-module.exports = { getTodayStats, getUserProfile, getSleepGraphData, getActivePlan, searchUsers };
+module.exports = { getTodayStats, getUserProfile, getSleepGraphData, getActivePlan, getWeeklySteps, searchUsers };

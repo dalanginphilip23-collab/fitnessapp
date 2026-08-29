@@ -135,6 +135,7 @@ const Dashboard = () => {
             <p className="text-[13px] font-black text-[var(--text-primary)] mb-2 px-1">Daily Activity</p>
             <DailyActivityCard
               steps={{ value: data.stats?.steps || 0, goal: 10000 }}
+              weeklyMap={data.weeklyMap || null}
               onExpand={() => navigate('/dashboard/analytics')}
             />
           </div>

@@ -7,6 +7,14 @@ async function getDashboard(req, res) {
     const user = await dashboardService.getUserProfile(userId);
     const sleepData = await dashboardService.getSleepGraphData(userId);
     const plans = await dashboardService.getActivePlan(userId);
+    const weeklyRows = await dashboardService.getWeeklySteps(userId);
+
+    // Build map YYYY-MM-DD -> steps for the 7-day window
+    const weeklyMap = {};
+    for (const r of weeklyRows) {
+      const key = r.stat_date instanceof Date ? r.stat_date.toISOString().slice(0,10) : String(r.stat_date).slice(0,10);
+      weeklyMap[key] = Number(r.steps) || 0;
+    }
 
     res.json({
       stats: {
@@ -15,7 +23,9 @@ async function getDashboard(req, res) {
       },
       active_plan: plans.plan,
       profile: user[0] || { name: "Guest" },
-      hrv_data: sleepData || []
+      hrv_data: sleepData || [],
+      weeklyActivity: weeklyRows,
+      weeklyMap,
     });
 
   } catch (e) {
