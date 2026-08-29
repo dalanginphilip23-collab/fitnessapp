@@ -185,7 +185,8 @@ async function register(req, res) {
         .status(400)
         .json({ error: "If this email is not already registered, a verification link has been sent." });
     }
-    res.status(500).json({ error: "Registration failed. Please try again." });
+    console.error("Register error:", err.message, err.stack?.slice(0,800));
+    res.status(500).json({ error: "Registration failed. Please try again.", detail: err.message.slice(0,300) });
   }
 }
 
