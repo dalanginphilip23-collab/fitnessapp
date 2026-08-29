@@ -147,6 +147,52 @@ app.use("/api/feedback", feedbackRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/public", publicRoutes);
 
+// Admin migrate - trigger DB schema deploy via HTTP (Render can reach Aiven)
+app.get("/api/admin/migrate", async (req, res) => {
+  const token = req.query.token || req.headers["x-migrate-token"];
+  const expected = process.env.MIGRATE_TOKEN || process.env.DB_PASS || "vitalis-migrate";
+  if (token !== expected) return res.status(401).json({ success: false, message: "Invalid migrate token" });
+  try {
+    const db = require("./config/db");
+    const fs = require("fs");
+    const path = require("path");
+    const [tables] = await db.query("SHOW TABLES");
+    const tableNames = tables.map(r => Object.values(r)[0]);
+    const hasUsers = tableNames.includes("users");
+    const result = { beforeTables: tableNames, hasUsers, ran: [] };
+    const files = hasUsers ? ["004_add_exercise_slug_to_plan_exercises.sql"] : ["000_baseline_schema.sql", "004_add_exercise_slug_to_plan_exercises.sql"];
+    for (const file of files) {
+      const full = path.join(__dirname, "../migrations", file);
+      if (!fs.existsSync(full)) { result.ran.push({ file, status: "not_found" }); continue; }
+      let sql = fs.readFileSync(full, "utf8");
+      if (file === "000_baseline_schema.sql" && String(process.env.DB_NAME || "").toLowerCase() === "defaultdb") {
+        sql = sql.replace(/CREATE DATABASE IF NOT EXISTS `fitnessapp`[^;]*;/, "");
+        sql = sql.replace(/USE `fitnessapp`;/, "USE `defaultdb`;");
+      }
+      const cleaned = sql.replace(/--.*$/gm, "");
+      const stmts = cleaned.split(";").map(s => s.trim()).filter(Boolean);
+      let ok = 0, skipped = 0, failed = null;
+      for (const stmt of stmts) {
+        try { await db.query(stmt); ok++; } catch (e) {
+          const msg = e.message || "";
+          if (msg.includes("Duplicate column") || msg.includes("Duplicate key") || msg.includes("already exists") || msg.includes("Duplicate entry")) skipped++;
+          else { failed = msg.slice(0,300); break; }
+        }
+      }
+      result.ran.push({ file, statements: stmts.length, ok, skipped, failed });
+      if (failed) break;
+    }
+    const [after] = await db.query("SHOW TABLES");
+    result.afterTables = after.map(r => Object.values(r)[0]);
+    const [users] = await db.query("SHOW TABLES LIKE 'users'").catch(() => [[]]);
+    result.usersExists = users.length > 0;
+    res.json({ success: true, message: hasUsers ? "Migration check done" : "Baseline deployed", ...result });
+  } catch (e) {
+    console.error("[AdminMigrate] error:", e);
+    res.status(500).json({ success: false, message: e.message, stack: e.stack?.slice(0,500) });
+  }
+});
+
 // ============================
 // Socket Handler
 // ============================
