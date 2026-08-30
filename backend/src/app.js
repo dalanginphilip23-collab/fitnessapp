@@ -52,9 +52,6 @@ const ALLOWED_ORIGINS = [
 // CORS
 const corsOptions = {
   origin(origin, callback) {
-    // No Origin header = non-browser/same-origin request (curl, mobile app,
-    // server-to-server). Browsers always attach Origin for cross-origin
-    // requests, so leaving these open doesn't widen the CORS surface.
     if (!origin) return callback(null, true);
 
     if (ALLOWED_ORIGINS.includes(origin)) {
@@ -147,16 +144,24 @@ app.use("/api/feedback", feedbackRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/public", publicRoutes);
 
-// Admin migrate - trigger DB schema deploy via HTTP (Render can reach Aiven)
-// Token check is lenient: accepts MIGRATE_TOKEN, DB_PASS, or "vitalis-migrate" via query/header; logs hint on fail
+
 app.get("/api/admin/migrate", async (req, res) => {
+  const expected = String(process.env.MIGRATE_TOKEN || "");
+
+  if (!expected) {
+    console.error("[AdminMigrate] MIGRATE_TOKEN is not set in the environment — refusing all requests.");
+    return res.status(503).json({
+      success: false,
+      message: "Migration endpoint is disabled: MIGRATE_TOKEN is not configured on the server.",
+    });
+  }
+
   const token = String(req.query.token || req.headers["x-migrate-token"] || "");
-  const expected = String(process.env.MIGRATE_TOKEN || process.env.DB_PASS || "vitalis-migrate");
-  const alt = String(process.env.DB_PASS || "");
-  const okToken = token === expected || token === alt || token === "vitalis-migrate" || token === "deploy-vitalis-2026";
+  const okToken = token.length > 0 && token === expected;
+
   if (!okToken) {
-    console.warn(`[AdminMigrate] bad token got="${token.slice(0,12)}..." expectedLen=${expected.length} DB_PASS_len=${alt.length} MIGRATE_TOKEN=${process.env.MIGRATE_TOKEN ? "set" : "unset"}`);
-    return res.status(401).json({ success: false, message: "Invalid migrate token", hint: "Use ?token=vitalis-migrate or ?token=deploy-vitalis-2026 or DB_PASS", gotLen: token.length, expectedLen: expected.length });
+    console.warn(`[AdminMigrate] rejected request — token length ${token.length}`);
+    return res.status(401).json({ success: false, message: "Invalid migrate token" });
   }
   try {
     const db = require("./config/db");
@@ -206,14 +211,6 @@ app.get("/api/admin/migrate", async (req, res) => {
 // ============================
 
 require("./sockets/socketHandler")(io);
-
-// ============================
-// 404 Handler
-// ============================
-// NOTE: no path pattern here — this middleware catches any request that
-// hasn't matched a route above. A bare "*" string is no longer accepted
-// by the version of path-to-regexp Express now depends on, so we simply
-// omit the path (Express treats an unpathed app.use as "match everything").
 
 app.use((req, res) => {
   res.status(404).json({

@@ -259,9 +259,24 @@ CRITICAL MISTAKES TO AVOID
 OUTPUT FORMAT (raw JSON only — no markdown, no prose, no code fences):
 {"food_name":"...","estimated_grams":0,"calories":0,"protein":0,"carbs":0,"fat":0,"suggestion":"..."}`;
 
-// Condensed prompt for Groq vision — keep all anchors for accuracy, just trim verbose intro
-// 8000 truncated Filipino anchors and output format, hurting Groq accuracy → use 14000 to keep full calibration
-const CONDENSED = BASE.length > 14000 ? BASE.slice(0, 14000) : BASE;
+
+const OUTPUT_FORMAT_MARKER = 'OUTPUT FORMAT (raw JSON only';
+const outputFormatIdx = BASE.indexOf(OUTPUT_FORMAT_MARKER);
+const outputFormatBlock = outputFormatIdx !== -1 ? BASE.slice(outputFormatIdx) : '';
+
+const CONDENSED_BODY_LIMIT = 6000; // chars — leaves headroom for image + response tokens under Groq's 8000 TPM
+let condensedBody = BASE.length > CONDENSED_BODY_LIMIT ? BASE.slice(0, CONDENSED_BODY_LIMIT) : BASE;
+
+// Prefer cutting at a paragraph break so we don't truncate mid-sentence or
+// mid-table-row; only use it if it doesn't throw away too much of the budget.
+const lastBreak = condensedBody.lastIndexOf('\n\n');
+if (lastBreak > CONDENSED_BODY_LIMIT * 0.8) {
+  condensedBody = condensedBody.slice(0, lastBreak);
+}
+
+const CONDENSED = (outputFormatBlock && !condensedBody.includes(OUTPUT_FORMAT_MARKER))
+  ? `${condensedBody}\n\n${outputFormatBlock}`
+  : condensedBody;
 
 // Backward-compatible export: string when required directly, plus .BASE/.CONDENSED
 // Old code `require(...)` expecting a string will get BASE via valueOf/toString.

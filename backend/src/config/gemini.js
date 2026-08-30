@@ -22,6 +22,7 @@ try {
 }
 const groq  = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const DISABLE_THINKING_CONFIG = { thinkingConfig: { thinkingBudget: 0 } };
+const PRIMARY_GEMINI_MODEL = "gemini-3.6-flash";
 
 
 // SECTION 1 — TEXT-ONLY FALLBACK CHAIN
@@ -29,7 +30,7 @@ const DISABLE_THINKING_CONFIG = { thinkingConfig: { thinkingBudget: 0 } };
 async function callViaNewSDK(prompt) {
   if (!genAI_new) throw new Error("New SDK not initialized");
   const res = await genAI_new.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: PRIMARY_GEMINI_MODEL,
     contents: [{ role: "user", parts: [{ text: prompt }] }],
     config: { maxOutputTokens: 2000, temperature: 0.3, ...DISABLE_THINKING_CONFIG },
   });
@@ -47,25 +48,22 @@ async function callViaLegacy(prompt, modelName) {
 }
 
 async function callGeminiWithFallback(prompt, opts = {}) {
-  // Try new SDK first (v1, gemini-2.5/3.x), then legacy pinned models
   const legacyModels = [
-    "gemini-2.0-flash",
     "gemini-2.0-flash-lite",
-    "gemini-1.5-flash-002",
   ];
 
-  // 1. New SDK (gemini-2.5-flash on v1)
+  // 1. New SDK (PRIMARY_GEMINI_MODEL on v1)
   if (genAI_new) {
     try {
-      console.log("[VITALIS AI] Trying gemini-2.5-flash (new SDK)...");
-      const text = await withTimeout(() => callViaNewSDK(prompt), TEXT_TIMEOUT_MS, "text-gemini-2.5-flash-new");
+      console.log(`[VITALIS AI] Trying ${PRIMARY_GEMINI_MODEL} (new SDK)...`);
+      const text = await withTimeout(() => callViaNewSDK(prompt), TEXT_TIMEOUT_MS, `text-${PRIMARY_GEMINI_MODEL}-new`);
       if (text) {
-        console.log("[VITALIS AI] ✅ Success with gemini-2.5-flash (new SDK)");
+        console.log(`[VITALIS AI] ✅ Success with ${PRIMARY_GEMINI_MODEL} (new SDK)`);
         return text;
       }
     } catch (err) {
       if (String(err.message).includes('timed out')) console.error(`[VITALIS AI] ⏱ ${err.message}`);
-      else console.error("[VITALIS AI] ❌ gemini-2.5-flash (new SDK) failed:", err.message);
+      else console.error(`[VITALIS AI] ❌ ${PRIMARY_GEMINI_MODEL} (new SDK) failed:`, err.message);
       await new Promise(r => setTimeout(r, 500));
     }
   }
@@ -134,8 +132,6 @@ const ZERO_FAT_ALLOWED = [
   'apple', 'mango', 'papaya', 'grapes', 'black coffee',
   'garden salad', 'green salad', 'vegetable salad', 'steamed vegetables',
   'tea', 'coffee',
-  // Plain cooked rice variants (bare 'rice' deliberately excluded — it would
-  // substring-match 'fried rice', which does carry fat)
   'white rice', 'brown rice', 'steamed rice', 'jasmine rice', 'sinangag-free',
 ];
 
@@ -247,8 +243,7 @@ function validateAndCorrectMacros(parsed) {
     fat      = Math.round(fat     * scale);
   }
 
-  // Final exact enforcement: make macro math == calories within 2 kcal (covers indivisible calories like 105)
-  // Pure exact is impossible for some values (e.g., 105 with 1/26/0 =108), so allow 2 kcal tolerance
+
   let finalMacro = protein * 4 + carbs * 4 + fat * 9;
   let diff = calories - finalMacro;
   let safety = 20;
@@ -267,11 +262,9 @@ function validateAndCorrectMacros(parsed) {
     finalMacro = protein * 4 + carbs * 4 + fat * 9;
     diff = calories - finalMacro;
   }
-  // If still off by 1-2, adjust calories to match macros (more honest than forcing macro off)
   if (Math.abs(diff) <= 2) {
-    // Keep calories as is, allow 2 kcal tolerance — frontend will not warn
+  
   } else if (diff !== 0) {
-    // Fallback: nudge calories to match macros exactly
     calories = finalMacro;
   }
 
@@ -377,7 +370,7 @@ async function analyzeWithGroqVision(base64Data, mimeType) {
       console.log(`[VITALIS IMAGE] Trying Groq vision (${groqModel})...`);
       const resp = await groq.chat.completions.create({
         model:             groqModel,
-        max_tokens:        1200, // raised from 400 — reasoning still consumes tokens server-side even when hidden from output
+        max_tokens:        700,
         temperature:       0,
         reasoning_effort:  "none",   // disable/minimize internal reasoning so it doesn't eat the token budget
         reasoning_format:  "hidden", // strip any remaining <think> block from the returned content
@@ -403,21 +396,15 @@ async function analyzeWithGroqVision(base64Data, mimeType) {
   throw lastErr;
 }
 
-// FIX (2026-08): gemini-2.0-flash is fully retired (404 — "no longer available",
-// not just deprecated). Removed from the fallback list; gemini-2.5-flash (with
-// thinking disabled, see DISABLE_THINKING_CONFIG) is now the first legacy-SDK
-// attempt. gemini-1.5-flash-002 kept as a last resort but may also 404 on v1beta
-// per the sunset note above — the new SDK path is the one actually load-bearing.
 const GEMINI_VISION_MODELS = [
-  "gemini-2.5-flash",
-  "gemini-1.5-flash-002",
+  "gemini-2.0-flash-lite",
 ];
 
 async function analyzeWithGeminiVisionNew(base64Data, mimeType) {
   if (!genAI_new) throw new Error("New SDK not initialized");
-  console.log("[VITALIS IMAGE] Trying Gemini vision (gemini-2.5-flash via new SDK)...");
+  console.log(`[VITALIS IMAGE] Trying Gemini vision (${PRIMARY_GEMINI_MODEL} via new SDK)...`);
   const res = await genAI_new.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: PRIMARY_GEMINI_MODEL,
     contents: [
       {
         role: "user",
@@ -431,12 +418,12 @@ async function analyzeWithGeminiVisionNew(base64Data, mimeType) {
   });
   const text = res.text || res.candidates?.[0]?.content?.parts?.[0]?.text || "";
   if (!text) throw new Error("Gemini (new SDK) returned empty response");
-  console.log("[VITALIS IMAGE] Gemini (new SDK gemini-2.5-flash) raw:", text.slice(0, 200));
+  console.log(`[VITALIS IMAGE] Gemini (new SDK ${PRIMARY_GEMINI_MODEL}) raw:`, text.slice(0, 200));
   return text;
 }
 
 async function analyzeWithGeminiVision(base64Data, mimeType) {
-  // Try new SDK first (v1, gemini-2.5-flash), then legacy models
+  // Try new SDK first (v1, PRIMARY_GEMINI_MODEL), then legacy models
   if (genAI_new) {
     try {
       return await analyzeWithGeminiVisionNew(base64Data, mimeType);
@@ -455,8 +442,6 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
         generationConfig: {
           temperature: 0,
           maxOutputTokens: isThinkingModel ? 2000 : 500,
-          // Same thinking-eats-tokens issue applies here as the new SDK path —
-          // only 2.5+ models support/need this field.
           ...(isThinkingModel ? DISABLE_THINKING_CONFIG : {}),
         },
       });
