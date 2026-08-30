@@ -14,7 +14,6 @@ export function useNutritionTracker(USER_ID) {
   const [historyLoading,  setHistoryLoading]  = useState(false);
   const [toast,           setToast]           = useState(null);
   const [summarySeed,     setSummarySeed]     = useState(0);
-  const [lastLoggedMeal,  setLastLoggedMeal]  = useState(null);
   const [selectedDate,    setSelectedDate]    = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
@@ -75,9 +74,7 @@ export function useNutritionTracker(USER_ID) {
       await saveFoodLog(USER_ID, meal);
       showToast(`✓ ${meal.food_name} saved!`);
       setResult(null);
-      // ↓ NEW: expose the saved meal so the page can decide whether to show a plan suggestion
-      setLastLoggedMeal({ ...meal, _ts: Date.now() });
-      await loadHistory();
+      await loadHistory(selectedDate);
       setSummarySeed((s) => s + 1);
     } catch (err) {
       showToast("❌ " + err.message);
@@ -101,7 +98,6 @@ export function useNutritionTracker(USER_ID) {
     result, isAnalyzing, isLogging,
     history, historyLoading,
     toast, summarySeed,
-    lastLoggedMeal,
     selectedDate, setSelectedDate,
     handleAnalyze, handleLog, handleDeleteMeal, setToast,
   };

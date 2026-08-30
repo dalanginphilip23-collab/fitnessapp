@@ -9,7 +9,6 @@ import {
   UploadSection,
   ResultCard,
   MealHistory,
-  AISuggestion,
   ManualLogForm,
 } from "../components";
 import { getGreeting } from "../utils";
@@ -20,13 +19,11 @@ const NutritionTracker = () => {
   const USER_ID  = user?.id;
 
   const [sidebarExpanded,  setSidebarExpanded]  = useState(false);
-  const [showAISuggestion, setShowAISuggestion] = useState(false);
-  const [currentMeal,      setCurrentMeal]      = useState(null);
   const [manualLogTrigger, setManualLogTrigger] = useState(0);
 
   const {
     result, isAnalyzing, isLogging, history, historyLoading,
-    toast, summarySeed, lastLoggedMeal,
+    toast, summarySeed,
     selectedDate, setSelectedDate,
     handleAnalyze, handleLog, handleDeleteMeal,
   } = useNutritionTracker(USER_ID);
@@ -34,15 +31,6 @@ const NutritionTracker = () => {
   useEffect(() => {
     if (!USER_ID) navigate("/login");
   }, [USER_ID, navigate]);
-
-  useEffect(() => {
-    if (!lastLoggedMeal) return;
-    const t = setTimeout(() => {
-      setCurrentMeal(lastLoggedMeal);
-      setShowAISuggestion(true);
-    }, 0);
-    return () => clearTimeout(t);
-  }, [lastLoggedMeal]);
 
   return (
     <div className="min-h-screen bg-(--bg-primary) text-(--text-primary)" style={{ fontFamily: "Poppins, sans-serif" }}>
@@ -78,14 +66,6 @@ const NutritionTracker = () => {
           </div>
         </div>
       </main>
-
-      {showAISuggestion && currentMeal && (
-        <AISuggestion
-          meal={currentMeal}
-          userId={USER_ID}
-          onClose={() => { setShowAISuggestion(false); setCurrentMeal(null); }}
-        />
-      )}
 
       <div className="md:hidden"><MobileNav onFABClick={() => setManualLogTrigger(t => t + 1)} /></div>
       <ManualLogForm onLog={handleLog} shouldOpen={manualLogTrigger} />
