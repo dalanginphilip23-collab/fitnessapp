@@ -173,7 +173,7 @@ app.get("/api/admin/migrate", async (req, res) => {
     const targetDb = String(process.env.DB_NAME || "").toLowerCase();
     const result = { dbHost: process.env.DB_HOST, dbName: process.env.DB_NAME, beforeTables: tableNames, hasUsers, ran: [] };
     // Deploy to both DBs if fitnessapp exists on Aiven (you now have defaultdb + fitnessapp) — ensure both get schema
-    const files = hasUsers ? ["004_add_exercise_slug_to_plan_exercises.sql"] : ["000_baseline_schema.sql", "004_add_exercise_slug_to_plan_exercises.sql"];
+    const files = hasUsers ? ["004_add_exercise_slug_to_plan_exercises.sql", "005_add_emoji_to_food_logs.sql"] : ["000_baseline_schema.sql", "004_add_exercise_slug_to_plan_exercises.sql", "005_add_emoji_to_food_logs.sql"];
     for (const file of files) {
       const full = path.join(__dirname, "../migrations", file);
       if (!fs.existsSync(full)) { result.ran.push({ file, status: "not_found" }); continue; }

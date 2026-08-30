@@ -4,6 +4,15 @@ const { analyzeFoodImage, suggestPlanForMeal } = require('../config/gemini');
 const { sendMealSummaryEmail } = require('../services/mail');
 const clients = require('./sseClients');
 
+let emojiColumnExists = false;
+
+(async () => {
+  try {
+    const [cols] = await db.execute("SHOW COLUMNS FROM food_logs LIKE 'emoji'");
+    emojiColumnExists = cols.length > 0;
+  } catch (_) {}
+})();
+
 // IMAGE ANALYSIS CACHE — full hash + mime, LRU O(1), TTL 15m
 const analysisCache = new Map();
 const CACHE_TTL_MS = 15 * 60 * 1000;
@@ -82,10 +91,17 @@ async function getPlanSuggestion(meal, plans, dailyContext) {
 }
 
 async function insertFoodLog(userId, { food_name, calories, protein, carbs, fat, image_url, emoji }) {
+  if (emojiColumnExists) {
+    return db.execute(
+      `INSERT INTO food_logs (user_id, food_name, calories, protein, carbs, fat, image_url, emoji, logged_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [userId, food_name, calories || 0, protein || 0, carbs || 0, fat || 0, image_url || null, emoji || null]
+    );
+  }
   return db.execute(
-    `INSERT INTO food_logs (user_id, food_name, calories, protein, carbs, fat, image_url, emoji, logged_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-    [userId, food_name, calories || 0, protein || 0, carbs || 0, fat || 0, image_url || null, emoji || null]
+    `INSERT INTO food_logs (user_id, food_name, calories, protein, carbs, fat, image_url, logged_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
+    [userId, food_name, calories || 0, protein || 0, carbs || 0, fat || 0, image_url || null]
   );
 }
 
@@ -124,7 +140,8 @@ async function getFoodLogs(userId, limit, offset, date) {
   const safeLimit = Math.min(Math.max(1, Math.floor(Number(limit) || 200)), 500);
   const safeOffset = Math.max(0, Math.floor(Number(offset) || 0));
 
-  let query = `SELECT id, food_name, calories, protein, carbs, fat, image_url, emoji,
+  const emojiCol = emojiColumnExists ? 'emoji,' : '';
+  let query = `SELECT id, food_name, calories, protein, carbs, fat, image_url, ${emojiCol}
                       DATE_FORMAT(logged_at, '%Y-%m-%d %H:%i') AS logged_at
                FROM food_logs WHERE user_id = ?`;
   const params = [userId];
