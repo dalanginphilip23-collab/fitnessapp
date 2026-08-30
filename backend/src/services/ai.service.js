@@ -15,12 +15,12 @@ async function analyzePoseImage(image, metadata) {
             Be very concise.
         `.trim();
   const imageB64 = image.split(',')[1];
-  // Try new SDK first (v1, gemini-2.5-flash)
+  // Try new SDK first (v1, gemini-3.6-flash)
   if (genAI_new) {
     try {
       const res = await withTimeout(
         () => genAI_new.models.generateContent({
-          model: "gemini-2.5-flash",
+          model: "gemini-3.6-flash",
           contents: [{ role: "user", parts: [{ text: prompt }, { inlineData: { data: imageB64, mimeType: "image/jpeg" } }] }],
           config: { maxOutputTokens: 300, temperature: 0.3 },
         }),
@@ -34,7 +34,7 @@ async function analyzePoseImage(image, metadata) {
     }
   }
   if (!genAI_legacy) throw new Error("No Gemini SDK available");
-  const model = genAI_legacy.getGenerativeModel({ model: "gemini-1.5-flash-002" });
+  const model = genAI_legacy.getGenerativeModel({ model: "gemini-2.0-flash" });
   const imageParts = [{ inlineData: { data: imageB64, mimeType: "image/jpeg" } }];
   const result = await withTimeout(
     () => model.generateContent([prompt, ...imageParts]),

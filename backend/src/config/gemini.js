@@ -21,8 +21,7 @@ try {
   console.warn("[VITALIS AI] legacy @google/generative-ai not available:", e.message);
 }
 const groq  = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const DISABLE_THINKING_CONFIG = { thinkingConfig: { thinkingBudget: 0 } };
-const PRIMARY_GEMINI_MODEL = "gemini-2.5-flash";
+const PRIMARY_GEMINI_MODEL = "gemini-3.6-flash";
 
 
 // SECTION 1 — TEXT-ONLY FALLBACK CHAIN
@@ -32,7 +31,7 @@ async function callViaNewSDK(prompt) {
   const res = await genAI_new.models.generateContent({
     model: PRIMARY_GEMINI_MODEL,
     contents: [{ role: "user", parts: [{ text: prompt }] }],
-    config: { maxOutputTokens: 2000, temperature: 0.3, ...DISABLE_THINKING_CONFIG },
+    config: { maxOutputTokens: 2000, temperature: 0.3 },
   });
   return res.text || res.candidates?.[0]?.content?.parts?.[0]?.text || "";
 }
@@ -49,7 +48,7 @@ async function callViaLegacy(prompt, modelName) {
 
 async function callGeminiWithFallback(prompt, opts = {}) {
   const legacyModels = [
-    "gemini-1.5-flash-002",
+    "gemini-2.0-flash",
   ];
 
   // 1. New SDK (PRIMARY_GEMINI_MODEL on v1)
@@ -87,7 +86,7 @@ async function callGeminiWithFallback(prompt, opts = {}) {
   try {
     const resp = await withTimeout(
       () => groq.chat.completions.create({
-        model:            "llama-3.3-70b-versatile",
+        model:            "llama-3.1-8b-instant",
         max_tokens:       1000,
         temperature:      0.3,
         messages:         [{ role: "user", content: prompt }],
@@ -97,7 +96,7 @@ async function callGeminiWithFallback(prompt, opts = {}) {
     );
     const text = resp.choices[0]?.message?.content;
     if (text) {
-      console.log("[VITALIS AI] ✅ Success with Groq llama-3.3-70b-versatile");
+      console.log("[VITALIS AI] ✅ Success with Groq llama-3.1-8b-instant");
       return text;
     }
   } catch (groqErr) {
@@ -396,7 +395,7 @@ async function analyzeWithGroqVision(base64Data, mimeType) {
 }
 
 const GEMINI_VISION_MODELS = [
-  "gemini-1.5-flash-002",
+  "gemini-2.0-flash",
 ];
 
 async function analyzeWithGeminiVisionNew(base64Data, mimeType) {
@@ -413,7 +412,7 @@ async function analyzeWithGeminiVisionNew(base64Data, mimeType) {
         ],
       },
     ],
-    config: { maxOutputTokens: 2000, temperature: 0, ...DISABLE_THINKING_CONFIG },
+    config: { maxOutputTokens: 2000, temperature: 0 },
   });
   const text = res.text || res.candidates?.[0]?.content?.parts?.[0]?.text || "";
   if (!text) throw new Error("Gemini (new SDK) returned empty response");
@@ -441,7 +440,6 @@ async function analyzeWithGeminiVision(base64Data, mimeType) {
         generationConfig: {
           temperature: 0,
           maxOutputTokens: isThinkingModel ? 2000 : 500,
-          ...(isThinkingModel ? DISABLE_THINKING_CONFIG : {}),
         },
       });
 
