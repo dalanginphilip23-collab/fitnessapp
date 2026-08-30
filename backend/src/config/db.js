@@ -16,6 +16,7 @@ const db = mysql.createPool({
 
 db.on('connection', (connection) => {
     connection.query("SET time_zone = '+08:00'");
+    connection.query("SET sql_mode = REPLACE(@@sql_mode, 'ANSI_QUOTES', '')");
 });
 
 module.exports = db.promise();
