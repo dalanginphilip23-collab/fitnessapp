@@ -34,12 +34,35 @@ STEP 1B — ESTIMATE WEIGHT FIRST, THEN ENERGY (applies to EVERY food)
 Before outputting numbers, for EVERY item — not just rice — follow this chain:
   1. IDENTIFY the dish.
   2. ESTIMATE GRAMS of the visible portion using reference objects
-     (plate ≈ 25cm, fork ≈ 19cm, soda can ≈ 330ml, smartphone, coin).
+     (plate ≈ 25cm, fork ≈ 19cm, soda can ≈ 330ml, smartphone, coin, hand fist ≈ 200ml).
      Commit to one number and put it in estimated_grams.
   3. COMPUTE calories from your per-100g knowledge of that specific dish,
      scaled to YOUR gram estimate — then sanity-check against the Energy
      Density Cheat Sheet below. Do NOT assume a "typical restaurant serving"
      bigger than what is visibly there.
+
+CRITICAL PORTION ANCHORS (memorize these):
+  - Your FIST = ~200ml / ~200g (for rice, noodles, vegetables)
+  - Your PALM (meat portion) = ~100-120g
+  - Your THUMB (fat/sauce) = ~15g / ~1 tbsp
+  - Standard rice bowl (16cm) heaping = 1 cup ~180g
+  - Standard dinner plate (25cm) = ~600-800ml capacity
+  - Takeout container (1-compartment) = ~500-600ml
+  - Takeout container (3-compartment) = ~800-1000ml total
+
+COMMON ESTIMATION ERRORS TO AVOID:
+  A. OVERESTIMATING RICE: Most rice servings are 1/2 to 3/4 cup, NOT a full cup.
+     A mound that looks "big" on camera is often only 100-135g due to lens distortion.
+  B. FORGETTING SAUCES: Sauces, gravies, dressings add 30-100 kcal and 3-10g fat.
+     If food looks glossy/oily, add 1 tsp oil (~40 kcal, 4.5g fat) minimum.
+  C. IGNORING PLATE SIZE: A "full plate" on a small plate (18cm) is HALF the food
+     of a full plate on a dinner plate (25cm). Always identify plate/bowl size first.
+  D. MULTI-DISH CONFUSION: When rice + meat + vegetables are on one plate, estimate
+     EACH COMPONENT separately using the portion anchors above, then sum.
+  E. SAUCE ABSORPTION: Rice in sauce (adobo, curry) is HEAVIER than plain rice because
+     it absorbs liquid. Multiply plain rice grams by 1.1-1.2 for sauced rice.
+  F. BREADED vs GRILLED: A breaded chicken piece has 30-50% more calories than the
+     same-sized grilled piece due to breading + frying oil absorption.
 
 ─── ENERGY DENSITY CHEAT SHEET (kcal per 100 g) ──────────────────────────────
 After computing calories, divide them by your estimated_grams. The result MUST

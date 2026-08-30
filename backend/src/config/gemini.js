@@ -270,6 +270,50 @@ function validateAndCorrectMacros(parsed) {
   return { ...parsed, calories, protein, carbs, fat };
 }
 
+// ─── PROTEIN DENSITY VALIDATION ─────────────────────────────────────────
+// Catches cases where model wildly overestimates protein for a given food
+function validateProteinDensity(parsed) {
+  let { calories, protein, carbs, fat, food_name = '', estimated_grams } = parsed;
+  const grams = Math.max(10, Math.round(Number(estimated_grams) || 0));
+  if (!grams || grams < 10) return parsed;
+
+  // Max reasonable protein per 100g by food category
+  const PROTEIN_MAX_PER_100G = [
+    { keywords: ['rice','noodles','pasta','pancit','bread','pandesal','toast'], max: 8 },
+    { keywords: ['fruit','banana','apple','mango','orange','grapes'], max: 2 },
+    { keywords: ['salad','vegetable','pinakbet','steamed vegetables'], max: 8 },
+    { keywords: ['soup','sinigang','nilaga','broth','lugaw'], max: 10 },
+    { keywords: ['dessert','cake','pastry','halo','flan','biko','ice cream'], max: 8 },
+    { keywords: ['fried chicken','breaded','cutlet','chickenjoy'], max: 25 },
+    { keywords: ['grilled chicken','chicken breast'], max: 35 },
+    { keywords: ['fish','salmon','tilapia','bangus'], max: 28 },
+    { keywords: ['beef','pork','meat','adobo','steak','sisig','lechon','crispy pata'], max: 30 },
+    { keywords: ['egg'], max: 16 },
+    { keywords: ['milk','yogurt','cheese'], max: 15 },
+    { keywords: ['burger','sandwich'], max: 22 },
+    { keywords: ['pizza'], max: 15 },
+    { keywords: ['fries','chips'], max: 6 },
+    { keywords: ['sauce','oil','mayo','butter'], max: 5 },
+  ];
+
+  const n = food_name.toLowerCase();
+  for (const band of PROTEIN_MAX_PER_100G) {
+    if (band.keywords.some(kw => n.includes(kw))) {
+      const proteinPer100g = (protein / grams) * 100;
+      if (proteinPer100g > band.max) {
+        const correctedProtein = Math.round((band.max * grams) / 100);
+        console.warn(`[VITALIS IMAGE] Protein density too high for "${food_name}": ${proteinPer100g.toFixed(1)}g/100g > ${band.max}g/100g — correcting ${protein}g → ${correctedProtein}g`);
+        protein = correctedProtein;
+        // Rebalance calories from macros
+        calories = Math.max(calories, protein * 4 + carbs * 4 + fat * 9);
+        break;
+      }
+    }
+  }
+
+  return { ...parsed, calories, protein, carbs, fat };
+}
+
 // ─── DENSITY & ANCHOR REFINEMENT (for 90% accuracy) ───────────────────────
 function enforceDensityAndAnchor(parsed) {
   let { calories, protein, carbs, fat, food_name = '', estimated_grams } = parsed;
@@ -513,7 +557,8 @@ async function analyzeFoodImage(base64Data, mimeType = "image/jpeg") {
       }
 
       const corrected = validateAndCorrectMacros(parsed);
-      const refined = enforceDensityAndAnchor(corrected);
+      const proteinChecked = validateProteinDensity(corrected);
+      const refined = enforceDensityAndAnchor(proteinChecked);
       console.log(
         `[VITALIS IMAGE] ✅ Final result in ${Date.now() - startedAt}ms total:`,
         JSON.stringify(refined)
@@ -604,6 +649,7 @@ module.exports = {
   analyzeFoodImage,
   suggestPlanForMeal,
   validateAndCorrectMacros,
+  validateProteinDensity,
   enforceDensityAndAnchor,
   withTimeout,
   TEXT_TIMEOUT_MS,
