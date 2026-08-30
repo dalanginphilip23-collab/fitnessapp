@@ -1,7 +1,7 @@
 import React from 'react';
-import HistoryTab from './historyTab';
-import StatsTab from './statsTab';
-import FeedTab from './FeedTab';
+import HistoryTab from '../tabs/HistoryTab';
+import StatsTab from '../tabs/StatsTab';
+import FeedTab from '../tabs/FeedTab';
 
 // Desktop right-hand panel for the Strava-style layout.
 // Top: the live session (idle CTA / recording stats / summary card / detail).

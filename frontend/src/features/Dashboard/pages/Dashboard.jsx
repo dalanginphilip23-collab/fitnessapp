@@ -17,6 +17,13 @@ import { CaloriesCard, WorkoutCard } from '../components/MetricSmallCards';
 import TodaysPlanCard from '../components/TodaysPlanCard';
 
 import FeedbackModal from '../../../components/ui/FeedbackModal';
+import {
+  SkeletonHero,
+  SkeletonRing,
+  SkeletonMetric,
+  SkeletonSleepGraph,
+  SkeletonClinicalAssistant,
+} from '../../../components/ui/Skeleton';
 
 import { useClinicalAI }     from '../hooks/useClinicalAI';
 import { useActivityLogger } from '../hooks/useActivityLogger';
@@ -58,10 +65,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (!user) return;
     setAuthOverride(user.name || null, user.avatar || null);
-    // Keyed on primitives only: the `user` object identity changes on every
-    // auth refresh and would re-fire this override needlessly.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.name, user?.avatar, setAuthOverride]);
+  }, [user, setAuthOverride]);
 
   const { isAnalyzing, generateClinicalInsight } =
     useClinicalAI(USER_ID, setInsights);
@@ -93,7 +97,8 @@ const Dashboard = () => {
     [data.stats?.sleep_duration, data.stats?.sleep_quality]
   );
 
-  if (loading)  return null;
+  const isInitialLoad = loading || !data.stats;
+
   if (!USER_ID) return null;
 
   return (
@@ -122,32 +127,53 @@ const Dashboard = () => {
       >
         <div className="w-full max-w-[1400px] mx-auto flex flex-col gap-4">
           {/* Daily Readiness Hero — same on all devices */}
-          <Hero
-            name={heroName}
-            avatar={heroAvatar}
-            readiness={readiness}
-            onCoachInsight={() => navigate('/dashboard/analytics')}
-          />
+          {isInitialLoad ? (
+            <SkeletonHero />
+          ) : (
+            <Hero
+              name={heroName}
+              avatar={heroAvatar}
+              readiness={readiness}
+              onCoachInsight={() => navigate('/dashboard/analytics')}
+            />
+          )}
 
           {/* Unified GoGreen layout — identical on mobile & desktop, responsive grid */}
           <DateStrip />
           <div>
             <p className="text-[13px] font-black text-[var(--text-primary)] mb-2 px-1">Daily Activity</p>
-            <DailyActivityCard
-              steps={{ value: data.stats?.steps || 0, goal: 10000 }}
-              weeklyMap={data.weeklyMap || null}
-              onExpand={() => navigate('/dashboard/analytics')}
-            />
+            {isInitialLoad ? (
+              <SkeletonRing />
+            ) : (
+              <DailyActivityCard
+                steps={{ value: data.stats?.steps || 0, goal: 10000 }}
+                weeklyMap={data.weeklyMap || null}
+                onExpand={() => navigate('/dashboard/analytics')}
+              />
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <CaloriesCard calories={{ value: data.stats?.calories_burned || 0, goal: 800 }} onClick={() => navigate('/dashboard/analytics')} />
-            <WorkoutCard sessionLoadMins={{ value: data.stats?.workout_duration_mins || 0, goal: 120 }} onClick={() => navigate('/dashboard/analytics')} />
+            {isInitialLoad ? (
+              <>
+                <SkeletonMetric />
+                <SkeletonMetric />
+              </>
+            ) : (
+              <>
+                <CaloriesCard calories={{ value: data.stats?.calories_burned || 0, goal: 800 }} onClick={() => navigate('/dashboard/analytics')} />
+                <WorkoutCard sessionLoadMins={{ value: data.stats?.workout_duration_mins || 0, goal: 120 }} onClick={() => navigate('/dashboard/analytics')} />
+              </>
+            )}
           </div>
-          <TodaysPlanCard
-            activePlan={activePlan}
-            activeProgramCount={activeProgramCount}
-            onView={() => navigate('/dashboard/plans')}
-          />
+          {isInitialLoad ? (
+            <SkeletonCard className="h-32" />
+          ) : (
+            <TodaysPlanCard
+              activePlan={activePlan}
+              activeProgramCount={activeProgramCount}
+              onView={() => navigate('/dashboard/plans')}
+            />
+          )}
 
           {/* Sleep + Clinical — responsive: stacked on mobile, 3/1 split on xl */}
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 items-start">
@@ -159,11 +185,19 @@ const Dashboard = () => {
                     <span className="text-[8px] sm:text-[9px] font-black text-[var(--accent)] uppercase tracking-widest truncate">AI Analyzing</span>
                   </div>
                 )}
-                <SleepHoursGraph biometrics={biometrics} userId={USER_ID} onExpand={() => navigate('/dashboard/analytics')} />
+                {isInitialLoad ? (
+                  <SkeletonSleepGraph />
+                ) : (
+                  <SleepHoursGraph biometrics={biometrics} userId={USER_ID} onExpand={() => navigate('/dashboard/analytics')} />
+                )}
               </div>
             </div>
             <div className="xl:col-span-1 min-w-0">
-              <ClinicalAssistant insights={insights} water={data.stats?.water_intake_ml || 0} sleep={data.stats?.sleep_duration || 0} quality={data.stats?.sleep_quality || 0} isAnalyzing={isAnalyzing} userId={USER_ID} />
+              {isInitialLoad ? (
+                <SkeletonClinicalAssistant />
+              ) : (
+                <ClinicalAssistant insights={insights} water={data.stats?.water_intake_ml || 0} sleep={data.stats?.sleep_duration || 0} quality={data.stats?.sleep_quality || 0} isAnalyzing={isAnalyzing} userId={USER_ID} />
+              )}
             </div>
           </div>
         </div>

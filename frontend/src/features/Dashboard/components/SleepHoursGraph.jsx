@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { API_BASE_URL } from '../../../config/port';
 
 const TABS = ['D', 'W', 'M'];
@@ -71,10 +71,14 @@ export const SleepHoursGraph = ({ userId = null, onExpand }) => {
   const [error,        setError]        = useState(null);
   const [animating,    setAnimating]    = useState(false);
 
+  const cacheRef = useRef(new Map());
+
   const sourceDef = DATA_SOURCES.find(s => s.key === activeSource);
   const metaObj   = sourceDef.metrics.find(m => m.key === activeMetric) ?? sourceDef.metrics[0];
   const accentColor = sourceDef.color;
   const gradId      = `grad_${activeSource}`;
+
+  const cacheKey = `${activeSource}:${activeTab}:${activeMetric}`;
 
   const handleSourceSwitch = (key) => {
     if (key === activeSource) return;
@@ -89,6 +93,11 @@ export const SleepHoursGraph = ({ userId = null, onExpand }) => {
   const fetchData = useCallback(async () => {
     if (!userId) {
       setGraphData([]);
+      return;
+    }
+
+    if (cacheRef.current.has(cacheKey)) {
+      setGraphData(cacheRef.current.get(cacheKey));
       return;
     }
 
@@ -108,7 +117,9 @@ export const SleepHoursGraph = ({ userId = null, onExpand }) => {
       }
 
       const json = await res.json();
-      setGraphData(Array.isArray(json) ? json : []);
+      const data = Array.isArray(json) ? json : [];
+      cacheRef.current.set(cacheKey, data);
+      setGraphData(data);
     } catch (err) {
       console.error('[SleepHoursGraph] Fetch error:', err.message);
       setError(err.message);
@@ -116,7 +127,12 @@ export const SleepHoursGraph = ({ userId = null, onExpand }) => {
     } finally {
       setLoading(false);
     }
-  }, [userId, activeSource, activeTab, activeMetric]);
+  }, [userId, activeSource, activeTab, activeMetric, cacheKey]);
+
+  const handleRetry = () => {
+    cacheRef.current.delete(cacheKey);
+    fetchData();
+  };
 
   useEffect(() => {
     fetchData();
@@ -124,7 +140,7 @@ export const SleepHoursGraph = ({ userId = null, onExpand }) => {
 
   const points = graphData;
 
-  const getPath = () => {
+  const pathData = useMemo(() => {
     if (points.length === 0) return '';
     const W = 1000, H = 200;
     const step = points.length > 1 ? W / (points.length - 1) : W / 2;
@@ -133,28 +149,28 @@ export const SleepHoursGraph = ({ userId = null, onExpand }) => {
       const y = H - (Math.min(Number(pt.value), metaObj.max) / metaObj.max) * H;
       return path + `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)} `;
     }, '');
-  };
+  }, [points, metaObj.max]);
 
-  const pathData = getPath();
+  const avg = useMemo(() => {
+    if (points.length === 0) return 0;
+    return points.reduce((s, p) => s + Number(p.value), 0) / points.length;
+  }, [points]);
 
-  const avg = points.length
-    ? points.reduce((s, p) => s + Number(p.value), 0) / points.length
-    : 0;
+  const avgDisplay = useMemo(() =>
+    metaObj.unit === 'h' ? avg.toFixed(1) : Math.round(avg).toLocaleString()
+  , [avg, metaObj.unit]);
 
-  const avgDisplay = metaObj.unit === 'h'
-    ? avg.toFixed(1)
-    : Math.round(avg).toLocaleString();
-
-  const status     = getStatus(activeSource, activeMetric, avg);
+  const status = useMemo(() => getStatus(activeSource, activeMetric, avg), [activeSource, activeMetric, avg]);
   const rangeLabel = activeTab === 'D' ? '24 Hours' : activeTab === 'W' ? '7 Days' : '30 Days';
 
-  // Headline number in the summary box: latest reading on the daily view
-  // ("Last Night"), period average on the weekly/monthly views.
-  const headlineValue = activeTab === 'D' ? points[points.length - 1]?.value ?? 0 : avg;
+  const headlineValue = useMemo(() =>
+    activeTab === 'D' ? points[points.length - 1]?.value ?? 0 : avg
+  , [activeTab, points, avg]);
+
   const headlineLabel = activeTab === 'D' ? 'Last Night' : activeTab === 'W' ? 'Weekly Avg' : 'Monthly Avg';
   const headlineDisplay = formatHeadline(headlineValue, metaObj);
 
-  const xLabelIndices = (() => {
+  const xLabelIndices = useMemo(() => {
     if (points.length === 0) return [];
     if (points.length <= 5)  return points.map((_, i) => i);
     return [
@@ -164,7 +180,7 @@ export const SleepHoursGraph = ({ userId = null, onExpand }) => {
       Math.round(points.length * 0.75),
       points.length - 1,
     ];
-  })();
+  }, [points]);
 
   return (
     <div className="bg-[var(--bg-tertiary)] border min-h-[410px] border-[var(--border-light)] rounded-[20px] p-6 pb-4 transition-all duration-300 card-glow">
@@ -192,7 +208,15 @@ export const SleepHoursGraph = ({ userId = null, onExpand }) => {
             <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest">Loading…</span>
           )}
           {error && !loading && (
-            <span className="text-[9px] font-black text-[#f26048] uppercase tracking-widest">Error</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-black text-[#f26048] uppercase tracking-widest">Error</span>
+              <button
+                onClick={handleRetry}
+                className="text-[9px] font-bold text-[var(--accent)] hover:underline bg-transparent border-none cursor-pointer"
+              >
+                Retry
+              </button>
+            </div>
           )}
           {/* Source switcher (Sleep vs AI Sleep Analysis) — compact icon toggle */}
           <div className="hidden sm:flex bg-[var(--bg-hover)] border border-[var(--border-light)] rounded-lg p-0.5 gap-0.5">

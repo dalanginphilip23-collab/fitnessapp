@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import { MapContainer, TileLayer, Polyline } from 'react-leaflet';
-import FitRoute from './fitRoute';
-import { getActivityType } from '../utils/activityTypes';
-import { buildElevationProfile } from '../utils/elevation';
+import FitRoute from '../map/FitRoute';
+import { getActivityType } from '../../utils/activityTypes';
+import { buildElevationProfile } from '../../utils/elevation';
 
 // Strava-style share image. The route map fills the whole card; big stats,
 // title, brand, and an optional elevation profile sit on a dark gradient

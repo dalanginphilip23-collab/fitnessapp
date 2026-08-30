@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { API_BASE_URL } from '../../../config/port';
 import { MAP_ICONS } from '../components';
-import FitRoute from '../components/fitRoute';
+import FitRoute from '../components/map/FitRoute';
 import { getActivityType } from '../utils/activityTypes';
 import { buildElevationProfile } from '../utils/elevation';
 

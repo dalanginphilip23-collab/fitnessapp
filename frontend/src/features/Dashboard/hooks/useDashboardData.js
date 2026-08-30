@@ -3,10 +3,10 @@ import { io } from 'socket.io-client';
 import { API_BASE_URL } from '../../../config/port';
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000';
-const socket = io(SOCKET_URL, { withCredentials: true });
 const getTodayKey = () => new Date().toLocaleDateString('en-CA');
 
 export const useDashboardData = (USER_ID) => {
+  const socketRef = useRef(null);
   const [data, setData]             = useState({ stats: {}, profile: {} });
   const [insights, setInsights]     = useState([]);
   const [biometrics, setBiometrics] = useState([]);
@@ -54,13 +54,22 @@ export const useDashboardData = (USER_ID) => {
   useEffect(() => {
     if (!USER_ID) return;
 
+    const socket = io(SOCKET_URL, { withCredentials: true });
+    socketRef.current = socket;
+
     const fetchDashboardData = async () => {
       try {
-        const response  = await fetch(`${API_BASE_URL}/api/dashboard/${USER_ID}`, { credentials: 'include' });
-        const result    = await response.json();
+        const [response, sleepRes, bioRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/api/dashboard/${USER_ID}`, { credentials: 'include' }),
+          fetch(`${API_BASE_URL}/api/sleep/${USER_ID}/today`, { credentials: 'include' }),
+          fetch(`${API_BASE_URL}/api/sleep/${USER_ID}?range=D&metric=duration`, { credentials: 'include' }),
+        ]);
 
-        const sleepRes  = await fetch(`${API_BASE_URL}/api/sleep/${USER_ID}/today`, { credentials: 'include' });
-        const sleepData = await sleepRes.json();
+        const [result, sleepData, bioData] = await Promise.all([
+          response.json(),
+          sleepRes.json(),
+          bioRes.json(),
+        ]);
 
         setData(mergeData({
           ...result,
@@ -72,8 +81,6 @@ export const useDashboardData = (USER_ID) => {
           },
         }));
 
-        const bioRes  = await fetch(`${API_BASE_URL}/api/sleep/${USER_ID}?range=D&metric=duration`, { credentials: 'include' });
-        const bioData = await bioRes.json();
         if (Array.isArray(bioData) && bioData.length > 0) {
           setBiometrics(bioData);
         }
@@ -120,6 +127,9 @@ export const useDashboardData = (USER_ID) => {
     return () => {
       socket.off('new-biometric-data',   handleNewBiometric);
       socket.off('new-clinical-insight', handleNewInsight);
+      socket.emit('leave-room', USER_ID);
+      socket.disconnect();
+      socketRef.current = null;
       clearInterval(dayCheckInterval);
     };
   }, [USER_ID]);

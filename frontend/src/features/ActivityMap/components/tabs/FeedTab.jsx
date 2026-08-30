@@ -1,5 +1,5 @@
 import React from 'react';
-import { getActivityType } from '../utils/activityTypes';
+import { getActivityType } from '../../utils/activityTypes';
 
 // Tiny static SVG route thumbnail — a normalized polyline of the activity
 // route. Much lighter than mounting a Leaflet map per feed card.

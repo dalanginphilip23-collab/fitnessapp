@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ShareCard from './ShareCard';
-import { getActivityType } from '../utils/activityTypes';
+import { getActivityType } from '../../utils/activityTypes';
 
 // Share modal — Strava-style actions for a finished activity:
 //  1. Format picker (Grid 1:1 for feeds / Story 9:16 for IG & FB stories)
@@ -56,7 +56,7 @@ const ShareSheet = ({
   const handleCopyLink = async () => {
     if (!shareUrl) return;
     try {
-      const { copyText } = await import('../utils/shareImage');
+      const { copyText } = await import('../../utils/shareImage');
       await copyText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);

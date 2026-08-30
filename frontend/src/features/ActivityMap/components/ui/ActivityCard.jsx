@@ -1,5 +1,5 @@
 import React from 'react';
-import { ACTIVITY_TYPE_KEYS, getActivityType } from '../utils/activityTypes';
+import { ACTIVITY_TYPE_KEYS, getActivityType } from '../../utils/activityTypes';
 
 // Shared activity card used across the desktop panel and the mobile bottom
 // sheet. Editable while a finished run waits to be saved; static once viewed

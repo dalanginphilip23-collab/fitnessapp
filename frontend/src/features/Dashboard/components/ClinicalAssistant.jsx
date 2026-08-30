@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Icon from '../../../components/ui/Icon';
 import { API_BASE_URL } from '../../../config/port';
+import { useNavigate } from 'react-router-dom';
 
 const trendIcon = (trend) => {
   if (trend === 'up')   return { icon: 'trending_up',   color: '#4ade80' };
@@ -8,22 +9,24 @@ const trendIcon = (trend) => {
   return                       { icon: 'trending_flat', color: '#facc15' };
 };
 
-// Used to keep the default "Recent Insights" view scoped to today only.
-// "Show All History" intentionally bypasses this and shows everything.
-// Prefers the raw ISO `created_at` the backend now sends; falls back to
-// the display `timestamp`. A locale string like "7/31/2026, 6:56:37 PM"
-// fails `new Date()` in many locales, which silently hid today's insights.
+const parseInsightDate = (source) => {
+  if (!source) return null;
+  if (source.includes('T') || source.includes('-')) {
+    return new Date(source);
+  }
+  // Fallback for locale strings like "7/31/2026, 6:56:37 PM"
+  const cleaned = source.replace(',', '');
+  return new Date(cleaned);
+};
+
 const isToday = (item) => {
   const source = item?.created_at ?? item?.timestamp;
-  if (!source) return false;
-  const d = new Date(source);
-  if (Number.isNaN(d.getTime())) return false;
+  const d = parseInsightDate(source);
+  if (!d || Number.isNaN(d.getTime())) return false;
   const now = new Date();
-  return (
-    d.getFullYear() === now.getFullYear() &&
+  return d.getFullYear() === now.getFullYear() &&
     d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate()
-  );
+    d.getDate() === now.getDate();
 };
 
 const categoryColor = (category) => {
@@ -66,6 +69,7 @@ const InsightCard = ({ item }) => {
 };
 
 const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, userId = null }) => {
+  const navigate = useNavigate();
   const [barWidth,     setBarWidth]     = useState(0);
   const [showHistory,  setShowHistory]  = useState(false);
   const [history,      setHistory]      = useState([]);
@@ -85,51 +89,36 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
     return () => clearTimeout(timer);
   }, [water]);
 
-  useEffect(() => {
-    if (!userId || insights.length > 0) return;
-    const fetchLatestIfEmpty = async () => {
-      setHistoryLoad(true);
-      try {
-        const res  = await fetch(`${API_BASE_URL}/api/ai/history/${userId}`, { credentials: 'include' });
-        if (!res.ok) throw new Error(`History request failed: HTTP ${res.status}`);
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) setHistory(data);
-      } catch (err) {
-        console.error('Initial fetch error:', err);
-      } finally {
-        setHistoryLoad(false);
-      }
-    };
-    fetchLatestIfEmpty();
-  }, [userId, insights.length]);
+  const fetchHistory = useCallback(async () => {
+    if (!userId) return;
+    setHistoryLoad(true);
+    setHistoryError(false);
+    try {
+      const res  = await fetch(`${API_BASE_URL}/api/ai/history/${userId}`, { credentials: 'include' });
+      if (!res.ok) throw new Error(`History request failed: HTTP ${res.status}`);
+      const data = await res.json();
+      setHistory(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('History fetch error:', err);
+      setHistoryError(true);
+    } finally {
+      setHistoryLoad(false);
+    }
+  }, [userId]);
 
   useEffect(() => {
-    if (!showHistory || !userId) return;
-    const fetchHistory = async () => {
-      setHistoryLoad(true);
-      setHistoryError(false);
-      try {
-        const res  = await fetch(`${API_BASE_URL}/api/ai/history/${userId}`, { credentials: 'include' });
-        if (!res.ok) throw new Error(`History request failed: HTTP ${res.status}`);
-        const data = await res.json();
-        setHistory(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error('History fetch error:', err);
-        setHistoryError(true);
-      } finally {
-        setHistoryLoad(false);
-      }
-    };
-    fetchHistory();
-  }, [showHistory, userId]);
+    if (!userId) return;
+    if (insights.length === 0 || showHistory) {
+      fetchHistory();
+    }
+  }, [userId, insights.length, showHistory, fetchHistory]);
 
   const activeInsights = showHistory
     ? history
     : (insights.length > 0 ? insights : history.filter(item => isToday(item)).slice(0, 5));
 
   return (
-    <div className="h-full min-h-[600px] lg:h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[20px] p-[22px] flex flex-col overflow-hidden card-glow">
-      {/* Header */}
+    <div className="h-full min-h-[400px] lg:min-h-[calc(100vh-120px)] bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded-[20px] p-[22px] flex flex-col overflow-hidden card-glow">
       <div className="flex items-center justify-between mb-5 flex-shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-[var(--accent-bg)] flex items-center justify-center">
@@ -146,23 +135,21 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
         )}
       </div>
 
-      {/* Hydration */}
       <div className="mb-5 flex-shrink-0">
         <div className="flex justify-between items-center mb-2">
           <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-bold">Hydration</span>
-          <span className={`text-[10px] font-black ${Number(water) < 1000 ? 'text-[#ef5350]' : 'text-(--metric-water)'}`}>
+          <span className={`text-[10px] font-black ${Number(water) < 2000 ? 'text-[#ef5350]' : 'text-(--metric-water)'}`}>
             {water} / {goal} ml
           </span>
         </div>
         <div className="h-1.5 bg-[var(--bg-hover)] rounded-full w-full relative overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-1000 ease-in-out ${Number(water) < 1000 ? 'bg-[#ef5350]' : 'bg-(--metric-water)'}`}
+            className={`h-full rounded-full transition-all duration-1000 ease-in-out ${Number(water) < 2000 ? 'bg-[#ef5350]' : 'bg-(--metric-water)'}`}
             style={{ width: `${barWidth}%`, minWidth: barWidth > 0 ? '4px' : '0px' }}
           />
         </div>
       </div>
 
-      {/* History toggle */}
       <div className="mb-4 flex-shrink-0">
         <button
           onClick={() => setShowHistory(prev => !prev)}
@@ -186,7 +173,6 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
         </button>
       </div>
 
-      {/* Section label */}
       <div className="flex items-center gap-2 mb-3 flex-shrink-0">
         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)]">
           {showHistory ? 'Full AI History' : 'Recent Insights'}
@@ -197,7 +183,6 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
         <div className="flex-1 h-px bg-[var(--border-light)]" />
       </div>
 
-      {/* Insights list */}
       <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3">
         {historyLoad && (
           <div className="h-full flex items-center justify-center">
@@ -217,12 +202,29 @@ const ClinicalAssistant = ({ insights = [], water = 0, isAnalyzing = false, user
         )}
 
         {!historyLoad && !historyError && activeInsights.length === 0 && (
-          <div className="h-full flex items-center justify-center border-2 border-dashed border-[var(--border-light)] rounded-xl">
-            <p className="text-[11px] text-[var(--text-muted)] italic text-center px-4">
+          <div className="h-full flex flex-col items-center justify-center border-2 border-dashed border-[var(--border-light)] rounded-xl p-6 text-center">
+            <Icon name={showHistory ? 'history' : 'auto_awesome'} className="text-[40px] text-[var(--text-muted)] mb-3" />
+            <p className="text-[11px] text-[var(--text-muted)] italic mb-4 px-4">
               {showHistory
                 ? 'No history found. Your AI insights will appear here after analysis.'
                 : 'Log a workout and sync your sleep data to unlock your clinical analysis.'}
             </p>
+            {!showHistory && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => navigate('/dashboard/workouts')}
+                  className="px-4 py-2 bg-[var(--accent)] text-black text-[11px] font-bold rounded-lg hover:bg-[var(--accent-hover)] transition-colors"
+                >
+                  Start Workout
+                </button>
+                <button
+                  onClick={() => navigate('/dashboard/analytics')}
+                  className="px-4 py-2 border border-[var(--border-medium)] text-[var(--text-primary)] text-[11px] font-bold rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
+                >
+                  Sync Sleep
+                </button>
+              </div>
+            )}
           </div>
         )}
 

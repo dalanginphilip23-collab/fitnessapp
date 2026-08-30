@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import Icon from '../../../components/ui/Icon';
 
 export default function DailyActivityCard({ steps = { value: 0, goal: 10000 }, weeklyMap = null, onExpand }) {
-  const pct = Math.min(100, Math.round((Number(steps.value) || 0) / (steps.goal || 10000) * 100));
+  const pct = useMemo(() => Math.min(100, Math.round((Number(steps.value) || 0) / (steps.goal || 10000) * 100)), [steps.value, steps.goal]);
   const size = 52;
   const sw = 5;
   const r = (size - sw) / 2;
@@ -10,17 +10,15 @@ export default function DailyActivityCard({ steps = { value: 0, goal: 10000 }, w
   const off = circ - (pct / 100) * circ;
 
   const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  // Real-time: highlight today, not hardcoded Fri
   const todayIdx = useMemo(() => {
-    const js = new Date().getDay(); // 0 Sun .. 6 Sat
-    return js === 0 ? 6 : js - 1;    // Mon=0 .. Sun=6
+    const js = new Date().getDay();
+    return js === 0 ? 6 : js - 1;
   }, []);
 
-  // Build Mon-Sun dates for current week to lookup steps from weeklyMap if available
   const weekKeys = useMemo(() => {
     const now = new Date();
     const js = now.getDay();
-    const monOffset = js === 0 ? -6 : 1 - js; // offset to Monday
+    const monOffset = js === 0 ? -6 : 1 - js;
     const mon = new Date(now);
     mon.setDate(now.getDate() + monOffset);
     mon.setHours(0,0,0,0);
