@@ -86,7 +86,7 @@ async function callGeminiWithFallback(prompt, opts = {}) {
   try {
     const resp = await withTimeout(
       () => groq.chat.completions.create({
-        model:            "llama-3.1-8b-instant",
+        model:            "qwen/qwen3.6-27b",
         max_tokens:       1000,
         temperature:      0.3,
         messages:         [{ role: "user", content: prompt }],
@@ -94,9 +94,10 @@ async function callGeminiWithFallback(prompt, opts = {}) {
       TEXT_TIMEOUT_MS,
       "groq-fallback",
     );
-    const text = resp.choices[0]?.message?.content;
+    let text = resp.choices[0]?.message?.content || "";
+    text = text.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/<think>[\s\S]*$/g, '').trim();
     if (text) {
-      console.log("[VITALIS AI] ✅ Success with Groq llama-3.1-8b-instant");
+      console.log("[VITALIS AI] ✅ Success with Groq qwen/qwen3.6-27b");
       return text;
     }
   } catch (groqErr) {
@@ -368,10 +369,8 @@ async function analyzeWithGroqVision(base64Data, mimeType) {
       console.log(`[VITALIS IMAGE] Trying Groq vision (${groqModel})...`);
       const resp = await groq.chat.completions.create({
         model:             groqModel,
-        max_tokens:        700,
+        max_tokens:        2000,
         temperature:       0,
-        reasoning_effort:  "none",   // disable/minimize internal reasoning so it doesn't eat the token budget
-        reasoning_format:  "hidden", // strip any remaining <think> block from the returned content
         messages: [
           {
             role:    "user",
@@ -382,7 +381,8 @@ async function analyzeWithGroqVision(base64Data, mimeType) {
           },
         ],
       });
-      const text = resp.choices[0]?.message?.content;
+      let text = resp.choices[0]?.message?.content || "";
+      text = text.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/<think>[\s\S]*$/g, '').trim();
       if (!text) throw new Error("Groq returned empty response");
       console.log(`[VITALIS IMAGE] Groq (${groqModel}) raw:`, text.slice(0, 200));
       return text;
