@@ -29,8 +29,7 @@ export default function DailyActivityCard({ steps = { value: 0, goal: 10000 }, w
     });
   }, []);
 
-  // Fallback pattern when no weeklyMap (keeps visual similar to old)
-  const pattern = [0.62, 0.42, 0.55, 0.58, 0.92, 0.68, 0.74];
+  // No fallback pattern — show empty bars when no real data
 
   return (
     <div className="bg-[var(--bg-tertiary)] rounded-[20px] p-4 flex flex-col gap-3 border border-[var(--border-light)] shadow-lg">
@@ -68,9 +67,9 @@ export default function DailyActivityCard({ steps = { value: 0, goal: 10000 }, w
           // Today uses live pct; other days use weeklyMap or fallback pattern
           const p = hasWeekly
             ? (isToday ? pct / 100 : Math.min(1, weekSteps / (steps.goal || 10000)))
-            : (isToday ? pct / 100 : pattern[i]);
+            : (isToday ? pct / 100 : 0);
           // Ensure visible bar even at 0
-          const h = isToday && pct === 0 ? 12 : Math.round(Math.max(0.08, Math.min(1, p)) * 52) + 8;
+          const h = isToday && pct === 0 ? 12 : (!hasWeekly && !isToday) ? 6 : Math.round(Math.max(0.08, Math.min(1, p)) * 52) + 8;
           return (
             <div key={day} className="flex-1 flex flex-col items-center gap-1.5">
               <div className={`w-full max-w-[28px] rounded-full transition-all ${isToday ? 'bg-[var(--accent)]' : 'bg-[var(--border-light)]'}`} style={{ height: h }} title={hasWeekly ? `${weekSteps} steps` : undefined} />
