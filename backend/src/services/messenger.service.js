@@ -52,8 +52,8 @@ async function searchUsers(query, excludeId) {
 
 async function addFriend(userId, friendId) {
   return db.execute(
-    'INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, "close_friend") ON DUPLICATE KEY UPDATE status="close_friend"',
-    [userId, friendId]
+    'INSERT INTO friendships (user_id, friend_id, status) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE status = ?',
+    [userId, friendId, 'close_friend', 'close_friend']
   );
 }
 
