@@ -22,7 +22,7 @@ try {
 }
 const groq  = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const DISABLE_THINKING_CONFIG = { thinkingConfig: { thinkingBudget: 0 } };
-const PRIMARY_GEMINI_MODEL = "gemini-3.6-flash";
+const PRIMARY_GEMINI_MODEL = "gemini-1.5-flash";
 
 
 // SECTION 1 — TEXT-ONLY FALLBACK CHAIN
@@ -49,7 +49,8 @@ async function callViaLegacy(prompt, modelName) {
 
 async function callGeminiWithFallback(prompt, opts = {}) {
   const legacyModels = [
-    "gemini-2.0-flash-lite",
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-8b",
   ];
 
   // 1. New SDK (PRIMARY_GEMINI_MODEL on v1)
@@ -87,10 +88,9 @@ async function callGeminiWithFallback(prompt, opts = {}) {
   try {
     const resp = await withTimeout(
       () => groq.chat.completions.create({
-        model:            "openai/gpt-oss-120b",
+        model:            "llama-3.1-70b-versatile",
         max_tokens:       1000,
         temperature:      0.3,
-        reasoning_effort: "none", // gpt-oss-120b supports this too — avoid the same thinking-eats-budget failure
         messages:         [{ role: "user", content: prompt }],
       }),
       TEXT_TIMEOUT_MS,
@@ -98,7 +98,7 @@ async function callGeminiWithFallback(prompt, opts = {}) {
     );
     const text = resp.choices[0]?.message?.content;
     if (text) {
-      console.log("[VITALIS AI] ✅ Success with Groq openai/gpt-oss-120b");
+      console.log("[VITALIS AI] ✅ Success with Groq llama-3.1-70b-versatile");
       return text;
     }
   } catch (groqErr) {
@@ -359,8 +359,8 @@ function parseNutritionJSON(raw) {
 // VISION PROVIDERS
 
 const GROQ_VISION_MODELS = [
-  "qwen/qwen3.6-27b",
-  "qwen/qwen3.8-27b",
+  "llama-3.2-90b-vision-preview",
+  "llama-3.2-11b-vision-preview",
 ];
 
 async function analyzeWithGroqVision(base64Data, mimeType) {
