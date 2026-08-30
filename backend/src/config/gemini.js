@@ -22,7 +22,7 @@ try {
 }
 const groq  = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const DISABLE_THINKING_CONFIG = { thinkingConfig: { thinkingBudget: 0 } };
-const PRIMARY_GEMINI_MODEL = "gemini-1.5-flash";
+const PRIMARY_GEMINI_MODEL = "gemini-2.5-flash";
 
 
 // SECTION 1 — TEXT-ONLY FALLBACK CHAIN
@@ -49,8 +49,7 @@ async function callViaLegacy(prompt, modelName) {
 
 async function callGeminiWithFallback(prompt, opts = {}) {
   const legacyModels = [
-    "gemini-1.5-flash",
-    "gemini-1.5-flash-8b",
+    "gemini-1.5-flash-002",
   ];
 
   // 1. New SDK (PRIMARY_GEMINI_MODEL on v1)
@@ -88,7 +87,7 @@ async function callGeminiWithFallback(prompt, opts = {}) {
   try {
     const resp = await withTimeout(
       () => groq.chat.completions.create({
-        model:            "llama-3.1-70b-versatile",
+        model:            "llama-3.3-70b-versatile",
         max_tokens:       1000,
         temperature:      0.3,
         messages:         [{ role: "user", content: prompt }],
@@ -98,7 +97,7 @@ async function callGeminiWithFallback(prompt, opts = {}) {
     );
     const text = resp.choices[0]?.message?.content;
     if (text) {
-      console.log("[VITALIS AI] ✅ Success with Groq llama-3.1-70b-versatile");
+      console.log("[VITALIS AI] ✅ Success with Groq llama-3.3-70b-versatile");
       return text;
     }
   } catch (groqErr) {
@@ -359,8 +358,8 @@ function parseNutritionJSON(raw) {
 // VISION PROVIDERS
 
 const GROQ_VISION_MODELS = [
-  "llama-3.2-90b-vision-preview",
-  "llama-3.2-11b-vision-preview",
+  "qwen/qwen3.6-27b",
+  "qwen/qwen3.8-27b",
 ];
 
 async function analyzeWithGroqVision(base64Data, mimeType) {
@@ -397,7 +396,7 @@ async function analyzeWithGroqVision(base64Data, mimeType) {
 }
 
 const GEMINI_VISION_MODELS = [
-  "gemini-2.0-flash-lite",
+  "gemini-1.5-flash-002",
 ];
 
 async function analyzeWithGeminiVisionNew(base64Data, mimeType) {
