@@ -63,7 +63,19 @@ async function suggestPlan(req, res) {
       aiResult = JSON.parse(cleanJson);
     } catch {
       const match = cleanJson.match(/\{[\s\S]*\}/);
-      if (!match) throw new Error('Could not parse AI suggestion as JSON');
+      if (!match) {
+        return res.json({
+          food_name: meal.food_name,
+          calories: meal.calories,
+          message: raw || "AI coach is temporarily unavailable. Your meal has been logged!",
+          reasoning: "",
+          estimated_minutes: null,
+          recommended_plan: null,
+          recommended_source: null,
+          has_enrolled_plans: plans.some(p => p.is_enrolled === 1),
+          has_any_plans: plans.length > 0,
+        });
+      }
       aiResult = JSON.parse(match[0]);
     }
 

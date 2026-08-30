@@ -319,7 +319,20 @@ async function runAnalysis(req, res) {
     }
 
     const cleaned = raw.replace(/```json|```/gi, '').trim();
-    const aiResult = JSON.parse(cleaned);
+
+    let aiResult;
+    try {
+      aiResult = JSON.parse(cleaned);
+    } catch {
+      return res.json({
+        firstName,
+        summary: raw || "Run analysis is temporarily unavailable. Great run though!",
+        prediction: "Keep logging your runs for personalized predictions.",
+        tip: "Stay consistent with your training.",
+        emoji_verdict: "🏃",
+        stats: { distance: run.distance, duration: run.duration, pace: run.pace, calories: run.calories },
+      });
+    }
 
     try {
       await aiService.insertRunNotification(userId, `${aiResult.emoji_verdict} Run Analysis: ${aiResult.summary}`);
