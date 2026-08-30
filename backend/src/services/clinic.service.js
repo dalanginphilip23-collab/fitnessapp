@@ -27,15 +27,15 @@ async function createSession(userId, doctorName) {
 
 async function saveUserMessage(sessionId, message) {
   return db.execute(
-    'INSERT INTO clinic_messages (session_id, sender, message) VALUES (?, "user", ?)',
-    [sessionId, message]
+    'INSERT INTO clinic_messages (session_id, sender, message) VALUES (?, ?, ?)',
+    [sessionId, 'user', message]
   );
 }
 
 async function saveAiMessage(sessionId, message) {
   return db.execute(
-    'INSERT INTO clinic_messages (session_id, sender, message) VALUES (?, "ai", ?)',
-    [sessionId, message]
+    'INSERT INTO clinic_messages (session_id, sender, message) VALUES (?, ?, ?)',
+    [sessionId, 'ai', message]
   );
 }
 
