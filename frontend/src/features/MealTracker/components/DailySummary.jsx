@@ -25,13 +25,11 @@ export default function DailySummary({ userId, refreshSeed, selectedDate }) {
       setLoading(true);
       try {
         const [foodData, statsData] = await Promise.all([
-          fetchFoodLogs(userId),
+          fetchFoodLogs(userId, selectedDate),
           fetchDailyStats(userId, selectedDate).catch(() => null),
         ]);
 
-        const filtered = (foodData.records || []).filter(
-          (meal) => meal.logged_at && meal.logged_at.startsWith(selectedDate)
-        );
+        const filtered = foodData.records || [];
 
         const totals = filtered.reduce((acc, meal) => ({
           total_calories: acc.total_calories + (Number(meal.calories) || 0),

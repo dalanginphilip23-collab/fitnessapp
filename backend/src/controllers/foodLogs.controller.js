@@ -104,12 +104,12 @@ async function suggestPlan(req, res) {
 // POST /api/food-logs/:userId
 async function createLog(req, res) {
   const { userId } = req.params;
-  const { food_name, calories, protein, carbs, fat, image_url } = req.body;
+  const { food_name, calories, protein, carbs, fat, image_url, emoji } = req.body;
 
   if (!food_name) return res.status(400).json({ error: 'food_name is required' });
 
   try {
-    const [result] = await foodLogsService.insertFoodLog(userId, { food_name, calories, protein, carbs, fat, image_url });
+    const [result] = await foodLogsService.insertFoodLog(userId, { food_name, calories, protein, carbs, fat, image_url, emoji });
 
     res.status(200).json({ message: 'Food log saved', id: result.insertId });
 
@@ -141,9 +141,10 @@ async function getLogs(req, res) {
   const { userId } = req.params;
   const limit = parseInt(req.query.limit) || 200;
   const offset = parseInt(req.query.offset) || 0;
+  const date = req.query.date || null;
 
   try {
-    const { rows, total } = await foodLogsService.getFoodLogs(userId, limit, offset);
+    const { rows, total } = await foodLogsService.getFoodLogs(userId, limit, offset, date);
     res.json({ records: rows, total });
   } catch (err) {
     console.error('[food-log GET] ERROR:', err.message);

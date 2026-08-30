@@ -14,8 +14,11 @@ export function useNutritionTracker(USER_ID) {
   const [historyLoading,  setHistoryLoading]  = useState(false);
   const [toast,           setToast]           = useState(null);
   const [summarySeed,     setSummarySeed]     = useState(0);
-  // ↓ NEW: the most recently saved meal (works for both AI-analyzed and manual logs)
   const [lastLoggedMeal,  setLastLoggedMeal]  = useState(null);
+  const [selectedDate,    setSelectedDate]    = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  });
   const toastTimerRef = useRef(null);
   const analyzeAbortRef = useRef(null);
 
@@ -30,11 +33,11 @@ export function useNutritionTracker(USER_ID) {
     if (analyzeAbortRef.current) analyzeAbortRef.current.abort();
   }, []);
 
-  const loadHistory = useCallback(async () => {
+  const loadHistory = useCallback(async (date) => {
     if (!USER_ID) return;
     setHistoryLoading(true);
     try {
-      const data = await fetchFoodLogs(USER_ID);
+      const data = await fetchFoodLogs(USER_ID, date);
       if (data.records) setHistory(data.records);
     } catch (err) {
       console.error(err);
@@ -43,7 +46,7 @@ export function useNutritionTracker(USER_ID) {
     }
   }, [USER_ID]);
 
-  useEffect(() => { loadHistory(); }, [loadHistory]);
+  useEffect(() => { loadHistory(selectedDate); }, [loadHistory, selectedDate]);
 
   const handleAnalyze = async (dataUrl) => {
     if (analyzeAbortRef.current) analyzeAbortRef.current.abort();
@@ -98,7 +101,8 @@ export function useNutritionTracker(USER_ID) {
     result, isAnalyzing, isLogging,
     history, historyLoading,
     toast, summarySeed,
-    lastLoggedMeal,   // ← NEW export
+    lastLoggedMeal,
+    selectedDate, setSelectedDate,
     handleAnalyze, handleLog, handleDeleteMeal, setToast,
   };
 }

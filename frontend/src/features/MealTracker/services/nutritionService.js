@@ -96,14 +96,16 @@ export async function saveFoodLog(userId, meal) {
       carbs:     meal.carbs     || 0,
       fat:       meal.fat       || 0,
       image_url: meal.image_url || null,
+      emoji:     meal.emoji     || null,
     },
   });
   if (!ok) throw new Error(data?.error || "Save failed");
   return data;
 }
 
-export async function fetchFoodLogs(userId) {
-  const { ok, data } = await api(foodLogsPath(userId));
+export async function fetchFoodLogs(userId, date) {
+  const url = date ? `${foodLogsPath(userId)}?date=${date}` : foodLogsPath(userId);
+  const { ok, data } = await api(url);
   if (!ok) throw new Error(data?.error || "Fetch failed");
   return data;
 }

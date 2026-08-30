@@ -9,7 +9,7 @@ import { formatMealTime } from "../utils";
 export default function MealHistory({ meals, loading, onDeleteMeal, selectedDate }) {
   const [deletingId, setDeletingId] = useState(null);
 
-  const filteredMeals = meals.filter((meal) => meal.logged_at?.startsWith(selectedDate));
+  const filteredMeals = meals;
 
   const handleDelete = async (mealId) => {
     if (!window.confirm("Delete this meal? This action cannot be undone.")) return;
@@ -19,7 +19,9 @@ export default function MealHistory({ meals, loading, onDeleteMeal, selectedDate
     finally { setDeletingId(null); }
   };
 
-  const isToday   = selectedDate === new Date().toISOString().split("T")[0];
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  const isToday   = selectedDate === todayStr;
   const dateLabel = isToday
     ? "Today's Meals"
     : `Meals · ${new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;

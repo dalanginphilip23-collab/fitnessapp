@@ -20,7 +20,6 @@ const NutritionTracker = () => {
   const USER_ID  = user?.id;
 
   const [sidebarExpanded,  setSidebarExpanded]  = useState(false);
-  const [selectedDate,     setSelectedDate]     = useState(new Date().toISOString().split("T")[0]);
   const [showAISuggestion, setShowAISuggestion] = useState(false);
   const [currentMeal,      setCurrentMeal]      = useState(null);
   const [manualLogTrigger, setManualLogTrigger] = useState(0);
@@ -28,6 +27,7 @@ const NutritionTracker = () => {
   const {
     result, isAnalyzing, isLogging, history, historyLoading,
     toast, summarySeed, lastLoggedMeal,
+    selectedDate, setSelectedDate,
     handleAnalyze, handleLog, handleDeleteMeal,
   } = useNutritionTracker(USER_ID);
 
