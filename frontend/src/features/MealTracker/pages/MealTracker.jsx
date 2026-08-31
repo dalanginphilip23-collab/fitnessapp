@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Sidebar, Topbar, MobileNav, Toast } from "../../../components";
 import { useAuth } from "../../../hooks/useAuth";
 import { useNutritionTracker } from "../hooks/useNutritionTracker";
+import { useGoals } from "../hooks/useGoals";
 import {
   DateNavigator,
   DailySummary,
@@ -27,6 +28,8 @@ const NutritionTracker = () => {
     selectedDate, setSelectedDate,
     handleAnalyze, handleLog, handleDeleteMeal,
   } = useNutritionTracker(USER_ID);
+
+  const { calorieGoal, macroTargets } = useGoals(USER_ID);
 
   return (
     <div className="min-h-screen bg-(--bg-primary) text-(--text-primary)" style={{ fontFamily: "Poppins, sans-serif" }}>
@@ -53,10 +56,17 @@ const NutritionTracker = () => {
 
           {/* ── Content stack ── */}
           <div className="flex flex-col gap-3 sm:gap-4">
-            <DailySummary userId={USER_ID} refreshSeed={summarySeed} selectedDate={selectedDate} meals={history} />
+            <DailySummary
+              userId={USER_ID}
+              refreshSeed={summarySeed}
+              selectedDate={selectedDate}
+              meals={history}
+              calorieGoal={calorieGoal}
+              macroTargets={macroTargets}
+            />
 
             <UploadSection onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
-            {result && <ResultCard result={result} onLog={handleLog} isLogging={isLogging} />}
+            {result && <ResultCard result={result} onLog={handleLog} isLogging={isLogging} macroTargets={macroTargets} />}
 
             <MealHistory meals={history} loading={historyLoading} onDeleteMeal={handleDeleteMeal} selectedDate={selectedDate} />
           </div>

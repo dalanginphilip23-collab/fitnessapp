@@ -4,11 +4,13 @@ import CalorieRing from "./CalorieRing";
 import MacroStatCard from "./MacroStatCard";
 import Spinner from "./Spinner";
 import { fetchDailyStats } from "../services/nutritionService";
-import { CALORIE_GOAL } from "../constants";
 
 const ZERO_SUMMARY = { total_calories: 0, total_protein: 0, total_carbs: 0, total_fat: 0 };
 
-export default function DailySummary({ userId, refreshSeed, selectedDate, meals }) {
+export default function DailySummary({ userId, refreshSeed, selectedDate, meals, calorieGoal, macroTargets }) {
+  const goal = calorieGoal || 2000;
+  const targets = macroTargets || { protein: 120, carbs: 200, fat: 60 };
+
   const [summary, setSummary] = useState(ZERO_SUMMARY);
   const [burned, setBurned]   = useState(0);
   const [steps, setSteps]     = useState(0);
@@ -51,20 +53,23 @@ export default function DailySummary({ userId, refreshSeed, selectedDate, meals 
   }, [userId, refreshSeed, selectedDate, meals]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const consumed  = summary.total_calories;
-  const remaining = Math.max(Math.round(CALORIE_GOAL - consumed + burned), 0);
+  const remaining = goal - consumed + burned;
+  const isOver    = remaining < 0;
 
   return (
     <div className="flex flex-col gap-3 sm:gap-4">
-      {/* Big calorie ring card — centered like reference */}
+      {/* Big calorie ring card */}
       <div className="bg-(--bg-card) rounded-2xl p-6 sm:p-8 border border-(--border-light) shadow-sm flex flex-col items-center gap-6">
         {loading && (
           <div className="self-end -mb-2"><Spinner /></div>
         )}
-        <CalorieRing consumed={consumed} goal={CALORIE_GOAL} />
+        <CalorieRing consumed={consumed} goal={goal} isOver={isOver} />
         <div className="w-full grid grid-cols-3 gap-4 text-center">
           <div>
-            <p className="text-[11px] text-(--text-muted) mb-1">Remaining</p>
-            <p className="text-xl sm:text-2xl font-black text-(--accent)">{remaining.toLocaleString()}</p>
+            <p className="text-[11px] text-(--text-muted) mb-1">{isOver ? "Over" : "Remaining"}</p>
+            <p className={`text-xl sm:text-2xl font-black ${isOver ? "text-red-400" : "text-(--accent)"}`}>
+              {isOver ? `+${Math.abs(remaining).toLocaleString()}` : remaining.toLocaleString()}
+            </p>
             <p className="text-[10px] text-(--text-muted)">kcal</p>
           </div>
           <div>
@@ -74,12 +79,12 @@ export default function DailySummary({ userId, refreshSeed, selectedDate, meals 
           </div>
           <div>
             <p className="text-[11px] text-(--text-muted) mb-1">Daily Goal</p>
-            <p className="text-[13px] sm:text-sm font-bold text-(--text-primary) mt-2">{CALORIE_GOAL.toLocaleString()} kcal</p>
+            <p className="text-[13px] sm:text-sm font-bold text-(--text-primary) mt-2">{goal.toLocaleString()} kcal</p>
           </div>
         </div>
       </div>
 
-      {/* Activity burned today (from manual dashboard log) */}
+      {/* Activity burned today */}
       <div className="bg-(--bg-card) rounded-2xl p-4 sm:p-5 border border-(--border-light) shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <p className="text-[10px] sm:text-xs font-semibold text-(--text-muted) uppercase tracking-widest">Activity today</p>
@@ -101,11 +106,11 @@ export default function DailySummary({ userId, refreshSeed, selectedDate, meals 
         </div>
       </div>
 
-      {/* Macro cards */}
+      {/* Macro cards — pass dynamic targets */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
-        <MacroStatCard macroKey="protein" label="Protein" value={summary.total_protein} />
-        <MacroStatCard macroKey="carbs"   label="Carbs"   value={summary.total_carbs} />
-        <MacroStatCard macroKey="fat"     label="Fat"     value={summary.total_fat} />
+        <MacroStatCard macroKey="protein" label="Protein" value={summary.total_protein} target={targets.protein} />
+        <MacroStatCard macroKey="carbs"   label="Carbs"   value={summary.total_carbs}   target={targets.carbs} />
+        <MacroStatCard macroKey="fat"     label="Fat"     value={summary.total_fat}      target={targets.fat} />
       </div>
     </div>
   );

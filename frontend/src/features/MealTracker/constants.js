@@ -1,5 +1,9 @@
+// Fallback defaults — overridden by useGoals hook when BMI data is available
 export const CALORIE_GOAL = 2000;
 export const MACRO_TARGETS = { protein: 120, carbs: 200, fat: 60 };
+
+// Atwater general factors (kcal per gram)
+export const ATWATER = { protein: 4, carbs: 4, fat: 9, alcohol: 7 };
 export const MEAL_TYPES = ["Breakfast", "Lunch", "Dinner", "Snack"];
 export const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 export const DOW_LABELS = ["Su","Mo","Tu","We","Th","Fr","Sa"];
