@@ -10,8 +10,12 @@ function escapeHtml(value) {
 }
 
 async function sendFeedbackEmail({ name, email, message }) {
+  const receiverEmail = process.env.RECEIVER_EMAIL;
+  if (!receiverEmail) {
+    throw new Error('RECEIVER_EMAIL environment variable is not configured');
+  }
   await sendEmail({
-    to: process.env.RECEIVER_EMAIL,
+    to: receiverEmail,
     subject: "New Feedback Message",
     html: `
                 <div style="font-family: Arial; padding: 20px;">

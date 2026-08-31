@@ -163,7 +163,7 @@ export const useProfile = () => {
       }
     };
     fetchProfile();
-  }, [USER_ID, loading, user]);
+  }, [USER_ID, loading, user?.name, user?.avatar]);
 
   // ── Track dirty state ──────────────────────────────────────────────────────
   useEffect(() => {

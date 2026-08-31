@@ -43,10 +43,15 @@ async function sendMessage(sender_id, receiver_id, content) {
 }
 
 async function searchUsers(query, excludeId) {
-  const [rows] = await db.execute(
-    'SELECT id, name, avatar_url, is_online FROM users WHERE name LIKE ? AND id != ? LIMIT 10',
-    [`%${query}%`, excludeId]
-  );
+  if (!query?.trim()) return [];
+  let sql = 'SELECT id, name, avatar_url, is_online FROM users WHERE name LIKE ?';
+  const params = [`%${query}%`];
+  if (excludeId) {
+    sql += ' AND id != ?';
+    params.push(excludeId);
+  }
+  sql += ' LIMIT 10';
+  const [rows] = await db.execute(sql, params);
   return rows;
 }
 

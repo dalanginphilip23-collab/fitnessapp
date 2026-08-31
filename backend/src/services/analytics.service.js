@@ -39,7 +39,7 @@ async function getZones(userId, timeframe) {
                 WHEN workout_type IN ('Walking', 'Yoga', 'Stretching')     THEN 'Zone 1 (Recovery)'
                 ELSE 'Zone 2 (Aerobic Base)'
             END as label,
-            COUNT(*) as minutes,
+            COUNT(*) as workout_count,
             ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(), 0) as pct
         FROM workout_logs
         WHERE user_id = ?

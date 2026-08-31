@@ -127,8 +127,8 @@ module.exports = (io) => {
                 }
 
                 await db.execute(
-                    `INSERT INTO posture_alerts (session_id, issue_type, feedback_text) VALUES (?, ?, ?)`,
-                    [sessionId, issueType, feedbackText]
+                    `INSERT INTO posture_alerts (user_id, alert_type) VALUES (?, ?)`,
+                    [socket.userId, issueType]
                 );
                 io.to(`user_${socket.userId}`).emit('new-clinical-insight', {
                     text: feedbackText, type: issueType, time: new Date().toLocaleTimeString()

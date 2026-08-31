@@ -6,12 +6,12 @@ const db = require('../config/db');
 // team but left unchanged per "no logic changes" instruction.
 async function saveCoachingSession(userId, { reps, alignment, velocity, symmetry }) {
   return db.execute(
-    `INSERT INTO workout_sessions 
-    (user_id, workout_label, reps, alignment, velocity, symmetry, created_at) 
+    `INSERT INTO coaching_sessions 
+    (user_id, exercise_type, total_reps, avg_alignment, avg_velocity, avg_symmetry, created_at) 
     VALUES (?, ?, ?, ?, ?, ?, NOW())`,
     [
       userId,
-      'Live Coached Session', // Generic label since coach chooses workout
+      'Live Coached Session',
       reps || 0,
       alignment || 0,
       velocity || 0,

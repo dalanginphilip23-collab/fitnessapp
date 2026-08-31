@@ -26,9 +26,9 @@ function requireAuth(req, res, next) {
       req.user = decoded;
       next();
     })
-    .catch(() => {
-      res.clearCookie(COOKIE_NAME);
-      return res.status(401).json({ message: 'Session expired' });
+    .catch((err) => {
+      console.error('[requireAuth] DB check failed:', err.message);
+      return res.status(503).json({ message: 'Service temporarily unavailable' });
     });
 }
 

@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 async function getSummary(userId) {
   const [hrv] = await db.execute(
-    'SELECT hrv_value as bpm FROM biometric_logs WHERE user_id = ? ORDER BY recorded_at DESC LIMIT 1',
+    'SELECT heart_rate as bpm FROM biometric_logs WHERE user_id = ? ORDER BY recorded_at DESC LIMIT 1',
     [userId]
   );
   const [stats] = await db.execute(

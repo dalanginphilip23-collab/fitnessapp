@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sidebar, Topbar, MobileNav, Toast } from "../../../components";
 import { useAuth } from "../../../hooks/useAuth";
@@ -27,10 +27,6 @@ const NutritionTracker = () => {
     selectedDate, setSelectedDate,
     handleAnalyze, handleLog, handleDeleteMeal,
   } = useNutritionTracker(USER_ID);
-
-  useEffect(() => {
-    if (!USER_ID) navigate("/login");
-  }, [USER_ID, navigate]);
 
   return (
     <div className="min-h-screen bg-(--bg-primary) text-(--text-primary)" style={{ fontFamily: "Poppins, sans-serif" }}>

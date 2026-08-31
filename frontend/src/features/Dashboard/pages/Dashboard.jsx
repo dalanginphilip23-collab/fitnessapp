@@ -21,6 +21,7 @@ import {
   SkeletonHero,
   SkeletonRing,
   SkeletonMetric,
+  SkeletonCard,
   SkeletonSleepGraph,
   SkeletonClinicalAssistant,
 } from '../../../components/ui/Skeleton';

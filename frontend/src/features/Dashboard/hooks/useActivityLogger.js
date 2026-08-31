@@ -24,10 +24,7 @@ export const useActivityLogger = (
 
         if (!logRes.ok) {
           const errBody = await logRes.text().catch(() => '');
-          console.error(`Log save failed (${logRes.status}):`, errBody);
-          // Bail out here — nothing was actually saved, so refetching the
-          // dashboard below would just redisplay stale data and mask the failure.
-          return;
+          throw new Error(`Log save failed (${logRes.status}): ${errBody}`);
         }
       }
 

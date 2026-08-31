@@ -78,6 +78,7 @@ export function useNutritionTracker(USER_ID) {
       setSummarySeed((s) => s + 1);
     } catch (err) {
       showToast("❌ " + err.message);
+      setResult(null);
     } finally {
       setIsLogging(false);
     }

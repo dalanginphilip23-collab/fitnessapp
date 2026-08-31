@@ -169,7 +169,7 @@ function computeAlignmentScore(landmarks) {
 // Main component
 // ══════════════════════════════════════════════════════════════════════════════
 const CameraWorkout = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const fromPlan = location.state?.fromPlan ?? null;
@@ -521,9 +521,10 @@ const CameraWorkout = () => {
   };
 
   const USER_ID = user?.id || null;
-  const handleLogout = () => {
-    // handled by Topbar via context; kept for Sidebar prop
-  };
+  const handleLogout = useCallback(async () => {
+    await logout();
+    navigate('/login');
+  }, [logout, navigate]);
 
   return (
     <div className="flex flex-row min-h-screen bg-(--bg-primary) text-(--text-primary) font-['Poppins'] overflow-hidden">

@@ -12,7 +12,9 @@ async function start(req, res) {
 
 async function end(req, res) {
   const logId = parseInt(req.params.id, 10);
-  const { status = 'completed', rep_count = 0 } = req.body;
+  const validStatuses = ['completed', 'cancelled'];
+  const status = validStatuses.includes(req.body.status) ? req.body.status : 'completed';
+  const rep_count = parseInt(req.body.rep_count, 10) || 0;
   try {
     const existing = await workoutLogsService.findOwnedLog(logId, req.user.id);
     if (!existing) return res.status(404).json({ message: 'Log not found' });

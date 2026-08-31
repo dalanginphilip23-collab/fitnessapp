@@ -254,24 +254,24 @@ const Topbar = ({ sidebarExpanded, userId }) => {
   useEffect(() => {
     if (!userId) return;
 
-    let es = null;
     let retryTimer = null;
     let retryDelay = 3000;
     let destroyed = false;
+    let currentEs = null;
 
     const connect = () => {
       if (destroyed) return;
 
-      es = new EventSource(
+      currentEs = new EventSource(
         `${API_BASE_URL}/api/notifications/stream/${userId}`,
         { withCredentials: true }
       );
 
-      es.onopen = () => {
+      currentEs.onopen = () => {
         retryDelay = 3000;
       };
 
-      es.onmessage = (e) => {
+      currentEs.onmessage = (e) => {
         try {
           const notif = JSON.parse(e.data);
           setNotifCount(prev => prev + 1);
@@ -282,8 +282,8 @@ const Topbar = ({ sidebarExpanded, userId }) => {
         }
       };
 
-      es.onerror = () => {
-        es.close();
+      currentEs.onerror = () => {
+        currentEs.close();
         if (!destroyed) {
           retryTimer = setTimeout(() => {
             retryDelay = Math.min(retryDelay * 1.5, 30000);
@@ -298,7 +298,7 @@ const Topbar = ({ sidebarExpanded, userId }) => {
     return () => {
       destroyed = true;
       clearTimeout(retryTimer);
-      es?.close();
+      currentEs?.close();
     };
     // addToast and fetchNotifications are intentionally omitted: this effect
     // manages the SSE connection lifecycle and should only reconnect when the

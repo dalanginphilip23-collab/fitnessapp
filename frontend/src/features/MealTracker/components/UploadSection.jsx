@@ -28,7 +28,6 @@ export default function UploadSection({ onAnalyze, isAnalyzing }) {
     if (preview && preview.startsWith('blob:')) URL.revokeObjectURL(preview);
     setPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
-    if (tab === "camera") setIsCameraOpen(true);
   };
 
   const handleAnalyzeClick = async () => {

@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { MobileNav, Sidebar, Topbar, Icon } from '../../../components';
 import { useAuth } from '../../../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { useContacts } from '../hooks/useContact';
 import { useMessages } from '../hooks/useMessages';
 
@@ -16,7 +17,8 @@ const AI_CONTACT = {
 };
 
 const ClinicalMessenger = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
+  const navigate = useNavigate();
   const userId = user?.id || null;
 
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
@@ -34,9 +36,10 @@ const ClinicalMessenger = () => {
   const socketRef = useRef(null);
 
   useEffect(() => {
+    if (!userId) return;
     socketRef.current = io(SOCKET_URL, { withCredentials: true });
     return () => { socketRef.current.disconnect(); };
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     if (!userId || !socketRef.current) return;
@@ -73,9 +76,14 @@ const ClinicalMessenger = () => {
 
   if (loading) return null;
 
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-[Poppins,sans-serif] overflow-hidden">
-      <Sidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
+      <Sidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} onClick={handleLogout} />
       <Topbar sidebarExpanded={sidebarExpanded} userId={userId} />
 
       <main

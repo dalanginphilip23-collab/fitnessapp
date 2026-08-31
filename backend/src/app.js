@@ -156,8 +156,18 @@ app.get("/api/admin/migrate", async (req, res) => {
     });
   }
 
+  const crypto = require('crypto');
   const token = String(req.query.token || req.headers["x-migrate-token"] || "");
-  const okToken = token.length > 0 && token === expected;
+  let okToken = false;
+  if (token.length > 0 && expected.length > 0) {
+    try {
+      const bufA = Buffer.from(token);
+      const bufB = Buffer.from(expected);
+      if (bufA.length === bufB.length) {
+        okToken = crypto.timingSafeEqual(bufA, bufB);
+      }
+    } catch { okToken = false; }
+  }
 
   if (!okToken) {
     console.warn(`[AdminMigrate] rejected request — token length ${token.length}`);
@@ -202,7 +212,7 @@ app.get("/api/admin/migrate", async (req, res) => {
     res.json({ success: true, message: hasUsers ? "Migration check done" : "Baseline deployed", ...result });
   } catch (e) {
     console.error("[AdminMigrate] error:", e);
-    res.status(500).json({ success: false, message: e.message, stack: e.stack?.slice(0,500) });
+    res.status(500).json({ success: false, message: 'Migration failed' });
   }
 });
 
