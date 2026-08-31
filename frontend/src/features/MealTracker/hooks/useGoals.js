@@ -4,15 +4,19 @@ import { API_BASE_URL } from "../../../config/port";
 // Atwater general factor system (kcal per gram)
 export const ATWATER = { protein: 4, carbs: 4, fat: 9, alcohol: 7 };
 
-// Goal-based macro ratio presets (protein g / carbs g / fat g per 1 kcal)
-// These are derived from evidence-based ranges:
-//   Protein: 1.6–2.2 g/kg → we use ~30% of calories
-//   Fat:     0.8–1.0 g/kg → we use ~25% of calories
-//   Carbs:   remainder     → ~45% of calories
+// Goal-based macro ratio presets (protein/carbs/fat as fraction of total kcal)
+// Derived from evidence-based ranges for each goal type.
 const GOAL_MACRO_RATIOS = {
-  cutting:   { proteinRatio: 0.35, carbRatio: 0.40, fatRatio: 0.25 },
+  cutting:     { proteinRatio: 0.35, carbRatio: 0.40, fatRatio: 0.25 },
   maintaining: { proteinRatio: 0.30, carbRatio: 0.45, fatRatio: 0.25 },
-  bulking:   { proteinRatio: 0.25, carbRatio: 0.50, fatRatio: 0.25 },
+  bulking:     { proteinRatio: 0.25, carbRatio: 0.50, fatRatio: 0.25 },
+};
+
+// Calorie adjustment from maintenance TDEE per goal type
+const GOAL_CALORIE_ADJUSTMENT = {
+  cutting: -500,
+  maintaining: 0,
+  bulking: +500,
 };
 
 // Fallback defaults when no BMI data exists
@@ -24,24 +28,24 @@ const FALLBACK = {
   goalType: "maintaining",
 };
 
-function computeMacroTargets(tdee, goalType) {
+function computeMacroTargets(calorieGoal, goalType) {
   const ratios = GOAL_MACRO_RATIOS[goalType] || GOAL_MACRO_RATIOS.maintaining;
   return {
-    protein: Math.round((tdee * ratios.proteinRatio) / ATWATER.protein),
-    carbs:   Math.round((tdee * ratios.carbRatio) / ATWATER.carbs),
-    fat:     Math.round((tdee * ratios.fatRatio) / ATWATER.fat),
+    protein: Math.round((calorieGoal * ratios.proteinRatio) / ATWATER.protein),
+    carbs:   Math.round((calorieGoal * ratios.carbRatio) / ATWATER.carbs),
+    fat:     Math.round((calorieGoal * ratios.fatRatio) / ATWATER.fat),
   };
 }
 
-function goalTypeFromFitnessGoal(fitnessGoal) {
+function resolveGoalType(fitnessGoal) {
   if (!fitnessGoal) return "maintaining";
   const g = String(fitnessGoal).toLowerCase();
-  if (g.includes("cut") || g.includes("loss") || g.includes("lean")) return "cutting";
-  if (g.includes("bulk") || g.includes("mass") || g.includes("strength")) return "bulking";
+  if (g.includes("cut") || g.includes("loss") || g.includes("lean") || g.includes("shred")) return "cutting";
+  if (g.includes("bulk") || g.includes("mass") || g.includes("strength") || g.includes("muscle")) return "bulking";
   return "maintaining";
 }
 
-export function useGoals(userId) {
+export function useGoals(userId, fitnessGoal) {
   const [goals, setGoals] = useState(FALLBACK);
   const [loading, setLoading] = useState(true);
 
@@ -57,7 +61,6 @@ export function useGoals(userId) {
     (async () => {
       setLoading(true);
       try {
-        // Fetch latest BMI record (has bmr, tdee, age, activity_level, weight, height)
         const res = await fetch(`${API_BASE_URL}/api/bmi/${userId}?limit=1`, {
           credentials: "include",
         });
@@ -71,19 +74,17 @@ export function useGoals(userId) {
         }
 
         const tdee = Math.round(record.tdee);
-        const bmr = Math.round(record.bmr || 0);
+        const bmr  = Math.round(record.bmr || 0);
 
-        // Determine goal type from user's fitness_goal or activity level
-        let goalType = "maintaining";
-        if (record.activity_level) {
-          const al = String(record.activity_level).toLowerCase();
-          if (al === "sedentary" || al === "light") goalType = "cutting";
-          else if (al === "heavy" || al === "athlete") goalType = "bulking";
-          else goalType = "maintaining";
-        }
+        // Use the user's actual fitness goal from their profile
+        const goalType = resolveGoalType(fitnessGoal);
 
-        const calorieGoal = tdee;
-        const macroTargets = computeMacroTargets(tdee, goalType);
+        // Calorie goal = TDEE + goal-specific adjustment
+        const adjustment = GOAL_CALORIE_ADJUSTMENT[goalType] ?? 0;
+        const calorieGoal = tdee + adjustment;
+
+        // Macro targets derived from the calorie goal
+        const macroTargets = computeMacroTargets(calorieGoal, goalType);
 
         if (!cancelled) {
           setGoals({ calorieGoal, macroTargets, bmr, tdee, goalType });
@@ -96,7 +97,7 @@ export function useGoals(userId) {
     })();
 
     return () => { cancelled = true; };
-  }, [userId]);
+  }, [userId, fitnessGoal]);
 
   return goals;
 }

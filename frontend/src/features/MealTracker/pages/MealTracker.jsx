@@ -29,7 +29,7 @@ const NutritionTracker = () => {
     handleAnalyze, handleLog, handleDeleteMeal,
   } = useNutritionTracker(USER_ID);
 
-  const { calorieGoal, macroTargets } = useGoals(USER_ID);
+  const { calorieGoal, macroTargets } = useGoals(USER_ID, user?.goal);
 
   return (
     <div className="min-h-screen bg-(--bg-primary) text-(--text-primary)" style={{ fontFamily: "Poppins, sans-serif" }}>
