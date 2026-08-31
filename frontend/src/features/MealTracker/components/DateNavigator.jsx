@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import Icon from "../../../components/ui/Icon";
 import { MONTH_NAMES, DOW_LABELS } from "../constants";
 
@@ -29,7 +29,10 @@ export default function DateNavigator({ currentDate, onDateChange }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const today   = new Date().toISOString().split("T")[0];
+  const today = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  })();
   const isToday = currentDate === today;
 
   const parseDate = (s) => {
@@ -40,7 +43,7 @@ export default function DateNavigator({ currentDate, onDateChange }) {
   const shiftDay = (delta) => {
     const d = parseDate(currentDate);
     d.setDate(d.getDate() + delta);
-    const next = d.toISOString().split("T")[0];
+    const next = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     if (next <= today) onDateChange(next);
   };
 
@@ -56,7 +59,7 @@ export default function DateNavigator({ currentDate, onDateChange }) {
     });
   };
 
-  const buildCalendarDays = () => {
+  const buildCalendarDays = useMemo(() => {
     const { year, month } = calendarMonth;
     const firstDow    = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -64,7 +67,7 @@ export default function DateNavigator({ currentDate, onDateChange }) {
     return Array.from({ length: totalCells }, (_, i) => {
       const dayNum  = i - firstDow + 1;
       const date    = new Date(year, month, dayNum);
-      const dateStr = date.toISOString().split("T")[0];
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
       return {
         dateStr,
         dayNum:         date.getDate(),
@@ -74,7 +77,7 @@ export default function DateNavigator({ currentDate, onDateChange }) {
         isFuture:       dateStr > today,
       };
     });
-  };
+  }, [calendarMonth, currentDate, today]);
 
   // Screenshot-style label: "Today" (or weekday) on top, full date below.
   const topLabel = isToday
@@ -136,7 +139,7 @@ export default function DateNavigator({ currentDate, onDateChange }) {
             </div>
 
             <div className="grid grid-cols-7 gap-0.5">
-              {buildCalendarDays().map(({ dateStr, dayNum, isCurrentMonth, isSelected, isDayToday, isFuture }) => (
+              {buildCalendarDays.map(({ dateStr, dayNum, isCurrentMonth, isSelected, isDayToday, isFuture }) => (
                 <button
                   key={dateStr}
                   disabled={isFuture}

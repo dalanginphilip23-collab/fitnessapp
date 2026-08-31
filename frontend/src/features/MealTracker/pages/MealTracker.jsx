@@ -53,7 +53,7 @@ const NutritionTracker = () => {
 
           {/* ── Content stack ── */}
           <div className="flex flex-col gap-3 sm:gap-4">
-            <DailySummary userId={USER_ID} refreshSeed={summarySeed} selectedDate={selectedDate} />
+            <DailySummary userId={USER_ID} refreshSeed={summarySeed} selectedDate={selectedDate} meals={history} />
 
             <UploadSection onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
             {result && <ResultCard result={result} onLog={handleLog} isLogging={isLogging} />}

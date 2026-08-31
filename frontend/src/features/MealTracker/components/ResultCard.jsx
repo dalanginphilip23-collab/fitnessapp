@@ -6,6 +6,11 @@ import { MACRO_TARGETS } from "../constants";
 export default function ResultCard({ result, onLog, isLogging }) {
   if (!result) return null;
 
+  const calories = Math.round(result.calories || 0);
+  const protein  = Math.round(result.protein  || 0);
+  const carbs    = Math.round(result.carbs    || 0);
+  const fat      = Math.round(result.fat      || 0);
+
   return (
     <div className="bg-(--bg-tertiary) rounded-2xl p-4 sm:p-5 border border-(--border-light) transition-shadow duration-300 hover:shadow-sm">
       <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -24,16 +29,16 @@ export default function ResultCard({ result, onLog, isLogging }) {
           )}
         </div>
         <div className="text-right shrink-0">
-          <p className="text-xl sm:text-2xl font-black text-(--accent)">{Math.round(result.calories)}</p>
+          <p className="text-xl sm:text-2xl font-black text-(--accent)">{calories}</p>
           <p className="text-[10px] text-(--text-muted) uppercase tracking-wide">kcal</p>
         </div>
       </div>
 
       <div className="flex flex-col gap-3 mb-5 sm:mb-6">
-        <MacroBar label="Protein" value={Math.round(result.protein)} unit="g" color="#60a5fa" pct={(result.protein / MACRO_TARGETS.protein) * 100} />
-        <MacroBar label="Carbs" value={Math.round(result.carbs)} unit="g" color="var(--accent)" pct={(result.carbs / MACRO_TARGETS.carbs) * 100} />
-        <MacroBar label="Fat" value={Math.round(result.fat)} unit="g" color="#f97316" pct={(result.fat / MACRO_TARGETS.fat) * 100} />
-        {result.estimated_grams && (()=>{ const m=result.protein*4+result.carbs*4+result.fat*9; const d=Math.abs(m-result.calories); const ok=d<=2 || d/result.calories<=0.05; return <p className="text-[10px] text-(--text-muted)">~{result.estimated_grams}g estimated · {ok ? `✓ macro math` : `macro math ≈${m} kcal`}</p>;})()}
+        <MacroBar label="Protein" value={protein} unit="g" color="#60a5fa" pct={MACRO_TARGETS.protein > 0 ? (protein / MACRO_TARGETS.protein) * 100 : 0} />
+        <MacroBar label="Carbs" value={carbs} unit="g" color="var(--accent)" pct={MACRO_TARGETS.carbs > 0 ? (carbs / MACRO_TARGETS.carbs) * 100 : 0} />
+        <MacroBar label="Fat" value={fat} unit="g" color="#f97316" pct={MACRO_TARGETS.fat > 0 ? (fat / MACRO_TARGETS.fat) * 100 : 0} />
+        {result.estimated_grams && (()=>{ const m=protein*4+carbs*4+fat*9; const d=Math.abs(m-calories); const ok=d<=2 || (calories > 0 && d/calories<=0.05); return <p className="text-[10px] text-(--text-muted)">~{result.estimated_grams}g estimated · {ok ? `✓ macro math` : `macro math ≈${m} kcal`}</p>;})()}
       </div>
 
       <button

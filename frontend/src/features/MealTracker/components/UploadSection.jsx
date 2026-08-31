@@ -37,7 +37,9 @@ export default function UploadSection({ onAnalyze, isAnalyzing }) {
 
   const switchTab = (next) => {
     if (next === tab) return;
+    if (preview && preview.startsWith('blob:')) URL.revokeObjectURL(preview);
     setPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
     setTab(next);
     if (next === "camera") setIsCameraOpen(true);
   };

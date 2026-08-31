@@ -3,14 +3,13 @@ import Icon from "../../../components/ui/Icon";
 import CalorieRing from "./CalorieRing";
 import MacroStatCard from "./MacroStatCard";
 import Spinner from "./Spinner";
-import { fetchFoodLogs, fetchDailyStats } from "../services/nutritionService";
+import { fetchDailyStats } from "../services/nutritionService";
 import { CALORIE_GOAL } from "../constants";
 
-// Calorie ring + macro cards. The data-fetching effect below is untouched
-// from the original component — only the returned markup was redesigned.
-export default function DailySummary({ userId, refreshSeed, selectedDate }) {
-  const ZERO = { total_calories: 0, total_protein: 0, total_carbs: 0, total_fat: 0 };
-  const [summary, setSummary] = useState(ZERO);
+const ZERO_SUMMARY = { total_calories: 0, total_protein: 0, total_carbs: 0, total_fat: 0 };
+
+export default function DailySummary({ userId, refreshSeed, selectedDate, meals }) {
+  const [summary, setSummary] = useState(ZERO_SUMMARY);
   const [burned, setBurned]   = useState(0);
   const [steps, setSteps]     = useState(0);
   const [durationMins, setDurationMins] = useState(0);
@@ -24,22 +23,16 @@ export default function DailySummary({ userId, refreshSeed, selectedDate }) {
     (async () => {
       setLoading(true);
       try {
-        const [foodData, statsData] = await Promise.all([
-          fetchFoodLogs(userId, selectedDate),
-          fetchDailyStats(userId, selectedDate).catch(() => null),
-        ]);
+        const statsData = await fetchDailyStats(userId, selectedDate).catch(() => null);
 
-        const filtered = foodData.records || [];
-
-        const totals = filtered.reduce((acc, meal) => ({
+        const totals = (meals || []).reduce((acc, meal) => ({
           total_calories: acc.total_calories + (Number(meal.calories) || 0),
           total_protein:  acc.total_protein  + (Number(meal.protein)  || 0),
           total_carbs:    acc.total_carbs    + (Number(meal.carbs)    || 0),
           total_fat:      acc.total_fat      + (Number(meal.fat)      || 0),
-        }), { ...ZERO });
+        }), { ...ZERO_SUMMARY });
 
-        let burnedStats = { calories_burned: 0, steps: 0, workout_duration_mins: 0 };
-        if (statsData) burnedStats = statsData;
+        const burnedStats = statsData ?? { calories_burned: 0, steps: 0, workout_duration_mins: 0 };
 
         if (!cancelled) {
           setSummary(totals);
@@ -55,7 +48,7 @@ export default function DailySummary({ userId, refreshSeed, selectedDate }) {
     })();
 
     return () => { cancelled = true; };
-  }, [userId, refreshSeed, selectedDate]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [userId, refreshSeed, selectedDate, meals]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const consumed  = summary.total_calories;
   const remaining = Math.max(Math.round(CALORIE_GOAL - consumed + burned), 0);

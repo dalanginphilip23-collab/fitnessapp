@@ -9,8 +9,6 @@ import { formatMealTime } from "../utils";
 export default function MealHistory({ meals, loading, onDeleteMeal, selectedDate }) {
   const [deletingId, setDeletingId] = useState(null);
 
-  const filteredMeals = meals;
-
   const handleDelete = async (mealId) => {
     if (!window.confirm("Delete this meal? This action cannot be undone.")) return;
     setDeletingId(mealId);
@@ -33,7 +31,7 @@ export default function MealHistory({ meals, loading, onDeleteMeal, selectedDate
         {loading && <Spinner />}
       </div>
 
-      {filteredMeals.length === 0 ? (
+      {meals.length === 0 ? (
         <div className="bg-(--bg-tertiary) rounded-2xl border border-(--border-light) flex flex-col items-center justify-center py-10 sm:py-12 text-center">
           <div className="w-12 h-12 rounded-2xl bg-(--bg-hover) flex items-center justify-center text-2xl mb-3">🍽️</div>
           <p className="text-(--text-muted) text-xs sm:text-sm font-medium">No meals logged {isToday ? "yet" : "on this day"}</p>
@@ -41,7 +39,7 @@ export default function MealHistory({ meals, loading, onDeleteMeal, selectedDate
         </div>
       ) : (
         <div className="flex flex-col gap-2 sm:gap-2.5">
-          {filteredMeals.map((meal) => (
+          {meals.map((meal) => (
             <div
               key={meal.id}
               className="flex items-center gap-3 p-2.5 sm:p-3 rounded-2xl bg-(--bg-card) border border-(--border-light) hover:border-(--border-medium) transition-all duration-200 group shadow-sm"

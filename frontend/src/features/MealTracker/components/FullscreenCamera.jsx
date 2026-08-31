@@ -13,8 +13,9 @@ import { useLockBodyScroll } from "../../../hooks/useLockBodyScroll";
  * retake / use-photo confirmation).
  */
 export default function FullscreenCamera({ onCapture, onClose }) {
-  const videoRef  = useRef(null);
-  const streamRef = useRef(null);
+  const videoRef    = useRef(null);
+  const streamRef   = useRef(null);
+  const flashTimerRef = useRef(null);
 
   const [facingMode, setFacingMode] = useState("environment");
   const [ready,       setReady]     = useState(false);
@@ -55,7 +56,10 @@ export default function FullscreenCamera({ onCapture, onClose }) {
 
   useEffect(() => {
     if (!captured) startStream(facingMode);
-    return () => stopStream();
+    return () => {
+      stopStream();
+      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [facingMode, captured]);
 
@@ -70,7 +74,8 @@ export default function FullscreenCamera({ onCapture, onClose }) {
     canvas.height = Math.round(video.videoHeight * scale);
     canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
     setFlash(true);
-    setTimeout(() => setFlash(false), 150);
+    if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+    flashTimerRef.current = setTimeout(() => setFlash(false), 150);
     setCaptured(canvas.toDataURL("image/jpeg", 0.75));
     stopStream();
   };

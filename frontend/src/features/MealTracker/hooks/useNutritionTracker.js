@@ -18,8 +18,9 @@ export function useNutritionTracker(USER_ID) {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   });
-  const toastTimerRef = useRef(null);
-  const analyzeAbortRef = useRef(null);
+  const toastTimerRef    = useRef(null);
+  const analyzeAbortRef  = useRef(null);
+  const historyAbortRef  = useRef(null);
 
   const showToast = useCallback((msg) => {
     setToast(msg);
@@ -30,24 +31,28 @@ export function useNutritionTracker(USER_ID) {
   useEffect(() => () => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     if (analyzeAbortRef.current) analyzeAbortRef.current.abort();
+    if (historyAbortRef.current) historyAbortRef.current.abort();
   }, []);
 
   const loadHistory = useCallback(async (date) => {
     if (!USER_ID) return;
+    if (historyAbortRef.current) historyAbortRef.current.abort();
+    const controller = new AbortController();
+    historyAbortRef.current = controller;
     setHistoryLoading(true);
     try {
       const data = await fetchFoodLogs(USER_ID, date);
-      if (data.records) setHistory(data.records);
+      if (!controller.signal.aborted && data.records) setHistory(data.records);
     } catch (err) {
-      console.error(err);
+      if (err.name !== 'AbortError') console.error(err);
     } finally {
-      setHistoryLoading(false);
+      if (!controller.signal.aborted) setHistoryLoading(false);
     }
   }, [USER_ID]);
 
   useEffect(() => { loadHistory(selectedDate); }, [loadHistory, selectedDate]);
 
-  const handleAnalyze = async (dataUrl) => {
+  const handleAnalyze = useCallback(async (dataUrl) => {
     if (analyzeAbortRef.current) analyzeAbortRef.current.abort();
     const controller = new AbortController();
     analyzeAbortRef.current = controller;
@@ -64,11 +69,11 @@ export function useNutritionTracker(USER_ID) {
       const msg = err.message?.includes("too large") ? err.message : err.message || "Analysis failed";
       showToast("❌ " + msg);
     } finally {
-      setIsAnalyzing(false);
+      if (!controller.signal.aborted) setIsAnalyzing(false);
     }
-  };
+  }, [showToast]);
 
-  const handleLog = async (meal) => {
+  const handleLog = useCallback(async (meal) => {
     setIsLogging(true);
     try {
       await saveFoodLog(USER_ID, meal);
@@ -82,9 +87,9 @@ export function useNutritionTracker(USER_ID) {
     } finally {
       setIsLogging(false);
     }
-  };
+  }, [USER_ID, selectedDate, loadHistory, showToast]);
 
-  const handleDeleteMeal = async (mealId) => {
+  const handleDeleteMeal = useCallback(async (mealId) => {
     try {
       await deleteFoodLog(USER_ID, mealId);
       setHistory((prev) => prev.filter((m) => m.id !== mealId));
@@ -93,7 +98,7 @@ export function useNutritionTracker(USER_ID) {
     } catch (err) {
       showToast("❌ " + err.message);
     }
-  };
+  }, [USER_ID, showToast]);
 
   return {
     result, isAnalyzing, isLogging,
