@@ -1,4 +1,5 @@
-const statsService = require('../services/stats.service');
+﻿const statsService = require('../services/stats.service');
+const logger = require('../utils/logger');
 
 async function getDaily(req, res) {
   const { userId } = req.params;
@@ -27,7 +28,7 @@ async function getDaily(req, res) {
 
     res.json(stats[0]);
   } catch (err) {
-    console.error('daily stats fetch error:', err.message);
+    logger.error('daily stats fetch error:', err.message);
     res.status(500).json({ error: 'Failed to fetch stats' });
   }
 }

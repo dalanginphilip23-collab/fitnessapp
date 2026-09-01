@@ -3,6 +3,9 @@ dns.setDefaultResultOrder("ipv4first");
 
 require("dotenv").config();
 
+const { validateEnv } = require("./src/config/env");
+validateEnv();
+
 const { server } = require("./src/app");
 const { verifyTransport } = require("./src/services/mail");
 

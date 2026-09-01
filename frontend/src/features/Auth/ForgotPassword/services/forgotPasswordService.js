@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../../../../config/port';
+import { API_BASE_URL } from '../../../../config/api';
 
 async function post(url, body) {
   const res = await fetch(`${API_BASE_URL}${url}`, {

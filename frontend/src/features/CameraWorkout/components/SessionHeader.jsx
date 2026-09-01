@@ -1,8 +1,8 @@
 import { Icon } from "../../../components";
 import { WORKOUT_OPTIONS } from "../constants/workout";
-import CameraToggleButton from "./cameraToggleButton";
-import StartStopButton from "./startStopButton";
-import VoiceToggleButton from './voiceToggleButton';
+import CameraToggleButton from "./CameraToggleButton";
+import StartStopButton from "./StartStopButton";
+import VoiceToggleButton from './VoiceToggleButton';
 
 export default function SessionHeader({ workoutType, label, isRecording, cameraOn, voiceEnabled, onStartStop, onCameraToggle, onVoiceToggle }) {
   const current = WORKOUT_OPTIONS.find(o => o.id === workoutType);

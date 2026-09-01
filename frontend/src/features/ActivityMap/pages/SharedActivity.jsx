@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MapContainer, TileLayer, Polyline, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { API_BASE_URL } from '../../../config/port';
+import { API_BASE_URL } from '../../../config/api';
 import { MAP_ICONS } from '../components';
 import FitRoute from '../components/map/FitRoute';
 import { getActivityType } from '../utils/activityTypes';

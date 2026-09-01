@@ -1,5 +1,6 @@
-const jwt = require('jsonwebtoken');
+﻿const jwt = require('jsonwebtoken');
 const db = require('../config/db');
+const logger = require('../utils/logger');
 
 const COOKIE_NAME = 'vitalis_session';
 
@@ -9,7 +10,7 @@ const COOKIE_NAME = 'vitalis_session';
 function getUserIdFromHandshake(socket) {
   if (socket.handshake.auth && socket.handshake.auth.token) {
     try {
-      const decoded = jwt.verify(socket.handshake.auth.token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(socket.handshake.auth.token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
       return decoded.id;
     } catch {
       return null;
@@ -25,7 +26,7 @@ function getUserIdFromHandshake(socket) {
     if (match) {
       const token = match.slice(COOKIE_NAME.length + 1);
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
         return decoded.id;
       } catch {
         return null;
@@ -59,7 +60,7 @@ module.exports = (io) => {
             return false;
         };
 
-        console.log('User Connected:', socket.id, '-> user', socket.userId);
+        logger.info('User Connected:', socket.id, '-> user', socket.userId);
 
         socket.on('join-room', (userId) => {
             // Only ever let a user join their own private room.
@@ -67,7 +68,7 @@ module.exports = (io) => {
                 return socket.emit('auth-error', { message: 'Forbidden room' });
             }
             socket.join(`user_${socket.userId}`);
-            console.log(`User ${socket.userId} joined private room user_${socket.userId}`);
+            logger.info(`User ${socket.userId} joined private room user_${socket.userId}`);
         });
 
         socket.on('send-chat', async (msg) => {
@@ -80,7 +81,7 @@ module.exports = (io) => {
                 return socket.emit('chat-error', { message: 'Missing receiver or content' });
             }
             if (isChatRateLimited()) {
-                return socket.emit('chat-error', { message: 'Slow down — too many messages' });
+                return socket.emit('chat-error', { message: 'Slow down â€” too many messages' });
             }
 
             try {
@@ -95,7 +96,7 @@ module.exports = (io) => {
                     isMe: false
                 });
             } catch (err) {
-                console.error("SQL Insert Error:", err);
+                logger.error("SQL Insert Error:", err);
             }
         });
 
@@ -114,7 +115,7 @@ module.exports = (io) => {
             }
 
             if (isChatRateLimited()) {
-                return socket.emit('auth-error', { message: 'Slow down — too many requests' });
+                return socket.emit('auth-error', { message: 'Slow down â€” too many requests' });
             }
 
             try {
@@ -134,10 +135,10 @@ module.exports = (io) => {
                     text: feedbackText, type: issueType, time: new Date().toLocaleTimeString()
                 });
             } catch (err) {
-                console.error("Alert Save Error:", err);
+                logger.error("Alert Save Error:", err);
             }
         });
 
-        socket.on('disconnect', () => console.log('User disconnected:', socket.id));
+        socket.on('disconnect', () => logger.info('User disconnected:', socket.id));
     });
 };

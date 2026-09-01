@@ -1,4 +1,5 @@
-const clinicService = require('../services/clinic.service');
+﻿const clinicService = require('../services/clinic.service');
+const logger = require('../utils/logger');
 
 async function createOrGetSession(req, res) {
   const { userId, doctorName } = req.body;
@@ -15,7 +16,7 @@ async function createOrGetSession(req, res) {
     res.json({ sessionId: result.insertId });
 
   } catch (err) {
-    console.error("Session error:", err.message);
+    logger.error("Session error:", err.message);
     res.status(500).json({ error: 'Failed to create session' });
   }
 }
@@ -63,7 +64,7 @@ async function sendMessage(req, res) {
     res.json({ reply: aiReply });
 
   } catch (err) {
-    console.error("Message error:", err.message);
+    logger.error("Message error:", err.message);
     res.status(500).json({ error: 'Failed to send message' });
   }
 }
@@ -75,7 +76,7 @@ async function getMessages(req, res) {
     const rows = await clinicService.getMessages(sessionId);
     res.json(rows);
   } catch (err) {
-    console.error("Fetch messages error:", err.message);
+    logger.error("Fetch messages error:", err.message);
     res.status(500).json({ error: 'Failed to fetch messages' });
   }
 }
@@ -87,7 +88,7 @@ async function resetChat(req, res) {
     await clinicService.deleteMessages(sessionId);
     res.json({ success: true, message: 'Consultation reset successfully.' });
   } catch (err) {
-    console.error('Reset error:', err.message);
+    logger.error('Reset error:', err.message);
     res.status(500).json({ error: 'Failed to reset consultation' });
   }
 }
@@ -99,7 +100,7 @@ async function getDoctors(req, res) {
     const rows = await clinicService.getDoctorsByCategory(category);
     res.json(rows);
   } catch (err) {
-    console.error("Fetch doctors error:", err.message);
+    logger.error("Fetch doctors error:", err.message);
     res.status(500).json({ error: 'Failed to fetch doctors' });
   }
 }

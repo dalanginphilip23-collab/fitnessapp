@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
-import { API_BASE_URL } from '../../../../config/port';
+import { API_BASE_URL } from '../../../../config/api';
 import { useAuth } from '../../../../hooks/useAuth';
 
 export const useLogin = () => {

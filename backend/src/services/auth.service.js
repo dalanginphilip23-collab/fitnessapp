@@ -1,17 +1,18 @@
-const bcrypt = require('bcryptjs');
+﻿const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 const UAParser = require('ua-parser-js');
 const { OAuth2Client } = require('google-auth-library');
 const { sendVerificationEmail } = require('../services/mail');
+const logger = require('../utils/logger');
 
-// ─── Google OAuth Client ───
+// â”€â”€â”€ Google OAuth Client â”€â”€â”€
 const googleClient = new OAuth2Client({
   clientId: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
 });
 
-// ─── RATE LIMITER (IN-MEMORY, PER EMAIL) ───
+// â”€â”€â”€ RATE LIMITER (IN-MEMORY, PER EMAIL) â”€â”€â”€
 const loginAttempts = new Map();
 
 function getRateLimit(email) {
@@ -63,7 +64,7 @@ function checkRateLimit(email) {
   }
 }
 
-// ─── COOKIE HELPERS ───
+// â”€â”€â”€ COOKIE HELPERS â”€â”€â”€
 const COOKIE_NAME = 'vitalis_session';
 
 function getCookieOptions(req) {
@@ -91,7 +92,7 @@ function setSessionCookie(res, userId, email, req) {
   return token;
 }
 
-// ─── SESSION LOGGING ───
+// â”€â”€â”€ SESSION LOGGING â”€â”€â”€
 const logUserSession = async (req, userId) => {
   try {
     const parser = new UAParser(req.headers['user-agent']);
@@ -121,12 +122,12 @@ const logUserSession = async (req, userId) => {
       [userId, device, browser, os, ip, location]
     );
   } catch (err) {
-    console.error('SESSION LOG ERROR:', err);
+    logger.error('SESSION LOG ERROR:', err);
   }
 };
 
 async function getUserFromToken(token) {
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
 
   const [rows] = await db.execute(`
     SELECT
@@ -210,7 +211,7 @@ async function markEmailVerified(userId) {
   await db.execute('UPDATE users SET email_verified = 1 WHERE id = ?', [userId]);
 }
 
-// ─── EMAIL VERIFICATION ───
+// â”€â”€â”€ EMAIL VERIFICATION â”€â”€â”€
 // Builds a signed 24h token and sends the verification email. Shared by
 // register and resend-verification so the token/link format stays identical.
 // Returns { ok, error } so callers can surface real delivery success/failure.

@@ -1,5 +1,6 @@
-const logsService = require('../services/logs.service');
+﻿const logsService = require('../services/logs.service');
 const plansService = require('../services/plans.service');
+const logger = require('../utils/logger');
 
 async function logActivity(req, res) {
   const { userId } = req.params;
@@ -9,11 +10,11 @@ async function logActivity(req, res) {
   const stp = parseInt(steps) || 0;
   const min = parseInt(minutes) || 0;
 
-  console.log(`[LOGS] Received — userId:${userId} calories:${cal} steps:${stp} minutes:${min}`);
+  logger.info(`[LOGS] Received â€” userId:${userId} calories:${cal} steps:${stp} minutes:${min}`);
 
   try {
     await logsService.logDailyActivity(userId, cal, stp, min);
-    console.log(`[LOGS] OK — userId:${userId}`);
+    logger.info(`[LOGS] OK â€” userId:${userId}`);
 
     // Best-effort: if the logged duration covers the plan's current day,
     // mark it complete. A failure here must never break the log save.
@@ -21,16 +22,16 @@ async function logActivity(req, res) {
       try {
         const completed = await plansService.autoCompleteDayForWorkout(userId, min);
         if (completed.completed) {
-          console.log(`[LOGS] Plan day auto-completed — plan:${completed.planId} day:${completed.dayNumber}`);
+          logger.info(`[LOGS] Plan day auto-completed â€” plan:${completed.planId} day:${completed.dayNumber}`);
         }
       } catch (err) {
-        console.error("[LOGS] Plan auto-complete skipped:", err.message);
+        logger.error("[LOGS] Plan auto-complete skipped:", err.message);
       }
     }
 
     res.status(200).json({ message: "Activity logged successfully" });
   } catch (err) {
-    console.error("[LOGS] DB Error:", err.message);
+    logger.error("[LOGS] DB Error:", err.message);
     res.status(500).json({ error: err.message });
   }
 }
@@ -41,7 +42,7 @@ async function getHistory(req, res) {
     const rows = await logsService.getWorkoutHistory(userId);
     res.json(rows);
   } catch (err) {
-    console.error("History fetch error:", err.message);
+    logger.error("History fetch error:", err.message);
     res.status(500).json({ error: "Failed to retrieve archives" });
   }
 }

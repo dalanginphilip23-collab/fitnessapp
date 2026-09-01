@@ -1,4 +1,5 @@
-const authService = require("../services/auth.service");
+﻿const authService = require("../services/auth.service");
+const logger = require('../utils/logger');
 const {
   bcrypt,
   jwt,
@@ -15,7 +16,7 @@ const {
   syncUserProfile,
 } = require("../services/bmi.service");
 
-// ─── GET /api/auth/me ───
+// â”€â”€â”€ GET /api/auth/me â”€â”€â”€
 async function getMe(req, res) {
   const token = req.cookies?.[COOKIE_NAME];
 
@@ -29,7 +30,7 @@ async function getMe(req, res) {
       return res.status(200).json({ user: null });
     }
 
-    // Unverified users are not considered logged in — no API/session access
+    // Unverified users are not considered logged in â€” no API/session access
     // until they confirm their email.
     if (Number(user.email_verified) !== 1) {
       res.clearCookie(COOKIE_NAME, getCookieOptions(req));
@@ -51,7 +52,7 @@ async function getMe(req, res) {
   }
 }
 
-// ─── POST /api/auth/register ───
+// â”€â”€â”€ POST /api/auth/register â”€â”€â”€
 async function register(req, res) {
   const {
     name,
@@ -88,7 +89,7 @@ async function register(req, res) {
         try {
           await authService.sendEmailVerification(existing[0].id, normalizedEmail);
         } catch (mailErr) {
-          console.error("Duplicate-register resend failed:", mailErr.message);
+          logger.error("Duplicate-register resend failed:", mailErr.message);
         }
       }
       return res
@@ -150,7 +151,7 @@ async function register(req, res) {
     }
 
     // Send the verification email and surface real success/failure. A failed
-    // send no longer pretends the email went out — the real error is returned
+    // send no longer pretends the email went out â€” the real error is returned
     // so the deployed cause is visible instead of generic.
     let verificationEmailSent = true;
     let verificationEmailError = null;
@@ -158,7 +159,7 @@ async function register(req, res) {
     if (emailResult.ok) {
       verificationEmailSent = true;
     } else {
-      console.error("Verification email failed to send:", emailResult.error.message);
+      logger.error("Verification email failed to send:", emailResult.error.message);
       verificationEmailSent = false;
       verificationEmailError = emailResult.error.message;
     }
@@ -177,7 +178,7 @@ async function register(req, res) {
     // Safety net: if two register requests for the same email land at
     // almost the same time, both can pass the findUserByEmail check
     // before either INSERT completes. The DB's UNIQUE KEY on `email`
-    // then rejects the second insert with ER_DUP_ENTRY — catch that
+    // then rejects the second insert with ER_DUP_ENTRY â€” catch that
     // specifically so the user still sees the friendly message instead
     // of a generic "Database rejection" 500.
     if (err.code === "ER_DUP_ENTRY") {
@@ -185,13 +186,13 @@ async function register(req, res) {
         .status(400)
         .json({ error: "If this email is not already registered, a verification link has been sent." });
     }
-    console.error("Register error:", err.message, err.stack?.slice(0,800));
+    logger.error("Register error:", err.message, err.stack?.slice(0,800));
     const isDev = process.env.NODE_ENV !== "production";
     res.status(500).json({ error: "Registration failed. Please try again.", ...(isDev && { detail: err.message.slice(0,300) }) });
   }
 }
 
-// ─── POST /api/auth/verify-email ───
+// â”€â”€â”€ POST /api/auth/verify-email â”€â”€â”€
 async function verifyEmail(req, res) {
   const { token } = req.body;
 
@@ -201,7 +202,7 @@ async function verifyEmail(req, res) {
 
   let decoded;
   try {
-    decoded = jwt.verify(token, process.env.JWT_SECRET);
+    decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
   } catch (err) {
     const expired = err.name === "TokenExpiredError";
     return res.status(400).json({
@@ -240,12 +241,12 @@ async function verifyEmail(req, res) {
       message: "Your email has been verified. You can log in now.",
     });
   } catch (err) {
-    console.error("Verify email error:", err);
+    logger.error("Verify email error:", err);
     res.status(500).json({ message: "Could not verify email." });
   }
 }
 
-// ─── POST /api/auth/resend-verification ───
+// â”€â”€â”€ POST /api/auth/resend-verification â”€â”€â”€
 async function resendVerification(req, res) {
   const { email } = req.body;
 
@@ -276,7 +277,7 @@ async function resendVerification(req, res) {
 
     const emailResult = await authService.sendEmailVerification(user.id, normalizedEmail);
     if (!emailResult.ok) {
-      console.error("Resend verification email failed to send:", emailResult.error.message);
+      logger.error("Resend verification email failed to send:", emailResult.error.message);
       return res.status(500).json({
         message:
           "The verification email could not be sent right now. " + emailResult.error.message,
@@ -288,12 +289,12 @@ async function resendVerification(req, res) {
       message: "If this email is registered and unverified, a verification link has been sent.",
     });
   } catch (err) {
-    console.error("Resend verification error:", err);
+    logger.error("Resend verification error:", err);
     res.status(500).json({ message: "Could not resend verification email." });
   }
 }
 
-// ─── POST /api/auth/login ───
+// â”€â”€â”€ POST /api/auth/login â”€â”€â”€
 async function login(req, res) {
   const { email, password } = req.body;
 
@@ -358,12 +359,12 @@ async function login(req, res) {
       goal: user.fitness_goal,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     res.status(500).json({ message: "Server error during initialization" });
   }
 }
 
-// ─── POST /api/auth/google-login ───
+// â”€â”€â”€ POST /api/auth/google-login â”€â”€â”€
 async function googleLogin(req, res) {
   const { code } = req.body;
 
@@ -426,7 +427,7 @@ async function googleLogin(req, res) {
       user = users[0];
       await authService.setUserOnline(user.id);
 
-      // Google already confirmed ownership of this email — treat the
+      // Google already confirmed ownership of this email â€” treat the
       // account as verified so Google users are never blocked by the
       // email-verification gate.
       if (Number(user.email_verified) !== 1) {
@@ -448,17 +449,17 @@ async function googleLogin(req, res) {
       goal: user.fitness_goal,
     });
   } catch (err) {
-    console.error("Google Login Error:", err.message);
+    logger.error("Google Login Error:", err.message);
     res
       .status(401)
       .json({ message: "Google authentication failed: " + err.message });
   }
 }
 
-// ─── POST /api/auth/change-password ───
+// â”€â”€â”€ POST /api/auth/change-password â”€â”€â”€
 // Requires the `requireAuth` middleware on its route (see auth.routes.js),
 // which populates req.user and also confirms the account still exists and
-// has a verified email — the same guarantee every other protected route gets.
+// has a verified email â€” the same guarantee every other protected route gets.
 async function changePassword(req, res) {
   const { currentPassword, newPassword } = req.body;
 
@@ -487,18 +488,18 @@ async function changePassword(req, res) {
 
     res.json({ success: true, message: "Password updated" });
   } catch (err) {
-    console.error("Change Password Error:", err);
+    logger.error("Change Password Error:", err);
     res.status(500).json({ error: "Could not update password" });
   }
 }
 
-// ─── POST /api/auth/logout ───
+// â”€â”€â”€ POST /api/auth/logout â”€â”€â”€
 async function logout(req, res) {
   const token = req.cookies?.[COOKIE_NAME];
 
   if (token) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
       await authService.setUserOffline(decoded.id);
     } catch (_) {}
   }

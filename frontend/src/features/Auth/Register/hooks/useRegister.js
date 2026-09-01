@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE_URL } from '../../../../config/port';
+import { API_BASE_URL } from '../../../../config/api';
 
 export const useRegister = () => {
   const [loading,          setLoading]          = useState(false);

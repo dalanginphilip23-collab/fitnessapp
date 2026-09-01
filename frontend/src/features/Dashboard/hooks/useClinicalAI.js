@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { API_BASE_URL } from '../../../config/port';
+import { API_BASE_URL } from '../../../config/api';
 
 export const useClinicalAI = (USER_ID, setInsights) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);

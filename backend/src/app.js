@@ -1,4 +1,4 @@
-const express = require("express");
+﻿const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
@@ -52,13 +52,16 @@ const ALLOWED_ORIGINS = [
 // CORS
 const corsOptions = {
   origin(origin, callback) {
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      if (process.env.NODE_ENV !== 'production') return callback(null, true);
+      return callback(new Error('Not allowed by CORS'));
+    }
 
     if (ALLOWED_ORIGINS.includes(origin)) {
       return callback(null, true);
     }
 
-    console.warn("Blocked Origin:", origin);
+    logger.warn("Blocked Origin:", origin);
 
     callback(new Error("Not allowed by CORS"));
   },
@@ -149,7 +152,7 @@ app.get("/api/admin/migrate", async (req, res) => {
   const expected = String(process.env.MIGRATE_TOKEN || "");
 
   if (!expected) {
-    console.error("[AdminMigrate] MIGRATE_TOKEN is not set in the environment — refusing all requests.");
+    logger.error("[AdminMigrate] MIGRATE_TOKEN is not set in the environment â€” refusing all requests.");
     return res.status(503).json({
       success: false,
       message: "Migration endpoint is disabled: MIGRATE_TOKEN is not configured on the server.",
@@ -157,7 +160,7 @@ app.get("/api/admin/migrate", async (req, res) => {
   }
 
   const crypto = require('crypto');
-  const token = String(req.query.token || req.headers["x-migrate-token"] || "");
+  const token = String(req.headers["x-migrate-token"] || "");
   let okToken = false;
   if (token.length > 0 && expected.length > 0) {
     try {
@@ -170,19 +173,20 @@ app.get("/api/admin/migrate", async (req, res) => {
   }
 
   if (!okToken) {
-    console.warn(`[AdminMigrate] rejected request — token length ${token.length}`);
+    logger.warn(`[AdminMigrate] rejected request â€” token length ${token.length}`);
     return res.status(401).json({ success: false, message: "Invalid migrate token" });
   }
   try {
     const db = require("./config/db");
     const fs = require("fs");
     const path = require("path");
+const logger = require('./utils/logger');
     const [tables] = await db.query("SHOW TABLES");
     const tableNames = tables.map(r => Object.values(r)[0]);
     const hasUsers = tableNames.includes("users");
     const targetDb = String(process.env.DB_NAME || "").toLowerCase();
     const result = { dbHost: process.env.DB_HOST, dbName: process.env.DB_NAME, beforeTables: tableNames, hasUsers, ran: [] };
-    // Deploy to both DBs if fitnessapp exists on Aiven (you now have defaultdb + fitnessapp) — ensure both get schema
+    // Deploy to both DBs if fitnessapp exists on Aiven (you now have defaultdb + fitnessapp) â€” ensure both get schema
     const files = hasUsers ? ["004_add_exercise_slug_to_plan_exercises.sql", "005_add_emoji_to_food_logs.sql"] : ["000_baseline_schema.sql", "004_add_exercise_slug_to_plan_exercises.sql", "005_add_emoji_to_food_logs.sql"];
     for (const file of files) {
       const full = path.join(__dirname, "../migrations", file);
@@ -211,7 +215,7 @@ app.get("/api/admin/migrate", async (req, res) => {
     result.usersExists = users.length > 0;
     res.json({ success: true, message: hasUsers ? "Migration check done" : "Baseline deployed", ...result });
   } catch (e) {
-    console.error("[AdminMigrate] error:", e);
+    logger.error("[AdminMigrate] error:", e);
     res.status(500).json({ success: false, message: 'Migration failed' });
   }
 });
@@ -234,7 +238,7 @@ app.use((req, res) => {
 // ============================
 
 app.use((err, req, res, next) => {
-  console.error(err);
+  logger.error(err);
 
   res.status(err.status || 500).json({
     success: false,

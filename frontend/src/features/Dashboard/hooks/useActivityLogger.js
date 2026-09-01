@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../../../config/port';
+import { API_BASE_URL } from '../../../config/api';
 
 export const useActivityLogger = (
   USER_ID,

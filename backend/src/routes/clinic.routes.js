@@ -1,10 +1,11 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const requireAuth = require('../middleware/requireAuth');
 const verifyOwnUserIdBody = require('../middleware/verifyOwnUserIdBody');
 const rateLimit = require('../middleware/rateLimit');
 const clinicController = require('../controllers/clinic.controller');
 const clinicService = require('../services/clinic.service');
+const logger = require('../utils/logger');
 
 // Ensures a clinic session belongs to the authenticated user (relies on
 // req.user being set by requireAuth, which must run first). sessionId comes
@@ -22,7 +23,7 @@ async function ensureClinicSessionOwned(req, res, next) {
     }
     next();
   } catch (err) {
-    console.error('Clinic session ownership check failed:', err.message);
+    logger.error('Clinic session ownership check failed:', err.message);
     res.status(500).json({ error: 'Could not verify consultation ownership' });
   }
 }

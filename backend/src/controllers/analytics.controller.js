@@ -1,4 +1,5 @@
-const analyticsService = require('../services/analytics.service');
+﻿const analyticsService = require('../services/analytics.service');
+const logger = require('../utils/logger');
 
 async function summary(req, res) {
   const { userId } = req.params;
@@ -6,7 +7,7 @@ async function summary(req, res) {
     const result = await analyticsService.getSummary(userId);
     res.json(result || { vo2_max: 0, hrv: 0, stress: 0 });
   } catch (err) {
-    console.error('[Summary] Error:', err.message);
+    logger.error('[Summary] Error:', err.message);
     res.status(500).json({ error: err.message });
   }
 }
@@ -28,7 +29,7 @@ async function zones(req, res) {
     })));
 
   } catch (err) {
-    console.error('[Zones] Error:', err.message);
+    logger.error('[Zones] Error:', err.message);
     res.json([]);
   }
 }
@@ -39,7 +40,7 @@ async function vo2(req, res) {
     const rows = await analyticsService.getVo2(userId);
     res.json(rows);
   } catch (err) {
-    console.error('[VO2] Error:', err.message);
+    logger.error('[VO2] Error:', err.message);
     res.json([]);
   }
 }

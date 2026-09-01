@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../../../config/port";
+import { API_BASE_URL } from "../../../config/api";
 
 const ZONE_COLOR_MAP = {
   5: { color: 'bg-red-500',    label: 'Zone 5 (Anaerobic)'    },

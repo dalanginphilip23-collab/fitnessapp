@@ -1,6 +1,6 @@
 // components/ChangePasswordModal.jsx
 import React, { useState } from 'react';
-import { API_BASE_URL } from '../../../config/port';
+import { API_BASE_URL } from '../../../config/api';
 
 const labelCls = 'block text-[9px] font-black tracking-[0.2em] uppercase text-[var(--text-muted)] mb-2';
 const inputCls =

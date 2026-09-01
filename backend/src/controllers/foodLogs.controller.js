@@ -1,6 +1,7 @@
-const foodLogsService = require('../services/foodLogs.service');
+﻿const foodLogsService = require('../services/foodLogs.service');
+const logger = require('../utils/logger');
 
-// POST /api/food-logs/analyze-pic — optimized: size guard, cache, no fallback poison
+// POST /api/food-logs/analyze-pic â€” optimized: size guard, cache, no fallback poison
 async function analyzePic(req, res) {
   const { base64Image, mimeType } = req.body;
   if (!base64Image) return res.status(400).json({ error: 'No image provided' });
@@ -9,7 +10,7 @@ async function analyzePic(req, res) {
 
   const cached = foodLogsService.getCached(base64Image, mime);
   if (cached) {
-    console.log('[analyze-pic] ✅ Cache hit — returning stored result');
+    logger.info('[analyze-pic] âœ… Cache hit â€” returning stored result');
     return res.json(cached);
   }
 
@@ -36,7 +37,7 @@ async function analyzePic(req, res) {
 
     res.json(parsed);
   } catch (err) {
-    console.error('[analyze-pic] ERROR:', err.message);
+    logger.error('[analyze-pic] ERROR:', err.message);
     res.status(500).json({ error: 'AI failed to analyze the image. Please try again.' });
   }
 }
@@ -96,7 +97,7 @@ async function suggestPlan(req, res) {
       has_any_plans: plans.length > 0,
     });
   } catch (err) {
-    console.error('[suggest-plan] ERROR:', err.message);
+    logger.error('[suggest-plan] ERROR:', err.message);
     res.status(500).json({ error: 'AI coach could not generate a suggestion' });
   }
 }
@@ -119,7 +120,7 @@ async function createLog(req, res) {
 
       if (user?.email) {
         foodLogsService.sendMealEmail(user.email, summary).catch(err =>
-          console.error('❌ MAILER FAILED:', err.message)
+          logger.error('âŒ MAILER FAILED:', err.message)
         );
       }
 
@@ -127,12 +128,12 @@ async function createLog(req, res) {
       await foodLogsService.insertMealNotification(userId, msg);
       foodLogsService.pushMealNotification(userId, msg);
     } catch (err) {
-      // Response already sent — just log it, never call res.* here
-      console.error('❌ POST-SAVE BACKGROUND TASK FAILED:', err.message);
+      // Response already sent â€” just log it, never call res.* here
+      logger.error('âŒ POST-SAVE BACKGROUND TASK FAILED:', err.message);
     }
 
   } catch (err) {
-    console.error('[food-log POST] ERROR:', err.message);
+    logger.error('[food-log POST] ERROR:', err.message);
     res.status(500).json({ error: 'Database error' });
   }
 }
@@ -147,7 +148,7 @@ async function getLogs(req, res) {
     const { rows, total } = await foodLogsService.getFoodLogs(userId, limit, offset, date);
     res.json({ records: rows, total });
   } catch (err) {
-    console.error('[food-log GET] ERROR:', err.message);
+    logger.error('[food-log GET] ERROR:', err.message);
     res.status(500).json({ error: 'Database error' });
   }
 }
@@ -163,7 +164,7 @@ async function deleteLog(req, res) {
 
     res.json({ success: true, message: 'Meal deleted' });
   } catch (err) {
-    console.error('[food-log DELETE] ERROR:', err.message);
+    logger.error('[food-log DELETE] ERROR:', err.message);
     res.status(500).json({ error: 'Database error' });
   }
 }

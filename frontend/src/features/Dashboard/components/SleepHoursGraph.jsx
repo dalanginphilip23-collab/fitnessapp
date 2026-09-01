@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { API_BASE_URL } from '../../../config/port';
+import { API_BASE_URL } from '../../../config/api';
 
 const TABS = ['D', 'W', 'M'];
 

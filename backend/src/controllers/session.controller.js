@@ -1,4 +1,5 @@
-const sessionService = require('../services/session.service');
+﻿const sessionService = require('../services/session.service');
+const logger = require('../utils/logger');
 
 // POST /api/workout-sessions/start
 async function start(req, res) {
@@ -14,7 +15,7 @@ async function start(req, res) {
     });
 
   } catch (err) {
-    console.error('start session error:', err.message);
+    logger.error('start session error:', err.message);
     res.status(500).json({ message: 'Failed to start session: ' + err.message });
   }
 }
@@ -51,7 +52,7 @@ async function end(req, res) {
     });
 
   } catch (err) {
-    console.error('end session error:', err.message);
+    logger.error('end session error:', err.message);
     res.status(500).json({ message: 'Failed to end session: ' + err.message });
   }
 }
@@ -67,7 +68,7 @@ async function list(req, res) {
     res.json({ sessions, total, limit, offset });
 
   } catch (err) {
-    console.error('fetch sessions error:', err.message);
+    logger.error('fetch sessions error:', err.message);
     res.status(500).json({ message: 'Failed to fetch sessions: ' + err.message });
   }
 }

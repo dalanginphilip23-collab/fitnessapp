@@ -1,11 +1,12 @@
-const db = require('../config/db');
+﻿const db = require('../config/db');
 const { callGeminiWithFallback, withTimeout, TEXT_TIMEOUT_MS } = require('../config/gemini');
+const logger = require('../utils/logger');
 let genAI_new = null;
 try { const { GoogleGenAI } = require("@google/genai"); genAI_new = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }); } catch {}
 let genAI_legacy = null;
 try { const { GoogleGenerativeAI } = require("@google/generative-ai"); genAI_legacy = new GoogleGenerativeAI(process.env.GEMINI_API_KEY); } catch {}
 
-// ─── POSE ANALYSIS ───
+// â”€â”€â”€ POSE ANALYSIS â”€â”€â”€
 async function analyzePoseImage(image, metadata) {
   const prompt = `
             Context: The user is exercising. 
@@ -30,7 +31,7 @@ async function analyzePoseImage(image, metadata) {
       const txt = res.text || res.candidates?.[0]?.content?.parts?.[0]?.text || "";
       if (txt) return txt;
     } catch (e) {
-      console.warn("[pose] new SDK failed:", e.message);
+      logger.warn("[pose] new SDK failed:", e.message);
     }
   }
   if (!genAI_legacy) throw new Error("No Gemini SDK available");
@@ -44,23 +45,23 @@ async function analyzePoseImage(image, metadata) {
   return result.response.text();
 }
 
-// ─── AI CHATBOT ───
+// â”€â”€â”€ AI CHATBOT â”€â”€â”€
 async function getChatReply(message) {
   const systemPrompt = `
         Identity: You are Vitalis AI, a specialized Fitness and Health Assistant.
         Rules: 
         1. ONLY discuss fitness, health, and nutrition.
-        2. For simple greetings (Hi, Hello), greet the user back naturally in ONE short sentence and ask what they'd like help with. Do NOT reply with generic hype phrases like "let's crush your goals" — actually acknowledge the greeting.
+        2. For simple greetings (Hi, Hello), greet the user back naturally in ONE short sentence and ask what they'd like help with. Do NOT reply with generic hype phrases like "let's crush your goals" â€” actually acknowledge the greeting.
         3. REJECT any questions about CODING, PROGRAMMING, or MATH.
-        4. Keep replies short — 1 sentence for greetings/small talk, up to 2-3 sentences only when the user asks something that actually needs detail.
+        4. Keep replies short â€” 1 sentence for greetings/small talk, up to 2-3 sentences only when the user asks something that actually needs detail.
         5. Never mention the current date unless the user explicitly asks what today's date is.
-        6. Use an encouraging, professional tone like a knowledgeable personal trainer — but concise, not wordy.
+        6. Use an encouraging, professional tone like a knowledgeable personal trainer â€” but concise, not wordy.
         User message: "${message}"
     `;
   return callGeminiWithFallback(systemPrompt);
 }
 
-// ─── CLINICAL ANALYSIS ───
+// â”€â”€â”€ CLINICAL ANALYSIS â”€â”€â”€
 async function getUserBasic(userId) {
   const [userRows] = await db.execute(
     'SELECT name, fitness_goal FROM users WHERE id = ? LIMIT 1',
@@ -117,7 +118,7 @@ async function callGemini(prompt) {
   return callGeminiWithFallback(prompt);
 }
 
-// ─── REAL-TIME COACHING ───
+// â”€â”€â”€ REAL-TIME COACHING â”€â”€â”€
 async function getCoachTip(landmarks, workoutType) {
   const prompt = `
             You are a real-time gym coach. Analyze these landmarks for a ${workoutType.toUpperCase()} set.
@@ -132,7 +133,7 @@ async function getCoachTip(landmarks, workoutType) {
   return text.trim();
 }
 
-// ─── AI HISTORY ───
+// â”€â”€â”€ AI HISTORY â”€â”€â”€
 async function getInsightHistory(userId) {
   const [rows] = await db.execute(
     `SELECT sleep_suggestion, activity_suggestion, created_at 
@@ -145,7 +146,7 @@ async function getInsightHistory(userId) {
   return rows;
 }
 
-// ─── LATEST ACTIVITY LOG ───
+// â”€â”€â”€ LATEST ACTIVITY LOG â”€â”€â”€
 async function getLatestDailyStats(userId) {
   const [latestLog] = await db.execute(
     `SELECT calories_burned, steps, workout_duration_mins               
@@ -168,7 +169,7 @@ async function getLatestSleepForLogs(userId) {
   return latestSleep;
 }
 
-// ─── RUN ANALYSIS ───
+// â”€â”€â”€ RUN ANALYSIS â”€â”€â”€
 async function getRunHistory(userId) {
   const [runHistory] = await db.execute(
     `SELECT distance, duration, pace, calories, created_at

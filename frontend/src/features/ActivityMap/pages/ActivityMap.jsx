@@ -4,7 +4,7 @@ import { Topbar } from '../../../components';
 import SidebarAnalytics from '../../../components/layout/SidebarAnalytics';
 import { useAuth } from '../../../hooks/useAuth';
 import { useTheme } from '../../../hooks/useTheme';
-import { API_BASE_URL } from '../../../config/port';
+import { API_BASE_URL } from '../../../config/api';
 import 'leaflet/dist/leaflet.css';
 import {
   RecenterMap, FitRoute, GpsBadge, HistoryTab, RouteReplay,

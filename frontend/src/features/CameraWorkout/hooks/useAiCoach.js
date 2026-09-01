@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { speak } from "./useRepCounter";
-import { API_BASE_URL } from "../../../config/port";
+import { API_BASE_URL } from "../../../config/api";
 
 export function useAICoach({ workoutType, voiceEnabled }) {
   const [aiFeedback, setAiFeedback] = useState("Select Exercise & Start");

@@ -13,7 +13,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Scatter } from 'react-chartjs-2';
-import { API_BASE_URL } from '../../../config/port';
+import { API_BASE_URL } from '../../../config/api';
 import { useAnalyticsState } from '../hooks/useAnalyticsState';
 import { useAnalyticsData } from '../hooks/useAnalyticsData';
 import { useSleepActions } from '../hooks/useSleepActions';

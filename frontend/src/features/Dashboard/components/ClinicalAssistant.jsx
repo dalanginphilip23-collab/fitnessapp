@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import Icon from '../../../components/ui/Icon';
-import { API_BASE_URL } from '../../../config/port';
+import { API_BASE_URL } from '../../../config/api';
 import { useNavigate } from 'react-router-dom';
 
 const trendIcon = (trend) => {

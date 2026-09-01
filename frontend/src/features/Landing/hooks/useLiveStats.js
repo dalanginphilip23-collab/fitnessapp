@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { API_BASE_URL } from '../../../config/port';
+import { API_BASE_URL } from '../../../config/api';
 import { STATS_FALLBACK } from '../constants';
 
 const useLiveStats = () => {

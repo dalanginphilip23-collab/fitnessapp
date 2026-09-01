@@ -13,7 +13,7 @@ import { useRepCounter, speak } from "../hooks/useRepCounter";
 import { useAICoach } from "../hooks/useAiCoach";
 import { usePoseEngine } from "../hooks/usePoseEngine";
 import { useWorkoutSession } from "../hooks/useWorkoutSession";
-import { API_BASE_URL } from "../../../config/port";
+import { API_BASE_URL } from "../../../config/api";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import {

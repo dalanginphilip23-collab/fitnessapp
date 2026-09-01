@@ -1,4 +1,5 @@
-const notificationService = require('../services/notification.service');
+﻿const notificationService = require('../services/notification.service');
+const logger = require('../utils/logger');
 
 function stream(req, res) {
   const { userId } = req.params;
@@ -11,7 +12,7 @@ function stream(req, res) {
   res.flushHeaders();
 
   notificationService.registerClient(userKey, res);
-  console.log(`✅ SSE connected: user ${userId} (total: ${notificationService.clients.size})`);
+  logger.info(`âœ… SSE connected: user ${userId} (total: ${notificationService.clients.size})`);
 
   const heartbeat = setInterval(() => {
     try {
@@ -24,7 +25,7 @@ function stream(req, res) {
   req.on('close', () => {
     clearInterval(heartbeat);
     notificationService.removeClient(userKey, res);
-    console.log(`❌ SSE disconnected: user ${userId} (total: ${notificationService.clients.size})`);
+    logger.info(`âŒ SSE disconnected: user ${userId} (total: ${notificationService.clients.size})`);
   });
 }
 
@@ -37,7 +38,7 @@ async function getForUser(req, res) {
     const notifications = await notificationService.getRecentNotifications(userId);
     res.json({ count, notifications });
   } catch (err) {
-    console.error('GET /api/notifications/:userId failed:', err);
+    logger.error('GET /api/notifications/:userId failed:', err);
     res.status(500).json({ error: err.message });
   }
 }
@@ -57,7 +58,7 @@ async function create(req, res) {
     notificationService.pushToClient(user_id, message, type);
     res.json({ success: true });
   } catch (err) {
-    console.error('POST /api/notifications failed:', err);
+    logger.error('POST /api/notifications failed:', err);
     res.status(500).json({ error: err.message });
   }
 }
@@ -70,7 +71,7 @@ async function markRead(req, res) {
     await notificationService.markAsRead(id, req.user.id);
     res.json({ success: true });
   } catch (err) {
-    console.error('PUT /api/notifications/:id/read failed:', err);
+    logger.error('PUT /api/notifications/:id/read failed:', err);
     res.status(500).json({ error: err.message });
   }
 }
@@ -83,7 +84,7 @@ async function markAllRead(req, res) {
     await notificationService.markAllAsRead(userId);
     res.json({ success: true });
   } catch (err) {
-    console.error('PUT /api/notifications/read-all/:userId failed:', err);
+    logger.error('PUT /api/notifications/read-all/:userId failed:', err);
     res.status(500).json({ error: err.message });
   }
 }

@@ -1,5 +1,5 @@
 import { Icon } from "../../../components";
-import SessionLogRow from "./sessionLogRow";
+import SessionLogRow from "./SessionLogRow";
 
 export default function SessionLog({ logs }) {
   if (logs.length === 0) return null;

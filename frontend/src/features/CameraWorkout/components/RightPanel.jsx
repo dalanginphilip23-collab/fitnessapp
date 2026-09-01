@@ -1,7 +1,7 @@
-import SessionOverviewCard from "./sessionOverviewCard";
-import BiometricsCard from "./bioMetricsCard";
-import SessionLog from "./sessionLog";
-import NeuralStatusCard from "./neuralStatusCard";
+import SessionOverviewCard from "./SessionOverviewCard";
+import BiometricsCard from "./BioMetricsCard";
+import SessionLog from "./SessionLog";
+import NeuralStatusCard from "./NeuralStatusCard";
 
 export default function RightPanel({ biometrics, logs, repCount, elapsedSecs, poseReady, loadError }) {
   return (

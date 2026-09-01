@@ -1,4 +1,4 @@
-import BiometricBar from "./bioMetricBar";
+import BiometricBar from "./BioMetricBar";
 import { Icon } from "../../../components";
 
 export default function BiometricsCard({ biometrics }) {

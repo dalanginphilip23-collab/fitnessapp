@@ -1,5 +1,6 @@
-const jwt = require('jsonwebtoken');
+﻿const jwt = require('jsonwebtoken');
 const db = require('../config/db');
+const logger = require('../utils/logger');
 const COOKIE_NAME = 'vitalis_session';
 
 function requireAuth(req, res, next) {
@@ -8,7 +9,7 @@ function requireAuth(req, res, next) {
 
   let decoded;
   try {
-    decoded = jwt.verify(token, process.env.JWT_SECRET);
+    decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
   } catch {
     res.clearCookie(COOKIE_NAME);
     return res.status(401).json({ message: 'Session expired' });
@@ -27,7 +28,7 @@ function requireAuth(req, res, next) {
       next();
     })
     .catch((err) => {
-      console.error('[requireAuth] DB check failed:', err.message);
+      logger.error('[requireAuth] DB check failed:', err.message);
       return res.status(503).json({ message: 'Service temporarily unavailable' });
     });
 }

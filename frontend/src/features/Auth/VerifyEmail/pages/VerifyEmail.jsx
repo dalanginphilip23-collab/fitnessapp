@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useVerifyEmail } from '../hooks/useVerifyEmail';
-import { API_BASE_URL } from '../../../../config/port';
+import { API_BASE_URL } from '../../../../config/api';
 
 const ACCENT        = '#8BC34A';
 const ACCENT_BORDER = 'rgba(139, 195, 74, 0.22)';

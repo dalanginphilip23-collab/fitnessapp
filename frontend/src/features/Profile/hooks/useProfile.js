@@ -1,7 +1,7 @@
 // hooks/useProfile.js
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE_URL } from '../../../config/port';
+import { API_BASE_URL } from '../../../config/api';
 import { useAuth } from '../../../hooks/useAuth';
 import { getAvatarUrl } from '../utils/avatar';
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { API_BASE_URL } from '../../../config/port';
+import { API_BASE_URL } from '../../../config/api';
 
 export const useMessages = (userId, activeContact, user, socketRef) => {
   const [messages,    setMessages]    = useState([]);

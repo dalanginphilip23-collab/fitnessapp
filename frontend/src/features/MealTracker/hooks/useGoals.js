@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { API_BASE_URL } from "../../../config/port";
+import { API_BASE_URL } from "../../../config/api";
 
 // Atwater general factor system (kcal per gram)
 export const ATWATER = { protein: 4, carbs: 4, fat: 9, alcohol: 7 };

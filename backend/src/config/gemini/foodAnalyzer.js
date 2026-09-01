@@ -1,0 +1,430 @@
+const FOOD_ANALYSIS_PROMPT = require("../../constants/foodAnalysisPrompt");
+const { findDensityBand, findAnchor } = require("../../constants/nutritionAnchors");
+const { genAI_new, genAI_legacy, groq, PRIMARY_GEMINI_MODEL, withTimeout } = require("./client");
+const logger = require('../../utils/logger');
+
+const BASE_PROMPT = FOOD_ANALYSIS_PROMPT.BASE || String(FOOD_ANALYSIS_PROMPT);
+const CONDENSED_PROMPT = FOOD_ANALYSIS_PROMPT.CONDENSED || BASE_PROMPT;
+
+const PROVIDER_TIMEOUT_MS = 25000;
+
+const BREADED_FOOD_KEYWORDS = [
+  'fried', 'breaded', 'battered', 'crispy', 'nugget', 'tempura',
+  'katsu', 'schnitzel', 'fish and chips', 'popcorn chicken', 'tender',
+  'wing', 'drumstick', 'karaage', 'panko', 'chicken piece', 'chickenjoy',
+  'kwek', 'fish ball', 'kikiam', 'calamares',
+];
+
+const ZERO_CARB_ALLOWED = [
+  'grilled chicken breast', 'plain grilled', 'boiled egg', 'hard boiled',
+  'steamed fish', 'grilled fish', 'tuna steak', 'salmon fillet',
+  'beef steak', 'pork chop grilled', 'shrimp grilled', 'bacon',
+  'black coffee', 'coffee', 'tea', 'water', 'diet soda', 'sugar-free',
+];
+
+const ZERO_FAT_ALLOWED = [
+  'steamed white rice', 'plain rice', 'fruit', 'watermelon', 'banana',
+  'apple', 'mango', 'papaya', 'grapes', 'black coffee',
+  'garden salad', 'green salad', 'vegetable salad', 'steamed vegetables',
+  'tea', 'coffee',
+  'white rice', 'brown rice', 'steamed rice', 'jasmine rice', 'sinangag-free',
+];
+
+function isBreadedFood(foodName = '') {
+  const lower = foodName.toLowerCase();
+  return BREADED_FOOD_KEYWORDS.some(kw => lower.includes(kw));
+}
+
+function isZeroCarbAllowed(foodName = '') {
+  const lower = foodName.toLowerCase();
+  return ZERO_CARB_ALLOWED.some(kw => lower.includes(kw));
+}
+
+function isZeroFatAllowed(foodName = '') {
+  const lower = foodName.toLowerCase();
+  return ZERO_FAT_ALLOWED.some(kw => lower.includes(kw));
+}
+
+function extractPieceCount(foodName = '') {
+  const match = foodName.match(/\(?\b(\d+)\s*p(?:cs|ieces?|c)?\b\)?/i);
+  return match ? parseInt(match[1]) : null;
+}
+
+function validateAndCorrectMacros(parsed) {
+  let { calories, protein, carbs, fat, food_name = '' } = parsed;
+
+  protein = Math.max(0, Math.round(Number(protein) || 0));
+  carbs = Math.max(0, Math.round(Number(carbs) || 0));
+  fat = Math.max(0, Math.round(Number(fat) || 0));
+  calories = Math.max(1, Math.round(Number(calories) || 0));
+  const statedCalories = calories;
+
+  let injectedCarbs = false;
+  let injectedFat = false;
+
+  if (carbs === 0 && !isZeroCarbAllowed(food_name)) {
+    logger.warn(`[VITALIS IMAGE] Zero carb correction for "${food_name}"`);
+    carbs = Math.max(5, Math.round(statedCalories * 0.10 / 4));
+    injectedCarbs = true;
+  }
+
+  if (fat === 0 && !isZeroFatAllowed(food_name)) {
+    logger.warn(`[VITALIS IMAGE] Zero fat correction for "${food_name}"`);
+    fat = Math.max(3, Math.round(statedCalories * 0.08 / 9));
+    injectedFat = true;
+  }
+
+  if (isBreadedFood(food_name)) {
+    const pieceCount = extractPieceCount(food_name);
+    if (pieceCount) {
+      const maxProtein = pieceCount * 25;
+      if (protein > maxProtein) {
+        logger.warn(`[VITALIS IMAGE] Protein cap: ${protein}g -> ${maxProtein}g for ${pieceCount} pieces`);
+        protein = maxProtein;
+      }
+    }
+    if (carbs < 10) {
+      carbs = Math.max(15, Math.round(statedCalories * 0.12 / 4));
+      injectedCarbs = true;
+    }
+  }
+
+  const macroCalories = protein * 4 + carbs * 4 + fat * 9;
+
+  if (macroCalories <= 0) {
+    calories = statedCalories;
+  } else {
+    const ratio = macroCalories / statedCalories;
+    const drift = Math.abs(macroCalories - statedCalories) / statedCalories;
+    const injected = injectedCarbs || injectedFat;
+
+    if (!injected && drift <= 0.05) {
+      calories = statedCalories;
+    } else if (!injected && ratio >= 0.85 && ratio <= 1.15) {
+      logger.warn(`[VITALIS IMAGE] Calorie mismatch: stated=${statedCalories}, macro-derived=${macroCalories} - using macro-derived`);
+      calories = macroCalories;
+    } else {
+      logger.warn(`[VITALIS IMAGE] Macro/energy divergence (stated=${statedCalories}, macros=${macroCalories}) - keeping stated calories, rescaling macros`);
+      const scale = statedCalories / macroCalories;
+      protein = Math.max(0, Math.round(protein * scale));
+      carbs = Math.max(0, Math.round(carbs * scale));
+      fat = Math.max(0, Math.round(fat * scale));
+      calories = statedCalories;
+    }
+  }
+
+  const pieceCountForCap = extractPieceCount(food_name);
+  const calorieCap = pieceCountForCap ? Math.min(pieceCountForCap * 350, 6000) : 2500;
+
+  if (calories > calorieCap) {
+    logger.warn(`[VITALIS IMAGE] Calorie cap: ${calories} -> ${calorieCap}`);
+    const scale = calorieCap / calories;
+    calories = calorieCap;
+    protein = Math.round(protein * scale);
+    carbs = Math.round(carbs * scale);
+    fat = Math.round(fat * scale);
+  }
+
+  let finalMacro = protein * 4 + carbs * 4 + fat * 9;
+  let diff = calories - finalMacro;
+  let safety = 20;
+  while (Math.abs(diff) > 2 && safety-- > 0) {
+    if (diff > 0) {
+      if (diff >= 4) { carbs++; diff -= 4; }
+      else if (diff >= 1 && fat === 0) { carbs++; diff -= 4; }
+      else { fat++; diff -= 9; }
+    } else {
+      if (carbs > 0 && Math.abs(diff) >= 4) { carbs--; diff += 4; }
+      else if (fat > 0 && Math.abs(diff) >= 9) { fat--; diff += 9; }
+      else if (protein > 0) { protein--; diff += 4; }
+      else break;
+    }
+    carbs = Math.max(0, carbs); fat = Math.max(0, fat); protein = Math.max(0, protein);
+    finalMacro = protein * 4 + carbs * 4 + fat * 9;
+    diff = calories - finalMacro;
+  }
+  if (Math.abs(diff) > 2) {
+    calories = finalMacro;
+  }
+
+  return { ...parsed, calories, protein, carbs, fat };
+}
+
+function validateProteinDensity(parsed) {
+  let { calories, protein, carbs, fat, food_name = '', estimated_grams } = parsed;
+  const grams = Math.max(10, Math.round(Number(estimated_grams) || 0));
+  if (!grams || grams < 10) return parsed;
+
+  const PROTEIN_MAX_PER_100G = [
+    { keywords: ['rice', 'noodles', 'pasta', 'pancit', 'bread', 'pandesal', 'toast'], max: 8 },
+    { keywords: ['fruit', 'banana', 'apple', 'mango', 'orange', 'grapes'], max: 2 },
+    { keywords: ['salad', 'vegetable', 'pinakbet', 'steamed vegetables'], max: 8 },
+    { keywords: ['soup', 'sinigang', 'nilaga', 'broth', 'lugaw'], max: 10 },
+    { keywords: ['dessert', 'cake', 'pastry', 'halo', 'flan', 'biko', 'ice cream'], max: 8 },
+    { keywords: ['fried chicken', 'breaded', 'cutlet', 'chickenjoy'], max: 25 },
+    { keywords: ['grilled chicken', 'chicken breast'], max: 35 },
+    { keywords: ['fish', 'salmon', 'tilapia', 'bangus'], max: 28 },
+    { keywords: ['beef', 'pork', 'meat', 'adobo', 'steak', 'sisig', 'lechon', 'crispy pata'], max: 30 },
+    { keywords: ['egg'], max: 16 },
+    { keywords: ['milk', 'yogurt', 'cheese'], max: 15 },
+    { keywords: ['burger', 'sandwich'], max: 22 },
+    { keywords: ['pizza'], max: 15 },
+    { keywords: ['fries', 'chips'], max: 6 },
+    { keywords: ['sauce', 'oil', 'mayo', 'butter'], max: 5 },
+  ];
+
+  const n = food_name.toLowerCase();
+  for (const band of PROTEIN_MAX_PER_100G) {
+    if (band.keywords.some(kw => n.includes(kw))) {
+      const proteinPer100g = (protein / grams) * 100;
+      if (proteinPer100g > band.max) {
+        const correctedProtein = Math.round((band.max * grams) / 100);
+        logger.warn(`[VITALIS IMAGE] Protein density too high for "${food_name}": ${proteinPer100g.toFixed(1)}g/100g > ${band.max}g/100g - correcting ${protein}g -> ${correctedProtein}g`);
+        protein = correctedProtein;
+        calories = Math.max(calories, protein * 4 + carbs * 4 + fat * 9);
+        break;
+      }
+    }
+  }
+
+  return { ...parsed, calories, protein, carbs, fat };
+}
+
+function enforceDensityAndAnchor(parsed) {
+  let { calories, protein, carbs, fat, food_name = '', estimated_grams } = parsed;
+  const grams = Math.max(10, Math.round(Number(estimated_grams) || 0));
+  if (!grams || grams < 10) return parsed;
+
+  const density = (calories / grams) * 100;
+  const band = findDensityBand(food_name);
+  if (band) {
+    if (density < band.min || density > band.max) {
+      const mid = (band.min + band.max) / 2;
+      const expectedCal = Math.round((mid * grams) / 100);
+      const drift = Math.abs(density - mid) / mid;
+      if (drift > 0.15) {
+        logger.warn(`[VITALIS IMAGE] Density out of band for "${food_name}": ${density.toFixed(1)} vs ${band.min}-${band.max} (mid ${mid}) - correcting ${calories} -> ${expectedCal}`);
+        const scale = expectedCal / Math.max(1, calories);
+        calories = expectedCal;
+        protein = Math.round(protein * scale);
+        carbs = Math.round(carbs * scale);
+        fat = Math.round(fat * scale);
+      }
+    }
+  }
+
+  const anchor = findAnchor(food_name);
+  if (anchor && grams) {
+    const scale = grams / anchor.grams;
+    const anchorCal = Math.round(anchor.calories * scale);
+    const anchorP = Math.round(anchor.protein * scale);
+    const anchorC = Math.round(anchor.carbs * scale);
+    const anchorF = Math.round(anchor.fat * scale);
+    const calDrift = Math.abs(calories - anchorCal) / Math.max(1, anchorCal);
+    if (calDrift > 0.20) {
+      logger.warn(`[VITALIS IMAGE] Anchor snap for "${food_name}" -> ${anchor.key}: ${calories}->${anchorCal} (drift ${(calDrift * 100).toFixed(1)}%)`);
+      calories = Math.round(anchorCal * 0.7 + calories * 0.3);
+      protein = Math.round(anchorP * 0.7 + protein * 0.3);
+      carbs = Math.round(anchorC * 0.7 + carbs * 0.3);
+      fat = Math.round(anchorF * 0.7 + fat * 0.3);
+    }
+  }
+
+  return { ...parsed, calories, protein, carbs, fat, estimated_grams: grams };
+}
+
+function parseNutritionJSON(raw) {
+  const clean = raw
+    .replace(/```json\s*/gi, '')
+    .replace(/```\s*/g, '')
+    .trim();
+
+  try { return JSON.parse(clean); } catch (_) {}
+
+  const match = clean.match(/\{[\s\S]*?\}/);
+  if (match) {
+    try { return JSON.parse(match[0]); } catch (_) {}
+  }
+
+  const extract = (key) => {
+    const m = clean.match(new RegExp(`"${key}"\\s*:\\s*"?([^",}]+)"?`));
+    return m ? m[1].trim() : null;
+  };
+
+  const food_name = extract('food_name');
+  const calories = extract('calories');
+  if (!food_name || !calories) return null;
+
+  const gramsRaw = Number(extract('estimated_grams'));
+  return {
+    food_name: food_name,
+    ...(Number.isFinite(gramsRaw) && gramsRaw > 0
+      ? { estimated_grams: Math.round(gramsRaw) }
+      : {}),
+    calories: Number(calories) || 0,
+    protein: Number(extract('protein')) || 0,
+    carbs: Number(extract('carbs')) || 0,
+    fat: Number(extract('fat')) || 0,
+    suggestion: extract('suggestion') || '',
+  };
+}
+
+const GROQ_VISION_MODELS = ["qwen/qwen3.6-27b", "qwen/qwen3.8-27b"];
+
+async function analyzeWithGroqVision(base64Data, mimeType) {
+  let lastErr;
+  for (const groqModel of GROQ_VISION_MODELS) {
+    try {
+      logger.info(`[VITALIS IMAGE] Trying Groq vision (${groqModel})...`);
+      const resp = await groq.chat.completions.create({
+        model: groqModel,
+        max_tokens: 2000,
+        temperature: 0,
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: CONDENSED_PROMPT },
+              { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Data}` } },
+            ],
+          },
+        ],
+      });
+      let text = resp.choices[0]?.message?.content || "";
+      text = text.replace(/<think>[\s\S]*?<\/think>/g, '').replace(/<think>[\s\S]*$/g, '').trim();
+      if (!text) throw new Error("Groq returned empty response");
+      logger.info(`[VITALIS IMAGE] Groq (${groqModel}) raw:`, text.slice(0, 200));
+      return text;
+    } catch (err) {
+      logger.error(`[VITALIS IMAGE] Groq (${groqModel}) failed:`, err.message);
+      lastErr = err;
+    }
+  }
+  throw lastErr;
+}
+
+const GEMINI_VISION_MODELS = ["gemini-2.0-flash"];
+
+async function analyzeWithGeminiVisionNew(base64Data, mimeType) {
+  if (!genAI_new) throw new Error("New SDK not initialized");
+  logger.info(`[VITALIS IMAGE] Trying Gemini vision (${PRIMARY_GEMINI_MODEL} via new SDK)...`);
+  const res = await genAI_new.models.generateContent({
+    model: PRIMARY_GEMINI_MODEL,
+    contents: [
+      {
+        role: "user",
+        parts: [
+          { text: BASE_PROMPT },
+          { inlineData: { data: base64Data, mimeType } },
+        ],
+      },
+    ],
+    config: { maxOutputTokens: 2000, temperature: 0 },
+  });
+  const text = res.text || res.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  if (!text) throw new Error("Gemini (new SDK) returned empty response");
+  logger.info(`[VITALIS IMAGE] Gemini (new SDK ${PRIMARY_GEMINI_MODEL}) raw:`, text.slice(0, 200));
+  return text;
+}
+
+async function analyzeWithGeminiVision(base64Data, mimeType) {
+  if (genAI_new) {
+    try {
+      return await analyzeWithGeminiVisionNew(base64Data, mimeType);
+    } catch (err) {
+      logger.error("[VITALIS IMAGE] Gemini (new SDK) failed:", err.message);
+    }
+  }
+  let lastErr;
+  for (const modelName of GEMINI_VISION_MODELS) {
+    if (!genAI_legacy) break;
+    try {
+      logger.info(`[VITALIS IMAGE] Trying Gemini vision (legacy ${modelName})...`);
+      const isThinkingModel = modelName.startsWith("gemini-2.5") || modelName.startsWith("gemini-3");
+      const model = genAI_legacy.getGenerativeModel({
+        model: modelName,
+        generationConfig: {
+          temperature: 0,
+          maxOutputTokens: isThinkingModel ? 2000 : 500,
+        },
+      });
+
+      const result = await model.generateContent([
+        BASE_PROMPT,
+        { inlineData: { data: base64Data, mimeType } },
+      ]);
+
+      const text = result.response.text();
+      if (!text) throw new Error("Gemini returned empty response");
+      logger.info(`[VITALIS IMAGE] Gemini (legacy ${modelName}) raw:`, text.slice(0, 200));
+
+      const usage = result.response.usageMetadata;
+      if (usage) {
+        logger.info(
+          `[VITALIS IMAGE] (${modelName}) tokens - thoughts: ${usage.thoughtsTokenCount || 0}, ` +
+          `output: ${usage.candidatesTokenCount || 0}, total: ${usage.totalTokenCount || 0}`
+        );
+      }
+
+      return text;
+    } catch (err) {
+      logger.error(`[VITALIS IMAGE] Gemini (legacy ${modelName}) failed:`, err.message);
+      lastErr = err;
+    }
+  }
+  throw lastErr || new Error("All Gemini vision providers failed");
+}
+
+async function analyzeFoodImage(base64Data, mimeType = "image/jpeg") {
+  const providers = [
+    ["gemini", () => analyzeWithGeminiVision(base64Data, mimeType)],
+    ["groq", () => analyzeWithGroqVision(base64Data, mimeType)],
+  ];
+
+  const startedAt = Date.now();
+
+  for (const [name, provider] of providers) {
+    try {
+      const t0 = Date.now();
+      const raw = await withTimeout(provider, PROVIDER_TIMEOUT_MS, name);
+      logger.info(`[VITALIS IMAGE] ${name} responded in ${Date.now() - t0}ms`);
+      const parsed = parseNutritionJSON(raw);
+
+      if (!parsed) {
+        logger.warn("[VITALIS IMAGE] Parse failed - trying next provider");
+        continue;
+      }
+
+      const corrected = validateAndCorrectMacros(parsed);
+      const proteinChecked = validateProteinDensity(corrected);
+      const refined = enforceDensityAndAnchor(proteinChecked);
+      logger.info(
+        `[VITALIS IMAGE] Final result in ${Date.now() - startedAt}ms total:`,
+        JSON.stringify(refined)
+      );
+      return JSON.stringify(refined);
+    } catch (err) {
+      logger.error("[VITALIS IMAGE] Provider failed:", err.message);
+    }
+  }
+
+  logger.error("[VITALIS IMAGE] All vision providers failed - returning fallback");
+  return JSON.stringify({
+    food_name: "Meal (tap to edit name)",
+    estimated_grams: 250,
+    calories: 350,
+    protein: 12,
+    carbs: 45,
+    fat: 12,
+    suggestion: "AI was unsure - please tap to correct the name and macros, then log.",
+  });
+}
+
+module.exports = {
+  validateAndCorrectMacros,
+  validateProteinDensity,
+  enforceDensityAndAnchor,
+  parseNutritionJSON,
+  analyzeFoodImage,
+  PROVIDER_TIMEOUT_MS,
+};

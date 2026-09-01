@@ -1,4 +1,5 @@
-const aiService = require('../services/ai.service');
+﻿const aiService = require('../services/ai.service');
+const logger = require('../utils/logger');
 
 // POST /api/analyze-pose
 async function analyzePose(req, res) {
@@ -7,7 +8,7 @@ async function analyzePose(req, res) {
     const suggestion = await aiService.analyzePoseImage(image, metadata);
     res.json({ suggestion });
   } catch (error) {
-    console.error("Gemini Error:", error);
+    logger.error("Gemini Error:", error);
     res.status(500).json({ error: "AI Pipeline Offline" });
   }
 }
@@ -22,7 +23,7 @@ async function chat(req, res) {
     const reply = await aiService.getChatReply(message);
     res.json({ reply });
   } catch (err) {
-    console.error("[/api/ai-chat] Fatal:", err.message);
+    logger.error("[/api/ai-chat] Fatal:", err.message);
     res.status(500).json({ reply: "All clinical modules are offline. Please check your internet or API quota." });
   }
 }
@@ -74,14 +75,14 @@ async function clinicalAnalysis(req, res) {
     }
 
     const today = new Date().toISOString().slice(0, 10); // e.g. "2026-07-19"
-    // Signature still tracks the exact stat combo — used only to decide
+    // Signature still tracks the exact stat combo â€” used only to decide
     // whether to skip calling Gemini again (see cache lookup below).
     // It is NOT the row-uniqueness key anymore; insight_date is.
     const signature = `s${sleep.sleep_duration}-q${sleep.sleep_quality}-w${sleep.water_intake_ml}-c${activity.calories_burned}-st${activity.steps}-m${activity.workout_duration_mins}-u${userId}-d${today}`;
 
     // Cache HIT only if today's row exists AND the stats haven't changed
     // since it was generated. If the user logged something new today,
-    // the signature differs and we fall through to regenerate —
+    // the signature differs and we fall through to regenerate â€”
     // but the row still gets UPDATED in place, never duplicated.
     const cached = await aiService.getCachedInsight(userId, signature);
 
@@ -107,7 +108,7 @@ async function clinicalAnalysis(req, res) {
 
     const prompt = `
                 You are Vitalis AI, a professional health intelligence assistant embedded in a fitness dashboard.
-                Your job is to give ${firstName} a personalized, specific, and motivating clinical insight — not generic advice.
+                Your job is to give ${firstName} a personalized, specific, and motivating clinical insight â€” not generic advice.
 
                 PATIENT PROFILE:
                 - Name: ${firstName}
@@ -126,13 +127,13 @@ async function clinicalAnalysis(req, res) {
                 - Workout:         ${activity.workout_duration_mins} mins (${workoutStatus})
 
                 INSTRUCTIONS:
-                1. Address ${firstName} by name naturally in each message — not robotically.
+                1. Address ${firstName} by name naturally in each message â€” not robotically.
                 2. Reference their EXACT numbers in the advice (e.g., "your ${sleep.sleep_duration} hours", "those ${activity.steps} steps").
-                3. Each message must be 2–3 sentences. Be specific, clinical, and actionable — never vague.
+                3. Each message must be 2â€“3 sentences. Be specific, clinical, and actionable â€” never vague.
                 4. Choose the trend ("up", "down", "stable") based on whether the metric is improving, declining, or neutral.
                 5. For sleep_suggestion: focus on sleep quality, recovery, and hydration relative to their numbers.
                 6. For activity_suggestion: focus on workout output, step count, and calorie burn relative to their goal.
-                7. Tone: professional health coach — warm but data-driven. Like a doctor who actually cares.
+                7. Tone: professional health coach â€” warm but data-driven. Like a doctor who actually cares.
                 8. NEVER say "great job" or "keep it up" as opening words. Start with ${firstName}'s name or an observation.
 
                 RESPONSE FORMAT (strict JSON only, no markdown, no extra text):
@@ -157,11 +158,11 @@ async function clinicalAnalysis(req, res) {
 
     const cleaned = raw.replace(/```json|```/gi, '').trim();
 
-    // ── FIX: callGeminiWithFallback() can legitimately return a plain
+    // â”€â”€ FIX: callGeminiWithFallback() can legitimately return a plain
     // English sentence (its own static fallback string) instead of
     // throwing when every AI provider fails. That string is NOT valid
     // JSON, so JSON.parse below would throw and the whole request would
-    // 500 even though nothing is technically "broken" — the AI is just
+    // 500 even though nothing is technically "broken" â€” the AI is just
     // temporarily unavailable. We catch that specific failure here and
     // degrade gracefully instead of erroring out. Everything else in
     // this route (DB upsert, response shape) is unchanged.
@@ -169,22 +170,22 @@ async function clinicalAnalysis(req, res) {
     try {
       aiResult = JSON.parse(cleaned);
     } catch (parseErr) {
-      console.error("AI returned non-JSON (likely all providers failed):", raw);
+      logger.error("AI returned non-JSON (likely all providers failed):", raw);
       return res.status(200).json({
         insights: [
           {
             id: `fallback-${Date.now()}`,
-            message: `${firstName}, our AI analysis engine is temporarily unavailable. Your data is still being tracked — please check back shortly.`,
+            message: `${firstName}, our AI analysis engine is temporarily unavailable. Your data is still being tracked â€” please check back shortly.`,
             category: 'Rest Advisory',
             trend: 'stable'
           }
         ],
         fromCache: false,
-        warning: 'AI provider chain failed — served fallback message.'
+        warning: 'AI provider chain failed â€” served fallback message.'
       });
     }
 
-    // UPSERT — one row per user per day. Any new analysis today
+    // UPSERT â€” one row per user per day. Any new analysis today
     // overwrites today's row instead of adding another one.
     if (aiResult?.sleep_suggestion && aiResult?.activity_suggestion) {
       await aiService.upsertInsight(userId, signature, aiResult.sleep_suggestion, aiResult.activity_suggestion);
@@ -199,7 +200,7 @@ async function clinicalAnalysis(req, res) {
     });
 
   } catch (err) {
-    console.error("AI Logic Error:", err);
+    logger.error("AI Logic Error:", err);
     res.status(500).json({ error: "AI calculation failed" });
   }
 }
@@ -211,7 +212,7 @@ async function coach(req, res) {
     const tip = await aiService.getCoachTip(landmarks, workoutType);
     res.json({ tip });
   } catch (error) {
-    console.error("Coach Error:", error);
+    logger.error("Coach Error:", error);
     res.status(500).json({ tip: "Keep your form tight and stay focused." });
   }
 }
@@ -254,7 +255,7 @@ async function latestLogs(req, res) {
       last_updated: latestLog[0]?.stat_date || latestSleep[0]?.recorded_at
     });
   } catch (error) {
-    console.error("Error fetching latest logs:", error);
+    logger.error("Error fetching latest logs:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
@@ -277,7 +278,7 @@ async function runAnalysis(req, res) {
 
     const prompt = `
                 You are Vitalis AI, a warm, friendly, and encouraging running coach embedded in a fitness app.
-                Your job is to give ${firstName} a personalized post-run analysis with a friendly tone — like a supportive coach who's genuinely proud of them.
+                Your job is to give ${firstName} a personalized post-run analysis with a friendly tone â€” like a supportive coach who's genuinely proud of them.
 
                 RUNNER PROFILE:
                 - Name: ${firstName}
@@ -294,14 +295,14 @@ async function runAnalysis(req, res) {
                 HISTORICAL AVERAGES (last ${totalRuns} runs):
                 - Avg Distance: ${avgDistance} km
                 - Avg Calories: ${avgCalories} kcal
-                - Trend: ${isImproving ? 'distance is increasing 📈' : 'distance is steady or declining'}
+                - Trend: ${isImproving ? 'distance is increasing ðŸ“ˆ' : 'distance is steady or declining'}
 
                 INSTRUCTIONS:
-                1. Start with a warm, genuine reaction to this specific run — reference their exact numbers.
+                1. Start with a warm, genuine reaction to this specific run â€” reference their exact numbers.
                 2. For summary: 2-3 sentences covering what they did well and one thing to watch.
                 3. For prediction: based on their history and consistency, predict what they could realistically achieve in 30 days if they keep it up. Be specific (e.g., "you could hit 5km runs" or "shave 30 seconds off your pace"). Make it exciting but realistic.
                 4. For tip: one specific, actionable tip for their next run based on their pace and splits.
-                5. Tone: warm, friendly, like a coach who genuinely cares — not robotic. Use their name naturally.
+                5. Tone: warm, friendly, like a coach who genuinely cares â€” not robotic. Use their name naturally.
                 6. NEVER say "great job" or "keep it up" as opening words.
 
                 RESPONSE FORMAT (strict JSON only, no markdown, no extra text):
@@ -309,7 +310,7 @@ async function runAnalysis(req, res) {
                 "summary": "...",
                 "prediction": "...",
                 "tip": "...",
-                "emoji_verdict": "🔥|💪|⚡|🏃|✨"
+                "emoji_verdict": "ðŸ”¥|ðŸ’ª|âš¡|ðŸƒ|âœ¨"
                 }`.trim();
 
     const raw = await aiService.callGemini(prompt);
@@ -329,7 +330,7 @@ async function runAnalysis(req, res) {
         summary: raw || "Run analysis is temporarily unavailable. Great run though!",
         prediction: "Keep logging your runs for personalized predictions.",
         tip: "Stay consistent with your training.",
-        emoji_verdict: "🏃",
+        emoji_verdict: "ðŸƒ",
         stats: { distance: run.distance, duration: run.duration, pace: run.pace, calories: run.calories },
       });
     }
@@ -337,7 +338,7 @@ async function runAnalysis(req, res) {
     try {
       await aiService.insertRunNotification(userId, `${aiResult.emoji_verdict} Run Analysis: ${aiResult.summary}`);
     } catch (notifErr) {
-      console.error('Notification insert failed:', notifErr.message);
+      logger.error('Notification insert failed:', notifErr.message);
     }
 
     res.json({
@@ -355,7 +356,7 @@ async function runAnalysis(req, res) {
     });
 
   } catch (err) {
-    console.error('Run Analysis Error:', err);
+    logger.error('Run Analysis Error:', err);
     res.status(500).json({ error: 'Run analysis failed' });
   }
 }

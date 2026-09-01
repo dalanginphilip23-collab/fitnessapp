@@ -1,4 +1,5 @@
-const securityService = require('../services/security.service');
+﻿const securityService = require('../services/security.service');
+const logger = require('../utils/logger');
 
 // GET /api/security - fetch all sessions for the logged in user
 async function getSessions(req, res) {
@@ -8,7 +9,7 @@ async function getSessions(req, res) {
     const rows = await securityService.getSessionsForUser(userId);
     res.json(rows);
   } catch (err) {
-    console.error('fetch sessions error:', err.message);
+    logger.error('fetch sessions error:', err.message);
     res.status(500).json({ error: err.message });
   }
 }
@@ -23,7 +24,7 @@ async function revokeSession(req, res) {
     await securityService.deleteSession(sessionId, userId);
     res.json({ success: true, message: 'Session removed' });
   } catch (err) {
-    console.error('delete session error:', err.message);
+    logger.error('delete session error:', err.message);
     res.status(500).json({ error: err.message });
   }
 }

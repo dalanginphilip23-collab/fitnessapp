@@ -1,4 +1,5 @@
-const sleepService = require('../services/sleep.service');
+﻿const sleepService = require('../services/sleep.service');
+const logger = require('../utils/logger');
 
 async function create(req, res) {
   const { userId } = req.params;
@@ -8,7 +9,7 @@ async function create(req, res) {
     await sleepService.insertLog(userId, sleep_duration, sleep_quality, recovery_score, water_intake_ml);
     res.json({ success: true });
   } catch (err) {
-    console.error('[Sleep POST] Error:', err.message);
+    logger.error('[Sleep POST] Error:', err.message);
     res.status(500).json({ error: err.message });
   }
 }
@@ -19,7 +20,7 @@ async function getToday(req, res) {
     const rows = await sleepService.getTodayLatest(userId);
     res.json(rows[0] || null);
   } catch (err) {
-    console.error('[Sleep Today] Error:', err.message);
+    logger.error('[Sleep Today] Error:', err.message);
     res.status(500).json({ error: err.message });
   }
 }
@@ -31,7 +32,7 @@ async function getGraph(req, res) {
     const rows = await sleepService.getGraph(userId, range, metric);
     res.json(rows);
   } catch (err) {
-    console.error('[Sleep Graph] Error:', err.message);
+    logger.error('[Sleep Graph] Error:', err.message);
     res.status(500).json({ error: err.message });
   }
 }
@@ -43,7 +44,7 @@ async function getAnalysis(req, res) {
     const rows = await sleepService.getAnalysis(userId, range, metric);
     res.json(rows);
   } catch (err) {
-    console.error('[Analysis Graph] Error:', err.message);
+    logger.error('[Analysis Graph] Error:', err.message);
     res.status(500).json({ error: err.message });
   }
 }
@@ -55,7 +56,7 @@ async function getScatter(req, res) {
     const rows = await sleepService.getScatter(userId, timeframe);
     res.json(rows);
   } catch (err) {
-    console.error('[Scatter] Error:', err.message);
+    logger.error('[Scatter] Error:', err.message);
     res.status(500).json({ error: err.message });
   }
 }

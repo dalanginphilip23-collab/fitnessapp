@@ -1,4 +1,5 @@
-const db = require('../config/db');
+﻿const db = require('../config/db');
+const logger = require('../utils/logger');
 
 const DATA_POINT_TABLES = [
   'activity_logs',
@@ -33,7 +34,7 @@ async function getPublicStats() {
   );
 
   // Count DISTINCT users who have ever signed in (registered or logged in),
-  // not every individual login event — a user logging in 10 times counts once.
+  // not every individual login event â€” a user logging in 10 times counts once.
   const [[{ uniqueUsersCount }]] = await db.query(
     'SELECT COUNT(DISTINCT user_id) AS uniqueUsersCount FROM user_sessions'
   );
@@ -54,7 +55,7 @@ async function getPublicStats() {
       const [[row]] = await db.query(`SELECT COUNT(*) AS c FROM \`${table}\``);
       dataPoints += Number(row.c || 0);
     } catch (err) {
-      console.error(`[public.stats] skipping table "${table}": ${err.message}`);
+      logger.error(`[public.stats] skipping table "${table}": ${err.message}`);
     }
   }
 

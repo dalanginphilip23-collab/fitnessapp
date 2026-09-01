@@ -1,10 +1,11 @@
-const forgotPasswordService = require('../services/forgotPassword.service');
+﻿const forgotPasswordService = require('../services/forgotPassword.service');
+const logger = require('../utils/logger');
 const { bcrypt, crypto } = forgotPasswordService;
 
-// ─── RATE LIMITERS (IN-MEMORY, PER EMAIL) ───
+// â”€â”€â”€ RATE LIMITERS (IN-MEMORY, PER EMAIL) â”€â”€â”€
 // Guards the OTP flow against brute-force (6-digit codes) and email flooding.
 // Keyed per email so attackers can't hammer one account. Same caveat as the
-// login limiter: in-memory, so it resets on restart — swap for Redis at scale.
+// login limiter: in-memory, so it resets on restart â€” swap for Redis at scale.
 const otpSendBuckets = new Map();
 const otpTryBuckets = new Map();
 const resetBuckets = new Map();
@@ -59,7 +60,7 @@ async function sendOtp(req, res) {
     res.json({ success: true, message: 'If that email exists, a code was sent.' });
 
   } catch (err) {
-    console.error('SEND OTP ERROR:', err);
+    logger.error('SEND OTP ERROR:', err);
     res.status(500).json({ message: 'Failed to send reset code.' });
   }
 }
@@ -73,7 +74,7 @@ async function verifyOtp(req, res) {
 
   const normalizedEmail = email.trim().toLowerCase();
 
-  // Rate-limit BEFORE any DB work — 6-digit codes are brute-forceable without
+  // Rate-limit BEFORE any DB work â€” 6-digit codes are brute-forceable without
   // this, and every bad guess otherwise costs a DB round-trip.
   if (!allowWithin(otpTryBuckets, normalizedEmail, 5, 10 * 60 * 1000)) {
     return res.status(429).json({ message: 'Too many attempts. Request a new code and try again later.' });
@@ -95,7 +96,7 @@ async function verifyOtp(req, res) {
       return res.status(400).json({ message: 'Invalid or expired code.' });
     }
 
-    // OTP is valid — swap it for a short-lived reset token (5 min)
+    // OTP is valid â€” swap it for a short-lived reset token (5 min)
     const resetToken = crypto.randomBytes(32).toString('hex');
     const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
     const resetExpiry = new Date(Date.now() + 5 * 60 * 1000);
@@ -107,7 +108,7 @@ async function verifyOtp(req, res) {
     res.json({ success: true, resetToken });
 
   } catch (err) {
-    console.error('VERIFY OTP ERROR:', err);
+    logger.error('VERIFY OTP ERROR:', err);
     res.status(500).json({ message: 'Verification failed.' });
   }
 }
@@ -160,7 +161,7 @@ async function resetPassword(req, res) {
     res.json({ success: true, message: 'Password updated successfully.' });
 
   } catch (err) {
-    console.error('RESET PASSWORD ERROR:', err);
+    logger.error('RESET PASSWORD ERROR:', err);
     res.status(500).json({ message: 'Failed to reset password.' });
   }
 }

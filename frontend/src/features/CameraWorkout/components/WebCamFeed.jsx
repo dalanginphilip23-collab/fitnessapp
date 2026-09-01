@@ -1,11 +1,11 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Icon } from "../../../components";
-import ScanLineOverlay from "./scanLineOverlay";
-import CameraOffPlaceholder from "./cameraOffPlaceholder";
+import ScanLineOverlay from "./ScanLineOverlay";
+import CameraOffPlaceholder from "./CameraOffPlaceholder";
 import Webcam from "react-webcam";
-import CoachFeedbackOverlay from "./coachFeedbackOverlay";
-import RepCounterOverlay from "./repCounterOverlay";
-import PoseStatusBadge from "./poseStatusBadge";
+import CoachFeedbackOverlay from "./CoachFeedbackOverlay";
+import RepCounterOverlay from "./RepCounterOverlay";
+import PoseStatusBadge from "./PoseStatusBadge";
 
 const mobileConstraints  = { facingMode: 'user', width: 480,  height: 640 };
 const desktopConstraints = { facingMode: 'user', width: 1280, height: 720 };

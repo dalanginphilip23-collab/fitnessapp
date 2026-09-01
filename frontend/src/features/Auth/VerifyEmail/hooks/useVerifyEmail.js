@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { API_BASE_URL } from '../../../../config/port';
+import { API_BASE_URL } from '../../../../config/api';
 
 const MISSING_TOKEN_MSG = 'This verification link is invalid.';
 

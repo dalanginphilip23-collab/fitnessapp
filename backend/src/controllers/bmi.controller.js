@@ -1,5 +1,6 @@
-const bmiService = require("../services/bmi.service");
+﻿const bmiService = require("../services/bmi.service");
 const { callGeminiWithFallback } = require("../config/gemini");
+const logger = require('../utils/logger');
 
 async function saveBmi(req, res) {
   const { userId } = req.params;
@@ -45,7 +46,7 @@ async function saveBmi(req, res) {
       parseFloat(weight_kg),
     );
 
-    // Generate AI suggestion — now aware of TDEE/calorie target when available
+    // Generate AI suggestion â€” now aware of TDEE/calorie target when available
     const prompt = `You are Vitalis AI, a clinical health advisor.
             A user has the following stats:
             - BMI: ${bmi} (${category})
@@ -62,13 +63,13 @@ async function saveBmi(req, res) {
     try {
       aiSuggestion = await callGeminiWithFallback(prompt);
     } catch (aiErr) {
-      console.error("[BMI] AI Error:", aiErr.message);
+      logger.error("[BMI] AI Error:", aiErr.message);
       aiSuggestion =
         "Focus on balanced nutrition and consistent activity to optimize your body composition.";
     }
 
-    console.log(
-      `[BMI] Saved — userId:${userId} bmi:${bmi} category:${category}${tdeeResult ? ` tdee:${tdeeResult.tdee}` : ""}`,
+    logger.info(
+      `[BMI] Saved â€” userId:${userId} bmi:${bmi} category:${category}${tdeeResult ? ` tdee:${tdeeResult.tdee}` : ""}`,
     );
     res.status(200).json({
       message: "BMI saved",
@@ -82,7 +83,7 @@ async function saveBmi(req, res) {
       goals: tdeeResult?.goals ?? null,
     });
   } catch (err) {
-    console.error("[BMI] Insert Error:", err.message);
+    logger.error("[BMI] Insert Error:", err.message);
     res.status(500).json({ error: "Database error", details: err.message });
   }
 }
@@ -101,7 +102,7 @@ async function getBmiHistory(req, res) {
     );
     res.json({ records: rows, total });
   } catch (err) {
-    console.error("[BMI] Fetch Error:", err.message);
+    logger.error("[BMI] Fetch Error:", err.message);
     res.status(500).json({ error: err.message });
   }
 }

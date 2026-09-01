@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { API_BASE_URL } from '../../config/port';
+import { API_BASE_URL } from '../../config/api';
 
 function FeedbackModal({ onClose }) {
   const [name,      setName]      = useState('');

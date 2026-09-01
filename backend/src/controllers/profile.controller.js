@@ -1,4 +1,5 @@
-const profileService = require('../services/profile.service');
+﻿const profileService = require('../services/profile.service');
+const logger = require('../utils/logger');
 
 // PUT /api/profile/update
 async function updateProfile(req, res) {
@@ -22,7 +23,7 @@ async function updateProfile(req, res) {
     res.json({ success: true, message: 'Profile Synchronized' });
 
   } catch (err) {
-    console.error('profile update error:', err.code, err.message);
+    logger.error('profile update error:', err.code, err.message);
     res.status(500).json({ error: 'Failed to update profile' });
   }
 }
@@ -36,7 +37,7 @@ async function getProfile(req, res) {
   }
 
   try {
-    // height_cm / weight_kg still selected here — Profile page reads
+    // height_cm / weight_kg still selected here â€” Profile page reads
     // them read-only; they're written only from the BMI page.
     const rows = await profileService.getProfile(userId);
 
@@ -47,7 +48,7 @@ async function getProfile(req, res) {
     res.json(rows[0]);
 
   } catch (err) {
-    console.error('profile fetch error:', err.message);
+    logger.error('profile fetch error:', err.message);
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
 }

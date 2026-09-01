@@ -1,4 +1,5 @@
-const dashboardService = require('../services/dashboard.service');
+﻿const dashboardService = require('../services/dashboard.service');
+const logger = require('../utils/logger');
 
 async function getDashboard(req, res) {
   const { userId } = req.params;
@@ -29,8 +30,8 @@ async function getDashboard(req, res) {
     });
 
   } catch (e) {
-    console.error('DASHBOARD ERROR:', e.message);
-    console.error('DASHBOARD STACK:', e.stack);
+    logger.error('DASHBOARD ERROR:', e.message);
+    logger.error('DASHBOARD STACK:', e.stack);
     res.status(500).json({ error: e.message });
   }
 }
@@ -42,7 +43,7 @@ async function search(req, res) {
     const results = await dashboardService.searchUsers(q);
     res.json(results);
   } catch (e) {
-    console.error('SEARCH ERROR:', e.message);
+    logger.error('SEARCH ERROR:', e.message);
     res.status(500).json({ error: e.message });
   }
 }

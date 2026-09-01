@@ -1,6 +1,7 @@
-const nodemailer = require("nodemailer");
+﻿const nodemailer = require("nodemailer");
 const dns = require("dns");
 const tls = require("tls");
+const logger = require('../../utils/logger');
 
 dns.setDefaultResultOrder("ipv4first");
 
@@ -58,20 +59,20 @@ function buildTransport(cfg) {
 
 async function getTransporter() {
   const ip = await resolveIPv4("smtp.gmail.com");
-  console.log(`[MAILER] smtp.gmail.com resolved to IPv4 ${ip}`);
+  logger.info(`[MAILER] smtp.gmail.com resolved to IPv4 ${ip}`);
 
   let lastErr = null;
   for (const cfg of candidateConfigs(ip)) {
     try {
       const t = buildTransport(cfg);
       await t.verify();
-      console.log(
+      logger.info(
         `[MAILER] connected OK via ${cfg.name}:${cfg.port} (host=${cfg.host})`,
       );
       return t;
     } catch (err) {
       lastErr = err;
-      console.error(
+      logger.error(
         `[MAILER] endpoint ${cfg.name}:${cfg.port} (host=${cfg.host}) failed: ${err.code || err.message}`,
       );
     }
@@ -108,7 +109,7 @@ const transporter = new Proxy(
 
 async function verifyTransport() {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.warn(
+    logger.warn(
       "[MAILER] EMAIL_USER / EMAIL_PASS are not set. Email sending is disabled.",
     );
     return false;
@@ -116,20 +117,20 @@ async function verifyTransport() {
 
   try {
     await transporter.verify();
-    console.log(
+    logger.info(
       `[MAILER] SMTP connection verified (${process.env.EMAIL_USER}).`,
     );
     return true;
   } catch (err) {
     if (process.env.RESEND_API_KEY || process.env.BREVO_API_KEY) {
-      console.warn(
+      logger.warn(
         "[MAILER] SMTP unavailable (host may block outbound SMTP); will use HTTP email API (Brevo/Resend) instead.",
         err.code || err.message,
       );
       return true;
     }
-    console.error(
-      "[MAILER] SMTP connection FAILED — check EMAIL_PASS (Gmail requires a 16-char App Password with 2-Step Verification enabled):",
+    logger.error(
+      "[MAILER] SMTP connection FAILED â€” check EMAIL_PASS (Gmail requires a 16-char App Password with 2-Step Verification enabled):",
       err.message,
     );
     return false;
@@ -162,11 +163,11 @@ async function sendViaResend({ to, subject, html }) {
   return { messageId: data.id };
 }
 
-// ─── BREVO FALLBACK (HTTP API on port 443) ────────────────────────────────────
+// â”€â”€â”€ BREVO FALLBACK (HTTP API on port 443) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Preferred HTTP sender. Brevo delivers to ANY recipient once the FROM address
 // (BREVO_SENDER_EMAIL or BREVO_FROM) is a verified sender in the Brevo dashboard
 // (Settings > Senders & IP). Note: Brevo does NOT accept free-email senders like
-// @gmail.com — the sender needs a domain you control (a free subdomain such as
+// @gmail.com â€” the sender needs a domain you control (a free subdomain such as
 // is-a.dev works). Requires BREVO_API_KEY (xkeysib-...) from
 // app.brevo.com/settings/keys/api. Both naming conventions are accepted so the
 // configured Render env names don't matter.
@@ -214,14 +215,14 @@ async function sendEmail(mailOptions) {
       html: mailOptions.html,
     };
     if (process.env.BREVO_API_KEY) {
-      console.warn(
+      logger.warn(
         "[MAILER] SMTP failed, falling back to Brevo:",
         smtpErr.code || smtpErr.message,
       );
       return sendViaBrevo(mail);
     }
     if (process.env.RESEND_API_KEY) {
-      console.warn(
+      logger.warn(
         "[MAILER] SMTP failed, falling back to Resend:",
         smtpErr.code || smtpErr.message,
       );
@@ -236,7 +237,7 @@ async function sendMealSummaryEmail(to, summary) {
   const mailOptions = {
     from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
-    subject: "🥗 Your Daily Nutrition Summary — Vitalis",
+    subject: "ðŸ¥— Your Daily Nutrition Summary â€” Vitalis",
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;background:#0f0f0f;padding:32px;border-radius:12px;">
         <div style="text-align:center;margin-bottom:24px;">
@@ -251,25 +252,25 @@ async function sendMealSummaryEmail(to, summary) {
 
         <table style="width:100%;border-collapse:collapse;background:#1a1a1a;border-radius:8px;overflow:hidden;">
           <tr style="background:#1f1f1f;">
-            <td style="padding:14px 16px;color:#888;font-size:13px;">🔥 Calories</td>
+            <td style="padding:14px 16px;color:#888;font-size:13px;">ðŸ”¥ Calories</td>
             <td style="padding:14px 16px;color:#a3e635;font-weight:bold;font-size:16px;text-align:right;">
               ${Math.round(summary.calories)} kcal
             </td>
           </tr>
           <tr>
-            <td style="padding:14px 16px;color:#888;font-size:13px;">💪 Protein</td>
+            <td style="padding:14px 16px;color:#888;font-size:13px;">ðŸ’ª Protein</td>
             <td style="padding:14px 16px;color:#60a5fa;font-weight:bold;font-size:16px;text-align:right;">
               ${Math.round(summary.protein)}g
             </td>
           </tr>
           <tr style="background:#1f1f1f;">
-            <td style="padding:14px 16px;color:#888;font-size:13px;">🍚 Carbs</td>
+            <td style="padding:14px 16px;color:#888;font-size:13px;">ðŸš Carbs</td>
             <td style="padding:14px 16px;color:#a3e635;font-weight:bold;font-size:16px;text-align:right;">
               ${Math.round(summary.carbs)}g
             </td>
           </tr>
           <tr>
-            <td style="padding:14px 16px;color:#888;font-size:13px;">🥑 Fat</td>
+            <td style="padding:14px 16px;color:#888;font-size:13px;">ðŸ¥‘ Fat</td>
             <td style="padding:14px 16px;color:#fb923c;font-weight:bold;font-size:16px;text-align:right;">
               ${Math.round(summary.fat)}g
             </td>
@@ -278,7 +279,7 @@ async function sendMealSummaryEmail(to, summary) {
 
         <p style="color:#555;font-size:11px;text-align:center;margin-top:32px;">
           You received this because you logged a meal on Vitalis.<br/>
-          © ${new Date().getFullYear()} Vitalis Performance OS
+          Â© ${new Date().getFullYear()} Vitalis Performance OS
         </p>
       </div>
     `,
@@ -292,7 +293,7 @@ async function sendPasswordResetEmail(to, resetLink) {
   const mailOptions = {
     from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
-    subject: "🔐 Reset Your Vitalis Password",
+    subject: "ðŸ” Reset Your Vitalis Password",
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;background:#0f0f0f;padding:32px;border-radius:12px;">
         <div style="text-align:center;margin-bottom:24px;">
@@ -320,7 +321,7 @@ async function sendPasswordResetEmail(to, resetLink) {
         </p>
 
         <p style="color:#555;font-size:11px;text-align:center;margin-top:32px;">
-          © ${new Date().getFullYear()} Vitalis Performance OS
+          Â© ${new Date().getFullYear()} Vitalis Performance OS
         </p>
       </div>
     `,
@@ -334,7 +335,7 @@ async function sendWelcomeEmail(to, name) {
   const mailOptions = {
     from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
-    subject: "⚡ Welcome to Vitalis Performance OS",
+    subject: "âš¡ Welcome to Vitalis Performance OS",
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;background:#0f0f0f;padding:32px;border-radius:12px;">
         <div style="text-align:center;margin-bottom:24px;">
@@ -342,23 +343,23 @@ async function sendWelcomeEmail(to, name) {
           <p style="color:#888;font-size:12px;margin:4px 0 0;">PERFORMANCE OS</p>
         </div>
 
-        <h2 style="color:#fff;font-size:18px;margin:0 0 8px;">Welcome, ${name}! 👋</h2>
+        <h2 style="color:#fff;font-size:18px;margin:0 0 8px;">Welcome, ${name}! ðŸ‘‹</h2>
         <p style="color:#aaa;font-size:14px;margin:0 0 24px;">
           Your Vitalis account is ready. Start tracking your nutrition, workouts, 
-          sleep, and recovery — all in one place.
+          sleep, and recovery â€” all in one place.
         </p>
 
         <div style="background:#1a1a1a;border-radius:8px;padding:20px;margin-bottom:24px;">
           <p style="color:#a3e635;font-weight:bold;margin:0 0 12px;">What you can do:</p>
-          <p style="color:#aaa;font-size:13px;margin:6px 0;">🍗 AI-powered meal analysis</p>
-          <p style="color:#aaa;font-size:13px;margin:6px 0;">💪 Camera workout tracking</p>
-          <p style="color:#aaa;font-size:13px;margin:6px 0;">😴 Sleep & recovery monitoring</p>
-          <p style="color:#aaa;font-size:13px;margin:6px 0;">📊 Clinical health insights</p>
-          <p style="color:#aaa;font-size:13px;margin:6px 0;">🗺️ Activity map & run analysis</p>
+          <p style="color:#aaa;font-size:13px;margin:6px 0;">ðŸ— AI-powered meal analysis</p>
+          <p style="color:#aaa;font-size:13px;margin:6px 0;">ðŸ’ª Camera workout tracking</p>
+          <p style="color:#aaa;font-size:13px;margin:6px 0;">ðŸ˜´ Sleep & recovery monitoring</p>
+          <p style="color:#aaa;font-size:13px;margin:6px 0;">ðŸ“Š Clinical health insights</p>
+          <p style="color:#aaa;font-size:13px;margin:6px 0;">ðŸ—ºï¸ Activity map & run analysis</p>
         </div>
 
         <p style="color:#555;font-size:11px;text-align:center;margin-top:32px;">
-          © ${new Date().getFullYear()} Vitalis Performance OS
+          Â© ${new Date().getFullYear()} Vitalis Performance OS
         </p>
       </div>
     `,
@@ -372,7 +373,7 @@ async function sendVerificationEmail(to, verifyLink) {
   const mailOptions = {
     from: `"Vitalis" <${process.env.EMAIL_USER}>`,
     to,
-    subject: "✅ Verify Your Vitalis Account",
+    subject: "âœ… Verify Your Vitalis Account",
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:auto;background:#0f0f0f;padding:32px;border-radius:12px;">
         <div style="text-align:center;margin-bottom:24px;">
@@ -400,7 +401,7 @@ async function sendVerificationEmail(to, verifyLink) {
         </p>
 
         <p style="color:#555;font-size:11px;text-align:center;margin-top:32px;">
-          © ${new Date().getFullYear()} Vitalis Performance OS
+          Â© ${new Date().getFullYear()} Vitalis Performance OS
         </p>
       </div>
     `,

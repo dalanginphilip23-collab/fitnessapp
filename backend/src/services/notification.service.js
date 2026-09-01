@@ -1,5 +1,6 @@
-const db = require('../config/db');
+﻿const db = require('../config/db');
 const clients = require('./sseClients');
+const logger = require('../utils/logger');
 
 function registerClient(userKey, res) {
   // Close any existing connection for this user (e.g. tab reload / remount)
@@ -45,9 +46,9 @@ function pushToClient(userId, message, type) {
     try {
       client.write(`data: ${JSON.stringify({ message, type })}\n\n`);
     } catch (writeErr) {
-      // Client disconnected between the map lookup and the write — clean up
+      // Client disconnected between the map lookup and the write â€” clean up
       clients.delete(String(userId));
-      console.warn(`SSE write failed for user ${userId}, removed from clients`);
+      logger.warn(`SSE write failed for user ${userId}, removed from clients`);
     }
   }
 }

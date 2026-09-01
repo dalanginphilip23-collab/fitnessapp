@@ -1,4 +1,5 @@
-const dailyNutritionService = require('../services/dailyNutrition.service');
+﻿const dailyNutritionService = require('../services/dailyNutrition.service');
+const logger = require('../utils/logger');
 
 async function saveSession(req, res) {
   const { userId } = req.params;
@@ -14,7 +15,7 @@ async function saveSession(req, res) {
       sessionId: result.insertId
     });
   } catch (err) {
-    console.error('Error saving coaching session:', err);
+    logger.error('Error saving coaching session:', err);
     res.status(500).json({ error: 'Database error' });
   }
 }

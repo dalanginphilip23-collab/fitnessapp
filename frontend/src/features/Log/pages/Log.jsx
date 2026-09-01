@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import SidebarAnalytics from "../../../components/layout/SidebarAnalytics";
 import Icon from "../../../components/ui/Icon";
-import { API_BASE_URL } from "../../../config/port";
+import { API_BASE_URL } from "../../../config/api";
 import { AnalyticsMobileNav } from "../../../components";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
