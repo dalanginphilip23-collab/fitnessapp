@@ -62,7 +62,7 @@ const Landing = () => {
   }
 
   return (
-    <div className="min-h-[100dvh] w-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] overflow-hidden relative selection:bg-[var(--accent)] selection:text-black">
+    <div className="h-[100dvh] w-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] overflow-hidden relative selection:bg-[var(--accent)] selection:text-black">
       {/* Mesh / glow — subtle app gradient */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 opacity-[0.06]" style={{ background: 'radial-gradient(ellipse 90% 70% at 50% 0%, var(--accent) 0%, transparent 55%)' }} />
@@ -71,7 +71,7 @@ const Landing = () => {
       </div>
 
       {/* Top brand bar — desktop full-width */}
-      <header className="relative z-10 w-full max-w-[480px] md:max-w-[1100px] mx-auto px-6 md:px-8 pt-6 sm:pt-8 flex items-center justify-between shrink-0">
+      <header className="relative z-10 w-full md:max-w-[1100px] mx-auto px-6 md:px-8 pt-6 sm:pt-8 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--accent)' }}>
             <span className="material-symbols-outlined text-[16px] text-[#0a1000]">pulse_alert</span>
@@ -92,7 +92,7 @@ const Landing = () => {
       </header>
 
       {/* Center splash content — desktop: two-column, mobile: phone frame */}
-      <main className="relative z-10 flex-1 w-full max-w-[480px] md:max-w-[1100px] mx-auto px-6 md:px-8 flex flex-col md:flex-row md:items-center md:justify-between md:gap-16 items-center justify-center text-center md:text-left py-8 sm:py-10">
+      <main className="relative z-10 flex-1 w-full md:max-w-[1100px] mx-auto px-6 md:px-8 flex flex-col md:flex-row md:items-center md:justify-between md:gap-16 items-center justify-center text-center md:text-left py-4 sm:py-10">
         <div className="flex-1 w-full flex flex-col items-center md:items-start text-center md:text-left">
         {/* Logo */}
         <motion.div
@@ -226,7 +226,7 @@ const Landing = () => {
       </main>
 
       {/* Bottom — minimal, safe-area aware */}
-      <footer className="relative z-10 w-full max-w-[480px] md:max-w-[1100px] mx-auto px-6 md:px-8 pb-6 sm:pb-8 pt-4 flex flex-col items-center gap-3 shrink-0">
+      <footer className="relative z-10 w-full md:max-w-[1100px] mx-auto px-6 md:px-8 pb-6 sm:pb-8 pt-2 flex flex-col items-center gap-2 shrink-0">
         <div className="h-px w-full" style={{ background: 'var(--border-light)' }} />
         <p className="text-[10px] font-medium tracking-wide text-center" style={{ color: 'var(--text-muted)' }}>
           © 2026 Vitalis Labs • Privacy • Terms
