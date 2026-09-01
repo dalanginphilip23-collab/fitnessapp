@@ -36,7 +36,8 @@ const SLIDES = [
   },
 ];
 
-function Dots({ total, active, onDot }) {
+function Dots({ total, active, onDot, variant }) {
+  const isActiveGreen = variant === 'green';
   return (
     <div className="flex items-center justify-center gap-2" role="tablist" aria-label="Onboarding steps">
       {Array.from({ length: total }).map((_, i) => (
@@ -47,7 +48,11 @@ function Dots({ total, active, onDot }) {
           aria-label={`Go to slide ${i + 1} of ${total}`}
           onClick={() => onDot(i)}
           className={`h-1.5 rounded-full transition-all duration-300 border-none cursor-pointer p-0 ${
-            active === i ? 'w-5 bg-[var(--accent)]' : 'w-1.5 bg-[var(--border-medium)] hover:bg-[var(--border-heavy)]'
+            active === i
+              ? 'w-5 bg-[#0A1000]'
+              : isActiveGreen
+                ? 'w-1.5 bg-[#0A1000]/30 hover:bg-[#0A1000]/50'
+                : 'w-1.5 bg-[var(--border-medium)] hover:bg-[var(--border-heavy)]'
           }`}
         />
       ))}
@@ -98,14 +103,12 @@ function SolidSplash({ onNext }) {
 }
 
 function PlantArt({ icon }) {
-  // Simple icon-centric art like GoGreen plant illustration
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="w-20 h-20 rounded-2xl bg-[var(--accent-bg)] border border-[var(--accent-border)] flex items-center justify-center">
-        <span className="material-symbols-outlined text-[36px] text-[var(--accent)]">{icon}</span>
+      <div className="w-20 h-20 rounded-2xl bg-[#0A1000]/10 border border-[#0A1000]/15 flex items-center justify-center">
+        <span className="material-symbols-outlined text-[36px] text-[#0A1000]">{icon}</span>
       </div>
-      {/* subtle root line like plant */}
-      <div className="mt-2 w-12 h-px bg-[var(--border-light)] rounded-full opacity-60" />
+      <div className="mt-2 w-12 h-px bg-[#0A1000]/20 rounded-full" />
     </div>
   );
 }
@@ -165,20 +168,20 @@ export default function GoGreenOnboarding({ onComplete, onSkip, onLogin }) {
         />
         {/* Dots overlayed on green fullscreen — subtle */}
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3">
-          <Dots total={total} active={index} onDot={goTo} />
+          <Dots total={total} active={index} onDot={goTo} variant="green" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-[100dvh] w-screen h-[100dvh] bg-[#F7F5EE] flex flex-col relative overflow-hidden selection:bg-[var(--accent)] selection:text-black">
+    <div className="h-[100dvh] w-screen bg-[var(--accent)] flex flex-col relative overflow-hidden selection:bg-[var(--accent)] selection:text-black">
       {/* Top Skip — visible on cards 1-3 */}
       <div className="relative z-10 w-full flex justify-end px-6 pt-6 h-8 shrink-0">
         <button
           type="button"
           onClick={handleSkip}
-          className="text-[11px] font-bold tracking-[0.10em] uppercase text-[#6A6A6A] hover:text-[#1A1A17] bg-transparent border-none cursor-pointer transition-colors"
+          className="text-[11px] font-bold tracking-[0.10em] uppercase text-[#0A1000]/60 hover:text-[#0A1000] bg-transparent border-none cursor-pointer transition-colors"
         >
           SKIP
         </button>
@@ -186,7 +189,7 @@ export default function GoGreenOnboarding({ onComplete, onSkip, onLogin }) {
 
       {/* Fullscreen Card */}
       <div
-        className="relative z-10 flex-1 w-full bg-white rounded-t-[28px] sm:rounded-[28px] mx-0 sm:mx-4 sm:mb-4 shadow-xl overflow-hidden flex flex-col mt-2"
+        className="relative z-10 flex-1 w-full bg-[var(--accent)] mx-0 overflow-hidden flex flex-col mt-2"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         role="region"
@@ -224,15 +227,15 @@ export default function GoGreenOnboarding({ onComplete, onSkip, onLogin }) {
                 <PlantArt icon={SLIDES[index].icon} />
                 <div className="flex flex-col items-center gap-2 max-w-[260px]">
                   <h2
-                    className="text-[22px] sm:text-[24px] font-black leading-tight text-[var(--text-primary)] whitespace-pre-line"
+                    className="text-[22px] sm:text-[24px] font-black leading-tight text-[#0A1000] whitespace-pre-line"
                     style={{ letterSpacing: '-0.01em' }}
                   >
                     {SLIDES[index].title}
                   </h2>
-                  <p className="text-[12px] font-bold tracking-[0.08em] uppercase text-[var(--accent)] leading-[1.4]">
+                  <p className="text-[12px] font-bold tracking-[0.08em] uppercase text-[#0A1000]/70 leading-[1.4]">
                     {SLIDES[index].subtitle}
                   </p>
-                  <p className="text-[13px] leading-relaxed text-[var(--text-secondary)] mt-1">
+                  <p className="text-[13px] leading-relaxed text-[#0A1000]/80 mt-1">
                     {SLIDES[index].desc}
                   </p>
                 </div>
@@ -269,8 +272,8 @@ export default function GoGreenOnboarding({ onComplete, onSkip, onLogin }) {
 
         {/* Dots + indicator */}
         <div className="shrink-0 flex flex-col items-center gap-3 pb-5 pt-2">
-          <Dots total={total} active={index} onDot={goTo} />
-          <div className="w-32 h-1 rounded-full bg-[var(--text-muted)] opacity-40" />
+          <Dots total={total} active={index} onDot={goTo} variant="green" />
+          <div className="w-32 h-1 rounded-full bg-[#0A1000]/30" />
         </div>
       </div>
     </div>
