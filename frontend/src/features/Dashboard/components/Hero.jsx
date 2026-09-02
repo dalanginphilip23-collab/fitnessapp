@@ -71,8 +71,8 @@ const Hero = ({ name = 'Athlete', avatar, readiness, onCoachInsight }) => {
       </div>
 
       {/* Daily Readiness card — compact: ring moved aside (right) and smaller */}
-      <div className="relative overflow-hidden rounded-[24px] p-5 sm:p-6 shadow-lg border border-white/10 bg-gradient-to-br from-[#2d5a12] to-[#0f1f08]" style={{ backgroundImage: `linear-gradient(135deg, #2d5a12 0%, #12240a 100%), var(--hero-glow)` }}>
-        <div className="absolute inset-0 opacity-[0.32] bg-[radial-gradient(circle_at_85%_15%,rgba(255,255,255,0.14),transparent_55%)]" />
+      <div className="relative overflow-hidden rounded-[24px] p-5 sm:p-6 shadow-lg bg-[#16a34a]" style={{ backgroundImage: `linear-gradient(135deg, #16a34a 0%, #15803d 100%)` }}>
+        <div className="absolute inset-0 opacity-[0.15] bg-[radial-gradient(circle_at_85%_15%,rgba(255,255,255,0.3),transparent_55%)]" />
         <div className="relative flex flex-row items-center justify-between gap-4 sm:gap-6">
           <div className="min-w-0">
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] leading-[1.4] text-white/80 mb-1">
@@ -90,7 +90,7 @@ const Hero = ({ name = 'Athlete', avatar, readiness, onCoachInsight }) => {
             <button
               type="button"
               onClick={onCoachInsight}
-              className="mt-4 inline-flex items-center gap-1.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-[12px] font-bold px-4 py-2 rounded-full border-none cursor-pointer transition-colors leading-[1.4]"
+              className="mt-4 inline-flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white text-[12px] font-bold px-4 py-2 rounded-full border border-white/30 cursor-pointer transition-colors leading-[1.4]"
             >
               <Icon name="auto_awesome" className="text-[14px]" fill={1} />
               AI Coach Insight
