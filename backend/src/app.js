@@ -4,6 +4,7 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
+const logger = require("./utils/logger");
 
 const app = express();
 const server = http.createServer(app);
@@ -52,10 +53,7 @@ const ALLOWED_ORIGINS = [
 // CORS
 const corsOptions = {
   origin(origin, callback) {
-    if (!origin) {
-      if (process.env.NODE_ENV !== 'production') return callback(null, true);
-      return callback(new Error('Not allowed by CORS'));
-    }
+    if (!origin) return callback(null, true);
 
     if (ALLOWED_ORIGINS.includes(origin)) {
       return callback(null, true);
@@ -180,7 +178,6 @@ app.get("/api/admin/migrate", async (req, res) => {
     const db = require("./config/db");
     const fs = require("fs");
     const path = require("path");
-const logger = require('./utils/logger');
     const [tables] = await db.query("SHOW TABLES");
     const tableNames = tables.map(r => Object.values(r)[0]);
     const hasUsers = tableNames.includes("users");
