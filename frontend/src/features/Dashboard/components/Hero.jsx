@@ -90,7 +90,7 @@ const Hero = ({ name = 'Athlete', avatar, readiness, onCoachInsight }) => {
             <button
               type="button"
               onClick={onCoachInsight}
-              className="mt-4 inline-flex items-center gap-1.5 bg-black/20 hover:bg-black/30 text-white text-[12px] font-bold px-4 py-2 rounded-full border-none cursor-pointer transition-colors leading-[1.4]"
+              className="mt-4 inline-flex items-center gap-1.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white text-[12px] font-bold px-4 py-2 rounded-full border-none cursor-pointer transition-colors leading-[1.4]"
             >
               <Icon name="auto_awesome" className="text-[14px]" fill={1} />
               AI Coach Insight
