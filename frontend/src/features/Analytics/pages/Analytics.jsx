@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import {
@@ -37,6 +37,22 @@ const resolveCssVar = (name, fallback = '#000000') => {
   const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   return value || fallback;
 };
+
+// Cache CSS variables to avoid repeated getComputedStyle calls
+let cachedThemeVars = null;
+function useThemeVars() {
+  if (!cachedThemeVars) {
+    cachedThemeVars = {
+      accent:        resolveCssVar('--accent',        '#d1fd52'),
+      textMuted:     resolveCssVar('--text-muted',    '#9ca3af'),
+      borderLight:   resolveCssVar('--border-light',  'rgba(255,255,255,0.08)'),
+      bgCard:        resolveCssVar('--bg-card',       '#1f1f1f'),
+      textPrimary:   resolveCssVar('--text-primary',  '#ffffff'),
+      borderMedium:  resolveCssVar('--border-medium', 'rgba(255,255,255,0.16)'),
+    };
+  }
+  return cachedThemeVars;
+}
 
 const calculateSleepScore = (hours, quality) => {
   const durationScore =
@@ -143,15 +159,10 @@ function ScatterLegend() {
   );
 }
 
-function SleepScatterChart({ scatterData, sleepHours, sleepQuality }) {
-  const accentColor  = resolveCssVar('--accent',        '#d1fd52');
-  const textMuted    = resolveCssVar('--text-muted',    '#9ca3af');
-  const borderLight  = resolveCssVar('--border-light',  'rgba(255,255,255,0.08)');
-  const bgCard       = resolveCssVar('--bg-card',       '#1f1f1f');
-  const textPrimary  = resolveCssVar('--text-primary',  '#ffffff');
-  const borderMedium = resolveCssVar('--border-medium', 'rgba(255,255,255,0.16)');
+const SleepScatterChart = React.memo(function SleepScatterChart({ scatterData, sleepHours, sleepQuality }) {
+  const { accent: accentColor, textMuted, borderLight, bgCard, textPrimary, borderMedium } = useThemeVars();
 
-  const chartDataset = {
+  const chartDataset = useMemo(() => ({
     datasets: [
       {
         label:                'Sleep Sessions',
@@ -170,9 +181,9 @@ function SleepScatterChart({ scatterData, sleepHours, sleepQuality }) {
         pointHoverRadius:     9,
       },
     ],
-  };
+  }), [scatterData, sleepHours, sleepQuality, accentColor]);
 
-  const chartOptions = {
+  const chartOptions = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -202,7 +213,7 @@ function SleepScatterChart({ scatterData, sleepHours, sleepQuality }) {
         grid:  { color: borderLight },
       },
     },
-  };
+  }), [accentColor, textMuted, borderLight, bgCard, textPrimary, borderMedium]);
 
   return (
     <div className="relative col-span-1 lg:col-span-8 bg-(--bg-tertiary) rounded-[24px] border border-(--border-light) shadow-sm overflow-hidden card-glow">
@@ -231,7 +242,7 @@ function SleepScatterChart({ scatterData, sleepHours, sleepQuality }) {
       </div>
     </div>
   );
-}
+});
 
 function SleepSlider({ label, valueLabel, labelColor, trackColor, min, max, step, value, onChange, accent }) {
   const pct = Math.min(Math.max(((value - min) / (max - min)) * 100, 0), 100);

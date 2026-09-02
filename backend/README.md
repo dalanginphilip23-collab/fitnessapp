@@ -12,14 +12,16 @@ backend/
 ├── server.js              # thin bootstrap: loads env, starts the HTTP server
 ├── src/
 │   ├── app.js              # express app config, CORS, middleware, route mounting
-│   ├── config/             # db.js, gemini.js, mailer.js (unchanged)
-│   ├── constants/          # foodAnalysisPrompt.js (was data/)
-│   ├── middleware/         # verifyUser.js (unchanged) + requireAuth.js (new, see below)
+│   ├── config/             # db.js, env.js, gemini.js, gemini/ subdirectory
+│   ├── constants/          # foodAnalysisPrompt.js, nutritionAnchors.js
+│   ├── middleware/         # requireAuth.js, rateLimit.js, verifyOwnership.js, verifyOwnUserId.js, verifyOwnUserIdBody.js
 │   ├── routes/             # thin — only endpoint → controller wiring
 │   ├── controllers/        # req/res handling, one file per resource
-│   ├── services/           # DB queries + business logic, one file per resource
+│   ├── services/           # DB queries + business logic, one file per resource (+ mail/ subdirectory)
 │   └── sockets/            # socketHandler.js (unchanged)
-├── docs/                   # db-schema.txt, fitnessapp_db.sql (moved from root)
+├── migrations/             # SQL migration files (000–005)
+├── scripts/                # migrate.js, run-migration-004.js
+├── tests/                  # mailer.test.js
 ├── package.json / package-lock.json / .env / .env.sample / .gitignore
 ```
 
@@ -62,11 +64,6 @@ required a real judgment call.
 
 ## Things preserved as-is, but worth your attention
 
-- **Dead code removed (2026-08-27):** `liveCoaching.routes.js` / `social.routes.js` and their
-  controllers/services were never mounted in `app.js` and `LiveCoaching.jsx` is fully
-  client-side (Webcam simulation, no API). They were deleted (6 files, 285 lines) after
-  verifying no imports remain and `require('./src/app')` + `vite build` still pass.
-  The frontend route `/dashboard/live-coaching` is kept — it does not need a backend.
 - **`dailyNutrition.js`** is mounted at `/api/nutrition` but its single endpoint
   (`POST /save-session/:userId`) actually writes to `workout_sessions`, not any
   nutrition-related table. Kept exactly as-is, flagged in a code comment in

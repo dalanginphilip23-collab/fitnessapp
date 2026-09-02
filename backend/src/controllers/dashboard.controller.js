@@ -4,11 +4,13 @@ const logger = require('../utils/logger');
 async function getDashboard(req, res) {
   const { userId } = req.params;
   try {
-    const stats = await dashboardService.getTodayStats(userId);
-    const user = await dashboardService.getUserProfile(userId);
-    const sleepData = await dashboardService.getSleepGraphData(userId);
-    const plans = await dashboardService.getActivePlan(userId);
-    const weeklyRows = await dashboardService.getWeeklySteps(userId);
+    const [stats, user, sleepData, plans, weeklyRows] = await Promise.all([
+      dashboardService.getTodayStats(userId),
+      dashboardService.getUserProfile(userId),
+      dashboardService.getSleepGraphData(userId),
+      dashboardService.getActivePlan(userId),
+      dashboardService.getWeeklySteps(userId),
+    ]);
 
     // Build map YYYY-MM-DD -> steps for the 7-day window
     const weeklyMap = {};

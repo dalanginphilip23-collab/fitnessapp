@@ -421,10 +421,5 @@ async function analyzeFoodImage(base64Data, mimeType = "image/jpeg") {
 }
 
 module.exports = {
-  validateAndCorrectMacros,
-  validateProteinDensity,
-  enforceDensityAndAnchor,
-  parseNutritionJSON,
   analyzeFoodImage,
-  PROVIDER_TIMEOUT_MS,
 };

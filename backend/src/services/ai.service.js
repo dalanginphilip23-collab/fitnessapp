@@ -1,10 +1,6 @@
 ﻿const db = require('../config/db');
-const { callGeminiWithFallback, withTimeout, TEXT_TIMEOUT_MS } = require('../config/gemini');
+const { callGeminiWithFallback, withTimeout, TEXT_TIMEOUT_MS, genAI_new, genAI_legacy } = require('../config/gemini/client');
 const logger = require('../utils/logger');
-let genAI_new = null;
-try { const { GoogleGenAI } = require("@google/genai"); genAI_new = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }); } catch {}
-let genAI_legacy = null;
-try { const { GoogleGenerativeAI } = require("@google/generative-ai"); genAI_legacy = new GoogleGenerativeAI(process.env.GEMINI_API_KEY); } catch {}
 
 // â”€â”€â”€ POSE ANALYSIS â”€â”€â”€
 async function analyzePoseImage(image, metadata) {
@@ -148,14 +144,8 @@ async function getInsightHistory(userId) {
 
 // â”€â”€â”€ LATEST ACTIVITY LOG â”€â”€â”€
 async function getLatestDailyStats(userId) {
-  const [latestLog] = await db.execute(
-    `SELECT calories_burned, steps, workout_duration_mins               
-     FROM daily_stats 
-     WHERE user_id = ? 
-     ORDER BY stat_date DESC LIMIT 1`,
-    [userId]
-  );
-  return latestLog;
+  const row = await getLatestActivityRow(userId);
+  return row ? [row] : [];
 }
 
 async function getLatestSleepForLogs(userId) {

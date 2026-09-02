@@ -52,4 +52,4 @@ async function suggestPlanForMeal(meal, plans, dailyContext) {
   return raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
 }
 
-module.exports = { suggestPlanForMeal, buildSuggestPlanPrompt };
+module.exports = { suggestPlanForMeal };

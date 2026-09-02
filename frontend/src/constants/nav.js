@@ -1,16 +1,20 @@
 export const navList = [
-  { name: "Dashboard",   icon: "speed",          path: "/dashboard" },
-  { name: "Sleep Stats", icon: "monitoring",      path: "/dashboard/analytics" },
-  { name: "Jogging",     icon: "directions_run",  path: "/dashboard/activity-map" },
-  { name: "Workouts",    icon: "exercise",        path: "/dashboard/workouts" },
-  { name: "Logs",        icon: "history",         path: "/dashboard/logs" },
+  { name: "Dashboard",      icon: "speed",             path: "/dashboard" },
+  { name: "Sleep Stats",    icon: "monitoring",         path: "/dashboard/analytics" },
+  { name: "Jogging",        icon: "directions_run",     path: "/dashboard/activity-map" },
+  { name: "Workouts",       icon: "exercise",           path: "/dashboard/workouts" },
+  { name: "Logs",           icon: "history",            path: "/dashboard/logs" },
+  { name: "Meal Tracker",   icon: "restaurant",         path: "/dashboard/meal-tracker" },
+  { name: "Virtual Clinic", icon: "medical_services",   path: "/dashboard/virtual-clinic" },
 ];
 
 export const NAV_ITEMS = [
-  { icon: 'dashboard',     label: 'Overview',   path: '/dashboard' },
-  { icon: 'monitor_heart', label: 'Metrics',    path: '/dashboard/analytics' },
-  { icon: 'book',          label: 'Plans',      path: '/dashboard/plans' },
-  { icon: 'chat',          label: 'Community',  path: '/dashboard/messenger' },
+  { icon: 'dashboard',         label: 'Overview',   path: '/dashboard' },
+  { icon: 'monitor_heart',     label: 'Metrics',    path: '/dashboard/analytics' },
+  { icon: 'book',              label: 'Plans',      path: '/dashboard/plans' },
+  { icon: 'restaurant',        label: 'Nutrition',  path: '/dashboard/meal-tracker' },
+  { icon: 'medical_services',  label: 'Clinic',     path: '/dashboard/virtual-clinic' },
+  { icon: 'chat',              label: 'Community',  path: '/dashboard/messenger' },
 ];
 
 export const getSettingsItems = (navigate, notify) => [

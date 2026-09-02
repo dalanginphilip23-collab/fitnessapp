@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { API_BASE_URL } from '../../../config/api';
 
 const TABS = ['D', 'W', 'M'];
@@ -62,7 +62,7 @@ const formatHeadline = (value, metaObj) => {
   return `${Math.round(safe).toLocaleString()}${metaObj.unit}`;
 };
 
-export const SleepHoursGraph = ({ userId = null, onExpand }) => {
+export const SleepHoursGraph = React.memo(({ userId = null, onExpand }) => {
   const [activeTab,    setActiveTab]    = useState('D');
   const [activeSource, setActiveSource] = useState('sleep');
   const [activeMetric, setActiveMetric] = useState('duration');
@@ -416,6 +416,6 @@ export const SleepHoursGraph = ({ userId = null, onExpand }) => {
       )}
     </div>
   );
-};
+});
 
 export default SleepHoursGraph;

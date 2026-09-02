@@ -666,15 +666,6 @@ const CameraWorkout = () => {
         <AnalyticsMobileNav navigate={navigate} />
       </div>
 
-      <style>{`
-        @keyframes scan {
-          0%   { top: 0%;   opacity: 0; }
-          50%  {             opacity: 1; }
-          100% { top: 100%; opacity: 0; }
-        }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
     </div>
   );
 };

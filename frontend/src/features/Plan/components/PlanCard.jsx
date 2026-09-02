@@ -1,4 +1,6 @@
-export default function PlanCard({ plan, onOpen, onEnroll, onContinue, style = {} }) {
+import React from 'react';
+
+export default React.memo(function PlanCard({ plan, onOpen, onEnroll, onContinue, style = {} }) {
   return (
     <div
       className="group relative rounded-2xl overflow-hidden border flex flex-col shadow-[var(--shadow-md)] cursor-pointer transition-all duration-500 hover:border-[var(--accent-border)] hover:shadow-[var(--shadow-lg)]"
@@ -85,4 +87,4 @@ export default function PlanCard({ plan, onOpen, onEnroll, onContinue, style = {
       </div>
     </div>
   );
-}
+});

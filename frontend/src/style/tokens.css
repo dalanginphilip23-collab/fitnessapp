@@ -71,36 +71,3 @@
 }
 .btn-ghost:hover { background: var(--bg-hover); border-color: var(--border-heavy); }
 .btn-ghost:active { transform: scale(0.97); }
-
-.btn-sm {
-  height: var(--btn-height-sm);
-  padding: 0 var(--btn-padding-x-sm);
-  border-radius: var(--btn-radius);
-  font-size: var(--btn-font-size-sm);
-  letter-spacing: 0.06em;
-  font-weight: 700;
-}
-
-.btn-hero {
-  height: var(--btn-height-hero);
-  padding: 0 24px;
-  border-radius: var(--btn-radius);
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-/* ── Readable label utility — replaces scattered text-[11px] tracking-[0.12em] ── */
-.label-readable {
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  line-height: 1.4;
-  font-weight: 600;
-}
-.label-readable-sm {
-  font-size: 11px;
-  letter-spacing: 0.10em;
-  line-height: 1.4;
-  font-weight: 700;
-}

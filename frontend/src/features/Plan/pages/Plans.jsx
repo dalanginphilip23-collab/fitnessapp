@@ -152,14 +152,6 @@ const Plans = () => {
 
       <div className="md:hidden"><MobileNav onFABClick={() => setQuickMenuOpen(v => !v)} /></div>
 
-      <style>{`
-        @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes popIn { from { opacity: 0; transform: translateX(var(--dx, 0px)) translateY(var(--dy, 0px)) scale(0.4); } to { opacity: 1; transform: translateX(0) translateY(0) scale(1); } }
-        @keyframes popOut { from { opacity: 1; transform: translateX(0) translateY(0) scale(1); } to { opacity: 0; transform: translateX(calc(var(--dx, 0px) * 0.6)) translateY(calc(var(--dy, 0px) * 0.6)) scale(0.5); } }
-        input::placeholder { color: var(--text-muted); opacity: 1; }
-        @media (min-width: 480px) { .xs\\:inline { display: inline; } .xs\\:hidden { display: none; } }
-      `}</style>
     </div>
   );
 };

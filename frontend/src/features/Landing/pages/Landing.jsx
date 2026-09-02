@@ -1,11 +1,9 @@
-/* eslint-disable no-unused-vars */
 import React, { useCallback, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion';
 import useCanHover from '../hooks/useCanHover';
 import useLiveStats from '../hooks/useLiveStats';
-import useOnboardingSeen from '../hooks/useOnboardingSeen';
 import GoGreenOnboarding from '../components/GoGreenOnboarding';
 import { formatCompact, HERO_AVATAR_ALPHAS } from '../constants';
 

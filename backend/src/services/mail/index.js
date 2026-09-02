@@ -288,47 +288,7 @@ async function sendMealSummaryEmail(to, summary) {
   return sendEmail(mailOptions);
 }
 
-// PASSWORD RESET EMAIL
-async function sendPasswordResetEmail(to, resetLink) {
-  const mailOptions = {
-    from: `"Vitalis" <${process.env.EMAIL_USER}>`,
-    to,
-    subject: "ðŸ” Reset Your Vitalis Password",
-    html: `
-      <div style="font-family:sans-serif;max-width:480px;margin:auto;background:#0f0f0f;padding:32px;border-radius:12px;">
-        <div style="text-align:center;margin-bottom:24px;">
-          <h1 style="color:#a3e635;margin:0;font-size:24px;letter-spacing:2px;">VITALIS</h1>
-          <p style="color:#888;font-size:12px;margin:4px 0 0;">PERFORMANCE OS</p>
-        </div>
-
-        <h2 style="color:#fff;font-size:18px;margin:0 0 8px;">Password Reset Request</h2>
-        <p style="color:#aaa;font-size:14px;margin:0 0 24px;">
-          We received a request to reset your password. Click the button below to continue.
-          This link expires in <strong style="color:#fff;">1 hour</strong>.
-        </p>
-
-        <div style="text-align:center;margin:32px 0;">
-          <a href="${resetLink}"
-             style="background:#a3e635;color:#000;padding:14px 32px;border-radius:8px;
-                    text-decoration:none;font-weight:bold;font-size:15px;letter-spacing:1px;">
-            RESET PASSWORD
-          </a>
-        </div>
-
-        <p style="color:#555;font-size:12px;">
-          If you didn't request this, you can safely ignore this email.
-          Your password will not be changed.
-        </p>
-
-        <p style="color:#555;font-size:11px;text-align:center;margin-top:32px;">
-          Â© ${new Date().getFullYear()} Vitalis Performance OS
-        </p>
-      </div>
-    `,
-  };
-
-  return sendEmail(mailOptions);
-}
+// PASSWORD RESET EMAIL (removed — OTP flow replaced it)
 
 // WELCOME EMAIL
 async function sendWelcomeEmail(to, name) {
@@ -411,11 +371,8 @@ async function sendVerificationEmail(to, verifyLink) {
 }
 
 module.exports = {
-  transporter,
-  verifyTransport,
   sendEmail,
   sendMealSummaryEmail,
-  sendPasswordResetEmail,
   sendWelcomeEmail,
   sendVerificationEmail,
 };

@@ -33,9 +33,11 @@ async function clinicalAnalysis(req, res) {
   const { userId, stats } = req.body;
 
   try {
-    const user = await aiService.getUserBasic(userId);
+    const [user, dbSleep] = await Promise.all([
+      aiService.getUserBasic(userId),
+      aiService.getLatestSleepRow(userId),
+    ]);
     const firstName = user.name ? user.name.split(' ')[0] : 'Athlete';
-    const dbSleep = await aiService.getLatestSleepRow(userId);
 
     const sleep = {
       sleep_duration: (stats?.sleep_duration > 0) ? stats.sleep_duration : (dbSleep.sleep_duration || 0),
@@ -236,8 +238,10 @@ async function history(req, res) {
 async function latestLogs(req, res) {
   const { userId } = req.params;
   try {
-    const latestLog = await aiService.getLatestDailyStats(userId);
-    const latestSleep = await aiService.getLatestSleepForLogs(userId);
+    const [latestLog, latestSleep] = await Promise.all([
+      aiService.getLatestDailyStats(userId),
+      aiService.getLatestSleepForLogs(userId),
+    ]);
 
     if (!latestLog.length && !latestSleep.length) {
       return res.status(404).json({ message: "No historical data found for this user." });
@@ -265,10 +269,11 @@ async function runAnalysis(req, res) {
   const { userId, run } = req.body;
 
   try {
-    const user = await aiService.getUserBasic(userId);
+    const [user, runHistory] = await Promise.all([
+      aiService.getUserBasic(userId),
+      aiService.getRunHistory(userId),
+    ]);
     const firstName = user.name ? user.name.split(' ')[0] : 'Athlete';
-
-    const runHistory = await aiService.getRunHistory(userId);
 
     const totalRuns = runHistory.length;
     const avgDistance = totalRuns > 0 ? (runHistory.reduce((s, r) => s + parseFloat(r.distance || 0), 0) / totalRuns).toFixed(2) : 0;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar, Topbar, MobileNav } from '../../../components';
 import { CategoryCard, DoctorCard, VoiceCallScreen, ChatInterface } from '../components';
@@ -18,8 +18,14 @@ const VirtualClinic = () => {
 
   const [alertMessage, setAlertMessage] = useState('');
   const [showAlert,    setShowAlert]    = useState(false);
+  const alertTimerRef = useRef(null);
 
   const navigate = useNavigate();
+
+  // Cleanup alert timer on unmount
+  useEffect(() => {
+    return () => { if (alertTimerRef.current) clearTimeout(alertTimerRef.current); };
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -35,18 +41,19 @@ const VirtualClinic = () => {
     fetchUser();
   }, [navigate]);
 
-  const triggerPopup = (msg) => {
+  const triggerPopup = useCallback((msg) => {
+    if (alertTimerRef.current) clearTimeout(alertTimerRef.current);
     setAlertMessage(msg);
     setShowAlert(true);
-    setTimeout(() => setShowAlert(false), 3000);
-  };
+    alertTimerRef.current = setTimeout(() => setShowAlert(false), 3000);
+  }, []);
 
-  const handleCategorySelect = (key) => {
+  const handleCategorySelect = useCallback((key) => {
     setSelectedCategory(key);
     setCurrentView('doctors');
-  };
+  }, []);
 
-  const handleDoctorSelect = async (doctor) => {
+  const handleDoctorSelect = useCallback(async (doctor) => {
     if (!currentUser) return;
     try {
       const data = await createClinicSession(currentUser.id, doctor.name);
@@ -57,7 +64,7 @@ const VirtualClinic = () => {
     } catch {
       triggerPopup('Failed to start consultation. Please try again.');
     }
-  };
+  }, [currentUser, triggerPopup]);
 
   const activeTheme = selectedCategory ? THEMES[selectedCategory] : THEMES.beginner;
 
@@ -151,12 +158,6 @@ const VirtualClinic = () => {
 
       <div className="md:hidden"><MobileNav /></div>
 
-      <style>{`
-        @keyframes fadeIn    { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes fadeInUp  { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in     { animation: fadeIn 0.4s ease-out forwards; }
-        .animate-fade-in-up  { animation: fadeInUp 0.5s ease-out forwards; }
-      `}</style>
     </div>
   );
 };

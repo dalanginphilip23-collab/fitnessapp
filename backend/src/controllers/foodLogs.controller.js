@@ -50,8 +50,10 @@ async function suggestPlan(req, res) {
   if (!food_name) return res.status(400).json({ error: 'food_name is required' });
 
   try {
-    const plans = await foodLogsService.getPlansForUser(userId);
-    const caloriesSoFar = await foodLogsService.getCaloriesSoFar(userId);
+    const [plans, caloriesSoFar] = await Promise.all([
+      foodLogsService.getPlansForUser(userId),
+      foodLogsService.getCaloriesSoFar(userId),
+    ]);
 
     const meal = { food_name, calories: calories || 0, protein: protein || 0, carbs: carbs || 0, fat: fat || 0 };
     const dailyContext = { caloriesSoFar: Math.round(caloriesSoFar), calorieGoal: 2000 };

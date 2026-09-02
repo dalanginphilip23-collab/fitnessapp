@@ -43,4 +43,4 @@ function createVerifyOwnership({ source, bodyKeys = ['userId', 'user_id', 'sende
 const verifyOwnUserId = createVerifyOwnership({ source: 'params' });
 const verifyOwnUserIdBody = createVerifyOwnership({ source: 'body' });
 
-module.exports = { createVerifyOwnership, verifyOwnUserId, verifyOwnUserIdBody };
+module.exports = { verifyOwnUserId, verifyOwnUserIdBody };
