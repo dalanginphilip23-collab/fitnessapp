@@ -12,8 +12,6 @@ export const NAV_ITEMS = [
   { icon: 'dashboard',         label: 'Overview',   path: '/dashboard' },
   { icon: 'monitor_heart',     label: 'Metrics',    path: '/dashboard/analytics' },
   { icon: 'book',              label: 'Plans',      path: '/dashboard/plans' },
-  { icon: 'restaurant',        label: 'Nutrition',  path: '/dashboard/meal-tracker' },
-  { icon: 'medical_services',  label: 'Clinic',     path: '/dashboard/virtual-clinic' },
   { icon: 'chat',              label: 'Community',  path: '/dashboard/messenger' },
 ];
 
