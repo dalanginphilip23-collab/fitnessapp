@@ -8,7 +8,7 @@ export { default as RunControls } from './ui/RunControls';
 export { default as RunSummaryOverlay } from './overlays/RunSummaryOverlay';
 export { default as StatsPanel } from './overlays/StatsPanel';
 export { default as StatsTab } from './tabs/StatsTab';
-export { default as Toast } from './ui/Toast';
+export { default as Toast } from './ui/toast';
 export { default as SavedPinsLayer } from './map/SavedPinsLayer';
 export { default as ActivityCard } from './ui/ActivityCard';
 export { default as ActivityPanel } from './ui/ActivityPanel';
