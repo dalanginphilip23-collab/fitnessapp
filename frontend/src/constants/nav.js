@@ -4,8 +4,6 @@ export const navList = [
   { name: "Jogging",        icon: "directions_run",     path: "/dashboard/activity-map" },
   { name: "Workouts",       icon: "exercise",           path: "/dashboard/workouts" },
   { name: "Logs",           icon: "history",            path: "/dashboard/logs" },
-  { name: "Meal Tracker",   icon: "restaurant",         path: "/dashboard/meal-tracker" },
-  { name: "Virtual Clinic", icon: "medical_services",   path: "/dashboard/virtual-clinic" },
 ];
 
 export const NAV_ITEMS = [
