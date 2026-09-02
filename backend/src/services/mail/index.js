@@ -375,4 +375,5 @@ module.exports = {
   sendMealSummaryEmail,
   sendWelcomeEmail,
   sendVerificationEmail,
+  verifyTransport,
 };
