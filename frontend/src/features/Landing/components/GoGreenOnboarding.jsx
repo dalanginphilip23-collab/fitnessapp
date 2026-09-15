@@ -201,9 +201,13 @@ export default function GoGreenOnboarding({ onComplete, onSkip, onLogin }) {
             {slide.cta}
           </button>
         ) : (
-          <p className="text-[10px] font-bold tracking-[0.14em] uppercase text-[#0A1000]/60">
+          <button
+            type="button"
+            onClick={goNext}
+            className="text-[10px] font-bold tracking-[0.14em] uppercase text-[#0A1000]/60 hover:text-[#0A1000] bg-transparent border-none cursor-pointer transition-colors"
+          >
             {slide.cta}
-          </p>
+          </button>
         )}
 
         {slide.ctaSecondary && onLogin && (
