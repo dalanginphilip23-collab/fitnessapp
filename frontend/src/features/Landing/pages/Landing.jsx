@@ -4,8 +4,10 @@ import { motion } from 'framer-motion';
 import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion';
 import useCanHover from '../hooks/useCanHover';
 import useLiveStats from '../hooks/useLiveStats';
+import usePWAInstall from '../hooks/usePWAInstall';
 import GoGreenOnboarding from '../components/GoGreenOnboarding';
 import InstallButton from '../components/InstallButton';
+import InstallGuide from '../components/InstallGuide';
 import DemoVideo from '../components/DemoVideo';
 import Reveal from '../components/Reveal';
 import logo from '../../../assets/logo.png';
@@ -50,6 +52,7 @@ const Landing = () => {
   const prefersReducedMotion = usePrefersReducedMotion();
   const canHover = useCanHover();
   const liveStats = useLiveStats();
+  const { canInstall: pwaPromptReady, isIOS: isIOSDevice } = usePWAInstall();
   const userCount = `${formatCompact(liveStats.users)}+`;
   const workoutCount = formatCompact(liveStats.workouts || 120000);
   const dataCount = formatCompact(liveStats.dataPoints);
@@ -232,6 +235,13 @@ const Landing = () => {
               <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                 No credit card required • Cancel anytime • Works on Android, iPhone &amp; desktop
               </p>
+              {!pwaPromptReady && (
+                <p className="text-[11px] leading-relaxed" style={{ color: 'var(--accent)' }}>
+                  {isIOSDevice
+                    ? 'iPhone tip: tap Download, then follow the 3 steps in the Download section (Share → Add to Home Screen).'
+                    : 'Tip: tap Download and follow the steps in the Download section — or use your browser menu → Install app.'}
+                </p>
+              )}
             </motion.div>
           </div>
 
@@ -394,11 +404,9 @@ const Landing = () => {
                   Try on web first
                 </button>
               </div>
-              <ol className="mt-6 space-y-2.5 text-[13px]" style={{ color: 'var(--text-secondary)' }}>
-                <li className="flex gap-2.5"><span className="font-bold" style={{ color: 'var(--accent)' }}>1.</span> Android / Chrome / Edge: tap <strong>Download App</strong> and confirm Install.</li>
-                <li className="flex gap-2.5"><span className="font-bold" style={{ color: 'var(--accent)' }}>2.</span> iPhone Safari: tap <strong>Share → Add to Home Screen → Add</strong>.</li>
-                <li className="flex gap-2.5"><span className="font-bold" style={{ color: 'var(--accent)' }}>3.</span> Open Vitalis from your home screen and sign in.</li>
-              </ol>
+              <div className="mt-6">
+                <InstallGuide />
+              </div>
             </Reveal>
             <div className="grid grid-cols-1 gap-3">
               {PWA_PERKS.map((p, i) => (
