@@ -106,14 +106,6 @@ const Landing = () => {
               <span className="material-symbols-outlined text-[16px]">download</span>
               Get app
             </a>
-            <button
-              type="button"
-              onClick={goLogin}
-              className="text-[12px] font-bold tracking-[0.10em] uppercase px-5 py-2.5 rounded-full border transition-colors hover:bg-[var(--bg-hover)] leading-[1.4]"
-              style={{ color: 'var(--text-secondary)', borderColor: 'var(--border-medium)', fontFamily: 'Poppins, sans-serif' }}
-            >
-              Sign in
-            </button>
           </div>
         </div>
       </header>
@@ -202,14 +194,6 @@ const Landing = () => {
                 style={{ background: 'transparent', color: 'var(--text-primary)', borderColor: 'var(--border-medium)' }}
               >
                 Continue on web — Get Started
-              </button>
-              <button
-                type="button"
-                onClick={goLogin}
-                className="text-[12px] font-semibold hover:underline bg-transparent border-none cursor-pointer"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                I already have an account
               </button>
               <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                 No credit card required • Cancel anytime • Works on Android, iPhone &amp; desktop
