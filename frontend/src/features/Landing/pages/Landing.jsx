@@ -7,6 +7,7 @@ import useLiveStats from '../hooks/useLiveStats';
 import GoGreenOnboarding from '../components/GoGreenOnboarding';
 import InstallButton from '../components/InstallButton';
 import Reveal from '../components/Reveal';
+import logo from '../../../assets/logo.png';
 import { formatCompact, HERO_AVATAR_ALPHAS, FEATURES, ABOUT_MISSION_VISION, MARQUEE_LOOP } from '../constants';
 
 // Splash mark — same barbell+heartbeat as SplashScreen, scaled for landing
@@ -88,9 +89,7 @@ const Landing = () => {
       <header className="sticky top-0 z-20 w-full bg-[color-mix(in_srgb,var(--bg-primary)_88%,transparent)] backdrop-blur-md border-b border-[var(--border-light)]">
         <div className="w-full md:max-w-[1100px] mx-auto px-6 md:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--accent)' }}>
-              <span className="material-symbols-outlined text-[16px] text-[#0a1000]">pulse_alert</span>
-            </div>
+            <img src={logo} alt="Vitalis logo" className="w-8 h-8 rounded-lg object-cover" />
             <span className="bebas text-[18px] tracking-[0.12em]" style={{ color: 'var(--text-primary)' }}>VITALIS</span>
           </div>
           <nav className="hidden md:flex items-center gap-8 text-[13px] font-medium text-[var(--text-muted)]" aria-label="Sections">
@@ -115,14 +114,6 @@ const Landing = () => {
       <main className="relative z-10 flex-1 w-full md:max-w-[1100px] mx-auto px-6 md:px-8 flex flex-col items-center text-center md:text-left pt-10 sm:pt-14 pb-4">
         <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between md:gap-16 items-center">
           <div className="flex-1 w-full flex flex-col items-center md:items-start text-center md:text-left">
-            <motion.div
-              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, ease }}
-            >
-              <LogoMark />
-            </motion.div>
-
             <motion.div
               initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
