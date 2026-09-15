@@ -6,7 +6,8 @@ import useCanHover from '../hooks/useCanHover';
 import useLiveStats from '../hooks/useLiveStats';
 import GoGreenOnboarding from '../components/GoGreenOnboarding';
 import InstallButton from '../components/InstallButton';
-import { formatCompact, HERO_AVATAR_ALPHAS, FEATURES, ABOUT_MISSION_VISION } from '../constants';
+import Reveal from '../components/Reveal';
+import { formatCompact, HERO_AVATAR_ALPHAS, FEATURES, ABOUT_MISSION_VISION, MARQUEE_LOOP } from '../constants';
 
 // Splash mark — same barbell+heartbeat as SplashScreen, scaled for landing
 const LogoMark = () => (
@@ -202,7 +203,11 @@ const Landing = () => {
           </div>
 
           <div className="hidden md:flex flex-1 justify-center items-center">
-            <div className="w-[420px] rounded-[32px] bg-[var(--bg-secondary)] border border-[var(--border-light)] p-8 shadow-xl">
+            <motion.div
+              animate={prefersReducedMotion ? {} : { y: [0, -10, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+              className="w-[420px] rounded-[32px] bg-[var(--bg-secondary)] border border-[var(--border-light)] p-8 shadow-xl"
+            >
               <div className="flex justify-center"><div className="scale-[1.2]"><LogoMark /></div></div>
               <div className="mt-6 rounded-2xl border border-[var(--border-light)] bg-[var(--bg-primary)] p-5 text-left">
                 <p className="text-[11px] font-bold tracking-[0.14em] uppercase" style={{ color: 'var(--accent)' }}>Today&apos;s readiness</p>
@@ -220,7 +225,7 @@ const Landing = () => {
                 </div>
               </div>
               <div className="mt-4"><InstallButton variant="secondary" label="Install on this device" className="w-full" /></div>
-            </div>
+            </motion.div>
           </div>
         </div>
 
@@ -251,47 +256,69 @@ const Landing = () => {
           ))}
         </motion.div>
 
+        {/* Marquee strip — scrolling capability ticker */}
+        <div className="w-full mt-14 overflow-hidden select-none" aria-hidden="true">
+          <style>{`@keyframes vitalis-marquee { from { transform: translateX(0); } to { transform: translateX(-33.333%); } }
+            @media (prefers-reduced-motion: reduce) { .vitalis-marquee-track { animation: none !important; } }`}</style>
+          <div className="vitalis-marquee-track flex w-max items-center gap-10 whitespace-nowrap" style={{ animation: 'vitalis-marquee 30s linear infinite' }}>
+            {MARQUEE_LOOP.map((item, i) => (
+              <span key={i} className="flex items-center gap-10">
+                <span className="bebas text-[26px] tracking-wide" style={{ color: 'var(--text-muted)', opacity: 0.75 }}>{item}</span>
+                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: 'var(--accent)' }} />
+              </span>
+            ))}
+          </div>
+        </div>
+
         {/* System details — Features */}
         <section id="features" className="w-full mt-20 text-left scroll-mt-24">
-          <p className="text-[11px] font-black tracking-[0.18em] uppercase" style={{ color: 'var(--accent)' }}>The system</p>
-          <h2 className="bebas mt-2" style={{ fontSize: 'clamp(30px, 5vw, 44px)', lineHeight: 1, color: 'var(--text-primary)' }}>
-            EVERYTHING YOU NEED TO PERFORM
-          </h2>
-          <p className="mt-3 text-[14px] max-w-[560px]" style={{ color: 'var(--text-secondary)' }}>
-            Vitalis combines training plans, meal tracking, activity mapping, and clinical-grade analytics in one Human Performance OS.
-          </p>
+          <Reveal>
+            <p className="text-[11px] font-black tracking-[0.18em] uppercase" style={{ color: 'var(--accent)' }}>The system</p>
+            <h2 className="bebas mt-2" style={{ fontSize: 'clamp(30px, 5vw, 44px)', lineHeight: 1, color: 'var(--text-primary)' }}>
+              EVERYTHING YOU NEED TO PERFORM
+            </h2>
+            <p className="mt-3 text-[14px] max-w-[560px]" style={{ color: 'var(--text-secondary)' }}>
+              Vitalis combines training plans, meal tracking, activity mapping, and clinical-grade analytics in one Human Performance OS.
+            </p>
+          </Reveal>
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {FEATURES.map((f) => (
-              <article key={f.num} className="rounded-2xl border p-5 bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] transition-colors" style={{ borderColor: 'var(--border-light)' }}>
-                <div className="flex items-start justify-between">
-                  <span className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'color-mix(in srgb, var(--accent) 14%, transparent)' }}>
-                    <span className="material-symbols-outlined text-[20px]" style={{ color: 'var(--accent)' }}>{f.icon}</span>
-                  </span>
-                  <span className="bebas text-[18px]" style={{ color: 'var(--text-muted)' }}>{f.num}</span>
-                </div>
-                <h3 className="mt-4 text-[15px] font-bold" style={{ color: 'var(--text-primary)' }}>{f.title}</h3>
-                <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{f.desc}</p>
-              </article>
+            {FEATURES.map((f, i) => (
+              <Reveal key={f.num} delay={(i % 3) * 0.08}>
+                <article className="h-full rounded-2xl border p-5 bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] transition-colors hover:-translate-y-1" style={{ borderColor: 'var(--border-light)' }}>
+                  <div className="flex items-start justify-between">
+                    <span className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'color-mix(in srgb, var(--accent) 14%, transparent)' }}>
+                      <span className="material-symbols-outlined text-[20px]" style={{ color: 'var(--accent)' }}>{f.icon}</span>
+                    </span>
+                    <span className="bebas text-[18px]" style={{ color: 'var(--text-muted)' }}>{f.num}</span>
+                  </div>
+                  <h3 className="mt-4 text-[15px] font-bold" style={{ color: 'var(--text-primary)' }}>{f.title}</h3>
+                  <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{f.desc}</p>
+                </article>
+              </Reveal>
             ))}
           </div>
         </section>
 
         {/* How it works */}
         <section id="how-it-works" className="w-full mt-16 text-left scroll-mt-24">
-          <p className="text-[11px] font-black tracking-[0.18em] uppercase" style={{ color: 'var(--accent)' }}>How it works</p>
-          <h2 className="bebas mt-2" style={{ fontSize: 'clamp(30px, 5vw, 44px)', lineHeight: 1, color: 'var(--text-primary)' }}>
-            FROM SIGN-UP TO PERSONAL BEST
-          </h2>
+          <Reveal>
+            <p className="text-[11px] font-black tracking-[0.18em] uppercase" style={{ color: 'var(--accent)' }}>How it works</p>
+            <h2 className="bebas mt-2" style={{ fontSize: 'clamp(30px, 5vw, 44px)', lineHeight: 1, color: 'var(--text-primary)' }}>
+              FROM SIGN-UP TO PERSONAL BEST
+            </h2>
+          </Reveal>
           <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-3">
-            {HOW_IT_WORKS.map((s) => (
-              <article key={s.step} className="rounded-2xl border p-5" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)' }}>
-                <span className="bebas text-[28px]" style={{ color: 'var(--accent)' }}>{s.step}</span>
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[18px]" style={{ color: 'var(--text-secondary)' }}>{s.icon}</span>
-                  <h3 className="text-[14px] font-bold" style={{ color: 'var(--text-primary)' }}>{s.title}</h3>
-                </div>
-                <p className="mt-2 text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{s.desc}</p>
-              </article>
+            {HOW_IT_WORKS.map((s, i) => (
+              <Reveal key={s.step} delay={i * 0.1}>
+                <article className="h-full rounded-2xl border p-5 hover:-translate-y-1 transition-transform" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)' }}>
+                  <span className="bebas text-[28px]" style={{ color: 'var(--accent)' }}>{s.step}</span>
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px]" style={{ color: 'var(--text-secondary)' }}>{s.icon}</span>
+                    <h3 className="text-[14px] font-bold" style={{ color: 'var(--text-primary)' }}>{s.title}</h3>
+                  </div>
+                  <p className="mt-2 text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{s.desc}</p>
+                </article>
+              </Reveal>
             ))}
           </div>
         </section>
@@ -299,7 +326,7 @@ const Landing = () => {
         {/* Download / Install */}
         <section id="download" className="w-full mt-16 scroll-mt-24 rounded-[28px] border overflow-hidden" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-secondary)' }}>
           <div className="p-6 sm:p-10 grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
-            <div>
+            <Reveal>
               <p className="text-[11px] font-black tracking-[0.18em] uppercase" style={{ color: 'var(--accent)' }}>Download</p>
               <h2 className="bebas mt-2" style={{ fontSize: 'clamp(32px, 5vw, 48px)', lineHeight: 0.95, color: 'var(--text-primary)' }}>
                 INSTALL VITALIS<br /><span className="italic font-light" style={{ color: 'var(--text-muted)' }}>LIKE A NATIVE APP.</span>
@@ -323,34 +350,40 @@ const Landing = () => {
                 <li className="flex gap-2.5"><span className="font-bold" style={{ color: 'var(--accent)' }}>2.</span> iPhone Safari: tap <strong>Share → Add to Home Screen → Add</strong>.</li>
                 <li className="flex gap-2.5"><span className="font-bold" style={{ color: 'var(--accent)' }}>3.</span> Open Vitalis from your home screen and sign in.</li>
               </ol>
-            </div>
+            </Reveal>
             <div className="grid grid-cols-1 gap-3">
-              {PWA_PERKS.map((p) => (
-                <div key={p.title} className="rounded-2xl border p-4 flex gap-3" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)' }}>
-                  <span className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center" style={{ background: 'color-mix(in srgb, var(--accent) 14%, transparent)' }}>
-                    <span className="material-symbols-outlined text-[20px]" style={{ color: 'var(--accent)' }}>{p.icon}</span>
-                  </span>
-                  <div>
-                    <p className="text-[14px] font-bold" style={{ color: 'var(--text-primary)' }}>{p.title}</p>
-                    <p className="text-[13px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>{p.desc}</p>
+              {PWA_PERKS.map((p, i) => (
+                <Reveal key={p.title} delay={i * 0.08}>
+                  <div className="rounded-2xl border p-4 flex gap-3" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)' }}>
+                    <span className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center" style={{ background: 'color-mix(in srgb, var(--accent) 14%, transparent)' }}>
+                      <span className="material-symbols-outlined text-[20px]" style={{ color: 'var(--accent)' }}>{p.icon}</span>
+                    </span>
+                    <div>
+                      <p className="text-[14px] font-bold" style={{ color: 'var(--text-primary)' }}>{p.title}</p>
+                      <p className="text-[13px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>{p.desc}</p>
+                    </div>
                   </div>
-                </div>
+                </Reveal>
               ))}
-              <div className="rounded-2xl border p-4 text-[12px] leading-relaxed" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)', color: 'var(--text-muted)' }}>
-                Already installed? Launch it from your home screen or continue in the browser — your account syncs everywhere.
-              </div>
+              <Reveal delay={0.24}>
+                <div className="rounded-2xl border p-4 text-[12px] leading-relaxed" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)', color: 'var(--text-muted)' }}>
+                  Already installed? Launch it from your home screen or continue in the browser — your account syncs everywhere.
+                </div>
+              </Reveal>
             </div>
           </div>
         </section>
 
         {/* Mission */}
         <section id="about" className="w-full mt-16 grid grid-cols-1 md:grid-cols-2 gap-3 text-left scroll-mt-24">
-          {ABOUT_MISSION_VISION.map((m) => (
-            <article key={m.title} className="rounded-2xl border p-6" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)' }}>
-              <span className="material-symbols-outlined text-[22px]" style={{ color: 'var(--accent)' }}>{m.icon}</span>
-              <h3 className="mt-2 text-[15px] font-bold" style={{ color: 'var(--text-primary)' }}>{m.title}</h3>
-              <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{m.body}</p>
-            </article>
+          {ABOUT_MISSION_VISION.map((m, i) => (
+            <Reveal key={m.title} delay={i * 0.1}>
+              <article className="h-full rounded-2xl border p-6 hover:-translate-y-1 transition-transform" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)' }}>
+                <span className="material-symbols-outlined text-[22px]" style={{ color: 'var(--accent)' }}>{m.icon}</span>
+                <h3 className="mt-2 text-[15px] font-bold" style={{ color: 'var(--text-primary)' }}>{m.title}</h3>
+                <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{m.body}</p>
+              </article>
+            </Reveal>
           ))}
         </section>
       </main>
