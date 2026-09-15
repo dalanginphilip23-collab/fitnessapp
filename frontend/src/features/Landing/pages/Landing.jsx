@@ -8,6 +8,7 @@ import usePWAInstall from '../hooks/usePWAInstall';
 import GoGreenOnboarding from '../components/GoGreenOnboarding';
 import InstallButton from '../components/InstallButton';
 import InstallGuide from '../components/InstallGuide';
+import InstallDiagnostics from '../components/InstallDiagnostics';
 import DemoVideo from '../components/DemoVideo';
 import Reveal from '../components/Reveal';
 import logo from '../../../assets/logo.png';
@@ -406,6 +407,7 @@ const Landing = () => {
               </div>
               <div className="mt-6">
                 <InstallGuide />
+                <InstallDiagnostics />
               </div>
             </Reveal>
             <div className="grid grid-cols-1 gap-3">
