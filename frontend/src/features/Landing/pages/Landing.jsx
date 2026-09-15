@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion';
@@ -6,6 +6,7 @@ import useCanHover from '../hooks/useCanHover';
 import useLiveStats from '../hooks/useLiveStats';
 import GoGreenOnboarding from '../components/GoGreenOnboarding';
 import InstallButton from '../components/InstallButton';
+import DemoVideo from '../components/DemoVideo';
 import Reveal from '../components/Reveal';
 import logo from '../../../assets/logo.png';
 import { formatCompact, HERO_AVATAR_ALPHAS, FEATURES, ABOUT_MISSION_VISION, MARQUEE_LOOP } from '../constants';
@@ -72,17 +73,57 @@ const Landing = () => {
 
   const ease = [0.22, 1, 0.36, 1];
 
+  // Parallax hero glow — drifts on scroll + leans toward the cursor.
+  // Skipped entirely when the user prefers reduced motion.
+  const glowRef = useRef(null);
+  const orbRef = useRef(null);
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        if (glowRef.current) {
+          glowRef.current.style.transform = `translate3d(0, ${window.scrollY * 0.12}px, 0)`;
+        }
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [prefersReducedMotion]);
+
+  const handleHeroMouseMove = useCallback(
+    (e) => {
+      if (prefersReducedMotion || !orbRef.current) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      orbRef.current.style.translate = `${x * 48}px ${y * 32}px`;
+    },
+    [prefersReducedMotion]
+  );
+  const handleHeroMouseLeave = useCallback(() => {
+    if (orbRef.current) orbRef.current.style.translate = '0px 0px';
+  }, []);
+
   if (showOnboarding) {
     return <GoGreenOnboarding onComplete={handleOnboardComplete} onSkip={handleOnboardSkip} onLogin={goLogin} />;
   }
 
   return (
-    <div className="min-h-[100dvh] w-full flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] overflow-x-hidden relative selection:bg-[var(--accent)] selection:text-black">
-      {/* Mesh / glow — subtle app gradient */}
-      <div className="pointer-events-none absolute inset-0">
+    <div
+      onMouseMove={handleHeroMouseMove}
+      onMouseLeave={handleHeroMouseLeave}
+      className="min-h-[100dvh] w-full flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] overflow-x-hidden relative selection:bg-[var(--accent)] selection:text-black"
+    >
+      {/* Mesh / glow — parallax layer (scroll + cursor reactive) */}
+      <div ref={glowRef} className="pointer-events-none absolute inset-0 will-change-transform">
         <div className="absolute inset-0 opacity-[0.06]" style={{ background: 'radial-gradient(ellipse 90% 70% at 50% 0%, var(--accent) 0%, transparent 55%)' }} />
         <div className="absolute inset-0 opacity-[0.04]" style={{ background: 'radial-gradient(ellipse 70% 60% at 85% 100%, #FFB74D 0%, transparent 60%)' }} />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full blur-[120px] opacity-20" style={{ background: 'var(--accent)' }} />
+        <div ref={orbRef} className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full blur-[120px] opacity-20 transition-transform duration-300 ease-out" style={{ background: 'var(--accent)' }} />
       </div>
 
       {/* Top brand bar — sticky so Download is always reachable */}
@@ -95,6 +136,7 @@ const Landing = () => {
           <nav className="hidden md:flex items-center gap-8 text-[13px] font-medium text-[var(--text-muted)]" aria-label="Sections">
             <a href="#features" className="hover:text-[var(--text-primary)] transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-[var(--text-primary)] transition-colors">How it works</a>
+            <a href="#demo" className="hover:text-[var(--text-primary)] transition-colors">Demo</a>
             <a href="#download" className="hover:text-[var(--text-primary)] transition-colors">Download</a>
           </nav>
           <div className="flex items-center gap-2.5">
@@ -314,6 +356,22 @@ const Landing = () => {
           </div>
         </section>
 
+        {/* Demo video */}
+        <section id="demo" className="w-full mt-16 scroll-mt-24 text-left">
+          <Reveal>
+            <p className="text-[11px] font-black tracking-[0.18em] uppercase" style={{ color: 'var(--accent)' }}>Watch it work</p>
+            <h2 className="bebas mt-2" style={{ fontSize: 'clamp(30px, 5vw, 44px)', lineHeight: 1, color: 'var(--text-primary)' }}>
+              SEE VITALIS IN ACTION
+            </h2>
+            <p className="mt-3 text-[14px] max-w-[560px]" style={{ color: 'var(--text-secondary)' }}>
+              A quick tour of the full loop — training plans, Vision Nutrition, activity mapping, and coaching analytics.
+            </p>
+          </Reveal>
+          <Reveal delay={0.1} className="mt-8">
+            <DemoVideo />
+          </Reveal>
+        </section>
+
         {/* Download / Install */}
         <section id="download" className="w-full mt-16 scroll-mt-24 rounded-[28px] border overflow-hidden" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-secondary)' }}>
           <div className="p-6 sm:p-10 grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
@@ -389,6 +447,7 @@ const Landing = () => {
           <div className="flex items-center gap-4 text-[11px] font-semibold" style={{ color: 'var(--text-muted)' }}>
             <a href="#features" className="hover:text-[var(--text-primary)]">Features</a>
             <a href="#how-it-works" className="hover:text-[var(--text-primary)]">How it works</a>
+            <a href="#demo" className="hover:text-[var(--text-primary)]">Demo</a>
             <a href="#download" className="hover:text-[var(--text-primary)]">Download</a>
           </div>
         </div>
