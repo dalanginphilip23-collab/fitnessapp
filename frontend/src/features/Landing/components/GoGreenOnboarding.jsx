@@ -216,6 +216,12 @@ export default function GoGreenOnboarding({ onComplete, onSkip, onLogin }) {
           </button>
         )}
 
+        {slide.ctaSecondary && (
+          <p className="text-[11px] font-medium text-[#0A1000]/55 max-w-[280px] text-center leading-relaxed">
+            Tip: after creating your account you can install Vitalis from the home page Download section.
+          </p>
+        )}
+
         <Dots total={total} active={index} onDot={goTo} />
       </div>
     </div>

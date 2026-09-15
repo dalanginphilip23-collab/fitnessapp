@@ -5,7 +5,8 @@ import usePrefersReducedMotion from '../hooks/usePrefersReducedMotion';
 import useCanHover from '../hooks/useCanHover';
 import useLiveStats from '../hooks/useLiveStats';
 import GoGreenOnboarding from '../components/GoGreenOnboarding';
-import { formatCompact, HERO_AVATAR_ALPHAS } from '../constants';
+import InstallButton from '../components/InstallButton';
+import { formatCompact, HERO_AVATAR_ALPHAS, FEATURES, ABOUT_MISSION_VISION } from '../constants';
 
 // Splash mark — same barbell+heartbeat as SplashScreen, scaled for landing
 const LogoMark = () => (
@@ -29,12 +30,26 @@ const LogoMark = () => (
   </div>
 );
 
+const HOW_IT_WORKS = [
+  { icon: 'person_add', step: '01', title: 'Create your account', desc: 'Sign up free in seconds. No credit card required — your profile, goals, and privacy stay yours.' },
+  { icon: 'fitness_center', step: '02', title: 'Track training & meals', desc: 'Log workouts, scan meals with Vision Nutrition, and map runs with the Activity Map.' },
+  { icon: 'analytics', step: '03', title: 'Get coached by data', desc: 'Adaptive Coaching and the Performance Lab turn biometrics into your next best session.' },
+];
+
+const PWA_PERKS = [
+  { icon: 'bolt', title: 'Fast & lightweight', desc: 'Installs in seconds, updates automatically — no app store needed.' },
+  { icon: 'wifi_off', title: 'Works offline', desc: 'Core screens stay available thanks to the offline-first service worker.' },
+  { icon: 'phone_iphone', title: 'Feels native', desc: 'Fullscreen standalone display with home-screen icon on Android, iOS & desktop.' },
+];
+
 const Landing = () => {
   const navigate = useNavigate();
   const prefersReducedMotion = usePrefersReducedMotion();
   const canHover = useCanHover();
   const liveStats = useLiveStats();
   const userCount = `${formatCompact(liveStats.users)}+`;
+  const workoutCount = formatCompact(liveStats.workouts || 120000);
+  const dataCount = formatCompact(liveStats.dataPoints);
 
   const goRegister = useCallback(() => navigate('/register'), [navigate]);
   const goLogin = useCallback(() => navigate('/login'), [navigate]);
@@ -60,7 +75,7 @@ const Landing = () => {
   }
 
   return (
-    <div className="h-[100dvh] w-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] overflow-hidden relative selection:bg-[var(--accent)] selection:text-black">
+    <div className="min-h-[100dvh] w-full flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] overflow-x-hidden relative selection:bg-[var(--accent)] selection:text-black">
       {/* Mesh / glow — subtle app gradient */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 opacity-[0.06]" style={{ background: 'radial-gradient(ellipse 90% 70% at 50% 0%, var(--accent) 0%, transparent 55%)' }} />
@@ -68,139 +83,176 @@ const Landing = () => {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full blur-[120px] opacity-20" style={{ background: 'var(--accent)' }} />
       </div>
 
-      {/* Top brand bar — desktop full-width */}
-      <header className="relative z-10 w-full md:max-w-[1100px] mx-auto px-6 md:px-8 pt-6 sm:pt-8 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--accent)' }}>
-            <span className="material-symbols-outlined text-[16px] text-[#0a1000]">pulse_alert</span>
+      {/* Top brand bar — sticky so Download is always reachable */}
+      <header className="sticky top-0 z-20 w-full bg-[color-mix(in_srgb,var(--bg-primary)_88%,transparent)] backdrop-blur-md border-b border-[var(--border-light)]">
+        <div className="w-full md:max-w-[1100px] mx-auto px-6 md:px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--accent)' }}>
+              <span className="material-symbols-outlined text-[16px] text-[#0a1000]">pulse_alert</span>
+            </div>
+            <span className="bebas text-[18px] tracking-[0.12em]" style={{ color: 'var(--text-primary)' }}>VITALIS</span>
           </div>
-          <span className="bebas text-[18px] tracking-[0.12em]" style={{ color: 'var(--text-primary)' }}>VITALIS</span>
+          <nav className="hidden md:flex items-center gap-8 text-[13px] font-medium text-[var(--text-muted)]" aria-label="Sections">
+            <a href="#features" className="hover:text-[var(--text-primary)] transition-colors">Features</a>
+            <a href="#how-it-works" className="hover:text-[var(--text-primary)] transition-colors">How it works</a>
+            <a href="#download" className="hover:text-[var(--text-primary)] transition-colors">Download</a>
+          </nav>
+          <div className="flex items-center gap-2.5">
+            <a
+              href="#download"
+              className="hidden sm:inline-flex items-center gap-1.5 text-[12px] font-bold tracking-[0.10em] uppercase px-4 py-2.5 rounded-full transition-colors hover:bg-[var(--bg-hover)]"
+              style={{ color: 'var(--accent)', fontFamily: 'Poppins, sans-serif' }}
+            >
+              <span className="material-symbols-outlined text-[16px]">download</span>
+              Get app
+            </a>
+            <button
+              type="button"
+              onClick={goLogin}
+              className="text-[12px] font-bold tracking-[0.10em] uppercase px-5 py-2.5 rounded-full border transition-colors hover:bg-[var(--bg-hover)] leading-[1.4]"
+              style={{ color: 'var(--text-secondary)', borderColor: 'var(--border-medium)', fontFamily: 'Poppins, sans-serif' }}
+            >
+              Sign in
+            </button>
+          </div>
         </div>
-        <div className="hidden md:flex items-center gap-8 text-[13px] font-medium text-[var(--text-muted)]">
-          <span>Features</span><span>Pricing</span><span>About</span>
-        </div>
-        <button
-          type="button"
-          onClick={goLogin}
-          className="text-[12px] font-bold tracking-[0.10em] uppercase px-5 py-2.5 rounded-full border transition-colors hover:bg-[var(--bg-hover)] leading-[1.4]"
-          style={{ color: 'var(--text-secondary)', borderColor: 'var(--border-medium)', fontFamily: 'Poppins, sans-serif' }}
-        >
-          Sign in
-        </button>
       </header>
 
-      {/* Center splash content — desktop: two-column, mobile: phone frame */}
-      <main className="relative z-10 flex-1 w-full md:max-w-[1100px] mx-auto px-6 md:px-8 flex flex-col md:flex-row md:items-center md:justify-between md:gap-16 items-center justify-center text-center md:text-left py-4 sm:py-10">
-        <div className="flex-1 w-full flex flex-col items-center md:items-start text-center md:text-left">
-        {/* Logo */}
-        <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.92 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, ease }}
-        >
-          <LogoMark />
-        </motion.div>
+      {/* Hero — desktop: two-column, mobile: stacked */}
+      <main className="relative z-10 flex-1 w-full md:max-w-[1100px] mx-auto px-6 md:px-8 flex flex-col items-center text-center md:text-left pt-10 sm:pt-14 pb-4">
+        <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between md:gap-16 items-center">
+          <div className="flex-1 w-full flex flex-col items-center md:items-start text-center md:text-left">
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, ease }}
+            >
+              <LogoMark />
+            </motion.div>
 
-        {/* Wordmark */}
-        <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.12, ease }}
-          className="mt-5 flex flex-col items-center gap-1"
-        >
-          <span className="text-[12px] font-black tracking-[0.20em] uppercase leading-[1.4]" style={{ color: 'var(--accent)', fontFamily: 'Poppins, sans-serif' }}>
-            VITALIS
-          </span>
-          <span className="text-[11px] font-semibold tracking-[0.14em] uppercase leading-[1.4]" style={{ color: 'var(--text-muted)' }}>
-            Human Performance OS
-          </span>
-        </motion.div>
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.12, ease }}
+              className="mt-5 flex flex-col items-center md:items-start gap-1"
+            >
+              <span className="text-[12px] font-black tracking-[0.20em] uppercase leading-[1.4]" style={{ color: 'var(--accent)', fontFamily: 'Poppins, sans-serif' }}>
+                VITALIS
+              </span>
+              <span className="text-[11px] font-semibold tracking-[0.14em] uppercase leading-[1.4]" style={{ color: 'var(--text-muted)' }}>
+                Human Performance OS
+              </span>
+            </motion.div>
 
-        {/* Headline — app style, not marketing hero */}
-        <motion.h1
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.2, ease }}
-          className="mt-8 bebas leading-none"
-          style={{ fontSize: 'clamp(38px, 8.5vw, 56px)', letterSpacing: '-0.02em', color: 'var(--text-primary)', lineHeight: '0.95' }}
-        >
-          BEYOND
-          <br />
-          <span className="italic font-light" style={{ color: 'var(--text-muted)' }}>FITNESS.</span>
-        </motion.h1>
+            <motion.h1
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2, ease }}
+              className="mt-8 bebas leading-none"
+              style={{ fontSize: 'clamp(38px, 8.5vw, 56px)', letterSpacing: '-0.02em', color: 'var(--text-primary)', lineHeight: '0.95' }}
+            >
+              BEYOND
+              <br />
+              <span className="italic font-light" style={{ color: 'var(--text-muted)' }}>FITNESS.</span>
+            </motion.h1>
 
-        <motion.p
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.32, ease }}
-          className="mt-4 text-[14px] leading-relaxed max-w-[330px]"
-          style={{ color: 'var(--text-secondary)', fontFamily: 'Poppins, sans-serif' }}
-        >
-          Clinical-grade biometrics, coaching & nutrition — in your pocket.
-        </motion.p>
+            <motion.p
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.32, ease }}
+              className="mt-4 text-[14px] leading-relaxed max-w-[360px]"
+              style={{ color: 'var(--text-secondary)', fontFamily: 'Poppins, sans-serif' }}
+            >
+              Clinical-grade biometrics, coaching &amp; nutrition — in your pocket. Use it in the browser or install it as an app.
+            </motion.p>
 
-        {/* Avatars + social proof — compact app row */}
-        <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.42 }}
-          className="mt-5 flex items-center gap-3"
-        >
-          <div className="flex -space-x-2">
-            {HERO_AVATAR_ALPHAS.map((pct, i) => (
-              <div
-                key={i}
-                className="w-7 h-7 rounded-full border-2 flex items-center justify-center text-[9px] font-bold"
-                style={{ borderColor: 'var(--bg-primary)', background: `color-mix(in srgb, var(--accent) ${pct + 20}%, var(--bg-secondary))`, color: 'var(--text-primary)' }}
-              >
-                •
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.42 }}
+              className="mt-5 flex items-center gap-3"
+            >
+              <div className="flex -space-x-2">
+                {HERO_AVATAR_ALPHAS.map((pct, i) => (
+                  <div
+                    key={i}
+                    className="w-7 h-7 rounded-full border-2 flex items-center justify-center text-[9px] font-bold"
+                    style={{ borderColor: 'var(--bg-primary)', background: `color-mix(in srgb, var(--accent) ${pct + 20}%, var(--bg-secondary))`, color: 'var(--text-primary)' }}
+                  >
+                    •
+                  </div>
+                ))}
               </div>
-            ))}
+              <span className="text-[12px] font-medium leading-[1.5]" style={{ color: 'var(--text-muted)' }}>
+                Joined by <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{userCount}</span> athletes
+              </span>
+            </motion.div>
+
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.52, ease }}
+              className="mt-8 w-full flex flex-col gap-3 max-w-[380px]"
+            >
+              <InstallButton label="Download App — It's Free" />
+              <button
+                type="button"
+                onClick={goRegister}
+                className="w-full h-[52px] rounded-full font-bold text-[12px] tracking-[0.12em] uppercase border transition-colors hover:bg-[var(--bg-hover)] active:scale-[0.98]"
+                style={{ background: 'transparent', color: 'var(--text-primary)', borderColor: 'var(--border-medium)' }}
+              >
+                Continue on web — Get Started
+              </button>
+              <button
+                type="button"
+                onClick={goLogin}
+                className="text-[12px] font-semibold hover:underline bg-transparent border-none cursor-pointer"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                I already have an account
+              </button>
+              <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                No credit card required • Cancel anytime • Works on Android, iPhone &amp; desktop
+              </p>
+            </motion.div>
           </div>
-          <span className="text-[12px] font-medium leading-[1.5]" style={{ color: 'var(--text-muted)' }}>
-            Joined by <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{userCount}</span> athletes
-          </span>
-        </motion.div>
 
-        {/* CTAs — stacked, thumb-friendly mobile splash */}
-        <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.52, ease }}
-          className="mt-8 w-full flex flex-col gap-3"
-        >
-          <button
-            type="button"
-            onClick={goRegister}
-            className="w-full h-[52px] rounded-full font-black text-[12px] tracking-[0.14em] uppercase transition-all hover:scale-[1.01] active:scale-[0.98] shadow-lg"
-            style={{ background: 'var(--accent)', color: '#0a1000', boxShadow: '0 10px 30px rgba(139,195,74,0.28)' }}
-          >
-            Get Started — It&apos;s Free
-          </button>
-          <button
-            type="button"
-            onClick={goLogin}
-            className="w-full h-[52px] rounded-full font-bold text-[12px] tracking-[0.12em] uppercase border transition-colors hover:bg-[var(--bg-hover)] active:scale-[0.98]"
-            style={{ background: 'transparent', color: 'var(--text-primary)', borderColor: 'var(--border-medium)' }}
-          >
-            I already have an account
-          </button>
-          <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-            No credit card required • Cancel anytime
-          </p>
-        </motion.div>
+          <div className="hidden md:flex flex-1 justify-center items-center">
+            <div className="w-[420px] rounded-[32px] bg-[var(--bg-secondary)] border border-[var(--border-light)] p-8 shadow-xl">
+              <div className="flex justify-center"><div className="scale-[1.2]"><LogoMark /></div></div>
+              <div className="mt-6 rounded-2xl border border-[var(--border-light)] bg-[var(--bg-primary)] p-5 text-left">
+                <p className="text-[11px] font-bold tracking-[0.14em] uppercase" style={{ color: 'var(--accent)' }}>Today&apos;s readiness</p>
+                <p className="bebas mt-1" style={{ fontSize: 44, lineHeight: 1, color: 'var(--text-primary)' }}>92<span style={{ fontSize: 20, color: 'var(--text-muted)' }}> / 100</span></p>
+                <div className="mt-3 h-2 rounded-full overflow-hidden" style={{ background: 'var(--border-light)' }}>
+                  <div className="h-full w-[92%] rounded-full" style={{ background: 'var(--accent)' }} />
+                </div>
+                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                  {[{ v: workoutCount, l: 'Workouts' }, { v: dataCount, l: 'Data pts' }, { v: userCount, l: 'Athletes' }].map((s) => (
+                    <div key={s.l} className="rounded-xl border border-[var(--border-light)] py-2.5 px-1">
+                      <p className="text-[14px] font-bold" style={{ color: 'var(--text-primary)' }}>{s.v}</p>
+                      <p className="text-[10px] uppercase tracking-[0.08em]" style={{ color: 'var(--text-muted)' }}>{s.l}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-4"><InstallButton variant="secondary" label="Install on this device" className="w-full" /></div>
+            </div>
+          </div>
+        </div>
 
-        {/* Tiny feature pills — app onboarding, not landing sections */}
+        {/* Feature pills */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.62 }}
-          className="mt-8 flex flex-wrap justify-center md:justify-start gap-2 max-w-[340px]"
+          className="mt-8 flex flex-wrap justify-center gap-2 max-w-[520px]"
         >
-            {[
+          {[
             { icon: 'bolt', label: 'Adaptive Coaching' },
             { icon: 'camera', label: 'Vision Meals' },
             { icon: 'analytics', label: 'Biometrics' },
+            { icon: 'map', label: 'Activity Map' },
+            { icon: 'shield_lock', label: 'Vault Privacy' },
           ].map((f) => (
             <span
               key={f.label}
@@ -214,22 +266,124 @@ const Landing = () => {
             </span>
           ))}
         </motion.div>
-        </div>
-        {/* Desktop right visual — hidden on mobile, shows large mark */}
-        <div className="hidden md:flex flex-1 justify-center items-center">
-          <div className="w-[420px] h-[420px] rounded-[32px] bg-[var(--bg-secondary)] border border-[var(--border-light)] flex items-center justify-center shadow-xl">
-            <div className="scale-[1.6]"><LogoMark /></div>
+
+        {/* System details — Features */}
+        <section id="features" className="w-full mt-20 text-left scroll-mt-24">
+          <p className="text-[11px] font-black tracking-[0.18em] uppercase" style={{ color: 'var(--accent)' }}>The system</p>
+          <h2 className="bebas mt-2" style={{ fontSize: 'clamp(30px, 5vw, 44px)', lineHeight: 1, color: 'var(--text-primary)' }}>
+            EVERYTHING YOU NEED TO PERFORM
+          </h2>
+          <p className="mt-3 text-[14px] max-w-[560px]" style={{ color: 'var(--text-secondary)' }}>
+            Vitalis combines training plans, meal tracking, activity mapping, and clinical-grade analytics in one Human Performance OS.
+          </p>
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {FEATURES.map((f) => (
+              <article key={f.num} className="rounded-2xl border p-5 bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] transition-colors" style={{ borderColor: 'var(--border-light)' }}>
+                <div className="flex items-start justify-between">
+                  <span className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'color-mix(in srgb, var(--accent) 14%, transparent)' }}>
+                    <span className="material-symbols-outlined text-[20px]" style={{ color: 'var(--accent)' }}>{f.icon}</span>
+                  </span>
+                  <span className="bebas text-[18px]" style={{ color: 'var(--text-muted)' }}>{f.num}</span>
+                </div>
+                <h3 className="mt-4 text-[15px] font-bold" style={{ color: 'var(--text-primary)' }}>{f.title}</h3>
+                <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{f.desc}</p>
+              </article>
+            ))}
           </div>
-        </div>
+        </section>
+
+        {/* How it works */}
+        <section id="how-it-works" className="w-full mt-16 text-left scroll-mt-24">
+          <p className="text-[11px] font-black tracking-[0.18em] uppercase" style={{ color: 'var(--accent)' }}>How it works</p>
+          <h2 className="bebas mt-2" style={{ fontSize: 'clamp(30px, 5vw, 44px)', lineHeight: 1, color: 'var(--text-primary)' }}>
+            FROM SIGN-UP TO PERSONAL BEST
+          </h2>
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-3">
+            {HOW_IT_WORKS.map((s) => (
+              <article key={s.step} className="rounded-2xl border p-5" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)' }}>
+                <span className="bebas text-[28px]" style={{ color: 'var(--accent)' }}>{s.step}</span>
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[18px]" style={{ color: 'var(--text-secondary)' }}>{s.icon}</span>
+                  <h3 className="text-[14px] font-bold" style={{ color: 'var(--text-primary)' }}>{s.title}</h3>
+                </div>
+                <p className="mt-2 text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{s.desc}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* Download / Install */}
+        <section id="download" className="w-full mt-16 scroll-mt-24 rounded-[28px] border overflow-hidden" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-secondary)' }}>
+          <div className="p-6 sm:p-10 grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+            <div>
+              <p className="text-[11px] font-black tracking-[0.18em] uppercase" style={{ color: 'var(--accent)' }}>Download</p>
+              <h2 className="bebas mt-2" style={{ fontSize: 'clamp(32px, 5vw, 48px)', lineHeight: 0.95, color: 'var(--text-primary)' }}>
+                INSTALL VITALIS<br /><span className="italic font-light" style={{ color: 'var(--text-muted)' }}>LIKE A NATIVE APP.</span>
+              </h2>
+              <p className="mt-3 text-[14px] leading-relaxed max-w-[420px]" style={{ color: 'var(--text-secondary)' }}>
+                Vitalis is a Progressive Web App. Tap Download on Android or desktop to install it instantly. On iPhone, use Safari&apos;s Share menu — no App Store needed.
+              </p>
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <InstallButton label="Download App" />
+                <button
+                  type="button"
+                  onClick={goRegister}
+                  className="inline-flex items-center justify-center h-[52px] px-7 rounded-full font-bold text-[12px] tracking-[0.12em] uppercase border transition-colors hover:bg-[var(--bg-hover)]"
+                  style={{ color: 'var(--text-primary)', borderColor: 'var(--border-medium)' }}
+                >
+                  Try on web first
+                </button>
+              </div>
+              <ol className="mt-6 space-y-2.5 text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+                <li className="flex gap-2.5"><span className="font-bold" style={{ color: 'var(--accent)' }}>1.</span> Android / Chrome / Edge: tap <strong>Download App</strong> and confirm Install.</li>
+                <li className="flex gap-2.5"><span className="font-bold" style={{ color: 'var(--accent)' }}>2.</span> iPhone Safari: tap <strong>Share → Add to Home Screen → Add</strong>.</li>
+                <li className="flex gap-2.5"><span className="font-bold" style={{ color: 'var(--accent)' }}>3.</span> Open Vitalis from your home screen and sign in.</li>
+              </ol>
+            </div>
+            <div className="grid grid-cols-1 gap-3">
+              {PWA_PERKS.map((p) => (
+                <div key={p.title} className="rounded-2xl border p-4 flex gap-3" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)' }}>
+                  <span className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center" style={{ background: 'color-mix(in srgb, var(--accent) 14%, transparent)' }}>
+                    <span className="material-symbols-outlined text-[20px]" style={{ color: 'var(--accent)' }}>{p.icon}</span>
+                  </span>
+                  <div>
+                    <p className="text-[14px] font-bold" style={{ color: 'var(--text-primary)' }}>{p.title}</p>
+                    <p className="text-[13px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>{p.desc}</p>
+                  </div>
+                </div>
+              ))}
+              <div className="rounded-2xl border p-4 text-[12px] leading-relaxed" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)', color: 'var(--text-muted)' }}>
+                Already installed? Launch it from your home screen or continue in the browser — your account syncs everywhere.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Mission */}
+        <section id="about" className="w-full mt-16 grid grid-cols-1 md:grid-cols-2 gap-3 text-left scroll-mt-24">
+          {ABOUT_MISSION_VISION.map((m) => (
+            <article key={m.title} className="rounded-2xl border p-6" style={{ borderColor: 'var(--border-light)', background: 'var(--bg-primary)' }}>
+              <span className="material-symbols-outlined text-[22px]" style={{ color: 'var(--accent)' }}>{m.icon}</span>
+              <h3 className="mt-2 text-[15px] font-bold" style={{ color: 'var(--text-primary)' }}>{m.title}</h3>
+              <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{m.body}</p>
+            </article>
+          ))}
+        </section>
       </main>
 
       {/* Bottom — minimal, safe-area aware */}
-      <footer className="relative z-10 w-full md:max-w-[1100px] mx-auto px-6 md:px-8 pb-6 sm:pb-8 pt-2 flex flex-col items-center gap-2 shrink-0">
+      <footer className="relative z-10 w-full md:max-w-[1100px] mx-auto px-6 md:px-8 pb-6 sm:pb-8 pt-8 flex flex-col items-center gap-3 shrink-0">
         <div className="h-px w-full" style={{ background: 'var(--border-light)' }} />
-        <p className="text-[10px] font-medium tracking-wide text-center" style={{ color: 'var(--text-muted)' }}>
-          © 2026 Vitalis Labs • Privacy • Terms
-        </p>
-        {/* iOS home indicator mimic */}
+        <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-[11px] font-medium tracking-wide text-center" style={{ color: 'var(--text-muted)' }}>
+            © 2026 Vitalis Labs • Privacy • Terms
+          </p>
+          <div className="flex items-center gap-4 text-[11px] font-semibold" style={{ color: 'var(--text-muted)' }}>
+            <a href="#features" className="hover:text-[var(--text-primary)]">Features</a>
+            <a href="#how-it-works" className="hover:text-[var(--text-primary)]">How it works</a>
+            <a href="#download" className="hover:text-[var(--text-primary)]">Download</a>
+          </div>
+        </div>
         <div className="mt-1 w-32 h-1 rounded-full opacity-60 sm:hidden" style={{ background: 'var(--text-muted)' }} />
       </footer>
     </div>
